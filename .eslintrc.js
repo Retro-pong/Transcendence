@@ -14,5 +14,7 @@ module.exports = {
     'prettier/prettier': 'error',
     'linebreak-style': 0,
     'no-console': 'off',
+    'import/no-extraneous-dependencies': 0,
+    'import/no-unresolved': 0,
   },
 };
