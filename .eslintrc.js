@@ -16,5 +16,10 @@ module.exports = {
     'no-console': 'off',
     'import/no-extraneous-dependencies': 0,
     'import/no-unresolved': 0,
+    'no-restricted-globals': 'off',
+    'no-use-before-define': 'off',
+    'class-methods-use-this': 'off',
+    'no-shadow': 'off',
+    'import/extensions': 'off',
   },
 };
