@@ -3,7 +3,7 @@ const path = require('path');
 
 const app = express();
 
-app.use('/js', express.static(path.resolve(__dirname, 'src', 'js')));
+app.use('/src', express.static(path.resolve(__dirname, 'src')));
 
 app.get('/*', (req, res) => {
   res.sendFile(path.resolve(__dirname, 'src', 'index.html'));
@@ -11,7 +11,6 @@ app.get('/*', (req, res) => {
 
 app.listen(process.env.PORT || 3000, () => console.log('Server is running...'));
 
-// api 예시입니다 maybe?
 // const bodyParser = require('body-parser');
 // const data = require('./data.json');
 
