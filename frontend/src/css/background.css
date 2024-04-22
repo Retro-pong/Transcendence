@@ -409,7 +409,7 @@
 }
 
 .top > div, .left > div, .right > div, .bottom > div, .top > div::before, .top > div::after, .left > div::before, .left > div::after, .right > div::before, .right > div::after, .bottom > div::before, .bottom > div::after {
-  box-shadow: 0 0 15px rgba(0, 255, 255, 0.7); 
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.7); 
 }
 
 .top > div, .left > div, .right > div, .bottom > div {
