@@ -3,6 +3,7 @@ import Main from './pages/Main.js';
 import Profile from './pages/Profile.js';
 
 const navigateTo = (url) => {
+  if (url === window.location.href) return;
   history.pushState(null, null, url);
   router();
 };
