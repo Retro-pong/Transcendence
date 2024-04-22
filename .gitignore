@@ -4,6 +4,7 @@
 
 .idea/
 ./backend/venv/
+./backend/.idea/
 
 # User-specific stuff
 .idea/**/workspace.xml
