@@ -1,0 +1,14 @@
+@charset "UTF-8";
+html {
+  font-size: 16px;
+  background-color: #1f023c;
+}
+
+#app {
+  position: relative;
+  top: 50%;
+  left: 50%;
+  width: 100px;
+  height: 100px;
+  background-color: #ffffff;
+}
