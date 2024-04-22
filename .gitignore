@@ -3,7 +3,7 @@
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
 .idea/
-./backend/venv/
+./venv/
 ./backend/.idea/
 
 # User-specific stuff
