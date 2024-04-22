@@ -6,9 +6,9 @@ html {
 
 #app {
   position: relative;
-  top: 50%;
-  left: 50%;
-  width: 100px;
-  height: 100px;
+  top: 9rem;
+  left: 9rem;
+  width: calc(100% - 18rem);
+  height: calc(100vh - 18rem);
   background-color: #ffffff;
 }
