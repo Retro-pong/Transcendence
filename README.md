@@ -1,4 +1,4 @@
-# Transendence_server
+# Transendence
 
 [Link to Notion](https://www.notion.so/42seoul8/ft_transcendence-fa1eec1e48d84806ac687065c5f3ba9c?pvs=4)  
 
