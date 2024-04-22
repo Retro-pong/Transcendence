@@ -1,3 +1,4 @@
+import './scss/styles.scss';
 import Login from './pages/Login.js';
 import Main from './pages/Main.js';
 import Profile from './pages/Profile.js';
