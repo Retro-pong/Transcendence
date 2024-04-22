@@ -2,6 +2,7 @@
 html {
   font-size: 16px;
   background-color: #1f023c;
+  color: #ffffff;
 }
 
 #app {
@@ -10,5 +11,4 @@ html {
   left: 9rem;
   width: calc(100% - 18rem);
   height: calc(100vh - 18rem);
-  background-color: #ffffff;
 }
