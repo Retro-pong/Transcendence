@@ -1,0 +1,432 @@
+.background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+@keyframes box-ani-1 {
+  0% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(0px, 0.4rem);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes box-ani-2 {
+  0% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(0px, 0.4rem) scale(1.03);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes box-ani-3 {
+  0% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(0px, 0.4rem) scale(1.05);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+.top {
+  width: 100%;
+  height: 8rem;
+  position: absolute;
+
+  .top-element-1 {
+    width: 40rem;
+    height: 1.6rem;
+    top: 1rem;
+    left: 12rem;
+    animation: box-ani-1 4s linear infinite;
+  }
+  .top-element-1::before {
+    width: 40rem;
+    height: 1.6rem;
+    top: 1rem;
+    left: -5rem;
+  }
+  .top-element-1::after {
+    width: 40rem;
+    height: 1.6rem;
+    top: -1.2rem;
+    left: -3rem;
+  }
+
+  .top-element-2 {
+    width: 6rem;
+    height: 1.6rem;
+    top: 3rem;
+    left: 60rem;
+    animation: box-ani-2 4s linear infinite;
+  }
+  .top-element-2::before {
+    width: 6rem;
+    height: 1.6rem;
+    top: 0.5rem;
+    left: -1.3rem;
+  }
+  .top-element-2::after {
+    width: 6rem;
+    height: 1.6rem;
+    top: -2rem;
+    left: -3rem;
+  }
+
+  .top-element-3 {
+    width: 4rem;
+    height: 1.6rem;
+    top: 1.5rem;
+    left: 70rem;
+    animation: box-ani-3 4s linear infinite;
+  }
+  .top-element-3::before {
+    width: 4rem;
+    height: 1.6rem;
+    top: -0.5rem;
+    left: 3rem;
+  }
+  .top-element-3::after {
+    width: 4rem;
+    height: 1.6rem;
+    top: 0rem;
+    left: 5rem;
+  }
+
+  .top-element-4 {
+    width: 8rem;
+    height: 1.6rem;
+    top: 1rem;
+    left: 80rem;
+    animation: box-ani-2 4s linear infinite;
+  }
+  .top-element-4::before {
+    width: 5rem;
+    height: 1.6rem;
+    top: 1rem;
+    left: 4rem;
+  }
+  .top-element-4::after {
+    width: 3rem;
+    height: 1.6rem;
+    top: 0rem;
+    left: 7rem;
+  }
+
+  .top-element-5 {
+    width: 8rem;
+    height: 1.6rem;
+    top: 2.5rem;
+    left: 93rem;
+    animation: box-ani-1 4s linear infinite;
+  }
+  .top-element-5::before {
+    width: 8rem;
+    height: 1.6rem;
+    top: 0.5rem;
+    left: 0.5rem;
+  }
+  .top-element-5::after {
+    width: 2rem;
+    height: 3rem;
+    top: -3rem;
+    left: 11rem;
+  }
+}
+
+.left {
+  width: 8rem;
+  height: 100%;
+  position: absolute;
+
+  .left-element-1 {
+    width: 1.6rem;
+    height: 3rem;
+    top: 6rem;
+    left: 2.5rem;
+    animation: box-ani-2 4s linear infinite;
+  }
+  .left-element-1::before {
+    width: 1.6rem;
+    height: 3rem;
+    top: -1rem;
+    left: -0.5rem;
+  }
+  .left-element-1::after {
+    width: 1.6rem;
+    height: 8rem;
+    top: -0.5rem;
+    left: 2.2rem;
+  }
+
+  .left-element-2 {
+    width: 1.6rem;
+    height: 7rem;
+    top: 14rem;
+    left: 2.5rem;
+    animation: box-ani-3 4s linear infinite;
+  }
+  .left-element-2::before {
+    width: 1.6rem;
+    height: 7rem;
+    top: 4rem;
+    left: -0.5rem;
+  }
+  .left-element-2::after {
+    width: 1.6rem;
+    height: 2rem;
+    top: -1rem;
+    left: -1rem;
+  }
+
+  .left-element-3 {
+    width: 1.6rem;
+    height: 3rem;
+    top: 26rem;
+    left: 1.5rem;
+    animation: box-ani-2 4s linear infinite;
+  }
+  .left-element-3::before {
+    width: 1.6rem;
+    height: 4rem;
+    top: 5rem;
+    left: -0.5rem;
+  }
+  .left-element-3::after {
+    width: 1.6rem;
+    height: 8rem;
+    top: -2rem;
+    left: 2.5rem;
+  }
+
+  .left-element-4 {
+    width: 1.6rem;
+    height: 5rem;
+    top: 39rem;
+    left: 2rem;
+    animation: box-ani-1 4s linear infinite;
+  }
+  .left-element-4::before {
+    width: 1.6rem;
+    height: 5rem;
+    top: 1rem;
+    left: 1rem;
+  }
+  .left-element-4::after {
+    width: 1.6rem;
+    height: 7rem;
+    top: -3rem;
+    left: 0.5rem;
+  }
+}
+
+.right {
+  width: 8rem;
+  height: 100%;
+  position: absolute;
+  right: 0;
+
+  .right-element-1 {
+    width: 1.6rem;
+    height: 5rem;
+    top: 10rem;
+    left: 5rem;
+    animation: box-ani-2 4s linear infinite;
+  }
+  .right-element-1::before {
+    width: 1.6rem;
+    height: 3rem;
+    top: -5rem;
+    left: -2rem;
+  }
+  .right-element-1::after {
+    width: 1.6rem;
+    height: 3rem;
+    top: -7.5rem;
+    left: -1.5rem;
+  }
+
+  .right-element-2 {
+    width: 1.6rem;
+    height: 3rem;
+    top: 13rem;
+    left: 2rem;
+    animation: box-ani-3 4s linear infinite;
+  }
+  .right-element-2::before {
+    width: 1.6rem;
+    height: 3rem;
+    top: -1rem;
+    left: -0.5rem;
+  }
+  .right-element-2::after {
+    width: 1.6rem;
+    height: 3rem;
+    top: -1.5rem;
+    left: -1rem;
+  }
+
+  .right-element-3 {
+    width: 1.6rem;
+    height: 10rem;
+    top: 24rem;
+    left: 4rem;
+    animation: box-ani-2 4s linear infinite;
+  }
+  .right-element-3::before {
+    width: 1.6rem;
+    height: 10rem;
+    top: -0.5rem;
+    left: -0.5rem;
+  }
+  .right-element-3::after {
+    width: 1.6rem;
+    height: 3rem;
+    top: -15rem;
+    left: -1.5rem;
+  }
+
+  .right-element-4 {
+    width: 1.6rem;
+    height: 5rem;
+    top: 35rem;
+    left: 5rem;
+    animation: box-ani-1 4s linear infinite;
+  }
+  .right-element-4::before {
+    width: 1.6rem;
+    height: 3rem;
+    top: 6rem;
+    left: -2rem;
+  }
+  .right-element-4::after {
+    width: 1.6rem;
+    height: 3rem;
+    top: 3rem;
+    left: -1.5rem;
+  }
+}
+
+.bottom {
+  width: 100%;
+  height: 8rem;
+  position: absolute;
+  bottom: 0;
+
+  .bottom-element-1 {
+    width: 25rem;
+    height: 1.6rem;
+    top: 4rem;
+    left: 8rem;
+    animation: box-ani-2 4s linear infinite;
+  }
+  .bottom-element-1::before {
+    width: 25rem;
+    height: 1.6rem;
+    top: -0.5rem;
+    left: -1rem;
+  }
+  .bottom-element-1::after {
+    width: 15rem;
+    height: 1.6rem;
+    top: -1rem;
+    left: 2.2rem;
+  }
+
+  .bottom-element-2 {
+    width: 12rem;
+    height: 1.6rem;
+    top: 5.5rem;
+    left: 40rem;
+    animation: box-ani-3 4s linear infinite;
+  }
+  .bottom-element-2::before {
+    width: 15rem;
+    height: 1.6rem;
+    top: -0.5rem;
+    left: 3rem;
+  }
+  .bottom-element-2::after {
+    width: 10rem;
+    height: 1.6rem;
+    top: -4rem;
+    left: 13rem;
+  }
+
+  .bottom-element-3 {
+    width: 27rem;
+    height: 1.6rem;
+    top: 3.5rem;
+    left: 70rem;
+    animation: box-ani-2 4s linear infinite;
+  }
+  .bottom-element-3::before {
+    width: 23rem;
+    height: 1.6rem;
+    top: 1rem;
+    left: -1rem;
+  }
+  .bottom-element-3::after {
+    width: 13rem;
+    height: 1.6rem;
+    top: -2.5rem;
+    left: 2.2rem;
+  }
+
+  .bottom-element-4 {
+    width: 5rem;
+    height: 1.6rem;
+    top: 4.5rem;
+    left: 100rem;
+    animation: box-ani-1 4s linear infinite;
+  }
+  .bottom-element-4::before {
+    width: 3rem;
+    height: 1.6rem;
+    top: -2rem;
+    left: 6rem;
+  }
+  .bottom-element-4::after {
+    width: 3rem;
+    height: 1.6rem;
+    top: -3rem;
+    left: 5.5rem;
+  }
+}
+
+.top > div, .left > div, .right > div, .bottom > div, .top > div::before, .top > div::after, .left > div::before, .left > div::after, .right > div::before, .right > div::after, .bottom > div::before, .bottom > div::after {
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.7); 
+}
+
+.top > div, .left > div, .right > div, .bottom > div {
+  background-color: #00ffff;
+  position: absolute;
+}
+
+.top > div::before, .left > div::before, .right > div::before, .bottom > div::before {
+  background-color: #ff00fe;
+  content: " ";
+  display: block;
+  position: relative;
+}
+
+.top > div::after, .left > div::after, .right > div::after, .bottom > div::after {
+  background-color: #ffffff;
+  content: " ";
+  display: block;
+  position: relative;
+}
