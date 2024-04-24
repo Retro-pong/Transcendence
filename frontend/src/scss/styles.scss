@@ -1,1 +1,26 @@
+@charset "UTF-8";
 @import 'bootstrap/scss/bootstrap';
+
+html {
+    font-size: 16px;
+    background-color: #1f023c;
+    color: #ffffff;
+  }
+  
+  /* v1 */
+  /* #app {
+    position: relative;
+    top: 9rem;
+    left: 9rem;
+    width: calc(100vw - 18rem);
+    height: calc(100vh - 18rem);
+  } */
+  
+  /* v2 */
+  #app {
+    position: relative;
+    top: 7rem;
+    left: 15rem;
+    width: calc(100vw - 30rem);
+    height: calc(100vh - 14rem);
+  }
