@@ -1,10 +1,12 @@
 from django.urls import path
 
-from . import views
+from .views import IntraView, EmailView, TestView
 
 
 app_name = "login"
 
 urlpatterns = [
-    # TODO: 추가 예정 (e.g. intra, 2factor, logout, ...)
+    path("intra/", IntraView.as_view(), name="intra_login"),
+    path("email/", EmailView.as_view(), name="email_login"),
+    path("test/", TestView.as_view(), name="test"),
 ]

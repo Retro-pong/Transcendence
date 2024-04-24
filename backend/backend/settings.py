@@ -31,8 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    "channels"
-    # "Login.apps.LoginConfig",
+    "channels",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -40,7 +39,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
-    "rest_framework_simplejwt",
+    # "rest_framework_authtoken",  # OAuth
+    "rest_framework_simplejwt",  # JWT
+    "rest_framework_swagger",  # Swagger
+    "drf_yasg",  # Swagger generator
 ]
 
 MIDDLEWARE = [
