@@ -1,4 +1,5 @@
 import './scss/styles.scss';
+import drawBackground from './background/background.js';
 import Login from './pages/Login.js';
 import Main from './pages/Main.js';
 import Profile from './pages/Profile.js';
@@ -33,3 +34,5 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   router();
 });
+
+drawBackground();
