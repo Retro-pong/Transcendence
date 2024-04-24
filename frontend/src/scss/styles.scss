@@ -1,10 +1,16 @@
 @charset "UTF-8";
+@import 'bootstrap/scss/bootstrap';
+
 html {
   font-size: 16px;
   background-color: #1f023c;
   color: #ffffff;
 }
 
+:root {
+    --bs-body-color: #ffffff;
+    --bs-body-bg: #1f023c;
+}
 /* v1 */
 /* #app {
   position: relative;
