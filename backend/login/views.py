@@ -2,19 +2,22 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from users.models import User
 from django.shortcuts import render
 
 
-# class IntraView(APIView):
-#     return Response("email")
+class IntraView(APIView):
+    def get(self, request):
+        return Response("intra")
+
 
 class EmailLoginView(APIView):
-    return Response("email")
+    def post(self, request):
+        return Response("email")
+
 
 class EmailRegisterView(APIView):
     def post(self, request):
-    return Response("register")
+        return Response("register")
 
 
 class TestView(APIView):
