@@ -39,8 +39,6 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
-    # "rest_framework_authtoken",  # OAuth
-    "rest_framework_simplejwt",  # JWT
     "rest_framework_swagger",  # Swagger
     "drf_yasg",  # Swagger generator
 ]
