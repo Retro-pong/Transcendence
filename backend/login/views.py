@@ -1,4 +1,5 @@
 from rest_framework.views import APIView
+from rest_framework import status
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -33,7 +34,7 @@ class EmailRegisterView(APIView):
             return Response("User created")
         else:
             errors = serializer.errors
-            return JsonResponse(serializer.errors, status=400)
+            return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class TestView(APIView):
