@@ -1,4 +1,7 @@
 from rest_framework import serializers
+from users.models import User
 
-# class loginSeializer(serializers.Serializer):
-#     # TODO: 추가 예정
+class RegisterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username', 'password', 'email']
