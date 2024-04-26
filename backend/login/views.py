@@ -8,12 +8,8 @@ from .serializers import RegisterSerializer
 from users.models import User
 
 
-class IntraLoginView(APIView):
+class IntraView(APIView):
     def get(self, request):
-        return Response("intra")
-
-class IntraRegisterView(APIView):
-    def post(self, request):
         return Response("intra")
 
 class EmailLoginView(APIView):
@@ -24,19 +20,20 @@ class EmailLoginView(APIView):
 class EmailRegisterView(APIView):
     @swagger_auto_schema(
         tags=["login"],  # Api 이름
-        operation_description="",  # 기능 설명
+        operation_description="email 회원가입",  # 기능 설명
         request_body=RegisterSerializer,
-        responses={},  # 할당된 요청
+        responses={400: 'BAD_REQUEST',
+                   500: 'SERVER_ERROR'},  # 할당된 요청
     )
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             # 유효한 데이터일 경우, 저장
             serializer.save()
-            return Response("good access")
+            return Response("User created")
         else:
-            # 유효하지 않은 데이터일 경우 에러 메시지 반환
-            return Response(serializer.errors)
+            errors = serializer.errors
+            return JsonResponse(serializer.errors, status=400)
 
 
 class TestView(APIView):
