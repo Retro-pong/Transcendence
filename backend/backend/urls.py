@@ -43,17 +43,17 @@ urlpatterns = [
 
 if settings.DEBUG:
     urlpatterns += [
-        re_path(
+        re_path(  # http://127.0.0.1:8000/swagger/
             r"^swagger(?P<format>\.json|\.yaml)$",
             schema_view.without_ui(cache_timeout=0),
             name="schema-json",
         ),
-        re_path(
+        re_path(  # http://127.0.0.1:8000/redoc/
             r"^swagger/$",
             schema_view.with_ui("swagger", cache_timeout=0),
             name="schema-swagger-ui",
         ),
-        re_path(
+        re_path(  # http://localhost:8000/swagger/?format=openapi
             r"^redoc/$",
             schema_view.with_ui("redoc", cache_timeout=0),
             name="schema-redoc",

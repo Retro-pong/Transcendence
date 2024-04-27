@@ -4,7 +4,7 @@ from django.db import models
 
 class UserManager(BaseUserManager):
     # Overriding the create_user method
-    def create_user(self, username, email, password, **extra_fields):
+    def create_user(self, username, email, password):
         if not username:
             raise ValueError("닉네임을 입력하세요")
         if not email:
