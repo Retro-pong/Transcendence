@@ -15,8 +15,19 @@ class Login extends PageComponent {
       </p>
       <p>
         <a href="/main" data-link>Main</a>
+        <button id="registerBtn" class="btn btn-primary">register button</button>
       </p>
       `;
+  }
+
+  async afterRender() {
+    const registerBtn = document.getElementById('registerBtn');
+    console.log(registerBtn);
+    if (registerBtn) {
+      registerBtn.addEventListener('click', () => {
+        alert('register button clicked');
+      });
+    }
   }
 }
 
