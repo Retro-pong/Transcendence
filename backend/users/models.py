@@ -25,6 +25,10 @@ class User(AbstractUser):
     username = models.CharField(max_length=10, null=False, unique=True)
     email = models.EmailField(max_length=20, null=False, unique=True)
     is_authenticated = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=False)
+    win = models.IntegerField(default=0)
+    lose = models.IntegerField(default=0)
+    image = models.ImageField(default="images/default_image.png", null=True, blank=True)
 
     objects = UserManager()
 
