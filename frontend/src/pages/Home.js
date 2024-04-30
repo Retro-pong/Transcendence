@@ -1,7 +1,7 @@
 import PageComponent from '@component/PageComponent.js';
 import NavLink from '@component/NavLink.js';
 
-class Main extends PageComponent {
+class Home extends PageComponent {
   constructor() {
     super();
     this.setTitle('RETRO PONG!');
@@ -28,4 +28,4 @@ class Main extends PageComponent {
   }
 }
 
-export default Main;
+export default Home;

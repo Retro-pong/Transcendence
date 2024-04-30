@@ -1,6 +1,6 @@
 import Profile from '@pages/Profile.js';
 import Login from '@pages/Login.js';
-import Main from '@pages/Main.js';
+import Home from '@pages/Home.js';
 import drawBackground from '@/background/background.js';
 
 const navigateTo = (url) => {
@@ -12,7 +12,7 @@ const navigateTo = (url) => {
 // 동적라우팅 추가 필요
 const router = async () => {
   const routes = {
-    '/': Main,
+    '/': Home,
     '/login': Login,
     '/profile': Profile,
   };

@@ -7,7 +7,7 @@ const NavBar = () => {
       path: '/login',
     },
     {
-      text: 'Main',
+      text: 'Home',
       path: '/',
     },
     {

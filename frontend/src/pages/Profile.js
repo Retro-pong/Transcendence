@@ -14,7 +14,7 @@ class Profile extends PageComponent {
         This is Profile Page
       </p>
       <p>
-        <a href="/" data-link>Main</a>
+        <a href="/" data-link>Home</a>
       </p>
       `;
   }
