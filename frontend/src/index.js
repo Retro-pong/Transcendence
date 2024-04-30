@@ -20,7 +20,7 @@ const router = async () => {
   const page = new routes[location.pathname]();
 
   document.querySelector('#app').innerHTML = await page.render();
-  await page.afterRender();
+  // await page.afterRender();
 };
 
 window.addEventListener('popstate', router);
