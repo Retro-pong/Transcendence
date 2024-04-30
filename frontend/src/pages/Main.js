@@ -1,23 +1,29 @@
-// import { Button } from 'bootstrap';
-import NavBar from '../component/Navbar.js';
 import PageComponent from '../component/PageComponent.js';
+import NavLink from '../component/NavLink.js';
 
 class Main extends PageComponent {
   constructor() {
     super();
-    this.setTitle('Main');
+    this.setTitle('RETRO PONG!');
   }
 
   async render() {
-    return `${NavBar()}
-      <h1>Main</h1>
-        <div class="container py-4 px-3 mx-auto">
-          <h1>Hello, Bootstrap and Vite!</h1>
-          <button class="btn btn-primary">Primary button</button>
+    // TODO: path 수정
+    const StartButton = NavLink({
+      text: '>> Press Start! <<',
+      path: '/profile',
+      classList: ['btn', 'btn-outline-light', 'fs-1'],
+    }).outerHTML;
+
+    return `
+      <div class="d-grid gap-4">
+        <div class="row py-4">
+          <h1 class="text-center title">PONG!</h1>
         </div>
-      <p>
-        <a href="/profile" data-link>profile</a>
-      </p>
+        <div class="row py-4">
+          ${StartButton}
+        </div>
+      </div>
       `;
   }
 }

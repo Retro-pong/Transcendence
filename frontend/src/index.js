@@ -12,8 +12,8 @@ const navigateTo = (url) => {
 // 동적라우팅 추가 필요
 const router = async () => {
   const routes = {
-    '/': Login,
-    '/main': Main,
+    '/': Main,
+    '/login': Login,
     '/profile': Profile,
   };
 

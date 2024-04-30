@@ -14,7 +14,7 @@ class Login extends PageComponent {
         This is Login Page
       </p>
       <p>
-        <a href="/main" data-link>Main</a>
+        <a href="/" data-link>Main</a>
       </p>
       `;
   }
