@@ -1,5 +1,5 @@
-import NavBar from '../component/Navbar.js';
-import PageComponent from '../component/PageComponent.js';
+import NavBar from '@component/Navbar.js';
+import PageComponent from '@component/PageComponent.js';
 
 class Login extends PageComponent {
   constructor() {

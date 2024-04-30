@@ -1,4 +1,4 @@
-import NavLink from './NavLink.js';
+import NavLink from '@component/NavLink.js';
 
 const NavBar = () => {
   const links = [

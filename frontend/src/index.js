@@ -1,7 +1,7 @@
-import drawBackground from './background/background.js';
-import Login from './pages/Login.js';
-import Main from './pages/Main.js';
-import Profile from './pages/Profile.js';
+import Profile from '@pages/Profile.js';
+import Login from '@pages/Login.js';
+import Main from '@pages/Main.js';
+import drawBackground from '@/background/background.js';
 
 const navigateTo = (url) => {
   if (url === window.location.href) return;
