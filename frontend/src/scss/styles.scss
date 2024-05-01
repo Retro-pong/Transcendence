@@ -2,6 +2,7 @@
 @import 'bootstrap/scss/bootstrap';
 @import './colors.scss';
 @import './font.scss';
+@import './custom_utilities.scss';
 
 body {
   font-size: 16px;
@@ -63,23 +64,18 @@ body {
   color: $active-green;
 }
 
-.modal-content {
-  height: 80vh;
-}
-
-.modal-title {
-  font-size: 5rem;
-}
-
 .btn-close {
   background-image: none;
+  color: white;
+  &:hover {
+    color: $active-green;
+  }
 }
 
 #registerForm {
   .col-5 {
     display: flex;
     align-items: center;
-    background-color: yellow;
     font-size: 3rem;
     justify-content: start;
   }
@@ -88,7 +84,13 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: green;
     font-size: 3rem;
+  }
+
+  .register-input {
+    border: none;
+    height: 100%;
+    font-size: 3rem;
+    background-color: transparent;
   }
 }
