@@ -1,5 +1,8 @@
 import NavBar from '../component/Navbar.js';
 import PageComponent from '../component/PageComponent.js';
+import RegisterForm from '../component/RegisterForm.js';
+import OpenModalButton from '../component/button/OpenModalButton.js';
+import ModalComponent from '../component/modal/ModalComponent.js';
 
 class Login extends PageComponent {
   constructor() {
@@ -9,13 +12,8 @@ class Login extends PageComponent {
 
   async render() {
     return `${NavBar()}
-      <h1>Login</h1>
-      <p>
-        This is Login Page
-      </p>
-      <p>
-        <a href="/" data-link>Main</a>
-      </p>
+      ${OpenModalButton({ text: '> Register <', classList: 'btn btn-no-outline-hover', modalId: '#registerModal' })}
+      ${ModalComponent({ title: 'WELCOME!', modalId: 'registerModal', content: RegisterForm(), buttons: ['<button type="button" class="btn btn-primary">Register</button>'] })}
       `;
   }
 }
