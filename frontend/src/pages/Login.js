@@ -1,6 +1,6 @@
 import NavBar from '../component/Navbar.js';
 import PageComponent from '../component/PageComponent.js';
-import RegisterForm from '../component/RegisterForm.js';
+import RegisterForm from '../component/form/RegisterForm.js';
 import OpenModalButton from '../component/button/OpenModalButton.js';
 import ModalComponent from '../component/modal/ModalComponent.js';
 

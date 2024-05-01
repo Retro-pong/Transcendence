@@ -71,26 +71,3 @@ body {
     color: $active-green;
   }
 }
-
-#registerForm {
-  .col-5 {
-    display: flex;
-    align-items: center;
-    font-size: 3rem;
-    justify-content: start;
-  }
-  
-  .col-2 {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 3rem;
-  }
-
-  .register-input {
-    border: none;
-    height: 100%;
-    font-size: 3rem;
-    background-color: transparent;
-  }
-}
