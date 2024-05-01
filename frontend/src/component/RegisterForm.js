@@ -2,7 +2,7 @@ const RegisterForm = () => {
   return `
     <form id="registerForm" class="form">
       <div class="container">
-        <div class="row my-4 mx-3">
+        <div class="row my-4 mx-4">
           <div class="col-5">
               <label for="email" class="form-label">EMAIL</label>
           </div>
@@ -11,8 +11,7 @@ const RegisterForm = () => {
             <input type="text" id="eamil" class="form-control" placeholder="name@mail.com"></input>
           </div>
         </div>
-          
-        <div class="row mb-4 mx-3">
+        <div class="row mb-4 mx-4">
           <div class="col-5">
           <label for="nick" class="form-label">NICKNAME</label>
           </div>
@@ -22,7 +21,7 @@ const RegisterForm = () => {
           </div>
         </div>
 
-        <div class="row mb-4 mx-3">
+        <div class="row mb-4 mx-4">
           <div class="col-5">
             <label for="password" class="form-label">PASSWORD</label>
           </div>
@@ -32,7 +31,7 @@ const RegisterForm = () => {
           </div>
         </div>
 
-        <div class="row mb-4 mx-3">
+        <div class="row mb-4 mx-4">
           <div class="col-5">
             <label for="password-re" class="form-label">PASSWORD(RE)</label>
           </div>
