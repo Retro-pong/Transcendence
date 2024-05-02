@@ -81,14 +81,8 @@ class EmailRegisterView(APIView):
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
-            # 유효한 데이터일 경우 저장
-            username = serializer.data.get("username")
-            email = serializer.data.get("email")
-            password = serializer.validated_data["password"]
-            user = User.objects.create_user(
-                username=username, email=email, password=password
-            )
-            return Response("User created")
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             errors = serializer.errors
             return JsonResponse(errors, status=status.HTTP_400_BAD_REQUEST)
