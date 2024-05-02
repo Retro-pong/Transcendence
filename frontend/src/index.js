@@ -24,6 +24,7 @@ const router = async () => {
   if (page.getTitle() !== 'Login') {
     app.innerHTML += NavBar();
   }
+  // await page.afterRender();
 };
 
 window.addEventListener('popstate', router);

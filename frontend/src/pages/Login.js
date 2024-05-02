@@ -1,4 +1,7 @@
 import PageComponent from '@component/PageComponent.js';
+import RegisterForm from '@component/form/RegisterForm.js';
+import OpenModalButton from '@component/button/OpenModalButton.js';
+import ModalComponent from '@component/modal/ModalComponent.js';
 
 class Login extends PageComponent {
   constructor() {
@@ -8,10 +11,8 @@ class Login extends PageComponent {
 
   async render() {
     return `
-      <h1>Login</h1>
-      <p>
-        This is Login Page
-      </p>
+      ${OpenModalButton({ text: '> Register <', classList: 'btn btn-no-outline-hover', modalId: '#registerModal' })}
+      ${ModalComponent({ title: 'WELCOME!', modalId: 'registerModal', content: RegisterForm(), buttonList: ['confirmBtn'] })}
       `;
   }
 }
