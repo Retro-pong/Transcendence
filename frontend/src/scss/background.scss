@@ -47,7 +47,7 @@
 .ele {
   position: absolute;
   counter-reset: timer-1 calc(var(--timer) + 9) timer-2 calc(var(--timer) + 8) timer-3 calc(var(--timer) + 7) timer-4 calc(var(--timer) + 6) timer-5 calc(var(--timer) + 5) timer-6 calc(var(--timer) + 4) timer-7 calc(var(--timer) + 3) timer-8 calc(var(--timer) + 2) timer-9 calc(var(--timer) + 1) timer-10 calc(var(--timer) + 0);
-  animation: animate-letter 10s linear infinite running, animate-rotate 2s linear infinite running, animate-position 10s linear infinite running;
+  animation: animate-letter 5s linear infinite running, animate-rotate 2s linear infinite running, animate-position 6s linear infinite running;
 }
 
 .w div {
@@ -95,16 +95,22 @@
 }
 
 .d2{
-  animation-delay: 5s;
+  animation-delay: 3s;
 }
 
 .d1{
-  animation-delay: 2.5s;
+  animation-delay: 1.5s;
 }
 
 @keyframes animate-letter {
-  to {
-    opacity: 0.4;
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 1;
   }
 }
 
