@@ -9,4 +9,17 @@ export default {
   server: {
     port: 3000,
   },
+  resolve: {
+    alias: [
+      { find: '@', replacement: resolve(__dirname, 'src') },
+      {
+        find: '@component',
+        replacement: resolve(__dirname, 'src/component'),
+      },
+      {
+        find: '@pages',
+        replacement: resolve(__dirname, 'src/pages'),
+      },
+    ],
+  },
 };

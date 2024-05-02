@@ -1,19 +1,19 @@
 import PageComponent from '@component/PageComponent.js';
 
-class Profile extends PageComponent {
+class Friends extends PageComponent {
   constructor() {
     super();
-    this.setTitle('Profile');
+    this.setTitle('Friends');
   }
 
   async render() {
     return `
-      <h1>Profile</h1>
+      <h1>Friends</h1>
       <p>
-        This is Profile Page
+        This is Friends Page
       </p>
       `;
   }
 }
 
-export default Profile;
+export default Friends;

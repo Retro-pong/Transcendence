@@ -1,19 +1,19 @@
 import PageComponent from '@component/PageComponent.js';
 
-class Profile extends PageComponent {
+class Game extends PageComponent {
   constructor() {
     super();
-    this.setTitle('Profile');
+    this.setTitle('Game');
   }
 
   async render() {
     return `
-      <h1>Profile</h1>
+      <h1>Game</h1>
       <p>
-        This is Profile Page
+        This is Game Page
       </p>
       `;
   }
 }
 
-export default Profile;
+export default Game;

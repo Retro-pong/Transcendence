@@ -7,6 +7,10 @@ class PageComponent {
     document.title = title;
   }
 
+  getTitle() {
+    return document.title;
+  }
+
   async render() {
     return '';
   }

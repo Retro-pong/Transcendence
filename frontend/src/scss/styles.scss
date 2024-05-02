@@ -1,6 +1,6 @@
 @charset "UTF-8";
-@import 'bootstrap/scss/bootstrap';
 @import './colors.scss';
+@import 'bootstrap/scss/bootstrap';
 @import './font.scss';
 @import './custom_utilities.scss';
 
@@ -61,4 +61,13 @@ body {
   &:hover {
     color: $active-green;
   }
+}
+
+.menubar{
+  justify-content: center;
+  align-items: center;
+  padding: 0 2rem;
+  box-shadow: 0 0 10px 2px rgba(0, 255, 255, 0.7);
+  min-height: 70vh;
+  width: 30rem;
 }
