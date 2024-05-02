@@ -28,7 +28,7 @@ class User(AbstractUser):
     is_active = models.BooleanField(default=False)
     win = models.IntegerField(default=0)
     lose = models.IntegerField(default=0)
-    image = models.ImageField(default="images/default_image.png", null=True, blank=True)
+    image = models.ImageField(default="images/default_image.jpeg", null=True, blank=True)
 
     objects = UserManager()
 
