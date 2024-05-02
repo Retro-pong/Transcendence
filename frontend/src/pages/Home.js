@@ -11,8 +11,8 @@ class Home extends PageComponent {
     // TODO: path 수정
     const StartButton = NavLink({
       text: '>> Press Start! <<',
-      path: '/profile',
-      classList: ['btn', 'btn-outline-light', 'fs-1'],
+      path: '/game',
+      classList: ['btn', 'btn-outline-light', 'fs-13'],
     }).outerHTML;
 
     return `

@@ -1,6 +1,8 @@
 import Profile from '@pages/Profile.js';
 import Login from '@pages/Login.js';
 import Home from '@pages/Home.js';
+import Friends from '@pages/Friends.js';
+import Game from '@pages/Game';
 import NavBar from '@component/Navbar.js';
 import drawBackground from '@/background/background.js';
 
@@ -16,6 +18,8 @@ const router = async () => {
     '/': Home,
     '/login': Login,
     '/profile': Profile,
+    '/game': Game,
+    '/friends': Friends,
   };
 
   const page = new routes[location.pathname]();

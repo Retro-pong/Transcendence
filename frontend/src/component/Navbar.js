@@ -15,12 +15,12 @@ const NavBar = () => {
     },
     {
       text: 'Play Game',
-      path: '/',
+      path: '/game',
       classList: ['nav-link', 'fs-13'],
     },
     {
       text: 'Friends',
-      path: '/',
+      path: '/friends',
       classList: ['nav-link', 'fs-13'],
     },
     {
@@ -41,7 +41,7 @@ const NavBar = () => {
           </nav>
         </div>
       </div>
-      <button class="btn btn-dark fs-6" type="button" data-bs-toggle="collapse" data-bs-target="#collapseWidthExample" aria-expanded="false" aria-controls="collapseWidthExample">
+      <button class="btn btn-dark fs-1" type="button" data-bs-toggle="collapse" data-bs-target="#collapseWidthExample" aria-expanded="false" aria-controls="collapseWidthExample">
         Menu
       </button>
     </div>
