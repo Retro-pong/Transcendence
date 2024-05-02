@@ -13,7 +13,7 @@ class Login extends PageComponent {
   async render() {
     return `${NavBar()}
       ${OpenModalButton({ text: '> Register <', classList: 'btn btn-no-outline-hover', modalId: '#registerModal' })}
-      ${ModalComponent({ title: 'WELCOME!', modalId: 'registerModal', content: RegisterForm(), buttons: ['<button type="button" class="btn btn-outline-light h-50 w-100 fs-12"> \>\> CONFIRM! << </button>'] })}
+      ${ModalComponent({ title: 'WELCOME!', modalId: 'registerModal', content: RegisterForm(), buttonList: ['confirmBtn'] })}
       `;
   }
 }
