@@ -1,6 +1,7 @@
 import Profile from '@pages/Profile.js';
 import Login from '@pages/Login.js';
 import Home from '@pages/Home.js';
+import NavBar from '@component/Navbar.js';
 import drawBackground from '@/background/background.js';
 
 const navigateTo = (url) => {
@@ -18,8 +19,11 @@ const router = async () => {
   };
 
   const page = new routes[location.pathname]();
-
-  document.querySelector('#app').innerHTML = await page.render();
+  const app = document.querySelector('#app');
+  app.innerHTML = await page.render();
+  if (page.getTitle() !== 'Login') {
+    app.innerHTML += NavBar();
+  }
 };
 
 window.addEventListener('popstate', router);

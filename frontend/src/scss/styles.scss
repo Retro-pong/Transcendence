@@ -1,6 +1,6 @@
 @charset "UTF-8";
-@import 'bootstrap/scss/bootstrap';
 @import './colors.scss';
+@import 'bootstrap/scss/bootstrap';
 
 body {
   font-size: 16px;
@@ -14,7 +14,7 @@ body {
 
 :root {
   --bs-body-color: #ffffff;
-  --bs-body-font-family: '3Dventure', var(--bs-font-sans-serif);
+  --bs-body-font-family: '3Dventure', 'DungGeunMo', var(--bs-font-sans-serif);
   --bs-link-color: #ffffff;
   --bs-link-hover-color: #9bfab6;
 }
@@ -48,4 +48,12 @@ body {
       0 0 10px 0 $mint inset,
       0 0 10px 4px $mint;
   }
+}
+
+.menubar{
+  justify-content: center;
+  align-items: center;
+  padding: 0 2rem;
+  box-shadow: 0 0 10px 2px rgba(0, 255, 255, 0.7);
+  min-height: 70vh;
 }

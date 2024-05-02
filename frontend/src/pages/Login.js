@@ -1,4 +1,3 @@
-import NavBar from '@component/Navbar.js';
 import PageComponent from '@component/PageComponent.js';
 
 class Login extends PageComponent {
@@ -8,13 +7,10 @@ class Login extends PageComponent {
   }
 
   async render() {
-    return `${NavBar()}
+    return `
       <h1>Login</h1>
       <p>
         This is Login Page
-      </p>
-      <p>
-        <a href="/" data-link>Home</a>
       </p>
       `;
   }
