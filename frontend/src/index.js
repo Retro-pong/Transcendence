@@ -1,4 +1,5 @@
 import drawBackground from './background/background.js';
+import Friends from './pages/Friends.js';
 import Login from './pages/Login.js';
 import Main from './pages/Main.js';
 import Profile from './pages/Profile.js';
@@ -15,6 +16,7 @@ const router = async () => {
     '/': Main,
     '/login': Login,
     '/profile': Profile,
+    '/friends': Friends,
   };
 
   const page = new routes[location.pathname]();

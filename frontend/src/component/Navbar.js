@@ -14,6 +14,10 @@ const NavBar = () => {
       text: 'Profile',
       path: '/profile',
     },
+    {
+      text: 'Friends',
+      path: '/friends',
+    },
   ];
 
   const NavLinks = links.map((link) => NavLink(link).outerHTML).join('');
