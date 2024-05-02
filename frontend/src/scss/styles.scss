@@ -1,6 +1,8 @@
 @charset "UTF-8";
 @import 'bootstrap/scss/bootstrap';
 @import './colors.scss';
+@import './font.scss';
+@import './custom_utilities.scss';
 
 body {
   font-size: 16px;
@@ -34,6 +36,7 @@ body {
   left: 15rem;
   width: calc(100vw - 30rem);
   height: calc(100vh - 14rem);
+  font-size: 2rem;
 }
 
 .title {
@@ -47,5 +50,24 @@ body {
     box-shadow:
       0 0 10px 0 $mint inset,
       0 0 10px 4px $mint;
+  }
+}
+
+.btn-no-outline-hover {
+  border: none;
+  &:hover {
+    color: $active-green;
+  }
+}
+
+.modal-open .btn-no-outline-hover {
+  color: $active-green;
+}
+
+.btn-close {
+  background-image: none;
+  color: white;
+  &:hover {
+    color: $active-green;
   }
 }

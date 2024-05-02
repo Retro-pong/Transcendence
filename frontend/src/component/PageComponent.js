@@ -10,6 +10,10 @@ class PageComponent {
   async render() {
     return '';
   }
+
+  async afterRender() {
+    // After render
+  }
 }
 
 export default PageComponent;
