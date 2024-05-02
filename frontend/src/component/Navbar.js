@@ -6,27 +6,27 @@ const NavBar = () => {
     {
       text: 'Home',
       path: '/',
-      classList: ['nav-link', 'fs-1'],
+      classList: ['nav-link', 'fs-13'],
     },
     {
       text: 'Profile',
       path: '/profile',
-      classList: ['nav-link', 'fs-1'],
+      classList: ['nav-link', 'fs-13'],
     },
     {
       text: 'Play Game',
       path: '/',
-      classList: ['nav-link', 'fs-1'],
+      classList: ['nav-link', 'fs-13'],
     },
     {
       text: 'Friends',
       path: '/',
-      classList: ['nav-link', 'fs-1'],
+      classList: ['nav-link', 'fs-13'],
     },
     {
       text: 'Logout',
       path: '/login',
-      classList: ['nav-link', 'fs-1'],
+      classList: ['nav-link', 'fs-13'],
     },
   ];
 
@@ -41,7 +41,7 @@ const NavBar = () => {
           </nav>
         </div>
       </div>
-      <button class="btn btn-dark fs-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseWidthExample" aria-expanded="false" aria-controls="collapseWidthExample">
+      <button class="btn btn-dark fs-6" type="button" data-bs-toggle="collapse" data-bs-target="#collapseWidthExample" aria-expanded="false" aria-controls="collapseWidthExample">
         Menu
       </button>
     </div>
