@@ -1,5 +1,5 @@
 import PageComponent from '@component/PageComponent.js';
-import NavLink from '@component/NavLink.js';
+import NavLink from '@component/navigation/NavLink.js';
 
 class Home extends PageComponent {
   constructor() {

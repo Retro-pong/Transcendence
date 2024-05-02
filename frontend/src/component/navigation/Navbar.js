@@ -1,5 +1,5 @@
 import { Popover } from 'bootstrap'; // eslint-disable-line no-unused-vars
-import NavLink from '@component/NavLink.js';
+import NavLink from '@component/navigation/NavLink.js';
 
 const NavBar = () => {
   const links = [

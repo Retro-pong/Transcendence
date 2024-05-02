@@ -3,7 +3,7 @@ import Login from '@pages/Login.js';
 import Home from '@pages/Home.js';
 import Friends from '@pages/Friends.js';
 import Game from '@pages/Game.js';
-import NavBar from '@component/Navbar.js';
+import NavBar from '@component/navigation/Navbar.js';
 import drawBackground from '@/background/background.js';
 
 const navigateTo = (url) => {
