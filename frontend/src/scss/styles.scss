@@ -1,5 +1,6 @@
 @charset "UTF-8";
 @import './colors.scss';
+@import './variables.scss';
 @import 'bootstrap/scss/bootstrap';
 @import './font.scss';
 @import './custom_utilities.scss';
@@ -12,6 +13,16 @@ body {
   -webkit-text-stroke-color: #000000;
   -webkit-text-stroke-width: 1px;
   height: 100vh;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: white;
+  -webkit-box-shadow: none;
+  transition: background-color 5000s ease-in-out 0s;
+  font-family: 3Dventure;
 }
 
 :root {
