@@ -20,7 +20,7 @@ class Friends extends PageComponent {
         <a href="/" data-link>Main</a>
       </p>
       ${OpenModalButton({ text: '> WAITING', classList: 'btn btn-no-outline-hover', modalId: '#friendWaitingModal' })}
-      ${ModalComponent({ title: 'WAITING', modalId: 'friendWaitingModal', content: FriendWaitList(), buttonList: [] })}
+      ${ModalComponent({ borderColor: 'modal-border-mint', title: 'WAITING', modalId: 'friendWaitingModal', content: FriendWaitList(), buttonList: [] })}
     `;
   }
 }

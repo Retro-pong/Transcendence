@@ -66,10 +66,24 @@ body {
 
 .btn-close {
   background-image: none;
+  opacity: 1;
   color: white;
   &:hover {
     color: $active-green;
   }
+}
+
+.modal-content {
+  border: solid 10px;
+  border-radius: 30px;
+}
+
+.modal-border-mint {
+  border-color: $mint;
+}
+
+.modal-border-pink {
+  border-color: $pink;
 }
 
 .btn-friend-accept {
