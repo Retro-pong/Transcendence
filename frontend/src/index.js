@@ -2,7 +2,7 @@ import Profile from '@pages/Profile.js';
 import Login from '@pages/Login.js';
 import Home from '@pages/Home.js';
 import Friends from '@pages/Friends.js';
-import Game from '@pages/Game';
+import Game from '@pages/Game.js';
 import NavBar from '@component/Navbar.js';
 import drawBackground from '@/background/background.js';
 
@@ -41,6 +41,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
   router();
+});
+
+document.addEventListener('click', (e) => {
+  const target = e.target || null;
+  const collapseElement = document.querySelector('.collapse');
+  if (collapseElement && !collapseElement.contains(target)) {
+    collapseElement.classList.remove('show');
+  }
 });
 
 drawBackground();
