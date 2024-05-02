@@ -1,61 +1,87 @@
-/**
- * Draw the background of the game
- * top, left, right, bottom
- */
 const drawBackground = () => {
   const background = document.getElementById('background');
 
-  // v1
-  // const top = document.createElement('div');
-  // top.className = 'top';
-  // background.appendChild(top);
+  const left = ['1', '6', '6-5', '12', '3', '9', '10', '1', '8', '11'];
+  const right = ['98', '93', '93-5', '87', '96', '90', '89', '98', '91', '88'];
+  const leftTop = ['10', '5', '65', '76', '35', '60', '1', '75', '20', '50'];
+  const leftTop2 = ['30', '25', '85', '76', '35', '60', '20', '75', '40', '50'];
+  const rightTop = ['50', '20', '75', '1', '60', '35', '76', '65', '5', '10'];
+  const rightTop2 = [
+    '50',
+    '40',
+    '75',
+    '20',
+    '60',
+    '35',
+    '76',
+    '85',
+    '25',
+    '30',
+  ];
+  const size = [
+    'w h-xxxs',
+    'w h-xs',
+    'w h-xs',
+    'w h-xs',
+    'w h-xxxs',
+    'w h-xxxs',
+    'w h-xs',
+    'w h-m',
+    'w h-xxxs',
+    'w h-xxxs',
+  ];
 
-  // const left = document.createElement('div');
-  // left.className = 'left';
-  // background.appendChild(left);
+  const color = [
+    'c-mint',
+    'c-mint',
+    'c-mint',
+    'c-mint',
+    'c-pink',
+    'c-pink',
+    'c-pink',
+    'c-white',
+    'c-white',
+    'c-white',
+  ];
 
-  // const right = document.createElement('div');
-  // right.className = 'right';
-  // background.appendChild(right);
+  for (let i = 0; i < 10; i += 1) {
+    const lFirst = document.createElement('div');
+    const lSecond = document.createElement('div');
+    const lThird = document.createElement('div');
+    const lFirstChild = document.createElement('div');
+    const lSecondChild = document.createElement('div');
+    const lThirdChild = document.createElement('div');
 
-  // const bottom = document.createElement('div');
-  // bottom.className = 'bottom';
-  // background.appendChild(bottom);
+    lFirst.className = `ele l${left[i]} t${leftTop[i]} ${size[i]} ${color[i]}`;
+    lSecond.className = `ele l${left[i]} t${leftTop2[i]} ${size[i]} ${color[i]} d1`;
+    lThird.className = `ele l${left[i]} t${leftTop2[i]} ${size[i]} ${color[i]} d2`;
 
-  // for (let i = 1; i < 6; i += 1) {
-  //   const topDiv = document.createElement('div');
-  //   const leftDiv = document.createElement('div');
-  //   const rightDiv = document.createElement('div');
-  //   const bottomDiv = document.createElement('div');
+    lFirst.appendChild(lFirstChild);
+    lSecond.appendChild(lSecondChild);
+    lThird.appendChild(lThirdChild);
 
-  //   topDiv.className = `top-element-${i}`;
-  //   leftDiv.className = `left-element-${i}`;
-  //   rightDiv.className = `right-element-${i}`;
-  //   bottomDiv.className = `bottom-element-${i}`;
+    background.appendChild(lFirst);
+    background.appendChild(lSecond);
+    background.appendChild(lThird);
 
-  //   top.appendChild(topDiv);
-  //   left.appendChild(leftDiv);
-  //   right.appendChild(rightDiv);
-  //   bottom.appendChild(bottomDiv);
+    const rFirst = document.createElement('div');
+    const rSecond = document.createElement('div');
+    const rThird = document.createElement('div');
+    const rFirstChild = document.createElement('div');
+    const rSecondChild = document.createElement('div');
+    const rThirdChild = document.createElement('div');
 
-  // v2
-  const left = document.createElement('div');
-  left.className = 'left';
-  background.appendChild(left);
+    rFirst.className = `ele l${right[i]} t${rightTop[i]} ${size[i]} ${color[i]}`;
+    rSecond.className = `ele l${right[i]} t${rightTop2[i]} ${size[i]} ${color[i]} d1`;
+    rThird.className = `ele l${right[i]} t${rightTop2[i]} ${size[i]} ${color[i]} d2`;
 
-  const right = document.createElement('div');
-  right.className = 'right';
-  background.appendChild(right);
+    rFirst.appendChild(rFirstChild);
+    rSecond.appendChild(rSecondChild);
+    rThird.appendChild(rThirdChild);
 
-  for (let i = 1; i < 10; i += 1) {
-    const leftDiv = document.createElement('div');
-    const rightDiv = document.createElement('div');
-
-    leftDiv.className = `left-element-${i}`;
-    rightDiv.className = `right-element-${i}`;
-
-    left.appendChild(leftDiv);
-    right.appendChild(rightDiv);
+    background.appendChild(rFirst);
+    background.appendChild(rSecond);
+    background.appendChild(rThird);
   }
 };
 
