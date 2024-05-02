@@ -1,402 +1,121 @@
-#background {
+@import './colors.scss';
+
+@property --timer {
+  syntax: '<integer>';
+  inherits: false;
+  initial-value: 1;
+}    
+
+@for $i from 1 through 13 {
+  .l#{$i} { left: #{$i}vw;}
+}
+
+@for $i from 87 through 99 {
+  .l#{$i} { left: #{$i}vw;}
+}
+
+.l1-5 { left: 1.5vw; }
+.l2-5 { left: 2.5vw; }
+.l3-5 { left: 3.5vw; }
+.l4-5 { left: 4.5vw; }
+.l5-5 { left: 5.5vw; }
+.l6-5 { left: 6.5vw; }
+.l7-5 { left: 7.5vw; }
+.l8-5 { left: 8.5vw; }
+.l9-5 { left: 9.5vw; }
+.l10-5 { left: 10.5vw; }
+.l11-5 { left: 11.5vw; }
+.l12-5 { left: 12.5vw; }
+
+.l88-5 { left: 88.5vw; }
+.l89-5 { left: 89.5vw; }
+.l90-5 { left: 90.5vw; }
+.l91-5 { left: 91.5vw; }
+.l92-5 { left: 92.5vw; }
+.l93-5 { left: 93.5vw; }
+.l94-5 { left: 94.5vw; }
+.l95-5 { left: 95.5vw; }
+.l96-5 { left: 96.5vw; }
+.l97-5 { left: 97.5vw; }
+.l98-5 { left: 98.5vw; }
+
+
+@for $i from 1 through 200 {
+  .t#{$i} { top: -#{$i}vh;}
+}
+
+.ele {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: black;
+  counter-reset: timer-1 calc(var(--timer) + 9) timer-2 calc(var(--timer) + 8) timer-3 calc(var(--timer) + 7) timer-4 calc(var(--timer) + 6) timer-5 calc(var(--timer) + 5) timer-6 calc(var(--timer) + 4) timer-7 calc(var(--timer) + 3) timer-8 calc(var(--timer) + 2) timer-9 calc(var(--timer) + 1) timer-10 calc(var(--timer) + 0);
+  animation: animate-letter 10s linear infinite running, animate-rotate 2s linear infinite running, animate-position 10s linear infinite running;
 }
 
-@keyframes box-ani-1 {
-  0% {
-    transform: translate(0, 0);
-  }
-  50% {
-    transform: translate(0px, 0.4rem);
-  }
-  100% {
-    transform: translate(0, 0);
-  }
+.w div {
+  width: 1.5vw!important;
 }
 
-@keyframes box-ani-2 {
-  0% {
-    transform: translate(0, 0);
-  }
-  50% {
-    transform: translate(0px, 0.4rem) scale(1.03);
-  }
-  100% {
-    transform: translate(0, 0);
-  }
+.h-xxxs div {
+  height: 5vh!important;
 }
 
-@keyframes box-ani-3 {
-  0% {
-    transform: translate(0, 0);
-  }
-  50% {
-    transform: translate(0px, 0.4rem) scale(1.05);
-  }
-  100% {
-    transform: translate(0, 0);
-  }
+.h-xxs div {
+  height: 7vh!important;
 }
 
-@mixin left-element($w, $h, $y, $x) {
-  width: $w;
-  height: $h;
-  top: $y;
-  left: $x;
-}
-@mixin right-element($w, $h, $y, $x) {
-  width: $w;
-  height: $h;
-  top: $y;
-  right: $x;
+.h-xs div {
+  height: 10vh!important;
 }
 
-.left {
-  width: 10rem;
-  height: 77rem;
-  width: 15vw;
-  height: 100vh;
-  position: absolute;
-  border: 5px solid #00ffff;
-
-  .left-element-1 {
-    @include left-element(20%, 7%, 0.6%, 35%);
-    animation: box-ani-2 4s linear infinite;
-  }
-  .left-element-1::before {
-    width: 20%;
-    height: 7%;
-    top: 0.6%;
-    left: 5%;
-  }
-  .left-element-1::after {
-    width: 20%;
-    height: 3%;
-    top: -0.6%;
-    left: -0.3%;
-  }
-
-  .left-element-2 {
-    width: 20%;
-    height: 1.9%;
-    top: 10rem;
-    left: 7rem;
-    animation: box-ani-3 4s linear infinite;
-  }
-  .left-element-2::before {
-    width: 2rem;
-    height: 1.5rem;
-    top: 0.5rem;
-    left: 0.5rem;
-  }
-  .left-element-2::after {
-    width: 2rem;
-    height: 3.5rem;
-    top: -1rem;
-    left: -5rem;
-  }
-
-  .left-element-3 {
-    width: 2rem;
-    height: 3.5rem;
-    top: 11.5rem;
-    left: 5.9rem;
-    animation: box-ani-3 4s linear infinite;
-  }
-  .left-element-3::before {
-    width: 2rem;
-    height: 3.5rem;
-    top: 0.5rem;
-    left: 0.5rem;
-  }
-  .left-element-3::after {
-    width: 2rem;
-    height: 2rem;
-    top: 3.2rem;
-    left: -0.5rem;
-  }
-
-  .left-element-4 {
-    width: 2rem;
-    height: 4rem;
-    top: 15rem;
-    left: 8rem;
-    animation: box-ani-2 4s linear infinite;
-  }
-  .left-element-4::before {
-    width: 2rem;
-    height: 4rem;
-    top: 1rem;
-    left: 0.3rem;
-  }
-  .left-element-4::after {
-    width: 2rem;
-    height: 3.5rem;
-    top: -4.5rem;
-    left: -1rem;
-  }
-
-  .left-element-5 {
-    width: 2rem;
-    height: 2.5rem;
-    top: 21.5rem;
-    left: 3rem;
-    animation: box-ani-1 4s linear infinite;
-  }
-  .left-element-5::before {
-    width: 2rem;
-    height: 2.5rem;
-    top: 1rem;
-    left: 0.5rem;
-  }
-  .left-element-5::after {
-    width: 2rem;
-    height: 2.5rem;
-    top: -4rem;
-    left: -2rem;
-  }
-
-  .left-element-6 {
-    width: 2rem;
-    height: 3rem;
-    top: 27rem;
-    left: 5.5rem;
-    animation: box-ani-2 4s linear infinite;
-  }
-  .left-element-6::before {
-    width: 2rem;
-    height: 2.5rem;
-    top: 1rem;
-    left: 0.5rem;
-  }
-  .left-element-6::after {
-    width: 2rem;
-    height: 2.5rem;
-    top: -6rem;
-    left: -0.5rem;
-  }
-
-  .left-element-7 {
-    width: 2rem;
-    height: 10rem;
-    top: 32.5rem;
-    left: 7rem;
-    animation: box-ani-3 4s linear infinite;
-  }
-  .left-element-7::before {
-    width: 2rem;
-    height: 10rem;
-    top: 1rem;
-    left: 0.5rem;
-  }
-  .left-element-7::after {
-    width: 2rem;
-    height: 10rem;
-    top: -11rem;
-    left: -0.5rem;
-  }
-
-  .left-element-8 {
-    width: 2rem;
-    height: 2.5rem;
-    top: 26rem;
-    left: 7rem;
-    animation: box-ani-2 4s linear infinite;
-  }
-  .left-element-8::before {
-    width: 2rem;
-    height: 3rem;
-    top: 2.5rem;
-    left: -2rem;
-  }
-  .left-element-8::after {
-    width: 2rem;
-    height: 10rem;
-    top: 12.5rem;
-    left: -2.5rem;
-  }
-
-  .left-element-9 {
-    width: 2rem;
-    height: 2.5rem;
-    top: 51rem;
-    left: 2rem;
-    animation: box-ani-1 4s linear infinite;
-  }
-  .left-element-9::before {
-    width: 2rem;
-    height: 2rem;
-    top: 0.5rem;
-    left: 0.5rem;
-  }
-  .left-element-9::after {
-    width: 2rem;
-    height: 2.5rem;
-    top: -2.5rem;
-    left: -0.5rem;
-  } 
+.h-s div {
+  height: 13vh!important;
 }
 
-.right {
-  width: 10rem;
-  height: 100%;
-  position: absolute;
-  right: 0;
+.h-m div {
+  height: 15vh!important;
+}
 
-  .right-element-1 {
-    width: 2rem;
-    height: 7rem;
-    top: 0.5rem;
-    right: 2rem;
-    animation: box-ani-2 4s linear infinite;
-  }
-  .right-element-1::before {
-    width: 2rem;
-    height: 7rem;
-    top: 1rem;
-    left: 0.5rem;
-  }
-  .right-element-1::after {
-    width: 2rem;
-    height: 3rem;
-    top: 41rem;
-    left: 0rem;
-  }
+.h-l div {
+  height: 17vh!important;
+}
 
-  .right-element-2 {
-    width: 2rem;
-    height: 2rem;
-    top: 12rem;
-    right: 3rem;
-    animation: box-ani-3 4s linear infinite;
-  }
-  .right-element-2::before {
-    width: 2rem;
-    height: 2rem;
-    top: 0.5rem;
-    left: 0.5rem;
-  }
-  .right-element-2::after {
-    width: 2rem;
-    height: 2rem;
-    top: -2.5rem;
-    left: -1rem;
-  }
+.h-xl div {
+  height: 20vh!important;
+}
 
-  .right-element-3 {
-    width: 2rem;
-    height: 4.5rem;
-    top: 16rem;
-    right: 6rem;
-    animation: box-ani-2 4s linear infinite;
-  }
-  .right-element-3::before {
-    width: 2rem;
-    height: 4.5rem;
-    top: -10rem;
-    left: -2.5rem;
-  }
-  .right-element-3::after {
-    width: 2rem;
-    height: 3rem;
-    top: 5rem;
-    left: -1.5rem;
-  }
+.c-mint div {
+  background-color: $mint!important;
+}
 
-  .right-element-4 {
-    width: 2rem;
-    height: 5rem;
-    top: 17rem;
-    right: 1rem;
-    animation: box-ani-1 4s linear infinite;
-  }
-  .right-element-4::before {
-    width: 2rem;
-    height: 5rem;
-    top: 0.5rem;
-    left: 0.5rem;
-  }
-  .right-element-4::after {
-    width: 2rem;
-    height: 5rem;
-    top: -5.5rem;
-    left: -0.5rem;
-  }
+.c-pink div {
+  background-color: $pink!important;
+}
 
-  .right-element-5 {
-    width: 2rem;
-    height: 10rem;
-    top: 28rem;
-    right: 3rem;
-    animation: box-ani-2 4s linear infinite;
-  }
-  .right-element-5::before {
-    width: 2rem;
-    height: 10rem;
-    top: 1rem;
-    left: 0.5rem;
-  }
-  .right-element-5::after {
-    width: 2rem;
-    height: 5rem;
-    top: 3rem;
-    left: -2rem;
-  }
+.c-white div {
+  background-color: white!important;
+}
 
-  .right-element-6 {
-    width: 2rem;
-    height: 2.5rem;
-    top: 50rem;
-    right: 6rem;
-    animation: box-ani-3 4s linear infinite;
-  }
-  .right-element-6::before {
-    width: 2rem;
-    height: 1.5rem;
-    top: 1rem;
-    left: 0.5rem;
-  }
-  .right-element-6::after {
-    width: 2rem;
-    height: 1.5rem;
-    top: -2.5rem;
-    left: -1rem;
+.d2{
+  animation-delay: 5s;
+}
+
+.d1{
+  animation-delay: 2.5s;
+}
+
+@keyframes animate-letter {
+  to {
+    opacity: 0.4;
   }
 }
 
-.left > div, .right > div, .left > div::before, .left > div::after, .right > div::before, .right > div::after {
-  box-shadow: 0 0 10px rgba(0, 255, 255, 0.7); 
+@keyframes animate-rotate {
+  to {
+    transform: rotateY(180deg);
+  }
 }
 
-.left > div, .right > div {
-  background-color: #00ffff;
-  position: absolute;
-}
-
-.left > div::before, .right > div::before {
-  background-color: #ff00fe;
-  content: " ";
-  display: block;
-  position: relative;
-}
-
-.left > div::after, .right > div::after {
-  background-color: #ffffff;
-  content: " ";
-  display: block;
-  position: relative;
-}
-
-
-.left > .left-element-8, .left > .left-element-8::before, .left > .left-element-8::after {
-  background-color: #ffffff;
-}
-
-.right >  .right-element-5::after {
-  background-color: #ff00fe;
+@keyframes animate-position {
+  to {
+    top: calc(150vh);
+  }
 }

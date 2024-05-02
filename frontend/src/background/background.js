@@ -1,27 +1,74 @@
-/**
- * Draw the background of the game
- * top, left, right, bottom
- */
 const drawBackground = () => {
   const background = document.getElementById('background');
 
-  const left = document.createElement('div');
-  left.className = 'left';
-  background.appendChild(left);
+  const left = ['1', '6', '6-5', '12', '3', '9', '10', '1', '8', '11'];
+  const right = ['98', '93', '93-5', '87', '96', '90', '89', '98', '91', '88'];
+  const top = ['10', '5', '65', '76', '35', '60', '1', '75', '20', '50'];
+  const top2 = ['30', '25', '85', '76', '35', '60', '20', '75', '40', '50'];
+  const size = [
+    'w h-xxxs',
+    'w h-xs',
+    'w h-xs',
+    'w h-xs',
+    'w h-xxxs',
+    'w h-xxxs',
+    'w h-xs',
+    'w h-m',
+    'w h-xxxs',
+    'w h-xxxs',
+  ];
 
-  const right = document.createElement('div');
-  right.className = 'right';
-  background.appendChild(right);
+  const color = [
+    'c-mint',
+    'c-mint',
+    'c-mint',
+    'c-mint',
+    'c-pink',
+    'c-pink',
+    'c-pink',
+    'c-white',
+    'c-white',
+    'c-white',
+  ];
 
-  for (let i = 1; i < 10; i += 1) {
-    const leftDiv = document.createElement('div');
-    const rightDiv = document.createElement('div');
+  for (let i = 0; i < 10; i += 1) {
+    const lFirst = document.createElement('div');
+    const lSecond = document.createElement('div');
+    const lThird = document.createElement('div');
+    const lFirstChild = document.createElement('div');
+    const lSecondChild = document.createElement('div');
+    const lThirdChild = document.createElement('div');
 
-    leftDiv.className = `left-element-${i}`;
-    rightDiv.className = `right-element-${i}`;
+    lFirst.className = `ele l${left[i]} t${top[i]} ${size[i]} ${color[i]}`;
+    lSecond.className = `ele l${left[i]} t${top2[i]} ${size[i]} ${color[i]} d1`;
+    lThird.className = `ele l${left[i]} t${top2[i]} ${size[i]} ${color[i]} d2`;
 
-    left.appendChild(leftDiv);
-    right.appendChild(rightDiv);
+    lFirst.appendChild(lFirstChild);
+    lSecond.appendChild(lSecondChild);
+    lThird.appendChild(lThirdChild);
+
+    background.appendChild(lFirst);
+    background.appendChild(lSecond);
+    background.appendChild(lThird);
+
+    const rFirst = document.createElement('div');
+    const rSecond = document.createElement('div');
+    const rThird = document.createElement('div');
+    const rFirstChild = document.createElement('div');
+    const rSecondChild = document.createElement('div');
+    const rThirdChild = document.createElement('div');
+
+    rFirst.className = `ele l${right[i]} t${top[i]} ${size[i]} ${color[i]}`;
+    rSecond.className = `ele l${right[i]} t${top2[i]} ${size[i]} ${color[i]} d1`;
+    rThird.className = `ele l${right[i]} t${top2[i]} ${size[i]} ${color[i]} d2`;
+
+    rFirst.appendChild(rFirstChild);
+    rSecond.appendChild(rSecondChild);
+    rThird.appendChild(rThirdChild);
+
+    background.appendChild(rFirst);
+    background.appendChild(rSecond);
+    background.appendChild(rThird);
   }
 };
 
