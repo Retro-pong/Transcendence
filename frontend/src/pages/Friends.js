@@ -1,5 +1,8 @@
+import FriendWaitList from '../component/FriendWaitList';
 import NavBar from '../component/Navbar';
 import PageComponent from '../component/PageComponent';
+import OpenModalButton from '../component/button/OpenModalButton';
+import ModalComponent from '../component/modal/ModalComponent';
 
 class Friends extends PageComponent {
   constructor() {
@@ -16,6 +19,8 @@ class Friends extends PageComponent {
       <p>
         <a href="/" data-link>Main</a>
       </p>
+      ${OpenModalButton({ text: '> WAITING', classList: 'btn btn-no-outline-hover', modalId: '#friendWaitingModal' })}
+      ${ModalComponent({ title: 'WAITING', modalId: 'friendWaitingModal', content: FriendWaitList(), buttonList: [] })}
     `;
   }
 }
