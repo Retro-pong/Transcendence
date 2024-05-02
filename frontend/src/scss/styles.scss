@@ -15,6 +15,11 @@ body {
   height: 100vh;
 }
 
+input {
+  border-width: 0 0 0.8rem 0 !important;
+  border-style: dashed !important;
+}
+
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
