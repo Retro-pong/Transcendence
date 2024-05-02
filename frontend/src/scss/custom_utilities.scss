@@ -13,7 +13,8 @@ $utilities: map-merge(
       (
         values: map-merge(
           map-get(map-get($utilities, "viewport-height"), "values"),
-          (75: 75vh),
+          (75: 75vh,
+          50: 50vh,)
         ),
       ),
     ),
