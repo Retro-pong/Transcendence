@@ -13,9 +13,12 @@ class Login extends PageComponent {
 
   async render() {
     return `${NavBar()}
-      ${OpenModalButton({ text: '> Register <', classList: 'btn btn-no-outline-hover', modalId: '#registerModal' })}
-      ${ModalComponent({ borderColor: 'modal-border-mint', title: 'WELCOME!', modalId: 'registerModal', content: RegisterForm(), buttonList: ['confirmBtn'] })}      ${OpenModalButton({ text: '> WAITING', classList: 'btn btn-no-outline-hover', modalId: '#friendWaitingModal' })}
+      ${OpenModalButton({ text: '> NEW ACCOUNT <', classList: 'btn btn-no-outline-hover', modalId: '#registerModal' })}
+      ${ModalComponent({ borderColor: 'modal-border-mint', title: 'WELCOME!', modalId: 'registerModal', content: RegisterForm(), buttonList: ['confirmBtn'] })}      
+      ${OpenModalButton({ text: '> WAITING', classList: 'btn btn-no-outline-hover', modalId: '#friendWaitingModal' })}
       ${ModalComponent({ borderColor: 'modal-border-mint', title: 'WAITING', modalId: 'friendWaitingModal', content: FriendWaitList(), buttonList: [] })}
+      ${OpenModalButton({ text: '> ADD', classList: 'btn btn-no-outline-hover', modalId: '#friendAddModal' })}
+      ${ModalComponent({ borderColor: 'modal-border-pink', title: 'ADD', modalId: 'friendAddModal', content: 'add', buttonList: [] })}
       `;
   }
 }
