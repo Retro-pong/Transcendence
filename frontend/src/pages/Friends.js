@@ -1,4 +1,4 @@
-import FriendWaitList from '../component/FriendWaitList';
+import FriendWaitList from '../component/modal/contents/FriendWaitList';
 import NavBar from '../component/Navbar';
 import PageComponent from '../component/PageComponent';
 import OpenModalButton from '../component/button/OpenModalButton';

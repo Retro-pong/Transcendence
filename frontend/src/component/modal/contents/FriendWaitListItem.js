@@ -1,5 +1,5 @@
-import AcceptButton from './button/AcceptButton';
-import RejectButton from './button/RejectButton';
+import AcceptButton from '../../button/AcceptButton';
+import RejectButton from '../../button/RejectButton';
 
 const FriendWaitListItem = ({ nick }) => {
   return `
