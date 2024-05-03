@@ -15,7 +15,7 @@ class Login extends PageComponent {
       subtitle: "- The World's best retro pong game",
     });
     return `
-     <div class="container text-center">
+      <div class="container text-center">
         ${LoginHeader}
         <div class="p-5">
           ${RegisterFormItem('row my-5 mx-2', 'email-login', 'EMAIL', 'text', 'name @ mail')}
@@ -24,7 +24,7 @@ class Login extends PageComponent {
         <div class="p-5">
           ${LoginPageButtons()}
         </div>
-     </div>
+      </div>
       `;
   }
 
