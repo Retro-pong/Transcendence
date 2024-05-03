@@ -1,9 +1,7 @@
 import PageComponent from '@component/PageComponent.js';
-import RegisterForm from '@component/form/RegisterForm.js';
-import OpenModalButton from '@component/button/OpenModalButton.js';
-import ModalComponent from '@component/modal/ModalComponent.js';
 import RegisterFormItem from '@component/form/RegisterFormItem.js';
 import Header from '@component/text/Header';
+import LoginPageButtons from '@component/button/LoginPageButtons';
 
 class Login extends PageComponent {
   constructor() {
@@ -16,18 +14,6 @@ class Login extends PageComponent {
       title: 'PONG!',
       subtitle: "- The World's best retro pong game",
     });
-    const RegisterBtn = OpenModalButton({
-      text: '> Register <',
-      classList: 'btn btn-no-outline-hover fs-8',
-      modalId: '#registerModal',
-    });
-    console.log(RegisterBtn);
-    const RegisterModal = ModalComponent({
-      title: 'WELCOME!',
-      modalId: 'registerModal',
-      content: RegisterForm(),
-      buttonList: ['confirmBtn'],
-    });
     return `
      <div class="container text-center">
         ${LoginHeader}
@@ -35,24 +21,26 @@ class Login extends PageComponent {
           ${RegisterFormItem('row my-5 mx-2', 'email-login', 'EMAIL', 'text', 'name @ mail')}
           ${RegisterFormItem('row mx-2', 'password-login', 'PASSWORD', 'password', 'PASSWORD')}
         </div>
-        <div class="row justify-content-md-center">
-          <div class="col-md-auto">
-            login
-          <div>
-        </div>
-        <div class="row justify-content-md-center">
-          <div class="col-md-auto">
-            42 login
-          <div>
-        </div>
-        <div class="row justify-content-md-center">
-          <div class="col-md-auto">
-            ${RegisterBtn}
-            ${RegisterModal}
-          <div>
-        </div>
+        ${LoginPageButtons()}
      </div>
       `;
+  }
+
+  async afterRender() {
+    // TODO: login api 요청 & 에러 처리
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+      const email = document.getElementById('email-login').value;
+      const password = document.getElementById('password-login').value;
+      if (!email || !password) return;
+      console.log(`email login`);
+    });
+
+    // TODO: 42 login api 요청 & 에러 처리
+    document
+      .getElementById('42LoginBtn')
+      .addEventListener('click', async () => {
+        console.log(`42 login`);
+      });
   }
 }
 
