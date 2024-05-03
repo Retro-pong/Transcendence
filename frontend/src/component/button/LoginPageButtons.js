@@ -29,7 +29,7 @@ const LoginPageButtons = () => {
   const BtnList = [LoginBtn, Login42Btn, `${RegisterBtn} ${RegisterModal}`];
   return BtnList.map(
     (btn) => `
-         <div class="row justify-content-md-center">
+        <div class="row justify-content-md-center">
             <div class="col-md-auto">
               ${btn}
             </div>
