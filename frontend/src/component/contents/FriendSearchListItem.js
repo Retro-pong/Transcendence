@@ -6,7 +6,7 @@ const FriendSearchListItem = ({ friend }) => {
       <div class="col-10 fs-10">${friend}</div>
       ${BasicButton({
         text: '+',
-        classList: 'col-2 btn btn-no-outline-hover fs-8',
+        classList: 'col-2 btn fs-8',
       })}
     </div>
     `;

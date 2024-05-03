@@ -47,6 +47,7 @@ class Friends extends PageComponent {
       </p>
       <div class="d-flex justify-content-between">
         ${BtnList.join('')}
+      </div>
       `;
   }
 }
