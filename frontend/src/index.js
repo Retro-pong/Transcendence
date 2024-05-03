@@ -1,7 +1,10 @@
-import drawBackground from './background/background.js';
-import Login from './pages/Login.js';
-import Main from './pages/Main.js';
-import Profile from './pages/Profile.js';
+import Profile from '@pages/Profile.js';
+import Login from '@pages/Login.js';
+import Home from '@pages/Home.js';
+import Friends from '@pages/Friends.js';
+import Game from '@pages/Game.js';
+import NavBar from '@component/Navbar.js';
+import drawBackground from '@/background/background.js';
 
 const navigateTo = (url) => {
   if (url === window.location.href) return;
@@ -12,14 +15,19 @@ const navigateTo = (url) => {
 // 동적라우팅 추가 필요
 const router = async () => {
   const routes = {
-    '/': Main,
+    '/': Home,
     '/login': Login,
     '/profile': Profile,
+    '/game': Game,
+    '/friends': Friends,
   };
 
   const page = new routes[location.pathname]();
-
-  document.querySelector('#app').innerHTML = await page.render();
+  const app = document.querySelector('#app');
+  app.innerHTML = await page.render();
+  if (page.getTitle() !== 'Login') {
+    app.innerHTML += NavBar();
+  }
   // await page.afterRender();
 };
 
@@ -33,6 +41,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
   router();
+});
+
+document.addEventListener('click', (e) => {
+  const target = e.target || null;
+  const collapseElement = document.querySelector('.collapse');
+  if (collapseElement && !collapseElement.contains(target)) {
+    collapseElement.classList.remove('show');
+  }
 });
 
 drawBackground();

@@ -1,6 +1,6 @@
 @charset "UTF-8";
-@import 'bootstrap/scss/bootstrap';
 @import './colors.scss';
+@import 'bootstrap/scss/bootstrap';
 @import './font.scss';
 @import './custom_utilities.scss';
 
@@ -20,16 +20,7 @@ body {
   --bs-link-color: #ffffff;
   --bs-link-hover-color: #9bfab6;
 }
-/* v1 */
-/* #app {
-  position: relative;
-  top: 9rem;
-  left: 9rem;
-  width: calc(100vw - 18rem);
-  height: calc(100vh - 18rem);
-} */
 
-/* v2 */
 #app {
   position: relative;
   top: 7rem;
@@ -94,4 +85,36 @@ body {
 .btn-friend-reject {
   border: none;
   background-color: $light-mint;
+}
+
+.modal-content {
+  border: solid 10px;
+  border-radius: 30px;
+}
+
+.modal-border-mint {
+  border-color: $mint;
+}
+
+.modal-border-pink {
+  border-color: $pink;
+}
+
+.btn-friend-accept {
+  border: none;
+  background-color: $light-pink;
+}
+
+.btn-friend-reject {
+  border: none;
+  background-color: $light-mint;
+}
+
+.menubar{
+  justify-content: center;
+  align-items: center;
+  padding: 0 2rem;
+  box-shadow: 0 0 10px 2px rgba(0, 255, 255, 0.7);
+  min-height: 70vh;
+  width: 30rem;
 }

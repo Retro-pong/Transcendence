@@ -1,7 +1,7 @@
-import PageComponent from '../component/PageComponent.js';
-import NavLink from '../component/NavLink.js';
+import PageComponent from '@component/PageComponent.js';
+import NavLink from '@component/NavLink.js';
 
-class Main extends PageComponent {
+class Home extends PageComponent {
   constructor() {
     super();
     this.setTitle('RETRO PONG!');
@@ -11,8 +11,8 @@ class Main extends PageComponent {
     // TODO: path 수정
     const StartButton = NavLink({
       text: '>> Press Start! <<',
-      path: '/profile',
-      classList: ['btn', 'btn-outline-light', 'fs-1'],
+      path: '/game',
+      classList: ['btn', 'btn-outline-light', 'fs-13'],
     }).outerHTML;
 
     return `
@@ -28,4 +28,4 @@ class Main extends PageComponent {
   }
 }
 
-export default Main;
+export default Home;
