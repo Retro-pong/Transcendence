@@ -21,7 +21,9 @@ class Login extends PageComponent {
           ${RegisterFormItem('row my-5 mx-2', 'email-login', 'EMAIL', 'text', 'name @ mail')}
           ${RegisterFormItem('row mx-2', 'password-login', 'PASSWORD', 'password', 'PASSWORD')}
         </div>
-        ${LoginPageButtons()}
+        <div class="p-5">
+          ${LoginPageButtons()}
+        </div>
      </div>
       `;
   }
