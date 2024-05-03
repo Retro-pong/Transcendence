@@ -1,4 +1,5 @@
 import PageComponent from '@component/PageComponent.js';
+import FriendInfoCard from '@component/card/FriendInfoCard';
 
 class Friends extends PageComponent {
   constructor() {
@@ -9,9 +10,7 @@ class Friends extends PageComponent {
   async render() {
     return `
       <h1>Friends</h1>
-      <p>
-        This is Friends Page
-      </p>
+      ${FriendInfoCard()}
       `;
   }
 }
