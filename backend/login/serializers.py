@@ -1,5 +1,22 @@
 from rest_framework import serializers
+from .models import TFA
 from users.models import User
+from django.shortcuts import get_object_or_404
+
+
+class TfaSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    code = serializers.CharField(max_length=6)
+
+    def validate(self, data):
+        email = data.get("email")
+        code = data.get("code")
+        verify = get_object_or_404(TFA, email=email)
+        if verify.code == code:
+            verify.delete()
+            return data
+        else:
+            raise serializers.ValidationError("Code verification failed.")
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -11,21 +28,3 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
         return user
-
-
-# class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-#     """
-#     https://django-rest-framework-simplejwt.readthedocs.io/en/latest/customizing_token_claims.html
-#     JWT Access Token 생성
-#     claim에 담고 싶은 정보 customize
-#     """
-#
-#     @classmethod
-#     def validate(cls, user):
-#         # Get token from parent class
-#         token = super().get_token(user)
-#         # Add custom claims
-#         token["id"] = user.id
-#         token["username"] = user.username
-#         token["email"] = user.email
-#         return token

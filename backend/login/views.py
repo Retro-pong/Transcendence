@@ -4,8 +4,12 @@ from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from django.http import JsonResponse
-from .serializers import RegisterSerializer
+from .serializers import RegisterSerializer, TfaSerializer
+from .models import TFA
 from users.models import User
+from django.core.mail import EmailMessage
+
+# import ssl
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import authenticate
 from django.shortcuts import render
@@ -79,13 +83,55 @@ class EmailRegisterView(APIView):
         responses={400: "BAD_REQUEST", 500: "SERVER_ERROR"},  # 할당된 요청
     )
     def post(self, request):
-        serializer = RegisterSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        tfa_serializer = TfaSerializer(data=request.data)
+        if tfa_serializer.is_valid():
+            serializer = RegisterSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                errors = serializer.errors
+                return JsonResponse(errors, status=status.HTTP_400_BAD_REQUEST)
         else:
-            errors = serializer.errors
+            errors = tfa_serializer.errors
             return JsonResponse(errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class SendVerificationCodeView(APIView):
+    @swagger_auto_schema(
+        tags=["login"],  # Api 이름
+        operation_description="이메일로 인증 코드 전송",  # 기능 설명
+        manual_parameters=[
+            openapi.Parameter(
+                "email", openapi.IN_QUERY, description="Email", type=openapi.TYPE_STRING
+            )
+        ],
+    )
+    def post(self, request):
+        email = request.query_params.get("email")
+        # 이미 가입된 email일 경우
+        if User.objects.filter(email=email).exists():
+            return Response(
+                {"error": "Email already exists."}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # SSL 검증 무시
+        # context = ssl.create_default_context()
+        # context.check_hostname = False
+        # context.verify_mode = ssl.CERT_NONE
+
+        # 6자리 랜덤 코드 생성 및 메일 전송
+        code = User.objects.make_random_password(length=6)
+        message = EmailMessage(
+            subject="Verification code",
+            body=f"Your verification code is {code}",
+            to=[email],
+        )
+        # 이후 verification을 위해 DB에 저장
+        tfa_code = TFA(email=email, code=code)
+        tfa_code.save()
+        message.send()
+        return Response({"message": "Verification email sent."})
 
 
 class TestView(APIView):
