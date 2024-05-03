@@ -66,10 +66,6 @@ input:-webkit-autofill:active {
   }
 }
 
-.modal-open .btn-no-outline-hover {
-  color: $active-green;
-}
-
 .btn-close {
   background-image: none;
   opacity: 1;
@@ -80,7 +76,6 @@ input:-webkit-autofill:active {
 }
 
 .modal-content {
-  border: solid 10px;
   border-radius: 30px;
 }
 

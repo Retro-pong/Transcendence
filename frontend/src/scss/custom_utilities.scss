@@ -61,4 +61,29 @@ $utilities: map-merge(
   )
 );
 
+$my-border-width-6: 6px;
+$my-border-width-7: 7px;
+$my-border-width-8: 8px;
+$my-border-width-9: 9px;
+$my-border-width-10: 10px;
+
+$border-widths: map-merge($border-widths, (
+  6: $my-border-width-6,
+  7: $my-border-width-7,
+  8: $my-border-width-8,
+  9: $my-border-width-9,
+  10: $my-border-width-10,
+));
+
+$utilities: map-merge(
+  $utilities,
+  (
+    "border": (
+      property: border-width,
+      class: border,
+      values: $border-widths,
+    )
+  )
+);
+
 @import "bootstrap/scss/utilities/api";
