@@ -110,11 +110,11 @@ class Friends extends PageComponent {
     ];
     const dummyFriends = await this.getFriends();
     return `
-      <h1>Friends</h1>
-      <div class="d-flex justify-content-between">
+      <h1 class="fs-15">Friends</h1>
+      <div class="d-flex flex-row justify-content-end" style="padding-right: 10%">
         ${BtnList.join('')}
       </div>
-      <div class="d-flex flex-wrap justify-content-evenly h-75 overflow-auto">
+      <div class="d-flex flex-wrap justify-content-evenly overflow-auto h-75">
         ${dummyFriends.map((friend) => FriendInfoCard(friend)).join('')}
       </div>
       `;
