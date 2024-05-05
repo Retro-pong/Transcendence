@@ -1,4 +1,3 @@
-import { Tooltip } from 'bootstrap';
 import Profile from '@pages/Profile.js';
 import Login from '@pages/Login.js';
 import Home from '@pages/Home.js';
