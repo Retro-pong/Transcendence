@@ -1,22 +1,5 @@
 from rest_framework import serializers
-from .models import TFA
 from users.models import User
-from django.shortcuts import get_object_or_404
-
-
-class TfaSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    code = serializers.CharField(max_length=6)
-
-    def validate(self, data):
-        email = data.get("email")
-        code = data.get("code")
-        verify = get_object_or_404(TFA, email=email)
-        if verify.code == code:
-            verify.delete()
-            return data
-        else:
-            raise serializers.ValidationError("Code verification failed.")
 
 
 class RegisterSerializer(serializers.ModelSerializer):
