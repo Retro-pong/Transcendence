@@ -4,6 +4,7 @@ import ModalComponent from '@component/modal/ModalComponent';
 import FriendWaitList from '@component/contents/FriendWaitList';
 import FriendSearch from '@component/contents/FriendSearch';
 import FriendInfoCard from '@component/card/FriendInfoCard';
+import initTooltip from '@/utils/initTooltip';
 
 class Friends extends PageComponent {
   constructor() {
@@ -117,6 +118,10 @@ class Friends extends PageComponent {
         ${dummyFriends.map((friend) => FriendInfoCard(friend)).join('')}
       </div>
       `;
+  }
+
+  async afterRender() {
+    initTooltip();
   }
 }
 

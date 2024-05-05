@@ -52,13 +52,4 @@ document.addEventListener('click', (e) => {
   }
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-  const tooltipTriggerList = document.querySelectorAll(
-    '[data-bs-toggle="tooltip"]'
-  );
-  [...tooltipTriggerList].map(
-    (tooltipTriggerEl) => new Tooltip(tooltipTriggerEl)
-  );
-});
-
 drawBackground();
