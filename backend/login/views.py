@@ -111,7 +111,7 @@ class EmailRegisterView(APIView):
             # )
             # message.send()
             with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
-                server.login("retropong2024@gmail.com", "idbu zroc xlta hcyi")
+                server.login("retropong2024@gmail.com", "oygp lmtb vmhk uqba")
                 server.send(code)
 
             serializer.save()
