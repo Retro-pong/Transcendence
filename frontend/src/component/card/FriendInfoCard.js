@@ -1,5 +1,3 @@
-import { Tooltip } from 'bootstrap'; // eslint-disable-line no-unused-vars
-
 const FriendInfoCard = ({
   id,
   name,
@@ -11,10 +9,6 @@ const FriendInfoCard = ({
 }) => {
   const statusColor = status === 'online' ? 'bg-success' : 'bg-danger';
   const commentMessage = comment || '...';
-  // const Comment =
-  //   comment.length > 11
-  //     ? `<p class="card-text text-truncate" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-comment" data-bs-title="${comment}">comment: ${comment}</p>`
-  //     : `<p class="card-text">comment: ${comment}</p>`;
   return `
     <div id="${id}" class="card text-bg-dark border-5 border-light justify-content-center rounded-5 p-3 my-1" style="width: 33rem; min-width: 33rem;">
       <div class="row g-0">
