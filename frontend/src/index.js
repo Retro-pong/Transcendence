@@ -1,3 +1,4 @@
+import { Tooltip } from 'bootstrap';
 import Profile from '@pages/Profile.js';
 import Login from '@pages/Login.js';
 import Home from '@pages/Home.js';
@@ -49,6 +50,15 @@ document.addEventListener('click', (e) => {
   if (collapseElement && !collapseElement.contains(target)) {
     collapseElement.classList.remove('show');
   }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const tooltipTriggerList = document.querySelectorAll(
+    '[data-bs-toggle="tooltip"]'
+  );
+  [...tooltipTriggerList].map(
+    (tooltipTriggerEl) => new Tooltip(tooltipTriggerEl)
+  );
 });
 
 drawBackground();

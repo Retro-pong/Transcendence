@@ -128,3 +128,11 @@ input:-webkit-autofill:active {
   min-height: 70vh;
   width: 30rem;
 }
+
+.tooltip-comment {
+  --bs-tooltip-bg: var(--bs-light);
+  --bs-tooltip-color: var(--bs-dark);
+  font-size: 1.5rem;
+  font-family: '3Dventure', 'DungGeunMo', system-ui;
+  word-break: keep-all;
+}
