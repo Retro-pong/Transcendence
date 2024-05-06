@@ -39,9 +39,8 @@ input:-webkit-autofill:active {
 
 #app {
   position: relative;
-  top: 5%;
-  width: calc(100vw - 30rem);
-  height: 80%;
+  width: 88%;
+  height: 95%;
   font-size: 2rem;
 }
 
@@ -127,6 +126,25 @@ input:-webkit-autofill:active {
   box-shadow: 0 0 10px 2px rgba(0, 255, 255, 0.7);
   min-height: 70vh;
   width: 30rem;
+}
+
+.tooltip-comment {
+  --bs-tooltip-bg: var(--bs-light);
+  --bs-tooltip-color: var(--bs-dark);
+  font-size: 1.5rem;
+  font-family: '3Dventure', 'DungGeunMo', system-ui;
+  word-break: keep-all;
+}
+
+.btn-arrow {
+  &:hover::before{
+    content: '-> ';
+    color: #ffffff;
+  }
+  &:hover::after{
+    content: ' <-';
+    color: #ffffff;
+  }
 }
 
 .battle-history {

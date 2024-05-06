@@ -12,7 +12,7 @@ class Home extends PageComponent {
     const StartButton = NavLink({
       text: '>> Press Start! <<',
       path: '/game',
-      classList: ['btn', 'btn-outline-light', 'fs-13'],
+      classList: 'btn btn-outline-light fs-13',
     }).outerHTML;
 
     return `
