@@ -8,7 +8,7 @@ class Game extends PageComponent {
 
   async render() {
     return `
-      <h1>Game</h1>
+      <h1 class="text-center" style="font-size: 8rem;">Get ready for the next battle!</h1>
       <p>
         This is Game Page
       </p>
