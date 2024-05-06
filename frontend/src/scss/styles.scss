@@ -135,3 +135,14 @@ input:-webkit-autofill:active {
   font-family: '3Dventure', 'DungGeunMo', system-ui;
   word-break: keep-all;
 }
+
+.btn-arrow {
+  &:hover::before{
+    content: '-> ';
+    color: #ffffff;
+  }
+  &:hover::after{
+    content: ' <-';
+    color: #ffffff;
+  }
+}
