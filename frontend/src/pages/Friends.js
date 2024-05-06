@@ -3,11 +3,21 @@ import OpenModalButton from '@component/button/OpenModalButton';
 import ModalComponent from '@component/modal/ModalComponent';
 import FriendWaitList from '@component/contents/FriendWaitList';
 import FriendSearch from '@component/contents/FriendSearch';
+import FriendInfoCard from '@component/card/FriendInfoCard';
+import initTooltip from '@/utils/initTooltip';
 
 class Friends extends PageComponent {
   constructor() {
     super();
     this.setTitle('Friends');
+  }
+
+  // TODO: 친구 목록 api 요청
+  async getFriends() {
+    const res = await fetch('http://localhost:8080/friends').then((res) =>
+      res.json()
+    );
+    return res;
   }
 
   async render() {
@@ -40,15 +50,20 @@ class Friends extends PageComponent {
       `${FriendWaitBtn} ${FriendWaitModal}`,
       `${FriendAddBtn} ${FriendAddModal}`,
     ];
+    const dummyFriends = await this.getFriends();
     return `
-      <h1>Friends</h1>
-      <p>
-        This is Friends Page
-      </p>
-      <div class="d-flex justify-content-between">
+      <h1 class="fs-15">Friends</h1>
+      <div class="d-flex flex-row justify-content-end" style="padding-right: 10%">
         ${BtnList.join('')}
       </div>
+      <div class="d-flex flex-wrap justify-content-evenly overflow-auto h-75">
+        ${dummyFriends.map((friend) => FriendInfoCard(friend)).join('')}
+      </div>
       `;
+  }
+
+  async afterRender() {
+    initTooltip();
   }
 }
 
