@@ -1,4 +1,5 @@
 import PageComponent from '@component/PageComponent.js';
+import UserProfile from '@component/contents/UserProfile.js';
 
 class Profile extends PageComponent {
   constructor() {
@@ -8,10 +9,8 @@ class Profile extends PageComponent {
 
   async render() {
     return `
-      <h1>Profile</h1>
-      <p>
-        This is Profile Page
-      </p>
+      <h1 class>PLAYER PROFILE</h1>
+      ${UserProfile()}
       `;
   }
 }
