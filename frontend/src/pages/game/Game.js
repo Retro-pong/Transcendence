@@ -11,13 +11,13 @@ class Game extends PageComponent {
     const CreateRoomButton = NavLink({
       text: 'Create Room',
       path: '/game/create',
-      classList: ['btn', 'btn-no-outline-hover', 'fs-15', 'btn-arrow'],
+      classList: 'btn btn-no-outline-hover fs-15 btn-arrow',
     }).outerHTML;
 
     const JoinRoomButton = NavLink({
       text: 'Join Room',
       path: '/game/join',
-      classList: ['btn', 'btn-no-outline-hover', 'fs-15', 'btn-arrow'],
+      classList: 'btn btn-no-outline-hover fs-15 btn-arrow',
     }).outerHTML;
 
     return `

@@ -6,27 +6,22 @@ const NavBar = () => {
     {
       text: 'Home',
       path: '/',
-      classList: ['nav-link', 'fs-13'],
     },
     {
       text: 'Profile',
       path: '/profile',
-      classList: ['nav-link', 'fs-13'],
     },
     {
       text: 'Play Game',
       path: '/game',
-      classList: ['nav-link', 'fs-13'],
     },
     {
       text: 'Friends',
       path: '/friends',
-      classList: ['nav-link', 'fs-13'],
     },
     {
       text: 'Logout',
       path: '/login',
-      classList: ['nav-link', 'fs-13'],
     },
   ];
 
