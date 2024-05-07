@@ -27,13 +27,12 @@ class Login extends PageComponent {
         <div class="p-5">
           ${LoginPageButtons()}
         </div>
-          ${ToastComponent({ id: 'login-toast', message: 'please enter your email and password' })}
+          ${ToastComponent({ id: 'login-toast', message: 'Please enter your email and password' })}
       </div>
       `;
   }
 
-  async getAccessToken({ email, password }) {
-    console.log(email, password);
+  async getAccessToken({ email, password, loginToast }) {
     await fetch('http://localhost:8080/login', {
       method: 'POST',
       headers: {
@@ -44,11 +43,19 @@ class Login extends PageComponent {
         password,
       }),
     })
-      .then((res) => res.json())
       .then((res) => {
-        console.log(res);
+        if (!res.ok) {
+          throw new Error('Login Failed');
+        }
+        return res.json();
+      })
+      .then((data) => {
+        console.log('data', data);
       })
       .catch((err) => {
+        document.getElementById('login-toast-message').innerText =
+          'Login Failed';
+        loginToast.show();
         console.error(err);
       });
   }
@@ -63,6 +70,7 @@ class Login extends PageComponent {
       const email = document.getElementById('email-login').value;
       const password = document.getElementById('password-login').value;
       if (!email || !password) {
+        loginToastMessageEl.innerText = 'Please enter your email and password';
         loginToast.show();
         return;
       }
@@ -71,7 +79,7 @@ class Login extends PageComponent {
         loginToast.show();
         return;
       }
-      await this.getAccessToken({ email, password });
+      await this.getAccessToken({ email, password, loginToast });
     });
 
     // TODO: 42 login api 요청 & 에러 처리

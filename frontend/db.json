@@ -55,5 +55,11 @@
       "profileImg": "https://img4.daumcdn.net/thumb/R658x0.q70/?fname=https://t1.daumcdn.net/news/202105/25/holapet/20210525081724428qquq.jpg"
     }
   ],
-  "login": []
+  "users": [
+    {
+      "email": "test@test.com",
+      "password": "$2a$10$rYxiWikIVcoZsumhxjiuNen7moYlodzkIzASOC1JL6..NW2iFqcLC",
+      "id": 1
+    }
+  ]
 }
