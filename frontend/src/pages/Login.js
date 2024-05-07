@@ -35,6 +35,23 @@ class Login extends PageComponent {
 
   async getAccessToken({ email, password }) {
     console.log(email, password);
+    await fetch('http://localhost:8080/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   }
 
   async afterRender() {
