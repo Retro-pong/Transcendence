@@ -4,7 +4,6 @@ from .views import (
     EmailLoginView,
     EmailRegisterView,
     EmailVerifyView,
-    TestView,
 )
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -16,10 +15,9 @@ app_name = "login"
 
 urlpatterns = [
     path("intra/", IntraView.as_view(), name="intra"),
-    path("email/login", EmailLoginView.as_view(), name="email_login"),
     path("email/register", EmailRegisterView.as_view(), name="email_register"),
+    path("email/login", EmailLoginView.as_view(), name="email_login"),
     path("email/verify", EmailVerifyView.as_view(), name="email_verify"),
-    path("test/", TestView.as_view(), name="test"),
     path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
 ]
