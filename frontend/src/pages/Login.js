@@ -27,8 +27,7 @@ class Login extends PageComponent {
         <div class="p-5">
           ${LoginPageButtons()}
         </div>
-          ${ToastComponent({ id: 'invalidInputToast', message: 'please enter your email and password' })}
-          ${ToastComponent({ id: 'invalidEmailToast', message: 'Invalid Email address' })}
+          ${ToastComponent({ id: 'login-toast', message: 'please enter your email and password' })}
       </div>
       `;
   }
@@ -55,22 +54,21 @@ class Login extends PageComponent {
   }
 
   async afterRender() {
-    const invalidInputToast = Toast.getOrCreateInstance(
-      document.getElementById('invalidInputToast')
-    );
-    const invalidEmailToast = Toast.getOrCreateInstance(
-      document.getElementById('invalidEmailToast')
-    );
+    const loginToastEl = document.getElementById('login-toast');
+    const loginToastMessageEl = document.getElementById('login-toast-message');
+    const loginToast = Toast.getOrCreateInstance(loginToastEl);
+
     // TODO: login api 요청 & 에러 처리
     document.getElementById('loginBtn').addEventListener('click', async () => {
       const email = document.getElementById('email-login').value;
       const password = document.getElementById('password-login').value;
       if (!email || !password) {
-        invalidInputToast.show();
+        loginToast.show();
         return;
       }
       if (Regex.email.test(email) === false) {
-        invalidEmailToast.show();
+        loginToastMessageEl.innerText = 'Invalid Email Address';
+        loginToast.show();
         return;
       }
       await this.getAccessToken({ email, password });
