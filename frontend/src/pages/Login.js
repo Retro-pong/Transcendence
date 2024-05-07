@@ -1,9 +1,11 @@
 import PageComponent from '@component/PageComponent.js';
-import RegisterFormItem from '@component/form/RegisterFormItem.js';
+import RegisterFormItem from '@component/form/RegisterFormItem';
 import Header from '@component/text/Header';
 import LoginPageButtons from '@component/button/LoginPageButtons';
 import ToastComponent from '@component/toast/ToastComponent';
-import { Toast } from 'bootstrap';
+import ModalComponent from '@component/modal/ModalComponent';
+import LoginForm from '@component/form/LoginForm';
+import { Toast, Modal } from 'bootstrap';
 import Regex from '@/constants/Regex';
 
 class Login extends PageComponent {
@@ -17,6 +19,14 @@ class Login extends PageComponent {
       title: 'PONG!',
       subtitle: "- The World's best retro pong game",
     });
+    const LoginModal = ModalComponent({
+      borderColor: 'mint',
+      title: 'WAIT!',
+      modalId: 'loginModal',
+      content: LoginForm(),
+      buttonList: ['submitBtn'],
+    });
+
     return `
       <div class="container text-center">
         ${LoginHeader}
@@ -28,6 +38,7 @@ class Login extends PageComponent {
           ${LoginPageButtons()}
         </div>
           ${ToastComponent({ id: 'login-toast', message: 'Please enter your email and password' })}
+          ${LoginModal}
       </div>
       `;
   }
