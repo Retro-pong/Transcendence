@@ -91,9 +91,9 @@ class Login extends PageComponent {
     const loginToastMessageEl = document.getElementById('login-toast-message');
 
     if (Regex.passcode.test(passcode) === false) {
-      passcode
-        ? (loginToastMessageEl.innerText = 'Invalid Passcode')
-        : (loginToastMessageEl.innerText = 'Please enter your passcode');
+      loginToastMessageEl.innerText = passcode
+        ? 'Invalid Passcode'
+        : 'Please enter your passcode';
       loginToast.show();
       return;
     }
