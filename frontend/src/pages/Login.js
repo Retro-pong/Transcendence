@@ -43,7 +43,23 @@ class Login extends PageComponent {
       `;
   }
 
-  async getAccessToken({ email, password, loginToast }) {
+  async loginCheck(loginModal) {
+    const email = document.getElementById('email-login').value;
+    const password = document.getElementById('password-login').value;
+    const loginToastMessageEl = document.getElementById('login-toast-message');
+    const loginToast = Toast.getOrCreateInstance('#login-toast');
+
+    if (!email || !password) {
+      loginToastMessageEl.innerText = 'Please enter your email and password';
+      loginToast.show();
+      return;
+    }
+    if (Regex.email.test(email) === false) {
+      loginToastMessageEl.innerText = 'Invalid Email Address';
+      loginToast.show();
+      return;
+    }
+
     await fetch('http://localhost:8080/login', {
       method: 'POST',
       headers: {
@@ -58,10 +74,7 @@ class Login extends PageComponent {
         if (!res.ok) {
           throw new Error('Login Failed');
         }
-        return res.json();
-      })
-      .then((data) => {
-        console.log('data', data);
+        loginModal.show();
       })
       .catch((err) => {
         document.getElementById('login-toast-message').innerText =
@@ -71,28 +84,67 @@ class Login extends PageComponent {
       });
   }
 
-  async afterRender() {
-    const loginToastEl = document.getElementById('login-toast');
+  async getAccessToken(loginModal) {
+    const email = document.getElementById('email-login').value;
+    const passcode = document.getElementById('passcode').value;
+    const loginToast = Toast.getOrCreateInstance('#login-toast');
     const loginToastMessageEl = document.getElementById('login-toast-message');
-    const loginToast = Toast.getOrCreateInstance(loginToastEl);
 
-    // TODO: login api 요청 & 에러 처리
-    document.getElementById('loginBtn').addEventListener('click', async () => {
-      const email = document.getElementById('email-login').value;
-      const password = document.getElementById('password-login').value;
-      if (!email || !password) {
-        loginToastMessageEl.innerText = 'Please enter your email and password';
+    if (Regex.passcode.test(passcode) === false) {
+      passcode
+        ? (loginToastMessageEl.innerText = 'Invalid Passcode')
+        : (loginToastMessageEl.innerText = 'Please enter your passcode');
+      loginToast.show();
+      return;
+    }
+
+    // TODO: timeout 처리 필요
+
+    await fetch('http://localhost:8080/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        password: passcode,
+      }),
+    })
+      .then((res) => {
+        // TODO: 에러 처리 구체화 필요
+        if (!res.ok) {
+          throw new Error('Invalid Passcode');
+        }
+        return res.json();
+      })
+      .then((data) => {
+        localStorage.setItem('accessToken', data.accessToken);
+        document.cookie = `refreshToken=${data.accessToken}`;
+        loginModal.hide();
+        window.location.href = '/';
+      })
+      .catch((err) => {
+        loginToastMessageEl.innerText = 'Invalid Passcode';
         loginToast.show();
-        return;
-      }
-      if (Regex.email.test(email) === false) {
-        loginToastMessageEl.innerText = 'Invalid Email Address';
-        loginToast.show();
-        return;
-      }
-      await this.getAccessToken({ email, password, loginToast });
+        console.error(err);
+      });
+  }
+
+  async handle2FALogin() {
+    const loginModalBtn = document.getElementById('loginBtn');
+    const twoFactorLoginBtn = document.getElementById('twoFactorLoginBtn');
+    const loginModal = new Modal('#loginModal');
+
+    loginModalBtn.addEventListener('click', async () => {
+      await this.loginCheck(loginModal);
+      twoFactorLoginBtn.addEventListener('click', async () => {
+        await this.getAccessToken(loginModal);
+      });
     });
+  }
 
+  async afterRender() {
+    await this.handle2FALogin();
     // TODO: 42 login api 요청 & 에러 처리
     document
       .getElementById('42LoginBtn')
