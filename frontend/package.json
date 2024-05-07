@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "concurrently \"npm start\" \"npm run start-json-server\"",
     "start": "vite --host",
-    "start-json-server": "json-server --watch db.json --port 8080",
+    "start-json-server": "json-server --host 0.0.0.0 --watch db.json --port 8080",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
