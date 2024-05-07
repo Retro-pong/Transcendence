@@ -146,3 +146,10 @@ input:-webkit-autofill:active {
     color: #ffffff;
   }
 }
+
+.btn-toast-close {
+  padding: var(--bs-toast-padding-x);
+  &:hover {
+    color: $mint;
+  }
+}
