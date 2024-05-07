@@ -69,7 +69,7 @@ class Login extends PageComponent {
         invalidInputToast.show();
         return;
       }
-      if (!email.match(Regex.email)) {
+      if (Regex.email.test(email) === false) {
         invalidEmailToast.show();
         return;
       }
