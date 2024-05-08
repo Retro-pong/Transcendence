@@ -1,4 +1,5 @@
 import Fetch from '@/utils/Fetch';
+import { navigateTo } from '@/utils/router';
 
 class TokenManager {
   static #accessToken = null;
@@ -53,6 +54,29 @@ class TokenManager {
     document.cookie = 'refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC';
     Fetch.removeHeader('Authorization');
     Fetch.setCredentials('omit');
+  }
+
+  static async authenticateUser() {
+    if (!this.#refreshToken) {
+      return;
+    }
+    // 테스트용 mock api 요청 (실제 요청 바디엔 refresh token 보냄)
+    const response = await Fetch.post('/login', {
+      email: localStorage.getItem('user'),
+      password: '123123',
+    })
+      .then((data) => {
+        this.storeTokens({
+          user: data.user.email,
+          accessToken: data.accessToken,
+          refreshToken: data.accessToken,
+        });
+      })
+      .catch((err) => {
+        // refresh token 만료 시 로그아웃 처리
+        this.clearTokens();
+        console.error(err);
+      });
   }
 }
 
