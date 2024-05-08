@@ -45,7 +45,7 @@ def obtain_jwt_token(user) -> Response:
     response = Response(
         {
             "message": "Login successful",
-            "user": user.email,
+            "email": user.email,
             "jwt": {
                 "access_token": access_token,
                 "refresh_token": refresh_token,

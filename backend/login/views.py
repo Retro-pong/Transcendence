@@ -15,6 +15,38 @@ class IntraView(APIView):
         return Response("intra")
 
 
+class EmailLogoutView(APIView):  # TODO delete (for test)
+    @swagger_auto_schema(
+        tags=["login"],
+        operation_description="email 로그아웃",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "email": openapi.Schema(type=openapi.TYPE_STRING, description="Email")
+            },
+        ),
+        responses={200: "OK", 401: "UNAUTHORIZED"},
+    )
+    def post(self, request):
+        email = request.data.get("email")
+        try:
+            user = User.objects.get(email=email)
+            if user and user.is_active:
+                user.is_active = False
+                user.save()
+                return Response("Logout successful.", status=status.HTTP_200_OK)
+            else:
+                return Response(
+                    {"error": "Already logged out."},
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
+        except Exception as e:
+            return Response(
+                {"error": "Invalid email."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+
 class EmailLoginView(APIView):
     @swagger_auto_schema(
         tags=["login"],
@@ -59,10 +91,11 @@ class EmailLoginView(APIView):
                         )
         # Login failed
         except Exception as e:
-            return Response(
-                {"error": "Invalid email or password."},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
+            pass
+        return Response(
+            {"error": "Invalid email or password."},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
 
 
 class EmailLoginVerifyView(APIView):
@@ -89,8 +122,9 @@ class EmailLoginVerifyView(APIView):
         if tfa and tfa.code == code:
             # 해당 이메일에 대해 모든 발신 기록 삭제
             TFA.objects.filter(email=email).delete()
-            user = User.objects.filter(email=email)
-            user.update(is_active=True)
+            user = User.objects.get(email=email)
+            user.is_active = True
+            user.save()
             # jwt 토큰을 담은 response 반환 (status code: 200)
             return obtain_jwt_token(user)
 
@@ -157,7 +191,6 @@ class EmailRegisterVerifyView(APIView):
 
         # Got the wrong verification code
         else:
-            User.objects.filter(email=email).delete()
             return Response(
                 {"error": "Email verification failed."},
                 status=status.HTTP_401_UNAUTHORIZED,
