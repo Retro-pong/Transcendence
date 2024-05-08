@@ -26,24 +26,20 @@ export const router = async () => {
     '/404': Home, // TODO: NotFound 추가
   };
 
-  const pathname = location.pathname;
+  const currPathname = location.pathname;
   const user = localStorage.getItem('user');
 
-  if (!(pathname in routes)) {
-    navigateTo('/404');
-    return;
+  if (!(currPathname in routes)) {
+    history.pushState(null, null, '/404');
+  } else if (currPathname === '/login' && user) {
+    alert('You are already logged in!');
+    history.pushState(null, null, '/');
+  } else if (currPathname !== '/login' && !user) {
+    alert('You are not logged in!');
+    history.pushState(null, null, '/login');
   }
 
-  if (pathname === '/login' && user) {
-    alert('You are already logged in');
-    navigateTo('/');
-    return;
-  } else if (pathname !== '/login' && !user) {
-    navigateTo('/login');
-    return;
-  }
-
-  const page = new routes[pathname]() || new routes['/']();
+  const page = new routes[location.pathname]();
   const app = document.querySelector('#app');
   app.innerHTML = await page.render();
   if (page.getTitle() !== 'Login') {
