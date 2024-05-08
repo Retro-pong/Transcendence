@@ -1,5 +1,4 @@
 import Fetch from '@/utils/Fetch';
-import { navigateTo } from '@/utils/router';
 
 class TokenManager {
   static #accessToken = null;
