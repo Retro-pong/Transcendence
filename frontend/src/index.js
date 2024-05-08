@@ -1,39 +1,5 @@
-import Profile from '@pages/Profile.js';
-import Login from '@pages/Login.js';
-import Home from '@pages/Home.js';
-import Friends from '@pages/Friends.js';
-import Game from '@pages/game/Game.js';
-import CreateRoom from '@pages/game/CreateRoom';
-import JoinRoom from '@pages/game/JoinRoom';
-import NavBar from '@component/navigation/NavBar.js';
 import drawBackground from '@/background/background.js';
-
-const navigateTo = (url) => {
-  if (url === window.location.href) return;
-  history.pushState(null, null, url);
-  router();
-};
-
-// 동적라우팅 추가 필요
-const router = async () => {
-  const routes = {
-    '/': Home,
-    '/login': Login,
-    '/profile': Profile,
-    '/game': Game,
-    '/game/create': CreateRoom,
-    '/game/join': JoinRoom,
-    '/friends': Friends,
-  };
-
-  const page = new routes[location.pathname]();
-  const app = document.querySelector('#app');
-  app.innerHTML = await page.render();
-  if (page.getTitle() !== 'Login') {
-    app.innerHTML += NavBar();
-  }
-  await page.afterRender();
-};
+import { navigateTo, router } from '@/utils/router';
 
 window.addEventListener('popstate', router);
 
