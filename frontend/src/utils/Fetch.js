@@ -20,7 +20,7 @@ class Fetch {
   }
 
   static async get(url) {
-    const response = await fetch(url, {
+    const response = await fetch(`${this.#BASE_URL}${url}`, {
       method: 'GET',
       headers: this.#headers,
       credentials: this.#credentials,

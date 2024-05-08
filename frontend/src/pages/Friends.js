@@ -5,6 +5,7 @@ import FriendWaitList from '@component/contents/FriendWaitList';
 import FriendSearch from '@component/contents/FriendSearch';
 import FriendInfoCard from '@component/card/FriendInfoCard';
 import initTooltip from '@/utils/initTooltip';
+import Fetch from '@/utils/Fetch';
 
 class Friends extends PageComponent {
   constructor() {
@@ -14,10 +15,7 @@ class Friends extends PageComponent {
 
   // TODO: 친구 목록 api 요청
   async getFriends() {
-    const res = await fetch('http://localhost:8080/friends').then((res) =>
-      res.json()
-    );
-    return res;
+    return Fetch.get('/friends');
   }
 
   async render() {
@@ -50,7 +48,7 @@ class Friends extends PageComponent {
       `${FriendWaitBtn} ${FriendWaitModal}`,
       `${FriendAddBtn} ${FriendAddModal}`,
     ];
-    const dummyFriends = await this.getFriends();
+    const dummyFriends = (await this.getFriends()) || [];
     return `
       <h1 class="fs-15">Friends</h1>
       <div class="d-flex flex-row justify-content-end" style="padding-right: 10%">
