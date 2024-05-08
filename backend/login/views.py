@@ -34,6 +34,7 @@ class EmailLogoutView(APIView):  # TODO delete (for test)
             if user and user.is_active:
                 user.is_active = False
                 user.save()
+                # JWT.objects.filter(user=user).delete()
                 return Response("Logout successful.", status=status.HTTP_200_OK)
             else:
                 return Response(
@@ -134,6 +135,39 @@ class EmailLoginVerifyView(APIView):
                 {"error": "Email verification failed."},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
+
+
+# class RefreshTokenView(APIView):
+#     @swagger_auto_schema(
+#         tags=["login"],
+#         operation_description="refresh token",
+#         request_body=openapi.Schema(
+#             type=openapi.TYPE_OBJECT,
+#             properties={
+#                 "email": openapi.Schema(type=openapi.TYPE_STRING, description="Email"),
+#                 "refresh_token": openapi.Schema(
+#                     type=openapi.TYPE_STRING, description="Refresh token"
+#                 ),
+#             },
+#         ),
+#         responses={200: "OK", 401: "UNAUTHORIZED"},
+#     )
+#     def post(self, request):
+#         email = request.data.get("email")
+#         refresh_token = request.data.get("refresh_token")
+#         user = User.objects.get(email=email)
+#         jwt = JWT.objects.filter(user=user).first()
+#
+#         # Got the correct refresh token
+#         if jwt and jwt.refresh_token == refresh_token:
+#             return obtain_jwt_token(user)
+#
+#         # Got the wrong refresh token
+#         else:
+#             return Response(
+#                 {"error": "Invalid refresh token."},
+#                 status=status.HTTP_401_UNAUTHORIZED,
+#             )
 
 
 class EmailRegisterView(APIView):

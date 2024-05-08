@@ -7,27 +7,25 @@ from .views import (
     EmailRegisterVerifyView,
     EmailLogoutView,
 )
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-)
+from rest_framework_simplejwt.views import TokenRefreshView
 
 
 app_name = "login"
 
 urlpatterns = [
     path("intra/", IntraView.as_view(), name="intra"),
-    path("email/logout", EmailLogoutView.as_view(), name="email_logout"),
-    path("email/login", EmailLoginView.as_view(), name="email_login"),
     path(
-        "email/login/verify", EmailLoginVerifyView.as_view(), name="email_login_verify"
+        "email/logout/", EmailLogoutView.as_view(), name="email_logout"
+    ),  # TODO: delete (for test)
+    path("email/login/", EmailLoginView.as_view(), name="email_login"),
+    path(
+        "email/login/verify/", EmailLoginVerifyView.as_view(), name="email_login_verify"
     ),
-    path("email/register", EmailRegisterView.as_view(), name="email_register"),
+    path("email/register/", EmailRegisterView.as_view(), name="email_register"),
     path(
-        "email/register/verify",
+        "email/register/verify/",
         EmailRegisterVerifyView.as_view(),
         name="email_register_verify",
     ),
-    path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
 ]

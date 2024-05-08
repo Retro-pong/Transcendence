@@ -1,14 +1,9 @@
 from rest_framework.response import Response
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from django.conf import settings
 from rest_framework import status
-from django.core.mail import EmailMessage
-import ssl
 import smtplib
 from .models import TFA
 from users.models import User
-import jwt
-import datetime
 import os
 
 
@@ -42,6 +37,7 @@ def obtain_jwt_token(user) -> Response:
     token = TokenObtainPairSerializer.get_token(user)
     refresh_token = str(token)
     access_token = str(token.access_token)
+    # JWT.objects.create(user=user, refresh_token=refresh_token)
     response = Response(
         {
             "message": "Login successful",
