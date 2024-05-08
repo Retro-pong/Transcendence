@@ -26,6 +26,8 @@ export const router = async () => {
     '/friends': Friends,
   };
 
+  console.log(`*refresh token: ${TokenManager.getRefreshToken()}`);
+
   const page = new routes[location.pathname]();
   const app = document.querySelector('#app');
   app.innerHTML = await page.render();

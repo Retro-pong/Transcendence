@@ -7,6 +7,9 @@ import ModalComponent from '@component/modal/ModalComponent';
 import LoginForm from '@component/form/LoginForm';
 import { Toast, Modal } from 'bootstrap';
 import Regex from '@/constants/Regex';
+import Fetch from '@/utils/Fetch';
+import { navigateTo } from '@/utils/router';
+import TokenManager from '@/utils/TokenManager';
 
 class Login extends PageComponent {
   constructor() {
@@ -59,21 +62,8 @@ class Login extends PageComponent {
       loginToast.show();
       return;
     }
-
-    await fetch('http://localhost:8080/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email,
-        password,
-      }),
-    })
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error('Login Failed');
-        }
+    await Fetch.post('/login', { email, password })
+      .then(() => {
         loginModal.show();
       })
       .catch((err) => {
@@ -98,30 +88,16 @@ class Login extends PageComponent {
       return;
     }
 
-    // TODO: timeout 처리 필요
-
-    await fetch('http://localhost:8080/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email,
-        password: passcode,
-      }),
-    })
-      .then((res) => {
-        // TODO: 에러 처리 구체화 필요
-        if (!res.ok) {
-          throw new Error('Invalid Passcode');
-        }
-        return res.json();
-      })
+    // TODO: timeout 에러 처리 필요
+    await Fetch.post('/login', { email, password: passcode })
       .then((data) => {
-        localStorage.setItem('accessToken', data.accessToken);
-        document.cookie = `refreshToken=${data.accessToken}`;
+        TokenManager.storeTokens({
+          user: data.user.email,
+          accessToken: data.accessToken,
+          refreshToken: data.accessToken,
+        });
         loginModal.hide();
-        window.location.href = '/';
+        navigateTo('/');
       })
       .catch((err) => {
         loginToastMessageEl.innerText = 'Invalid Passcode';
