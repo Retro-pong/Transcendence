@@ -16,13 +16,11 @@ class TokenManager {
   }
 
   static setRefreshToken(refreshToken) {
-    console.log('setRefreshToken');
     this.#refreshToken = refreshToken;
     document.cookie = `refreshToken=${refreshToken}; max-age=${this.#refreshExpiresIn}`;
   }
 
   static #initRefreshToken() {
-    console.log('initRefreshToken');
     const cookies = document.cookie.split(';');
     // eslint-disable-next-line no-restricted-syntax
     for (const cookie of cookies) {
