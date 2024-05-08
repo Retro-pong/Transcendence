@@ -5,19 +5,18 @@ import TokenManager from '@/utils/TokenManager';
 window.addEventListener('popstate', router);
 
 document.addEventListener('DOMContentLoaded', () => {
-  TokenManager.getRefreshToken()
-    ? TokenManager.authenticateUser()
-    : navigateTo('/login');
-  document.body.addEventListener('click', (e) => {
-    if (e.target.matches('[data-link]')) {
-      e.preventDefault();
-      if (e.target.dataset.link === 'Logout') {
-        TokenManager.clearTokens();
+  TokenManager.authenticateUser().then(() => {
+    document.body.addEventListener('click', (e) => {
+      if (e.target.matches('[data-link]')) {
+        e.preventDefault();
+        if (e.target.dataset.link === 'Logout') {
+          TokenManager.clearTokens();
+        }
+        navigateTo(e.target.href);
       }
-      navigateTo(e.target.href);
-    }
+    });
+    router();
   });
-  router();
 });
 
 document.addEventListener('click', (e) => {

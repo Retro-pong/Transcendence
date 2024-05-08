@@ -6,7 +6,6 @@ import CreateRoom from '@pages/game/CreateRoom';
 import JoinRoom from '@pages/game/JoinRoom';
 import Friends from '@pages/Friends';
 import NavBar from '@component/navigation/NavBar';
-import TokenManager from '@/utils/TokenManager';
 
 export const navigateTo = (url) => {
   if (url === window.location.href) return;
@@ -27,13 +26,24 @@ export const router = async () => {
     '/404': Home, // TODO: NotFound 추가
   };
 
-  console.log(`*refresh token: ${TokenManager.getRefreshToken()}`);
+  const pathname = location.pathname;
+  const user = localStorage.getItem('user');
 
-  if (!(location.pathname in routes)) {
+  if (!(pathname in routes)) {
     navigateTo('/404');
     return;
   }
-  const page = new routes[location.pathname]() || new routes['/']();
+
+  if (pathname === '/login' && user) {
+    alert('You are already logged in');
+    navigateTo('/');
+    return;
+  } else if (pathname !== '/login' && !user) {
+    navigateTo('/login');
+    return;
+  }
+
+  const page = new routes[pathname]() || new routes['/']();
   const app = document.querySelector('#app');
   app.innerHTML = await page.render();
   if (page.getTitle() !== 'Login') {

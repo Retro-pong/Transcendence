@@ -61,7 +61,7 @@ class TokenManager {
       return;
     }
     // 테스트용 mock api 요청 (실제 요청 바디엔 refresh token 보냄)
-    const response = await Fetch.post('/login', {
+    await Fetch.post('/login', {
       email: localStorage.getItem('user'),
       password: '123123',
     })
