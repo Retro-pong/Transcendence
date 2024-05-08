@@ -7,13 +7,7 @@ from django.http import JsonResponse
 from .serializers import RegisterSerializer
 from .models import TFA
 from users.models import User
-from django.core.mail import EmailMessage
-import ssl
-import smtplib
-from django.shortcuts import get_object_or_404
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from django.contrib.auth import authenticate
-from django.shortcuts import render
+from .utils import send_verification_code, obtain_jwt_token
 
 
 class IntraView(APIView):
@@ -21,110 +15,150 @@ class IntraView(APIView):
         return Response("intra")
 
 
-class EmailRegisterView(APIView):
+class EmailLoginView(APIView):
     @swagger_auto_schema(
-        tags=["login"],  # Api 이름
-        operation_description="email 회원가입",  # 기능 설명
-        request_body=RegisterSerializer,
-        responses={400: "BAD_REQUEST", 500: "SERVER_ERROR"},  # 할당된 요청
+        tags=["login"],
+        operation_description="email 로그인",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "email": openapi.Schema(type=openapi.TYPE_STRING, description="Email"),
+                "password": openapi.Schema(
+                    type=openapi.TYPE_STRING, description="Password"
+                ),
+            },
+        ),
+        responses={200: "OK", 401: "UNAUTHORIZED", 500: "INTERNAL_SERVER_ERROR"},
     )
     def post(self, request):
-        # If email already exists, return error
         email = request.data.get("email")
-        if User.objects.filter(email=email).exists():
+        password = request.data.get("password")
+
+        # Authenticate the user
+        try:
+            user = User.objects.get(email=email)
+            if user and user.is_authenticated:
+                # 이미 로그인된 상태인 경우
+                if user.is_active:
+                    return Response(
+                        {"error": "Already logged in."},
+                        status=status.HTTP_401_UNAUTHORIZED,
+                    )
+                # 비밀번호 일치 여부 확인
+                if user.check_password(password):
+                    # 2Factor Authentication
+                    if send_verification_code(email):
+                        return Response(
+                            {"message": "Verification code sent."},
+                            status=status.HTTP_200_OK,
+                        )
+                    else:
+                        return Response(
+                            {"error": "Failed to send verification code."},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        )
+        # Login failed
+        except Exception as e:
             return Response(
-                {"error": "Email already exists."},
-                status=status.HTTP_400_BAD_REQUEST,
+                {"error": "Invalid email or password."},
+                status=status.HTTP_401_UNAUTHORIZED,
             )
 
+
+class EmailLoginVerifyView(APIView):
+    @swagger_auto_schema(
+        tags=["login"],
+        operation_description="email 인증",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "email": openapi.Schema(type=openapi.TYPE_STRING, description="Email"),
+                "code": openapi.Schema(
+                    type=openapi.TYPE_STRING, description="Verification code"
+                ),
+            },
+        ),
+        responses={200: "OK", 401: "UNAUTHORIZED"},
+    )
+    def post(self, request):
+        email = request.data.get("email")
+        code = request.data.get("code")
+        tfa = TFA.objects.filter(email=email).first()
+
+        # Got the correct verification code
+        if tfa and tfa.code == code:
+            # 해당 이메일에 대해 모든 발신 기록 삭제
+            TFA.objects.filter(email=email).delete()
+            user = User.objects.filter(email=email)
+            user.update(is_active=True)
+            # jwt 토큰을 담은 response 반환 (status code: 200)
+            return obtain_jwt_token(user)
+
+        # Got the wrong verification code
+        else:
+            return Response(
+                {"error": "Email verification failed."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+
+class EmailRegisterView(APIView):
+    @swagger_auto_schema(
+        tags=["login"],
+        operation_description="email 회원가입",
+        request_body=RegisterSerializer,
+        responses={201: "CREATED", 400: "BAD_REQUEST"},
+    )
+    def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            # 이메일 인증
+            email = serializer.validated_data["email"]
+            if send_verification_code(email):
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                User.objects.filter(email=email).delete()
+                return Response(
+                    {"error": "Failed to send verification code."},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
         else:
             errors = serializer.errors
             return JsonResponse(errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class EmailLoginView(APIView):
+class EmailRegisterVerifyView(APIView):
     @swagger_auto_schema(
-        tags=["login"],  # Api 이름
-        operation_description="email 로그인",  # 기능 설명
-        manual_parameters=[
-            openapi.Parameter(
-                "email", openapi.IN_QUERY, description="Email", type=openapi.TYPE_STRING
-            ),
-            openapi.Parameter(
-                "password",
-                openapi.IN_QUERY,
-                description="Password",
-                type=openapi.TYPE_STRING,
-            ),
-        ],
-        responses={400: "BAD_REQUEST", 500: "SERVER_ERROR"},  # 할당된 요청
+        tags=["login"],
+        operation_description="email 인증",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "email": openapi.Schema(type=openapi.TYPE_STRING, description="Email"),
+                "code": openapi.Schema(
+                    type=openapi.TYPE_STRING, description="Verification code"
+                ),
+            },
+        ),
+        responses={200: "OK", 401: "UNAUTHORIZED"},
     )
     def post(self, request):
         email = request.data.get("email")
-        password = request.data.get("password")
-        user = authenticate(email=email, password=password)
-        if user is not None:
-            # # SSL 검증 무시 TODO: delete
-            # context = ssl.create_default_context()
-            # context.check_hostname = False
-            # context.verify_mode = ssl.CERT_NONE
-            #
-            # # 이후 verification을 위해 DB에 저장
-            # code = User.objects.make_random_password(length=6)
-            # TFA.objects.create(email=email, code=code)
-            #
-            # # 메일 전송
-            # # message = EmailMessage(
-            # #     subject="Verification code",
-            # #     body=f"Your verification code is {code}",
-            # #     to=[email],
-            # # )
-            # # message.send()
-            # with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
-            #     server.login("retropong2024@gmail.com", "oygp lmtb vmhk uqba")
-            #     server.send(code)
-            return Response("Login successful.", status=status.HTTP_200_OK)
-        else:
-            return Response(
-                "Check your email or password.", status=status.HTTP_400_BAD_REQUEST
-            )
-
-
-class EmailVerifyView(APIView):
-    @swagger_auto_schema(
-        tags=["login"],  # Api 이름
-        operation_description="email 인증",  # 기능 설명
-        manual_parameters=[
-            openapi.Parameter(
-                "email", openapi.IN_QUERY, description="Email", type=openapi.TYPE_STRING
-            ),
-            openapi.Parameter(
-                "code",
-                openapi.IN_QUERY,
-                description="Verification code",
-                type=openapi.TYPE_STRING,
-            ),
-        ],
-        responses={  # 할당된 요청
-            400: "BAD_REQUEST",
-            404: "NOT_FOUND",
-            500: "SERVER_ERROR",
-        },
-    )
-    def post(self, request):
-        email = request.query_params.get("email")
-        verify = get_object_or_404(TFA, email=email)
         code = request.data.get("code")
-        if verify.code == code:
-            verify.delete()
+        tfa = TFA.objects.filter(email=email).first()
+
+        # Got the correct verification code
+        if tfa and tfa.code == code:
+            # 해당 이메일에 대해 모든 발신 기록 삭제
+            TFA.objects.filter(email=email).delete()
             User.objects.filter(email=email).update(is_authenticated=True)
-            return Response({"message": "Email verification successful."})
+            return Response("Email verification successful.", status=status.HTTP_200_OK)
+
+        # Got the wrong verification code
         else:
+            User.objects.filter(email=email).delete()
             return Response(
                 {"error": "Email verification failed."},
-                status=status.HTTP_400_BAD_REQUEST,
+                status=status.HTTP_401_UNAUTHORIZED,
             )
