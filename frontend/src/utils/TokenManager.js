@@ -22,6 +22,7 @@ class TokenManager {
   }
 
   static #initRefreshToken() {
+    console.log('initRefreshToken');
     const cookies = document.cookie.split(';');
     // eslint-disable-next-line no-restricted-syntax
     for (const cookie of cookies) {
@@ -43,6 +44,15 @@ class TokenManager {
     localStorage.setItem('user', user);
     Fetch.setHeader('Authorization', `Bearer ${accessToken}`);
     Fetch.setCredentials('include');
+  }
+
+  static clearTokens() {
+    this.#accessToken = null;
+    this.#refreshToken = null;
+    localStorage.clear();
+    document.cookie = 'refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC';
+    Fetch.removeHeader('Authorization');
+    Fetch.setCredentials('omit');
   }
 }
 
