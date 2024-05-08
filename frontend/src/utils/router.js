@@ -35,7 +35,6 @@ export const router = async () => {
     alert('You are already logged in!');
     history.pushState(null, null, '/');
   } else if (currPathname !== '/login' && !user) {
-    alert('You are not logged in!');
     history.pushState(null, null, '/login');
   }
 
