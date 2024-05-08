@@ -24,11 +24,16 @@ export const router = async () => {
     '/game/create': CreateRoom,
     '/game/join': JoinRoom,
     '/friends': Friends,
+    '/404': Home, // TODO: NotFound 추가
   };
 
   console.log(`*refresh token: ${TokenManager.getRefreshToken()}`);
 
-  const page = new routes[location.pathname]();
+  if (!(location.pathname in routes)) {
+    navigateTo('/404');
+    return;
+  }
+  const page = new routes[location.pathname]() || new routes['/']();
   const app = document.querySelector('#app');
   app.innerHTML = await page.render();
   if (page.getTitle() !== 'Login') {
