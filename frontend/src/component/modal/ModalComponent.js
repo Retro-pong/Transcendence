@@ -10,6 +10,8 @@ const ModalComponent = ({
   const buttons = {
     confirmBtn:
       '<button type="button" class="btn btn-outline-light w-100 fs-12"> >> CONFIRM! << </button>',
+    submitBtn:
+      '<button id="twoFactorLoginBtn" type="button" class="btn btn-outline-light w-100 fs-12"> >> SUBMIT << </button>',
   };
 
   return `
