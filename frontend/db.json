@@ -60,5 +60,27 @@
       "profileImg":
       "https://img4.daumcdn.net/thumb/R658x0.q70/?fname=https://t1.daumcdn.net/news/202105/25/holapet/20210525081724428qquq.jpg"
     }
-  ]
+  ],
+  "userInfo": {
+    "nickname": "42TEST",
+    "email": "42TEST@42student.seoul.kr",
+    "win": 100,
+    "lose": 15,
+    "comment": "hello world",
+    "img": "https://www.blueconomy.co.kr/news/photo/202402/2399_3001_921.png",
+    "battleHistory": [
+      {
+        "opponent": "hyobicho",
+        "score": "1:2"
+      },
+      {
+        "opponent": "wonjilee",
+        "score": "1:3"
+      },
+      {
+        "opponent": "subinlee",
+        "score": "1:4"
+      }
+    ]
+  }
 }

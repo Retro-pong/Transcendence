@@ -10,27 +10,47 @@ class Profile extends PageComponent {
     this.setTitle('Profile');
   }
 
+  async getUserInfo() {
+    const userProfileInfo = await fetch('http://localhost:8080/userInfo').then(
+      (res) => res.json()
+    );
+    return userProfileInfo;
+  }
+
   async render() {
-    const userProfile = UserProfile();
     const editModalBtn = openModalButton({
       text: 'EDIT PROFILE',
       classList: 'btn btn-no-outline-hover fs-8',
       modalId: '#editProfile',
     });
-    const editModal = modalComponent({
-      borderColor: 'pink',
-      title: 'EDIT PROFILE',
-      modalId: 'editProfile',
-      content: editProfile({ nickname: 'hyungjpa', comment: 'hihihihi' }),
-      buttonList: ['confirmBtn'],
-    });
+    const editModal = ({ nickname, comment }) =>
+      modalComponent({
+        borderColor: 'pink',
+        title: 'EDIT PROFILE',
+        modalId: 'editProfile',
+        content: editProfile({ nickname, comment }),
+        buttonList: ['confirmBtn'],
+      });
+
+    const dummyUser = await this.getUserInfo();
 
     return `
-      <h1 class>PLAYER PROFILE</h1>
-        ${userProfile}
-      <div class="row d-flex justify-content-center">
-        ${editModalBtn}
-        ${editModal}
+      <h1 class="fs-15">PLAYER PROFILE</h1>
+      <div class="container w-75">
+        <div class="row d-flex justify-content-center">
+          ${UserProfile({
+            nickname: dummyUser.nickname,
+            email: dummyUser.email,
+            winLose: `${dummyUser.win} / ${dummyUser.lose}`,
+            comment: dummyUser.comment,
+            img: dummyUser.img,
+            battle: dummyUser.battleHistory,
+          })}
+        </div>
+        <div class="row d-flex justify-content-center">
+          ${editModalBtn}
+          ${editModal({ nickname: dummyUser.nickname, comment: dummyUser.comment })}
+        </div>
       </div>
       `;
   }
