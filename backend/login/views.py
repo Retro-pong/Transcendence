@@ -58,7 +58,7 @@ class IntraCallbackView(APIView):
         response = requests.get(settings.INTRA_USERINFO_API_URL, headers=headers)
         response_data = response.json()
         try:
-            intra_id = response_data["id"]
+            intra_id = response_data["login"]
             email = response_data["email"]
             image = response_data["image"]["link"]
         except:
