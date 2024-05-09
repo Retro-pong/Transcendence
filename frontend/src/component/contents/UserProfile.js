@@ -9,7 +9,7 @@ const UserProfile = ({ nickname, email, winLose, comment, img, battle }) => {
       ${UserProfileInfo({ nickname, email, winLose, comment })}
       </div>
       <div class="col-3 p-2">
-        <img src=${img} width="100%" height="100%" alt="user profile"/>
+        <img src=${img} width="100%" height="90%" alt="user profile"/>
       </div>
     </div>
     <div class="row my-4">
