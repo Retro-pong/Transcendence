@@ -36,7 +36,7 @@ class Profile extends PageComponent {
 
     return `
       <h1 class="fs-15">PLAYER PROFILE</h1>
-      <div class="container w-75">
+      <div class="container h-100 overflow-auto" style="width: 80%">
         <div class="row d-flex justify-content-center">
           ${UserProfile({
             nickname: dummyUser.nickname,

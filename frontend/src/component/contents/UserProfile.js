@@ -4,15 +4,15 @@ import userProfileBattleHistory from '@component/contents/UserProfileBattleHisto
 const UserProfile = ({ nickname, email, winLose, comment, img, battle }) => {
 
   return `
-    <div class="row d-flex flex-row my-5">
-      <div class="col-9 bg-dark px-4 fs-7">
+    <div class="row d-flex flex-row mt-4">
+      <div class="col-9 px-4 fs-7">
       ${UserProfileInfo({ nickname, email, winLose, comment })}
       </div>
-      <div class="col-3 px-4 bg-danger">
-        <img src=${img} width="300" height="200" alt="hi"/>
+      <div class="col-3 p-2">
+        <img src=${img} width="100%" height="100%" alt="user profile"/>
       </div>
     </div>
-    <div class="row my-5">
+    <div class="row my-4">
       <div class="d-flex justify-content-center fs-8">BATTLE HISTORY</div>
       ${userProfileBattleHistory({ user: nickname, history: battle })}
     </div>

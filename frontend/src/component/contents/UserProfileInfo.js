@@ -8,7 +8,7 @@ const UserProfileInfo = ({ nickname, email, winLose, comment }) => {
 	  <div class="row">
 	  	<div class="col-4">EMAIL</div>
 	  	<div class="col-1">:</div>
-	  	<div class="col-7" style="overflow: hidden">${email}</div>
+	  	<div class="col-7 overflow-y-scroll overflow-scrollbar">${email}</div>
 	  </div>
 	  <div class="row">
 	  	<div class="col-4">WIN / LOSE</div>
