@@ -61,5 +61,27 @@
       "password": "$2a$10$rYxiWikIVcoZsumhxjiuNen7moYlodzkIzASOC1JL6..NW2iFqcLC",
       "id": 1
     }
-  ]
+  ],
+  "userInfo": {
+    "nickname": "42TEST",
+    "email": "42TEST@42student.seoul.kr",
+    "win": 100,
+    "lose": 15,
+    "comment": "hello world",
+    "img": "https://www.blueconomy.co.kr/news/photo/202402/2399_3001_921.png",
+    "battleHistory": [
+      {
+        "opponent": "hyobicho",
+        "score": "1:2"
+      },
+      {
+        "opponent": "wonjilee",
+        "score": "1:3"
+      },
+      {
+        "opponent": "subinlee",
+        "score": "1:4"
+      }
+    ]
+  }
 }
