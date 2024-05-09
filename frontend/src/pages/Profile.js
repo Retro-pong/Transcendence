@@ -19,7 +19,7 @@ class Profile extends PageComponent {
 
   async render() {
     const editModalBtn = openModalButton({
-      text: 'EDIT PROFILE',
+      text: '>> EDIT PROFILE <<',
       classList: 'btn btn-no-outline-hover fs-8',
       modalId: '#editProfile',
     });
