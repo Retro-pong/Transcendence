@@ -15,6 +15,20 @@ class Friends extends PageComponent {
     return Fetch.get('/friends');
   }
 
+  async getWaitingFriends() {
+    return Fetch.get('/friends/waiting');
+  }
+
+  async getSearchFriends(friendName) {
+    return Fetch.get('/friends/search', { friendName });
+  }
+
+  async addFriend(friendName) {
+    return Fetch.post('/friends/add', { friendName });
+  }
+
+
+
   async render() {
     const dummyFriends = (await this.getFriends()) || [];
     return `
