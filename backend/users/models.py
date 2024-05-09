@@ -24,6 +24,7 @@ class User(AbstractUser):
     # password, is_active는 AbstractUser에서 상속 받아 기본 정의 사용
     username = models.CharField(max_length=10, null=False)
     email = models.EmailField(max_length=200, null=False)
+    is_registered = models.BooleanField(default=False)
     is_authenticated = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
     win = models.IntegerField(default=0)

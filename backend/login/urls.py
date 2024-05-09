@@ -1,19 +1,21 @@
 from django.urls import path
 from .views import (
     IntraView,
+    INtraCallbackView,
     EmailLoginView,
     EmailLoginVerifyView,
     EmailRegisterView,
     EmailRegisterVerifyView,
     EmailLogoutView,
 )
-from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 
 
 app_name = "login"
 
 urlpatterns = [
-    path("intra/", IntraView.as_view(), name="intra"),
+    path("intra/login/", IntraView.as_view(), name="intra_login"),
+    path("intra/callback/", IntraView.as_view(), name="intra_callback"),
     path(
         "email/logout/", EmailLogoutView.as_view(), name="email_logout"
     ),  # TODO: delete (for test)
@@ -28,4 +30,5 @@ urlpatterns = [
         name="email_register_verify",
     ),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("token/verify/", TokenVerifyView.as_view(), name="token_verify"),
 ]

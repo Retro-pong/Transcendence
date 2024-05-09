@@ -8,11 +8,76 @@ from .serializers import RegisterSerializer
 from .models import TFA
 from users.models import User
 from .utils import send_verification_code, obtain_jwt_token
+from django.shortcuts import redirect
+from django.conf import settings
+import requests
 
 
-class IntraView(APIView):
+class IntraLoginView(APIView):
     def get(self, request):
-        return Response("intra")
+        authorize_url = settings.INTRA_AUTHORIZE_URL
+        client_id = settings.INTRA_CLIENT_ID
+        redirect_uri = settings.INTRA_REDIRECT_URI
+        scope = "public"
+        url = f"{authorize_url}?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code&scope={scope}"
+        return redirect(url)
+
+
+class IntraCallbackView(APIView):
+    def get(self, request):
+        if request.user.is_authenticated:
+            return Response(
+                {"message": "Already logged in."}, status=status.HTTP_200_OK
+            )
+        code = request.GET.get("code")
+        if code is None:
+            return Response(
+                {"error": "code를 입력하세요"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Access token 요청
+        data = {
+            "grant_type": "authorization_code",
+            "client_id": settings.INTRA_CLIENT_ID,
+            "client_secret": settings.INTRA_CLIENT_SECRET,
+            "code": code,
+            "redirect_uri": settings.INTRA_REDIRECT_URI,  # TODO: check
+        }
+        response = requests.post(settings.INTRA_TOKEN_API_URL, data=data)
+        if not response.status_code == 200:
+            return Response(
+                {"error": "Intra authorization failed."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+        response_data = response.json()
+        access_token = response_data.get("access_token")
+        token_type = response_data.get("token_type")
+
+        # 사용자 정보 요청
+        headers = {"Authorization": f"{token_type} {access_token}"}
+        response = requests.get(settings.INTRA_USERINFO_API_URL, headers=headers)
+        response_data = response.json()
+        try:
+            intra_id = response_data["id"]
+            email = response_data["email"]
+            image = response_data["image"]["link"]
+        except:
+            return Response(
+                {"error": "Failed to get user information."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # 사용자 정보로 회원가입
+        user = User.objects.filter(email=email).first()
+        if not user:
+            user = User.objects.create_user(username=intra_id, email=email)
+        user.is_registered = True
+        user.is_authenticated = True
+        user.image = image
+        user.save()
+
+        # jwt 토큰을 담은 response 반환 (status code: 200)
+        return obtain_jwt_token(user)
 
 
 class EmailLogoutView(APIView):  # TODO delete (for test)
@@ -31,10 +96,9 @@ class EmailLogoutView(APIView):  # TODO delete (for test)
         email = request.data.get("email")
         try:
             user = User.objects.get(email=email)
-            if user and user.is_active:
-                user.is_active = False
+            if user and user.is_authenticated:
+                user.is_authenticated = False
                 user.save()
-                # JWT.objects.filter(user=user).delete()
                 return Response("Logout successful.", status=status.HTTP_200_OK)
             else:
                 return Response(
@@ -70,9 +134,9 @@ class EmailLoginView(APIView):
         # Authenticate the user
         try:
             user = User.objects.get(email=email)
-            if user and user.is_authenticated:
+            if user and user.is_registered:
                 # 이미 로그인된 상태인 경우
-                if user.is_active:
+                if user.is_authenticated:
                     return Response(
                         {"error": "Already logged in."},
                         status=status.HTTP_401_UNAUTHORIZED,
@@ -124,7 +188,7 @@ class EmailLoginVerifyView(APIView):
             # 해당 이메일에 대해 모든 발신 기록 삭제
             TFA.objects.filter(email=email).delete()
             user = User.objects.get(email=email)
-            user.is_active = True
+            user.is_authenticated = True
             user.save()
             # jwt 토큰을 담은 response 반환 (status code: 200)
             return obtain_jwt_token(user)
@@ -220,7 +284,7 @@ class EmailRegisterVerifyView(APIView):
         if tfa and tfa.code == code:
             # 해당 이메일에 대해 모든 발신 기록 삭제
             TFA.objects.filter(email=email).delete()
-            User.objects.filter(email=email).update(is_authenticated=True)
+            User.objects.filter(email=email).update(is_registered=True)
             return Response("Email verification successful.", status=status.HTTP_200_OK)
 
         # Got the wrong verification code
