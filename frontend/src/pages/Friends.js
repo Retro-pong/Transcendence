@@ -27,8 +27,6 @@ class Friends extends PageComponent {
     return Fetch.post('/friends/add', { friendName });
   }
 
-
-
   async render() {
     const dummyFriends = (await this.getFriends()) || [];
     return `
