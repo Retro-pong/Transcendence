@@ -119,6 +119,55 @@ class Login extends PageComponent {
     });
   }
 
+  // TODO: 서버 응답 에러 분기 처리
+  async submitRegisterForm(form) {
+    const email = form.email.value;
+    const nick = form.nick.value;
+    const password = form.password.value;
+    const passwordRe = form.passwordRe.value;
+    const registerToastMessageEl = document.getElementById('login-toast-message');
+    const registerToast = Toast.getOrCreateInstance('#login-toast');
+
+    if (!email || !nick || !password || !passwordRe) {
+      registerToastMessageEl.innerText = 'Please fill in all fields';
+      registerToast.show();
+      return;
+    }
+    if (Regex.email.test(email) === false) {
+      registerToastMessageEl.innerText = 'Invalid Email Address';
+      registerToast.show();
+      return;
+    }
+    if (Regex.nickname.test(nick) === false) {
+      registerToastMessageEl.innerText = 'Invalid Nickname';
+      registerToast.show();
+      return;
+    }
+    if (Regex.password.test(password) === false) {
+      registerToastMessageEl.innerText = 'Invalid Password';
+      registerToast.show();
+      return;
+    }
+    if (password !== passwordRe) {
+      registerToastMessageEl.innerText = 'Password does not match';
+      registerToast.show();
+      return;
+    }
+
+    const registerModal = Modal.getOrCreateInstance('#registerModal');
+    await Fetch.post('/register', { email, nick, password })
+      .then(() => {
+        registerToastMessageEl.innerText = 'Registration Successful';
+        registerToast.show();
+        registerModal.hide();
+      })
+      .catch((err) => {
+        registerToastMessageEl.innerText = 'Registration Failed';
+        registerToast.show();
+        console.error(err);
+      });
+  }
+
   async afterRender() {
     await this.handle2FALogin();
     // TODO: 42 login api 요청 & 에러 처리
@@ -126,6 +175,13 @@ class Login extends PageComponent {
       .getElementById('42LoginBtn')
       .addEventListener('click', async () => {
         console.log(`42 login`);
+      });
+    // register form submit event
+    document
+      .getElementById('registerForm')
+      .addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await this.submitRegisterForm(e.target.elements);
       });
   }
 }
