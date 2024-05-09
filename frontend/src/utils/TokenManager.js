@@ -39,7 +39,7 @@ class TokenManager {
   static storeTokens({ user, accessToken, refreshToken }) {
     this.setAccessToken(accessToken);
     this.setRefreshToken(refreshToken);
-    localStorage.setItem('user', user);
+    localStorage.setItem('user', user); // 테스트용
     Fetch.setHeader('Authorization', `Bearer ${accessToken}`);
     Fetch.setCredentials('include');
   }
@@ -57,7 +57,7 @@ class TokenManager {
     if (!this.#refreshToken) {
       return;
     }
-    // 테스트용 mock api 요청 (실제 요청 바디엔 refresh token 보냄)
+    // 테스트용 mock api 요청 (실제 요청 바디엔 refresh token 보냄 body 없이 보내면 쿠키로 확인?)
     await Fetch.post('/login', {
       email: localStorage.getItem('user'),
       password: '123123',

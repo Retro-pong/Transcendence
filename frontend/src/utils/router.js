@@ -6,6 +6,7 @@ import CreateRoom from '@pages/game/CreateRoom';
 import JoinRoom from '@pages/game/JoinRoom';
 import Friends from '@pages/Friends';
 import NavBar from '@component/navigation/NavBar';
+import TokenManager from '@/utils/TokenManager';
 
 export const navigateTo = (url) => {
   if (url === window.location.href) return;
@@ -27,14 +28,14 @@ export const router = async () => {
   };
 
   const currPathname = location.pathname;
-  const user = localStorage.getItem('user');
+  const isLoggedIn = !!TokenManager.getRefreshToken();
 
   if (!(currPathname in routes)) {
     history.pushState(null, null, '/404');
-  } else if (currPathname === '/login' && user) {
+  } else if (currPathname === '/login' && isLoggedIn) {
     alert('You are already logged in!');
     history.pushState(null, null, '/');
-  } else if (currPathname !== '/login' && !user) {
+  } else if (currPathname !== '/login' && !isLoggedIn) {
     history.pushState(null, null, '/login');
   }
 
