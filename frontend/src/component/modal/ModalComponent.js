@@ -8,8 +8,8 @@ const ModalComponent = ({
   buttonList,
 }) => {
   const buttons = {
-    confirmBtn:
-      '<button type="button" class="btn btn-outline-light w-100 fs-12"> >> CONFIRM! << </button>',
+    registerBtn:
+      '<button id="registerBtn" type="button" class="btn btn-outline-light w-100 fs-12"> >> REGISTER << </button>',
     submitBtn:
       '<button id="twoFactorLoginBtn" type="button" class="btn btn-outline-light w-100 fs-12"> >> SUBMIT << </button>',
   };
