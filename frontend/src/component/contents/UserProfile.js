@@ -2,7 +2,6 @@ import UserProfileInfo from '@component/contents/UserProfileInfo';
 import userProfileBattleHistory from '@component/contents/UserProfileBattleHistory';
 
 const UserProfile = ({ nickname, email, winLose, comment, img, battle }) => {
-
   return `
     <div class="row d-flex flex-row mt-4">
       <div class="col-9 px-4 fs-7">
