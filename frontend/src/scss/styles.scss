@@ -147,6 +147,13 @@ input:-webkit-autofill:active {
   }
 }
 
+.btn-toast-close {
+  padding: var(--bs-toast-padding-x);
+  &:hover {
+    color: $mint;
+  }
+}
+
 .battle-history {
   border: dashed 10px $white;
 }
