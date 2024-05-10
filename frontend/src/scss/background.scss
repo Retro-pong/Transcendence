@@ -1,0 +1,123 @@
+@import './colors.scss';
+
+@for $i from 1 through 13 {
+  .l#{$i} { left: #{$i}vw;}
+}
+
+@for $i from 87 through 99 {
+  .l#{$i} { left: #{$i}vw;}
+}
+
+.l1-5 { left: 1.5vw; }
+.l2-5 { left: 2.5vw; }
+.l3-5 { left: 3.5vw; }
+.l4-5 { left: 4.5vw; }
+.l5-5 { left: 5.5vw; }
+.l6-5 { left: 6.5vw; }
+.l7-5 { left: 7.5vw; }
+.l8-5 { left: 8.5vw; }
+.l9-5 { left: 9.5vw; }
+.l10-5 { left: 10.5vw; }
+.l11-5 { left: 11.5vw; }
+.l12-5 { left: 12.5vw; }
+
+.l88-5 { left: 88.5vw; }
+.l89-5 { left: 89.5vw; }
+.l90-5 { left: 90.5vw; }
+.l91-5 { left: 91.5vw; }
+.l92-5 { left: 92.5vw; }
+.l93-5 { left: 93.5vw; }
+.l94-5 { left: 94.5vw; }
+.l95-5 { left: 95.5vw; }
+.l96-5 { left: 96.5vw; }
+.l97-5 { left: 97.5vw; }
+.l98-5 { left: 98.5vw; }
+
+
+@for $i from 1 through 200 {
+  .t#{$i} { top: -#{$i}vh;}
+}
+
+.ele {
+  position: absolute;
+  animation: animate-opacity 5s linear infinite running, animate-rotate 2s linear infinite running, animate-position 7s linear infinite running;
+}
+
+.w div {
+  width: 1.5vw!important;
+}
+
+.h-xxxs div {
+  height: 5vh!important;
+}
+
+.h-xxs div {
+  height: 7vh!important;
+}
+
+.h-xs div {
+  height: 10vh!important;
+}
+
+.h-s div {
+  height: 13vh!important;
+}
+
+.h-m div {
+  height: 15vh!important;
+}
+
+.h-l div {
+  height: 17vh!important;
+}
+
+.h-xl div {
+  height: 20vh!important;
+}
+
+.c-mint div {
+  background-color: $mint!important;
+}
+
+.c-pink div {
+  background-color: $pink!important;
+}
+
+.c-white div {
+  background-color: white!important;
+}
+
+.d2{
+  animation-delay: 4s;
+}
+
+.d1{
+  animation-delay: 2s;
+}
+
+@keyframes animate-opacity {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes animate-rotate {
+  0% {
+    transform: rotateY(180deg);
+  }
+  100% {
+    transform: rotateY(180deg);
+  }
+}
+
+@keyframes animate-position {
+  to {
+    top: calc(130vh);
+  }
+}

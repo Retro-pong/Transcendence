@@ -1,13 +1,17 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SPA Test</title>
-</head>
-<body>
-  <!-- div app에 페이지 생성 -->
-  <div id="app"></div>
-  <script src="/src/index.js" type="module"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./scss/styles.scss" />
+    <link rel="stylesheet" href="./scss/background.scss" />
+    <title>RETRO PONG!</title>
+  </head>
+  <body>
+    <!-- 배경 -->
+    <div id="background"></div>
+    <!-- div app에 페이지 생성 -->
+    <div id="app" class="container-fluid p-5"></div>
+    <script src="./index.js" type="module"></script>
+  </body>
 </html>

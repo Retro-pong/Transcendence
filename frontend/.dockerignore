@@ -1,0 +1,19 @@
+# modules
+/node_modules
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm_debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# local env files
+.env
+
+.eslintcache
+
+README.md
