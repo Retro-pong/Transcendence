@@ -6,10 +6,10 @@ const FriendWaitListItem = ({ nick }) => {
   <div class="row my-2">
     <div class="col-8 d-flex align-items-center justify-content-start fs-8">${nick}</div>
     <div class="col-2 d-flex align-items-center justify-content-center">
-      ${BasicButton({ id: 'accept', text: 'OK', classList: 'btn btn-friend-accept rounded-5 fs-8', data })}
+      ${BasicButton({ id: `accept-${nick}`, text: 'OK', classList: 'btn btn-friend-accept rounded-5 fs-8', data })}
       </div>
       <div class="col-2 d-flex align-items-center justify-content-center">
-      ${BasicButton({ id: 'reject', text: 'NO', classList: 'btn btn-friend-reject rounded-5 fs-8', data })}
+      ${BasicButton({ id: `reject-${nick}`, text: 'NO', classList: 'btn btn-friend-reject rounded-5 fs-8', data })}
     </div>
   </div>`;
 };
