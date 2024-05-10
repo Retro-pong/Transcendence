@@ -44,6 +44,10 @@ export const router = async () => {
   } else if (currPathname !== '/login' && !isLoggedIn) {
     history.pushState(null, null, '/login');
   }
+  // TODO: 게임 페이지에서 뒤로가기 제한
+  // else if (currPathname === '/game') {
+  // history.pushState(null, null, location.href);
+  //  window.addEventListener('popstate', () => history.go(1));}
 
   const page = new routes[location.pathname]();
   const app = document.querySelector('#app');
