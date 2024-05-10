@@ -1,4 +1,10 @@
-const BasicButton = ({ id, text, classList = '', disabled = false, data = '' }) => {
+const BasicButton = ({
+  id,
+  text,
+  classList = '',
+  disabled = false,
+  data = '',
+}) => {
   const btnClass = `btn btn-no-outline-hover ${classList}`;
   return disabled
     ? `
