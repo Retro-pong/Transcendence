@@ -30,11 +30,17 @@ export const router = async () => {
   const currPathname = location.pathname;
   const isLoggedIn = !!TokenManager.getRefreshToken();
 
+  console.log(isLoggedIn);
   if (!(currPathname in routes)) {
     history.pushState(null, null, '/404');
-  } else if (currPathname === '/login' && isLoggedIn) {
-    alert('You are already logged in!');
-    history.pushState(null, null, '/');
+  } else if (currPathname === '/login') {
+    if (isLoggedIn) {
+      alert('You are already logged in!');
+      history.go(1);
+    } else {
+      history.pushState(null, null, '/login');
+      window.addEventListener('popstate', () => history.go(1));
+    }
   } else if (currPathname !== '/login' && !isLoggedIn) {
     history.pushState(null, null, '/login');
   }
