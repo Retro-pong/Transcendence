@@ -1,6 +1,6 @@
 import PageComponent from '@component/PageComponent.js';
 
-class CreateRoom extends PageComponent {
+class WaitingRoom extends PageComponent {
   constructor() {
     super();
     this.setTitle('Create Room');
@@ -9,13 +9,13 @@ class CreateRoom extends PageComponent {
   async render() {
     return `
       <div class="container h-100 p-3 game-room-border">
-        <h1 class="display-1 text-center">[ Room Setting ]</h1>
+        <h1 class="display-1 text-center">Welcome to 'title'</h1>
         <div>
-          create room
+          waiting room
         </div>
       </div>
       `;
   }
 }
 
-export default CreateRoom;
+export default WaitingRoom;
