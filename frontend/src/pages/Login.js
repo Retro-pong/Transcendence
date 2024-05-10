@@ -125,7 +125,9 @@ class Login extends PageComponent {
     const nick = form.nick.value;
     const password = form.password.value;
     const passwordRe = form.passwordRe.value;
-    const registerToastMessageEl = document.getElementById('login-toast-message');
+    const registerToastMessageEl = document.getElementById(
+      'login-toast-message'
+    );
     const registerToast = Toast.getOrCreateInstance('#login-toast');
 
     if (!email || !nick || !password || !passwordRe) {
@@ -139,15 +141,30 @@ class Login extends PageComponent {
       return;
     }
     if (Regex.nickname.test(nick) === false) {
-      registerToastMessageEl.innerText = 'Invalid Nickname';
+      registerToastMessageEl.innerText = 'Nickname must be 2-10 characters';
       registerToast.show();
       return;
     }
-    if (Regex.password.test(password) === false) {
-      registerToastMessageEl.innerText = 'Invalid Password';
+
+    if (password.length < 8) {
+      registerToastMessageEl.innerText =
+        'Password must be at least 8 characters';
       registerToast.show();
       return;
     }
+    if (password.search(/[a-zA-Z]/) === -1) {
+      registerToastMessageEl.innerText =
+        'Password must contain at least one letter';
+      registerToast.show();
+      return;
+    }
+    if (password.search(/[0-9]/) === -1) {
+      registerToastMessageEl.innerText =
+        'Password must contain at least one number';
+      registerToast.show();
+      return;
+    }
+
     if (password !== passwordRe) {
       registerToastMessageEl.innerText = 'Password does not match';
       registerToast.show();
@@ -160,6 +177,7 @@ class Login extends PageComponent {
         registerToastMessageEl.innerText = 'Registration Successful';
         registerToast.show();
         registerModal.hide();
+        document.getElementById('registerForm').reset();
       })
       .catch((err) => {
         registerToastMessageEl.innerText = 'Registration Failed';
