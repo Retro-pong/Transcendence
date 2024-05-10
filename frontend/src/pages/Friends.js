@@ -1,8 +1,11 @@
 import PageComponent from '@component/PageComponent.js';
 import FriendInfoCard from '@component/card/FriendInfoCard';
 import FriendPageButtons from '@component/button/FriendPageButtons';
+import FriendWaitListItem from '@component/contents/FriendWaitListItem';
+import FriendSearchListItem from '@component/contents/FriendSearchListItem';
 import initTooltip from '@/utils/initTooltip';
 import Fetch from '@/utils/Fetch';
+import debounce from '@/utils/debounce';
 
 class Friends extends PageComponent {
   constructor() {
@@ -16,15 +19,54 @@ class Friends extends PageComponent {
   }
 
   async getWaitingFriends() {
-    return Fetch.get('/friends/waiting');
+    return Fetch.get('/friends-wait-list');
   }
 
   async getSearchFriends(friendName) {
-    return Fetch.get('/friends/search', { friendName });
+    return Fetch.get('/friends-search', { friendName });
   }
 
-  async addFriend(friendName) {
-    return Fetch.post('/friends/add', { friendName });
+  async addFriendWaitModalEvent() {
+    const friendWaitModal = document.getElementById('friendWaitModal');
+    const friendWaitList = document.getElementById('friendWaitListContainer');
+
+    friendWaitModal.addEventListener('hide.bs.modal', () => {
+      while (friendWaitList.firstChild) {
+        friendWaitList.removeChild(friendWaitList.firstChild);
+      }
+    });
+
+    friendWaitModal.addEventListener('show.bs.modal', async () => {
+      const waitingFriends = await this.getWaitingFriends();
+      waitingFriends.map((friend) =>
+        friendWaitList.appendChild(FriendWaitListItem({ nick: friend }))
+      );
+    });
+  }
+
+  async addFriendAddModalEvent() {
+    const friendAddModal = document.getElementById('friendAddModal');
+    const input = document.getElementById('searchFriend');
+    const friendSearchList = document.getElementById(
+      'friendSearchListContainer'
+    );
+
+    friendAddModal.addEventListener('hide.bs.modal', () => {
+      input.value = '';
+      while (friendSearchList.firstChild) {
+        friendSearchList.removeChild(friendSearchList.firstChild);
+      }
+    });
+
+    input.addEventListener(
+      'input',
+      debounce(async (e) => {
+        const searchResult = await this.getSearchFriends(e.target.value);
+        searchResult.map((friend) =>
+          friendSearchList.appendChild(FriendSearchListItem({ nick: friend }))
+        );
+      }, 1000)
+    );
   }
 
   async render() {
@@ -42,6 +84,8 @@ class Friends extends PageComponent {
 
   async afterRender() {
     initTooltip();
+    await this.addFriendWaitModalEvent();
+    await this.addFriendAddModalEvent();
   }
 }
 
