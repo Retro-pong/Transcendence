@@ -84,14 +84,21 @@
       }
     ]
   },
-  "friend-wait-list": [
+  "friends-wait-list": [
     "hyungjpa",
     "hyobicho",
     "wonjilee",
     "subinlee"
   ],
-  "friend-accept": [
-  ],
-  "friend-reject": [
+  "friend-accept": [],
+  "friend-reject": [],
+  "friend-add-new": [],
+  "friends-search": [
+    "hyungjpa",
+    "hyobicho",
+    "wonjilee",
+    "subinlee",
+    "kitty",
+    "puppy"
   ]
 }
