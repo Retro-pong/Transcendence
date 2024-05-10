@@ -14,44 +14,43 @@ import requests
 
 
 class IntraLoginView(APIView):
+    @swagger_auto_schema(
+        tags=["login"],
+        operation_description="intra 로그인",
+        responses={200: "OK"},
+    )
     def get(self, request):
-        authorize_url = settings.INTRA_AUTHORIZE_URL
+        authorize_api_url = settings.INTRA_AUTHORIZE_API_URL
         client_id = settings.INTRA_CLIENT_ID
         redirect_uri = settings.INTRA_REDIRECT_URI
-        scope = "public"
-        url = f"{authorize_url}?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code&scope={scope}"
+        url = f"{authorize_api_url}?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code"
         return redirect(url)
 
 
 class IntraCallbackView(APIView):
+    @swagger_auto_schema(
+        tags=["login"],
+        operation_description="intra 콜백",
+        responses={200: "OK", 400: "BAD_REQUEST", 500: "INTERNAL_SERVER_ERROR"},
+    )
     def get(self, request):
-        if request.user.is_authenticated:
-            return Response(
-                {"message": "Already logged in."}, status=status.HTTP_200_OK
-            )
-        code = request.GET.get("code")
-        if code is None:
-            return Response(
-                {"error": "code를 입력하세요"}, status=status.HTTP_400_BAD_REQUEST
-            )
+        try:
+            code = request.GET.get("code")
+            response_data = self.get_intra_token(code)
+        except Exception as e:
+            return Response({"error": e}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Access token 요청
-        data = {
-            "grant_type": "authorization_code",
-            "client_id": settings.INTRA_CLIENT_ID,
-            "client_secret": settings.INTRA_CLIENT_SECRET,
-            "code": code,
-            "redirect_uri": settings.INTRA_REDIRECT_URI,  # TODO: check
-        }
-        response = requests.post(settings.INTRA_TOKEN_API_URL, data=data)
-        if not response.status_code == 200:
-            return Response(
-                {"error": "Intra authorization failed."},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
-        response_data = response.json()
-        access_token = response_data.get("access_token")
         token_type = response_data.get("token_type")
+        access_token = response_data.get("access_token")
+        try:
+            email = self.get_email(access_token)
+            user = User.objects.get(email=email)
+            # TODO: user 로그인
+        except User.DoesNotExist:
+            # TODO: user 새로 생성
+            pass
+        except Exception as e:
+            return Response({"error": e}, status=status.HTTP_400_BAD_REQUEST)
 
         # 사용자 정보 요청
         headers = {"Authorization": f"{token_type} {access_token}"}
@@ -78,6 +77,31 @@ class IntraCallbackView(APIView):
 
         # jwt 토큰을 담은 response 반환 (status code: 200)
         return obtain_jwt_token(user)
+
+    def get_intra_token(self, code) -> dict:
+        data = {
+            "grant_type": "authorization_code",
+            "client_id": settings.INTRA_CLIENT_ID,
+            "client_secret": settings.INTRA_CLIENT_SECRET,
+            "code": code,
+            "redirect_uri": settings.INTRA_REDIRECT_URI,  # TODO: check
+        }
+        response = requests.post(settings.INTRA_TOKEN_API_URL, data=data)
+        if not response.status_code == 200:
+            raise Exception("Failed to get access token.")
+        response_data = response.json()
+        return response_data
+
+    def get_email(self, access_token) -> str:
+        headers = {"Authorization": f"Bearer {access_token}"}
+        response = requests.get(settings.INTRA_USERINFO_API_URL, headers=headers)
+        if not response.status_code == 200:
+            raise Exception("Failed to get email.")
+        response_data = response.json()
+        email = response_data["email"]
+        if email is None:
+            raise Exception("Failed to get email.")
+        return email
 
 
 class EmailLogoutView(APIView):  # TODO delete (for test)

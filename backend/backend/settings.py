@@ -34,9 +34,9 @@ BASE_URL = os.environ.get("BASE_URL")
 INTRA_AUTHORIZE_API_URL = os.environ.get("INTRA_AUTHORIZE_API_URL")
 INTRA_TOKEN_API_URL = os.environ.get("INTRA_TOKEN_API_URL")
 INTRA_USERINFO_API_URL = os.environ.get("INTRA_USERINFO_API_URL")
-INTRA_REDIRECT_URI = os.environ.get("INTRA_REDIRECT_URI")
 INTRA_CLIENT_ID = os.environ.get("INTRA_CLIENT_ID")
 INTRA_CLIENT_SECRET = os.environ.get("INTRA_CLIENT_SECRET")
+INTRA_REDIRECT_URI = os.environ.get("INTRA_REDIRECT_URI")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/

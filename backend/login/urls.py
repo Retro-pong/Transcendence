@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (
-    IntraView,
-    INtraCallbackView,
+    IntraLoginView,
+    IntraCallbackView,
     EmailLoginView,
     EmailLoginVerifyView,
     EmailRegisterView,
@@ -14,8 +14,8 @@ from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 app_name = "login"
 
 urlpatterns = [
-    path("intra/login/", IntraView.as_view(), name="intra_login"),
-    path("intra/callback/", IntraView.as_view(), name="intra_callback"),
+    path("intra/login/", IntraLoginView.as_view(), name="intra_login"),
+    path("intra/callback/", IntraCallbackView.as_view(), name="intra_callback"),
     path(
         "email/logout/", EmailLogoutView.as_view(), name="email_logout"
     ),  # TODO: delete (for test)
