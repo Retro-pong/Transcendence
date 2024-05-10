@@ -1,7 +1,6 @@
 import PageComponent from '@component/PageComponent.js';
 import NavLink from '@component/navigation/NavLink';
 import Fetch from '@/utils/Fetch';
-// import BasicButton from '@component/button/BasicButton';
 
 class JoinRoom extends PageComponent {
   constructor() {
@@ -9,13 +8,10 @@ class JoinRoom extends PageComponent {
     this.setTitle('Join Room');
   }
 
-  async getRoomList() {
-    return Fetch.get('/roomList');
-  }
+  async getRoomLinks() {
+    const roomList = await Fetch.get('/roomList');
 
-  async render() {
-    const roomList = await this.getRoomList();
-    const RoomLinks = roomList
+    return roomList
       .map((room) => {
         return NavLink({
           text: `[ ${room.title} ] (${room.currentParty}/${room.totalParty})`,
@@ -25,6 +21,11 @@ class JoinRoom extends PageComponent {
         }).outerHTML;
       })
       .join('');
+  }
+
+  async render() {
+    const RoomLinks = await this.getRoomLinks();
+
     return `
       <div class="container h-100 p-3 game-room-border">
         <h1 class="display-1 text-center">[ Room List ]</h1>
