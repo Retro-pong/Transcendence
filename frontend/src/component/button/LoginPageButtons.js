@@ -24,7 +24,7 @@ const LoginPageButtons = () => {
     title: 'WELCOME!',
     modalId: 'registerModal',
     content: RegisterForm(),
-    buttonList: ['confirmBtn'],
+    buttonList: ['registerBtn'],
   });
   const BtnList = [LoginBtn, Login42Btn, `${RegisterBtn} ${RegisterModal}`];
   return BtnList.map(
