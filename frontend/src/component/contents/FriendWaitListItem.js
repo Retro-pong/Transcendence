@@ -44,13 +44,13 @@ const FriendWaitListItem = ({ nick }) => {
   item.appendChild(col2);
   item.appendChild(col3);
 
-  // TOOD: 친구 수락, 거절 후 토스트 처리
+  // TODO: api 연결 후 로직 추가
   acceptBtn.addEventListener('click', async () => {
     try {
       await Fetch.post('/friend-accept', { nick });
       console.log('친구 수락 성공');
     } catch (err) {
-      console.log('친구 수락 실패');
+      console.error('친구 수락 실패');
     }
   });
 
@@ -59,7 +59,7 @@ const FriendWaitListItem = ({ nick }) => {
       await Fetch.post('/friend-reject', { nick });
       console.log('친구 거절 성공');
     } catch (err) {
-      console.log('친구 거절 실패');
+      console.error('친구 거절 실패');
     }
   });
 
