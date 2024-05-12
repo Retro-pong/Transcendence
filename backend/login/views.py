@@ -8,6 +8,9 @@ from .serializers import RegisterSerializer
 from .models import TFA
 from users.models import User
 from .utils import send_verification_code, obtain_jwt_token
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.authentication import JWTAuthentication #jwt 유저 인증 확인
+from rest_framework.permissions import IsAuthenticated #인증 권한 확인
 
 
 class IntraView(APIView):
@@ -229,3 +232,4 @@ class EmailRegisterVerifyView(APIView):
                 {"error": "Email verification failed."},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
+        

@@ -6,17 +6,25 @@ from rest_framework import status
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from rest_framework_simplejwt.authentication import JWTAuthentication #jwt 유저 인증 확인
+from rest_framework.permissions import IsAuthenticated #인증 권한 확인
 # Create your views here.
 
 class ProfileView(APIView):
+    authentication_classes = (JWTAuthentication)
+    permission_classes = (IsAuthenticated)
     def get(self, request):
         return Response("user profile")
 
 class ProfileEditView(APIView):
+    authentication_classes = (JWTAuthentication)
+    permission_classes = (IsAuthenticated)
     def patch(self, request):
         return Response("user profile edit")
 
 class ProfileUploadView(APIView):
+    authentication_classes = (JWTAuthentication)
+    permission_classes = (IsAuthenticated)
     @swagger_auto_schema(
         tags=["users"],  # Api 이름
         operation_description="사용자 프로필 업로드",  # 기능 설명

@@ -51,6 +51,8 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",  # JWT
     "rest_framework_swagger",  # Swagger
     "drf_yasg",  # Swagger generator
+    'dj_rest_auth', #permission
+    'rest_framework.authtoken', #permission
 ]
 
 MIDDLEWARE = [
