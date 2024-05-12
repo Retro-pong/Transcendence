@@ -1,34 +1,30 @@
-import Login from './pages/Login.js';
-import Main from './pages/Main.js';
-import Profile from './pages/Profile.js';
-
-const navigateTo = (url) => {
-  if (url === window.location.href) return;
-  history.pushState(null, null, url);
-  router();
-};
-
-// 동적라우팅 추가 필요
-const router = async () => {
-  const routes = {
-    '/': Login,
-    '/main': Main,
-    '/profile': Profile,
-  };
-
-  const page = new routes[location.pathname]();
-
-  document.querySelector('#app').innerHTML = await page.render();
-};
+import drawBackground from '@/background/background.js';
+import { navigateTo, router } from '@/utils/router';
+import TokenManager from '@/utils/TokenManager';
 
 window.addEventListener('popstate', router);
 
 document.addEventListener('DOMContentLoaded', () => {
-  document.body.addEventListener('click', (e) => {
-    if (e.target.matches('[data-link]')) {
-      e.preventDefault();
-      navigateTo(e.target.href);
-    }
+  TokenManager.authenticateUser().then(() => {
+    document.body.addEventListener('click', (e) => {
+      if (e.target.matches('[data-link]')) {
+        e.preventDefault();
+        if (e.target.dataset.link === 'Logout') {
+          TokenManager.clearTokens();
+        }
+        navigateTo(e.target.href);
+      }
+    });
+    router();
   });
-  router();
 });
+
+document.addEventListener('click', (e) => {
+  const target = e.target || null;
+  const collapseElement = document.querySelector('.collapse');
+  if (collapseElement && !collapseElement.contains(target)) {
+    collapseElement.classList.remove('show');
+  }
+});
+
+drawBackground();

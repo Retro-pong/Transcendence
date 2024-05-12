@@ -8,24 +8,24 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ["username", "email", "password"]
         extra_kwargs = {"password": {"write_only": True}}
 
-    def create(self, validated_data):
-        user = User.objects.create_user(**validated_data)
-        return user
+    def create(self, validated_data) -> User:
+        # email 중복 방지
+        try:
+            email = validated_data["email"]
+            user = User.objects.get(email=email)
+            if user.is_authenticated:  # 이미 가입된 이메일인 경우, 회원가입 실패
+                raise serializers.ValidationError("Email already exists.")
+            else:  # 가입되었지만 인증되지 않은 경우, 기존 회원 정보 삭제 후 새로 가입
+                user.delete()
+        except User.DoesNotExist:
+            pass
 
+        # username 중복 방지
+        username = validated_data["username"]
+        while User.objects.filter(username=username).exists():
+            username = User.objects.make_random_password(length=10)
+        if not username == validated_data["username"]:
+            validated_data["username"] = username
 
-# class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-#     """
-#     https://django-rest-framework-simplejwt.readthedocs.io/en/latest/customizing_token_claims.html
-#     JWT Access Token 생성
-#     claim에 담고 싶은 정보 customize
-#     """
-#
-#     @classmethod
-#     def validate(cls, user):
-#         # Get token from parent class
-#         token = super().get_token(user)
-#         # Add custom claims
-#         token["id"] = user.id
-#         token["username"] = user.username
-#         token["email"] = user.email
-#         return token
+        new_user = User.objects.create_user(**validated_data)
+        return new_user

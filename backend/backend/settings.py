@@ -12,20 +12,25 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from datetime import timedelta
 from pathlib import Path
+from django.core.exceptions import ImproperlyConfigured
+import json
+import environ
 import os
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR_PATH = Path(__file__).resolve().parent.parent
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+env = environ.Env(DEBUG=(bool, False))  # Set default values and casting
+env.read_env(os.path.join(BASE_DIR, ".env"))  # Read .env file
 
+
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-yij7=lfg5kne7#eps8!3w+yx_2d!0jfc*jl6^qfr58$perd$9-"
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+
 
 ALLOWED_HOSTS = []
 
@@ -85,7 +90,7 @@ WSGI_APPLICATION = "backend.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "NAME": BASE_DIR_PATH / "db.sqlite3",
     }
 }
 
@@ -147,8 +152,8 @@ SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": False,
     "UPDATE_LAST_LOGIN": False,
-    "ALGORITHM": "HS256",
-    "SIGNING_KEY": SECRET_KEY,
+    "ALGORITHM": os.environ.get("ALGORITHM"),
+    "SIGNING_KEY": os.environ.get("SECRET_KEY"),
     "VERIFYING_KEY": None,
     "AUDIENCE": None,
     "ISSUER": None,
