@@ -1,0 +1,89 @@
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/variables-dark";
+@import "bootstrap/scss/maps";
+@import "bootstrap/scss/mixins";
+@import "bootstrap/scss/utilities";
+
+$utilities: map-merge(
+  $utilities,
+  (
+    "viewport-height": map-merge(
+      map-get($utilities, "viewport-height"),
+      (
+        values: map-merge(
+          map-get(map-get($utilities, "viewport-height"), "values"),
+          (75: 75vh,
+          50: 50vh,)
+        ),
+      ),
+    ),
+  )
+);
+
+$my-font-size-1: $font-size-base * 2.75;
+$my-font-size-2: $font-size-base * 3;
+$my-font-size-3: $font-size-base * 3.25;
+$my-font-size-4: $font-size-base * 3.5;
+$my-font-size-5: $font-size-base * 3.75;
+$my-font-size-6: $font-size-base * 4;
+$my-font-size-7: $font-size-base * 4.25;
+$my-font-size-8: $font-size-base * 4.5;
+$my-font-size-9: $font-size-base * 4.75;
+$my-font-size-10: $font-size-base * 5;
+$my-font-size-11: $font-size-base * 5.25;
+$my-font-size-12: $font-size-base * 5.5;
+
+$font-sizes: map-merge($font-sizes, (
+  7: $my-font-size-1,
+  8: $my-font-size-2,
+  9: $my-font-size-3,
+  10: $my-font-size-4,
+  11: $my-font-size-5,
+  12: $my-font-size-6,
+  13: $my-font-size-7,
+  14: $my-font-size-8,
+  15: $my-font-size-9,
+  16: $my-font-size-10,
+  17: $my-font-size-11,
+  18: $my-font-size-12,
+));
+  
+$utilities: map-merge(
+  $utilities,
+  (
+    "font-size": (
+      rfs: true,
+      property: font-size,
+      class: fs,
+      values: $font-sizes,
+    )
+  )
+);
+
+$my-border-width-6: 6px;
+$my-border-width-7: 7px;
+$my-border-width-8: 8px;
+$my-border-width-9: 9px;
+$my-border-width-10: 10px;
+
+$border-widths: map-merge($border-widths, (
+  6: $my-border-width-6,
+  7: $my-border-width-7,
+  8: $my-border-width-8,
+  9: $my-border-width-9,
+  10: $my-border-width-10,
+));
+
+$utilities: map-merge(
+  $utilities,
+  (
+    "border": (
+      property: border-width,
+      class: border,
+      values: $border-widths,
+    )
+  )
+);
+
+@import "bootstrap/scss/utilities/api";
