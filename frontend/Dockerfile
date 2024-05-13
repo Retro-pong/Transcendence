@@ -6,10 +6,12 @@ WORKDIR /app
 
 COPY package*.json .
 
-RUN npm install && npm install -g vite
+RUN npm install
 
 EXPOSE 3000
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 
-CMD ["npm", "run", "dev"]
+# CMD ["npm", "run", "dev"]
+
+CMD ["npm", "run", "build"]
