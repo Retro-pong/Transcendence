@@ -97,29 +97,6 @@ input:-webkit-autofill:active {
   background-color: $light-mint;
 }
 
-.modal-content {
-  border: solid 10px;
-  border-radius: 30px;
-}
-
-.modal-border-mint {
-  border-color: $mint;
-}
-
-.modal-border-pink {
-  border-color: $pink;
-}
-
-.btn-friend-accept {
-  border: none;
-  background-color: $light-pink;
-}
-
-.btn-friend-reject {
-  border: none;
-  background-color: $light-mint;
-}
-
 .menubar{
   justify-content: center;
   align-items: center;
