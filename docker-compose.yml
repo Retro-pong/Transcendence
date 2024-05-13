@@ -1,5 +1,14 @@
 services:
+  backend:
+    image: backend:transcendence
+    container_name: backend
+    build: ./backend
+    ports:
+      - '8000:8000'
+
   frontend:
+    image: frontend:transcendence
+    container_name: frontend
     build: ./frontend
     ports:
       - '3000:3000'
@@ -7,3 +16,18 @@ services:
     volumes:
       - ./frontend/:/app
       - /app/node_modules
+      - frontend-data:/app/dist
+
+  nginx:
+    image: nginx:transcendence
+    container_name: nginx
+    build: ./nginx
+    ports:
+      - '80:80'
+    volumes:
+      - frontend-data:/usr/share/nginx/html
+
+
+volumes:
+  frontend-data:
+  # backend-data:
