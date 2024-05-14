@@ -36,46 +36,33 @@ class IntraCallbackView(APIView):
     def get(self, request):
         try:
             code = request.GET.get("code")
-            response_data = self.get_intra_token(code)
+            intra_token = self.get_intra_token(code)
+            intra_userinfo = self.get_intra_userinfo(intra_token)
         except Exception as e:
             return Response({"error": e}, status=status.HTTP_400_BAD_REQUEST)
 
-        token_type = response_data.get("token_type")
-        access_token = response_data.get("access_token")
-        try:
-            email = self.get_email(access_token)
-            user = User.objects.get(email=email)
-            # TODO: user 로그인
-        except User.DoesNotExist:
-            # TODO: user 새로 생성
-            pass
-        except Exception as e:
-            return Response({"error": e}, status=status.HTTP_400_BAD_REQUEST)
+        intra_id = intra_userinfo["login"]
+        email = intra_userinfo["email"]
+        image = intra_userinfo["image"]["link"]
 
-        # 사용자 정보 요청
-        headers = {"Authorization": f"{token_type} {access_token}"}
-        response = requests.get(settings.INTRA_USERINFO_API_URL, headers=headers)
-        response_data = response.json()
-        try:
-            intra_id = response_data["login"]
-            email = response_data["email"]
-            image = response_data["image"]["link"]
-        except:
-            return Response(
-                {"error": "Failed to get user information."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        # 사용자 정보로 회원가입
         user = User.objects.filter(email=email).first()
+        # 로그인 전적이 있는 경우, 이미 접속 중인지 확인
+        if user and user.is_authenticated:
+            return Response(
+                {"error": "Already logged in."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+        # 로그인 전적이 없는 경우, 회원가입
         if not user:
-            user = User.objects.create_user(username=intra_id, email=email)
+            username = intra_id
+            while User.objects.filter(username=username).exists():
+                username = User.objects.make_random_password(length=10)
+            user = User.objects.create_user(username=username, email=email)
+        # 로그인 및 JWT 반환
         user.is_registered = True
         user.is_authenticated = True
         user.image = image
         user.save()
-
-        # jwt 토큰을 담은 response 반환 (status code: 200)
         return obtain_jwt_token(user)
 
     def get_intra_token(self, code) -> dict:
@@ -88,20 +75,22 @@ class IntraCallbackView(APIView):
         }
         response = requests.post(settings.INTRA_TOKEN_API_URL, data=data)
         if not response.status_code == 200:
-            raise Exception("Failed to get access token.")
+            raise Exception("Failed to get access token from 42 intra.")
         response_data = response.json()
         return response_data
 
-    def get_email(self, access_token) -> str:
-        headers = {"Authorization": f"Bearer {access_token}"}
+    def get_intra_userinfo(self, intra_token) -> dict:
+        token_type = intra_token.get("token_type")
+        access_token = intra_token.get("access_token")
+        if not token_type or not access_token:
+            raise Exception("Failed to get access token from 42 intra.")
+
+        headers = {"Authorization": f"{token_type} {access_token}"}
         response = requests.get(settings.INTRA_USERINFO_API_URL, headers=headers)
         if not response.status_code == 200:
-            raise Exception("Failed to get email.")
-        response_data = response.json()
-        email = response_data["email"]
-        if email is None:
-            raise Exception("Failed to get email.")
-        return email
+            raise Exception("Failed to get userinfo from 42 intra.")
+        intra_userinfo = response.json()
+        return intra_userinfo
 
 
 class EmailLogoutView(APIView):  # TODO delete (for test)
