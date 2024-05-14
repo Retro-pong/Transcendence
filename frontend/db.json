@@ -105,20 +105,17 @@
     {
         "id": 1,
         "title": "World Tournament",
-        "currentParty": 2,
-        "totalParty": 4
+        "currentParty": 2
         },
         {
         "id": 2,
         "title": "Tournament 2024",
-        "currentParty": 1,
-        "totalParty": 4
+        "currentParty": 1
         },
         {
         "id": 3,
         "title": "Kitty's tournament",
-        "currentParty": 3,
-        "totalParty": 4
+        "currentParty": 3
     }
   ],
   "rumbleList" : [
