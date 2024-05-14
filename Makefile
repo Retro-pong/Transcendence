@@ -1,5 +1,5 @@
 frontendImg = frontend:transcendence
-nginxImg = nginx:inception
+nginxImg = nginx:transcendence
 
 up: build
 	docker compose -f ./docker-compose.yml up
