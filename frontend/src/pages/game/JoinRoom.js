@@ -25,6 +25,7 @@ class JoinRoom extends PageComponent {
 
     const totalParty = this.mode === 'rumble' ? 2 : 4;
     this.totalPage = 2; // TODO: totalPage 받아오기
+    this.setPagination();
 
     return roomList
       .map((room) => {
@@ -55,7 +56,7 @@ class JoinRoom extends PageComponent {
       id: 'nextBtn',
       text: '>',
       classList: 'fs-7 btn',
-      disabled: this.totalPage === 1,
+      disabled: this.totalPage === this.currPage,
     });
 
     return `
@@ -84,12 +85,35 @@ class JoinRoom extends PageComponent {
       `;
   }
 
+  setPagination() {
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const currPage = document.getElementById('currPage');
+    const totalPage = document.getElementById('totalPage');
+
+    if (!prevBtn || !nextBtn || !currPage || !totalPage) return;
+
+    totalPage.innerHTML = this.totalPage;
+    currPage.innerHTML = this.currPage;
+    if (this.currPage === 1) {
+      prevBtn.setAttribute('disabled', 'true');
+    } else {
+      prevBtn.removeAttribute('disabled');
+    }
+    if (this.currPage === this.totalPage) {
+      nextBtn.setAttribute('disabled', 'true');
+    } else {
+      nextBtn.removeAttribute('disabled');
+    }
+  }
+
   async afterRender() {
     const joinRoomBody = document.getElementById('joinRoomBody');
 
     // 새로고침
     const reloadRoomBtn = document.getElementById('reloadRoomBtn');
     reloadRoomBtn.addEventListener('click', async () => {
+      this.currPage = 1;
       joinRoomBody.innerHTML = await this.getRoomList();
     });
 
@@ -98,41 +122,28 @@ class JoinRoom extends PageComponent {
     const tournamentTab = document.getElementById('tournamentTab');
     rumbleTab.addEventListener('click', async () => {
       this.mode = 'rumble';
+      this.currPage = 1;
       joinRoomBody.innerHTML = await this.getRoomList();
     });
     tournamentTab.addEventListener('click', async () => {
       this.mode = 'tournament';
+      this.currPage = 1;
       joinRoomBody.innerHTML = await this.getRoomList();
     });
 
     // 페이지네이션
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
-    const currPage = document.getElementById('currPage');
-    const totalPage = document.getElementById('totalPage');
-
     prevBtn.addEventListener('click', async () => {
       if (this.currPage === 1) return;
-      nextBtn.removeAttribute('disabled');
       this.currPage -= 1;
-      if (this.currPage === 1) {
-        prevBtn.setAttribute('disabled', 'true');
-      }
-      currPage.innerHTML = this.currPage;
       joinRoomBody.innerHTML = await this.getRoomList();
-      totalPage.innerHTML = this.totalPage;
     });
 
     nextBtn.addEventListener('click', async () => {
       if (this.currPage === this.totalPage) return;
-      prevBtn.removeAttribute('disabled');
       this.currPage += 1;
-      if (this.currPage === this.totalPage) {
-        nextBtn.setAttribute('disabled', 'true');
-      }
-      currPage.innerHTML = this.currPage;
       joinRoomBody.innerHTML = await this.getRoomList();
-      totalPage.innerHTML = this.totalPage;
     });
   }
 }
