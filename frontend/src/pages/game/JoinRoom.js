@@ -7,16 +7,24 @@ class JoinRoom extends PageComponent {
   constructor() {
     super();
     this.mode = 'rumble';
+    this.currPage = 1;
+    this.totalPage = 1;
+    this.size = 5;
     this.setTitle('Join Room');
   }
 
   async getRoomList() {
     const roomList =
       this.mode === 'rumble'
-        ? await Fetch.get('/rumbleList')
-        : await Fetch.get('/tournamentList');
+        ? await Fetch.get(
+            `/rumbleList?_page=${this.currPage}&_limit=${this.size}`
+          )
+        : await Fetch.get(
+            `/tournamentList?_page=${this.currPage}&_limit=${this.size}`
+          );
 
     const totalParty = this.mode === 'rumble' ? 2 : 4;
+    this.totalPage = 2; // TODO: totalPage 받아오기
 
     return roomList
       .map((room) => {
@@ -37,6 +45,19 @@ class JoinRoom extends PageComponent {
       classList:
         'fs-2 position-absolute top-0 end-0 mt-2 me-2 btn-no-outline-hover',
     });
+    const prevBtn = BasicButton({
+      id: 'prevBtn',
+      text: '<',
+      classList: 'fs-7 btn ',
+      disabled: this.currPage === 1,
+    });
+    const nextBtn = BasicButton({
+      id: 'nextBtn',
+      text: '>',
+      classList: 'fs-7 btn',
+      disabled: this.totalPage === 1,
+    });
+
     return `
       <div class="container h-100 p-3 game-room-border">
         <div class="d-flex justify-content-center position-relative">
@@ -44,40 +65,74 @@ class JoinRoom extends PageComponent {
           ${reloadRoomBtn}
         </div>
         <nav class="nav nav-tabs">
-          <button class="btn btn-outline-light fs-1 active" id="rumble-tab" data-bs-toggle="tab" type="button">Rumble</button>
-          <button class="btn btn-outline-light fs-1" id="tournament-tab" data-bs-toggle="tab" type="button" >Tournament</button>
+          <button class="btn btn-outline-light fs-1 active" id="rumbleTab" data-bs-toggle="tab" type="button">Rumble</button>
+          <button class="btn btn-outline-light fs-1" id="tournamentTab" data-bs-toggle="tab" type="button" >Tournament</button>
         </nav>
-        <div class="d-flex justify-content-center overflow-auto" style="height: 70%;">
-          <div id="joinRoomBody" class="tab-pane active d-flex flex-column">
+        <div class="d-flex flex-column h-75 justify-content-center">
+          <div id="joinRoomBody" class="tab-pane active d-flex flex-column flex-column overflow-auto h-100">
             ${RoomLinks}
           </div>
-        </div>
-        <div class="d-flex justify-content-center">
-          >> 1 / 3 <<
+          <div class="d-flex justify-content-center">
+            ${prevBtn}
+            <div class="fs-7 align-self-center">
+              <span id="currPage">${this.currPage}</span> / <span id="totalPage">${this.totalPage}</span>
+            </div>
+            ${nextBtn}
+          </div>
         </div>
       </div>
       `;
   }
 
   async afterRender() {
-    const reloadRoomBtn = document.getElementById('reloadRoomBtn');
     const joinRoomBody = document.getElementById('joinRoomBody');
 
+    // 새로고침
+    const reloadRoomBtn = document.getElementById('reloadRoomBtn');
     reloadRoomBtn.addEventListener('click', async () => {
       joinRoomBody.innerHTML = await this.getRoomList();
     });
 
-    const rumbleTab = document.getElementById('rumble-tab');
-    const tournamentTab = document.getElementById('tournament-tab');
-
+    // 탭
+    const rumbleTab = document.getElementById('rumbleTab');
+    const tournamentTab = document.getElementById('tournamentTab');
     rumbleTab.addEventListener('click', async () => {
       this.mode = 'rumble';
       joinRoomBody.innerHTML = await this.getRoomList();
     });
-
     tournamentTab.addEventListener('click', async () => {
       this.mode = 'tournament';
       joinRoomBody.innerHTML = await this.getRoomList();
+    });
+
+    // 페이지네이션
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const currPage = document.getElementById('currPage');
+    const totalPage = document.getElementById('totalPage');
+
+    prevBtn.addEventListener('click', async () => {
+      if (this.currPage === 1) return;
+      nextBtn.removeAttribute('disabled');
+      this.currPage -= 1;
+      if (this.currPage === 1) {
+        prevBtn.setAttribute('disabled', 'true');
+      }
+      currPage.innerHTML = this.currPage;
+      joinRoomBody.innerHTML = await this.getRoomList();
+      totalPage.innerHTML = this.totalPage;
+    });
+
+    nextBtn.addEventListener('click', async () => {
+      if (this.currPage === this.totalPage) return;
+      prevBtn.removeAttribute('disabled');
+      this.currPage += 1;
+      if (this.currPage === this.totalPage) {
+        nextBtn.setAttribute('disabled', 'true');
+      }
+      currPage.innerHTML = this.currPage;
+      joinRoomBody.innerHTML = await this.getRoomList();
+      totalPage.innerHTML = this.totalPage;
     });
   }
 }

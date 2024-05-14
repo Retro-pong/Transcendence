@@ -103,19 +103,39 @@
   ],
   "tournamentList" : [
     {
-        "id": 1,
-        "title": "World Tournament",
-        "currentParty": 2
-        },
-        {
-        "id": 2,
-        "title": "Tournament 2024",
-        "currentParty": 1
-        },
-        {
-        "id": 3,
-        "title": "Kitty's tournament",
-        "currentParty": 3
+      "id": 1,
+      "title": "World Tournament",
+      "currentParty": 2
+    },
+    {
+      "id": 2,
+      "title": "Tournament 2024",
+      "currentParty": 1
+    },
+    {
+      "id": 3,
+      "title": "Kitty's tournament",
+      "currentParty": 3
+    },
+    {
+      "id": 4,
+      "title": "Puppy's tournament",
+      "currentParty": 1
+    },
+    {
+      "id": 5,
+      "title": "Hyungjpa's tournament",
+      "currentParty": 1
+    },
+    {
+      "id": 6,
+      "title": "Wonjilee's tournament",
+      "currentParty": 1
+    },
+    {
+      "id": 7,
+      "title": "Subinlee's tournament",
+      "currentParty": 1
     }
   ],
   "rumbleList" : [
@@ -147,6 +167,11 @@
     {
       "id": 6,
       "title": "Puppy's game",
+      "currentParty": 1
+    },
+    {
+      "id": 7,
+      "title": "Kitty's game",
       "currentParty": 1
     }
   ]
