@@ -101,69 +101,56 @@
     "kitty",
     "puppy"
   ],
-  "roomList" : [
+  "tournamentList" : [
+    {
+        "id": 1,
+        "title": "World Tournament",
+        "currentParty": 2,
+        "totalParty": 4
+        },
+        {
+        "id": 2,
+        "title": "Tournament 2024",
+        "currentParty": 1,
+        "totalParty": 4
+        },
+        {
+        "id": 3,
+        "title": "Kitty's tournament",
+        "currentParty": 3,
+        "totalParty": 4
+    }
+  ],
+  "rumbleList" : [
     {
       "id": 1,
-      "title": "World Tournament",
-      "type": "tournament",
-      "currentParty": 2,
-      "totalParty": 4
+      "title": "Let's play Pong!",
+      "currentParty": 1
     },
     {
       "id": 2,
-      "title": "Let's play Pong!",
-      "type": "rumble",
-      "currentParty": 1,
-      "totalParty": 4
+      "title": "Subinlee's game",
+      "currentParty": 1
     },
     {
       "id": 3,
-      "title": "Subinlee's game",
-      "type": "rumble",
-      "currentParty": 1,
-      "totalParty": 2
+      "title": "Wonjilee's game",
+      "currentParty": 1
     },
     {
       "id": 4,
-      "title": "Wonjilee's game",
-      "type": "rumble",
-      "currentParty": 1,
-      "totalParty": 2
+      "title": "Hyungjpa's game",
+      "currentParty": 1
     },
     {
       "id": 5,
-      "title": "Tournament 2024",
-      "type": "tournament",
-      "currentParty": 1,
-      "totalParty": 4
+      "title": "Hyonicho's game",
+      "currentParty": 1
     },
     {
       "id": 6,
-      "title": "Hyungjpa's game",
-      "type": "rumble",
-      "currentParty": 3,
-      "totalParty": 4
-    },
-    {
-      "id": 7,
-      "title": "Hyonicho's game",
-      "type": "rumble",
-      "currentParty": 1,
-      "totalParty": 2
-    },
-    {
-      "id": 8,
       "title": "Puppy's game",
-      "type": "rumble",
-      "currentParty": 1,
-      "totalParty": 2
-    },
-    {
-      "id": 9,
-      "title": "Kitty's tournament",
-      "type": "tournament",
-      "currentParty": 3,
-      "totalParty": 4
+      "currentParty": 1
     }
   ]
 }
