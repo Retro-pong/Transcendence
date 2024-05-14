@@ -84,6 +84,24 @@
       }
     ]
   },
+  "friends-wait-list": [
+    "hyungjpa",
+    "hyobicho",
+    "wonjilee",
+    "subinlee"
+  ],
+  "friend-accept": [],
+  "friend-reject": [],
+  "friend-add-new": [],
+  "friends-search": [
+    "hyungjpa",
+    "hyobicho",
+    "wonjilee",
+    "subinlee",
+    "kitty",
+    "puppy"
+  ]
+  },
   "roomList" : [
     {
       "id": 1,
