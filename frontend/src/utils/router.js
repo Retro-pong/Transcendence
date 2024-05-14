@@ -34,10 +34,20 @@ export const router = async () => {
     history.pushState(null, null, '/404');
   } else if (currPathname === '/login' && isLoggedIn) {
     alert('You are already logged in!');
-    history.pushState(null, null, '/');
+    let beforePage = window.localStorage.getItem('curPage');
+    if (beforePage === '/login') {
+      beforePage = '/';
+    }
+    history.pushState(null, null, beforePage);
   } else if (currPathname !== '/login' && !isLoggedIn) {
     history.pushState(null, null, '/login');
+  } else {
+    window.localStorage.setItem('curPage', currPathname);
   }
+  // TODO: 게임방 페이지에서 뒤로가기 제한
+  // else if (currPathname === '/game') {
+  // history.pushState(null, null, location.href);
+  //  window.addEventListener('popstate', () => history.go(1));}
 
   const page = new routes[location.pathname]();
   const app = document.querySelector('#app');
