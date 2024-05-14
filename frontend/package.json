@@ -7,7 +7,8 @@
     "dev": "concurrently \"npm start\" \"npm run start-json-server\"",
     "start": "vite --host",
     "start-json-server": "json-server-auth --host 0.0.0.0 --watch db.json --port 8080 -r routes.json",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "vite build"
   },
   "author": "",
   "license": "ISC",
@@ -24,7 +25,7 @@
     "json-server-auth": "^2.1.0",
     "lint-staged": "^15.2.2",
     "prettier": "3.2.5",
-    "sass": "^1.75.0",
+    "sass": "^1.77.1",
     "vite": "^5.2.10"
   },
   "lint-staged": {
