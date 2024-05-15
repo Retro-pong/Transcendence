@@ -22,7 +22,7 @@ class CreateRoom extends PageComponent {
     return `
       <div class="container h-100 p-3 game-room-border">
         <h1 class="display-1 text-center">ROOM SETTING</h1>
-        <div class="container h-75 w-100 d-flex flex-column mt-3 bg-dark justify-content-between align-items-center">
+        <div class="container h-75 w-100 d-flex flex-column mt-3 justify-content-between align-items-center">
           <div class="row h-75 w-100 overflow-auto">
             ${createRoomForm()}
           </div>
@@ -40,7 +40,6 @@ class CreateRoom extends PageComponent {
     )[0]?.id;
     const toastMessage = document.getElementById('toast-message');
     const toast = Toast.getOrCreateInstance('#toast');
-    console.log(gameTitle, gameColor, gameMode);
 
     if (gameTitle === '') {
       toastMessage.innerText = 'Please enter the title';
