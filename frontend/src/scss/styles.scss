@@ -150,3 +150,12 @@ input:-webkit-autofill:active {
     background-color: $bg-main;
   }
 }
+
+.game-room-border {
+  border: dashed $white;
+  border-width: 15px 0;
+}
+
+#gameColor {
+  border-style: none !important;
+}
