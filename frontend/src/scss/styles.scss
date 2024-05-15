@@ -161,3 +161,8 @@ input:-webkit-autofill:active {
   border: dashed $white;
   border-width: 15px 0;
 }
+
+.game-player-card-border {
+  border: double $white;
+  border-width: 0 15px;
+}
