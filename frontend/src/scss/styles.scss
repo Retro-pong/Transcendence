@@ -57,6 +57,12 @@ input:-webkit-autofill:active {
       0 0 10px 0 $mint inset,
       0 0 10px 4px $mint;
   }
+
+}
+
+.btn-outline-light.active {
+  box-shadow: 0 0 10px 0 $mint inset,
+  0 0 10px 4px $mint;
 }
 
 .btn-no-outline-hover {
@@ -149,4 +155,9 @@ input:-webkit-autofill:active {
   &::-webkit-scrollbar-track {
     background-color: $bg-main;
   }
+}
+
+.game-room-border {
+  border: dashed $white;
+  border-width: 15px 0;
 }
