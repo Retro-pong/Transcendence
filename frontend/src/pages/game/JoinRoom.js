@@ -69,8 +69,8 @@ class JoinRoom extends PageComponent {
           ${reloadRoomBtn}
         </div>
         <nav class="nav nav-tabs">
-          <button class="btn btn-outline-light fs-1 active" id="rumbleTab" data-bs-toggle="tab" type="button">Rumble</button>
-          <button class="btn btn-outline-light fs-1" id="tournamentTab" data-bs-toggle="tab" type="button" >Tournament</button>
+          <button class="col btn btn-outline-light fs-1 active" id="rumbleTab" data-bs-toggle="tab" type="button">Rumble</button>
+          <button class="col btn btn-outline-light fs-1" id="tournamentTab" data-bs-toggle="tab" type="button" >Tournament</button>
         </nav>
         <div class="d-flex flex-column h-75 justify-content-center">
           <div id="joinRoomBody" class="tab-pane active d-flex flex-column flex-column overflow-auto h-100">
