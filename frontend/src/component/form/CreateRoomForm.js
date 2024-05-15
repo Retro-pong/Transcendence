@@ -1,40 +1,55 @@
+import createRoomFormItem from '@component/form/CreateRoomFormItem';
+
 const CreateRoomForm = () => {
   return `
 		<form id="createRoomForm" class="form">
 			<div class="container">
-				<div class="row h-25 w-100 d-flex align-items-center">
-					<div class="col-4 h-100 fs-13 d-flex justify-content-center">
-						<label for="gameTitle" class="form-label">TITLE:</label>
-					</div>
-					<div class="col-8 h-100 d-flex flex-row justify-content-center">
-						<div class="fs-13">[</div>
-						<input type="text" id="gameTitle" class="form-control w-75 fs-10 bg-transparent" placeholder="title" />
-						<div class="fs-13">]</div>
-					</div>
-				</div>
-				<div class="row h-25 w-100 mt-3 fs-13 d-flex justify-content-center align-items-center">
-					<div class="col-4 h-100 d-flex justify-content-center">
-						<label for="gameColor" class="form-label">COLOR:</label>
-					</div>		
-					<div class="col-8 h-100 p-0 d-flex justify-content-center align-items-center">
-						<input type="color" id="gameColor" class="form-control form-control-color p-1 border-1 border-light rounded" value="#e66465"/>
-						<span id="gameColorValue" class="mx-4">#e66565</span>
-					</div>
-				</div>				
-				<div class="row h-25 w-100 mt-3 fs-13 d-flex justify-content-center align-items-center">
-					<div class="col-4 h-100 d-flex justify-content-center">
-						<label for="gameColor" class="form-label">MODE:</label>
-					</div>		
-					<div class="col-8 h-100 p-0 d-flex justify-content-center align-items-center">
-						<span>[</span>
-						<input type="radio" class="btn-check" name="modeOptions" id="rumble" autocomplete="off"/>
-						<label class="btn btn-outline-light fs-9" for="rumble">RUMBLE</label>
-						<span>/</span>
-						<input type="radio" class="btn-check" name="modeOptions" id="tournament" autocomplete="off"/>
-						<label class="btn btn-outline-light fs-9" for="tournament">TOURNAMENT</label>
-						<span>]</span>
-					</div>
-				</div>
+					${createRoomFormItem({
+            labelFor: 'gameTitle',
+            labelContent: 'TITLE',
+            content: `<span class="fs-13">[</span>
+											<input type="text" id="gameTitle" class="form-control w-75 fs-10 bg-transparent" placeholder="title" />
+											<span class="fs-13">]</span>`,
+          })}
+					${createRoomFormItem({
+            labelFor: 'gameColor',
+            labelContent: 'COLOR',
+            content: `<input type="color" id="gameColor" class="form-control form-control-color p-1 border-1 border-light rounded" value="#e66465"/>
+											<span id="gameColorValue" class="mx-4">#e66565</span>`,
+          })}
+					${createRoomFormItem({
+            labelFor: 'gameSpeed',
+            labelContent: 'SPEED',
+            content: `<input type="range" id="gameSpeed" class="form-range w-50 border-1 border-light rounded" min="1" max="5" step="1"/>
+											<span id="gameSpeedValue" class="mx-4">3</span>`,
+          })}
+					${createRoomFormItem({
+            labelFor: 'gameMap',
+            labelContent: 'MAP',
+            content: `<input type="radio" class="btn-check" name="mapOptions" id="gameMap1" autocomplete="off"/>
+											<label class="btn btn-outline-light fs-9" for="gameMap1">
+												<img src="../../public/img/map_futuristic_horizon.jpg" height="100%" width="100%" alt="wow"/>
+											</label>
+											<input type="radio" class="btn-check" name="mapOptions" id="gameMap2" autocomplete="off"/>
+											<label class="btn btn-outline-light fs-9" for="gameMap2">
+												<img src="../../public/img/map_mountain.jpg" height="100%" width="100%" alt="wow"/>
+											</label>
+											<input type="radio" class="btn-check" name="mapOptions" id="gameMap3" autocomplete="off"/>
+											<label class="btn btn-outline-light fs-9" for="gameMap3">
+												<img src="../../public/img/map_pixel_rain.jpg" height="100%" width="100%" alt="wow"/>
+											</label>`,
+          })}
+					${createRoomFormItem({
+            labelFor: 'gameMode',
+            labelContent: 'MODE',
+            content: `<span>[</span>
+											<input type="radio" class="btn-check" name="modeOptions" id="rumble" autocomplete="off"/>
+											<label class="btn btn-outline-light fs-9" for="rumble">RUMBLE</label>
+											<span>/</span>
+											<input type="radio" class="btn-check" name="modeOptions" id="tournament" autocomplete="off"/>
+											<label class="btn btn-outline-light fs-9" for="tournament">TOURNAMENT</label>
+											<span>]</span>`,
+          })}
 			</div>
 		</form>
 	`;
