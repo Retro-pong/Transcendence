@@ -50,15 +50,21 @@ class CreateRoom extends PageComponent {
     const gameColor = form.gameColor.value;
     const gameSpeed = form.gameSpeed.value;
     const gameMap = [...form.mapOptions].filter(
-      (option) => option.checked === true)[0]?.id;
+      (option) => option.checked === true
+    )[0]?.id;
     const gameMode = [...form.modeOptions].filter(
       (option) => option.checked === true
     )[0]?.id;
     const toastMessage = document.getElementById('toast-message');
     const toast = Toast.getOrCreateInstance('#toast');
 
-    console.log(gameTitle, gameColor, gameSpeed, gameMap, gameMode);
-    await Fetch.post('/game/room', { gameTitle, gameColor, gameSpeed, gameMap, gameMode })
+    await Fetch.post('/game/room', {
+      gameTitle,
+      gameColor,
+      gameSpeed,
+      gameMap,
+      gameMode,
+    })
       .then(() => {
         document.getElementById('createRoomForm').reset();
         toastMessage.innerText = 'Room created successfully';
