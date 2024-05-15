@@ -23,14 +23,17 @@ class JoinRoom extends PageComponent {
             `/tournamentList?_page=${this.currPage}&_limit=${this.size}`
           );
 
-    const totalParty = this.mode === 'rumble' ? 2 : 4;
     this.totalPage = 2; // TODO: totalPage 받아오기
     this.setPagination();
 
     return roomList
       .map((room) => {
+        const text =
+          this.mode === 'rumble'
+            ? `[ ${room.title} ]`
+            : `[ ${room.title} ] (${room.currentParty}/4)`;
         return NavLink({
-          text: `[ ${room.title} ] (${room.currentParty}/${totalParty})`,
+          text,
           path: '/game/waiting',
           classList: 'btn btn-no-outline-hover fs-11 btn-arrow',
         }).outerHTML;
