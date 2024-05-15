@@ -34,7 +34,7 @@ class JoinRoom extends PageComponent {
             : `[ ${room.title} ] (${room.currentParty}/4)`;
         return NavLink({
           text,
-          path: '/game/waiting',
+          path: `/game/waiting?room=${room.id}&title=${room.title}&mode=${this.mode}`,
           classList: 'btn btn-no-outline-hover fs-11 btn-arrow',
         }).outerHTML;
       })
