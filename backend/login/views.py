@@ -1,3 +1,4 @@
+from rest_framework.request import Request
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
@@ -10,6 +11,7 @@ from users.models import User
 from .utils import send_verification_code, obtain_jwt_token
 from django.shortcuts import redirect
 from django.conf import settings
+from rest_framework_simplejwt.views import TokenVerifyView, TokenRefreshView
 import requests
 
 
@@ -45,7 +47,7 @@ class IntraCallbackView(APIView):
         email = intra_userinfo["email"]
         image = intra_userinfo["image"]["link"]
 
-        user = User.objects.filter(email=email).first()
+        user = User.objects.get(email=email)
         # 로그인 전적이 있는 경우, 이미 접속 중인지 확인
         if user and user.is_authenticated:
             return Response(
@@ -66,6 +68,11 @@ class IntraCallbackView(APIView):
         return obtain_jwt_token(user)
 
     def get_intra_token(self, code) -> dict:
+        """
+        Get access token from 42 intra.
+        """
+        if not code:
+            raise Exception("Failed to get code from 42 intra.")
         data = {
             "grant_type": "authorization_code",
             "client_id": settings.INTRA_CLIENT_ID,
@@ -80,6 +87,9 @@ class IntraCallbackView(APIView):
         return response_data
 
     def get_intra_userinfo(self, intra_token) -> dict:
+        """
+        Get userinfo from 42 intra.
+        """
         token_type = intra_token.get("token_type")
         access_token = intra_token.get("access_token")
         if not token_type or not access_token:
@@ -209,42 +219,9 @@ class EmailLoginVerifyView(APIView):
         # Got the wrong verification code
         else:
             return Response(
-                {"error": "Email verification failed."},
+                {"error": "인증에 실패했습니다. 다시 입력하세요."},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
-
-
-# class RefreshTokenView(APIView):
-#     @swagger_auto_schema(
-#         tags=["login"],
-#         operation_description="refresh token",
-#         request_body=openapi.Schema(
-#             type=openapi.TYPE_OBJECT,
-#             properties={
-#                 "email": openapi.Schema(type=openapi.TYPE_STRING, description="Email"),
-#                 "refresh_token": openapi.Schema(
-#                     type=openapi.TYPE_STRING, description="Refresh token"
-#                 ),
-#             },
-#         ),
-#         responses={200: "OK", 401: "UNAUTHORIZED"},
-#     )
-#     def post(self, request):
-#         email = request.data.get("email")
-#         refresh_token = request.data.get("refresh_token")
-#         user = User.objects.get(email=email)
-#         jwt = JWT.objects.filter(user=user).first()
-#
-#         # Got the correct refresh token
-#         if jwt and jwt.refresh_token == refresh_token:
-#             return obtain_jwt_token(user)
-#
-#         # Got the wrong refresh token
-#         else:
-#             return Response(
-#                 {"error": "Invalid refresh token."},
-#                 status=status.HTTP_401_UNAUTHORIZED,
-#             )
 
 
 class EmailRegisterView(APIView):
@@ -303,6 +280,37 @@ class EmailRegisterVerifyView(APIView):
         # Got the wrong verification code
         else:
             return Response(
-                {"error": "Email verification failed."},
+                {"error": "인증에 실패했습니다. 다시 입력하세요."},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
+
+
+class MyTokenRefreshView(TokenRefreshView):
+    @swagger_auto_schema(
+        tags=["login"],
+        operation_description="토큰 검증 및 갱신",
+        responses={200: "OK", 401: "UNAUTHORIZED"},
+    )
+    def post(self, request: Request, *args, **kwargs) -> Response:
+        # Verify the access token
+        response = TokenVerifyView.as_view()(request, *args, **kwargs)
+        if response.status_code == 200:
+            return Response("Token verification successful.", status=status.HTTP_200_OK)
+
+        # If the access token is invalid, refresh
+        response = super().post(request, *args, **kwargs)
+        return response
+
+
+class TokenRefreshFailedView(APIView):
+    @swagger_auto_schema(
+        tags=["login"],
+        operation_description="토큰 갱신 실패",
+        responses={200: "OK"},
+    )
+    def post(self, request):
+        email = request.data.get("email")
+        user = User.objects.get(email=email)
+        user.is_authenticated = False
+        user.save()
+        return redirect("login:email_login")

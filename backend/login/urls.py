@@ -7,8 +7,9 @@ from .views import (
     EmailRegisterView,
     EmailRegisterVerifyView,
     EmailLogoutView,
+    MyTokenRefreshView,
+    TokenRefreshFailedView,
 )
-from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 
 
 app_name = "login"
@@ -25,10 +26,14 @@ urlpatterns = [
     ),
     path("email/register/", EmailRegisterView.as_view(), name="email_register"),
     path(
-        "email/register/verify/",
+        "email/register/verify",
         EmailRegisterVerifyView.as_view(),
         name="email_register_verify",
     ),
-    path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path("token/verify/", TokenVerifyView.as_view(), name="token_verify"),
+    path("token/refresh/", MyTokenRefreshView.as_view(), name="token_refresh"),
+    path(
+        "token/refresh/failed/",
+        TokenRefreshFailedView.as_view(),
+        name="token_refresh_failed",
+    ),
 ]
