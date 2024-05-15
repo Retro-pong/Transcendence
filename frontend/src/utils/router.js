@@ -6,6 +6,7 @@ import CreateRoom from '@pages/game/CreateRoom';
 import JoinRoom from '@pages/game/JoinRoom';
 import Friends from '@pages/Friends';
 import NavBar from '@component/navigation/NavBar';
+import ToastComponent from '@component/toast/ToastComponent';
 import TokenManager from '@/utils/TokenManager';
 
 export const navigateTo = (url) => {
@@ -55,5 +56,9 @@ export const router = async () => {
   if (page.getTitle() !== 'Login') {
     app.innerHTML += NavBar();
   }
+  app.innerHTML += ToastComponent({
+    id: 'toast',
+    message: '',
+  });
   await page.afterRender();
 };
