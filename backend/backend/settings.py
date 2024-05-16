@@ -12,8 +12,6 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from datetime import timedelta
 from pathlib import Path
-from django.core.exceptions import ImproperlyConfigured
-import json
 import environ
 import os
 
@@ -24,6 +22,21 @@ env.read_env(os.path.join(BASE_DIR, ".env"))  # Read .env file
 
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
+
+# SMTP env
+EMAIL_HOST = os.environ.get("EMAIL_HOST")
+EMAIL_PORT = os.environ.get("EMAIL_PORT")
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
+
+# OAuth env
+BASE_URL = os.environ.get("BASE_URL")
+INTRA_AUTHORIZE_API_URL = os.environ.get("INTRA_AUTHORIZE_API_URL")
+INTRA_TOKEN_API_URL = os.environ.get("INTRA_TOKEN_API_URL")
+INTRA_USERINFO_API_URL = os.environ.get("INTRA_USERINFO_API_URL")
+INTRA_CLIENT_ID = os.environ.get("INTRA_CLIENT_ID")
+INTRA_CLIENT_SECRET = os.environ.get("INTRA_CLIENT_SECRET")
+INTRA_REDIRECT_URI = os.environ.get("INTRA_REDIRECT_URI")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -51,6 +64,8 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",  # JWT
     "rest_framework_swagger",  # Swagger
     "drf_yasg",  # Swagger generator
+    'dj_rest_auth', #permission
+    'rest_framework.authtoken', #permission
 ]
 
 MIDDLEWARE = [
@@ -150,7 +165,7 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),  # Access Token 유효기간
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),  # Refresh Token 유효기간
     "ROTATE_REFRESH_TOKENS": False,
-    "BLACKLIST_AFTER_ROTATION": False,
+    "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": False,
     "ALGORITHM": os.environ.get("ALGORITHM"),
     "SIGNING_KEY": os.environ.get("SECRET_KEY"),
