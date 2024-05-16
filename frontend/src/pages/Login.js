@@ -35,8 +35,10 @@ class Login extends PageComponent {
         <div class="p-5">
           ${RegisterFormItem('row my-5 mx-2', 'email-login', 'EMAIL', 'text', 'name @ mail')}
           ${RegisterFormItem('row mx-2', 'password-login', 'PASSWORD', 'password', 'PASSWORD')}
+          ${RegisterFormItem('row mx-2', 'verify-registered-email', 'CODE(tmp)', 'text', 'VERIFY REGISTERED EMAIL')}
         </div>
         <div class="p-5">
+          <button id="registrationCompleteBtn" class="btn btn-no-outline-hover fs-8">> Verify(tmp) <</button>
           ${LoginPageButtons()}
         </div>
           ${LoginModal}
@@ -60,7 +62,7 @@ class Login extends PageComponent {
       loginToast.show();
       return;
     }
-    await Fetch.post('/login', { email, password })
+    await Fetch.post('/login/email/login', { email, password })
       .then(() => {
         loginModal.show();
       })
@@ -86,8 +88,7 @@ class Login extends PageComponent {
       return;
     }
 
-    // TODO: timeout 에러 처리 필요
-    await Fetch.post('/login', { email, password: passcode })
+    await Fetch.post('/login/email/login/verify', { email, code: passcode })
       .then((data) => {
         TokenManager.storeTokens({
           user: data.user.email,
@@ -168,7 +169,7 @@ class Login extends PageComponent {
     }
 
     const registerModal = Modal.getOrCreateInstance('#registerModal');
-    await Fetch.post('/register', { email, nick, password })
+    await Fetch.post('/login/email/register', { email, nick, password })
       .then(() => {
         registerToastMessageEl.innerText = 'Registration Successful';
         registerToast.show();
@@ -196,6 +197,22 @@ class Login extends PageComponent {
       .addEventListener('submit', async (e) => {
         e.preventDefault();
         await this.submitRegisterForm(e.target.elements);
+      });
+
+    // 회원가입된 이메일 인증 (테스트용 임시 코드)
+    document
+      .getElementById('registrationCompleteBtn')
+      .addEventListener('click', async () => {
+        const email = document.getElementById('email-login').value;
+        const code = document.getElementById('verify-registered-email').value;
+
+        await Fetch.post('/login/email/register/verify', { email, code })
+          .then(() => {
+            console.log('verified');
+          })
+          .catch((err) => {
+            console.error(err);
+          });
       });
   }
 }
