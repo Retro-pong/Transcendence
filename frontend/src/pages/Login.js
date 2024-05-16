@@ -67,8 +67,7 @@ class Login extends PageComponent {
         loginModal.show();
       })
       .catch((err) => {
-        document.getElementById('login-toast-message').innerText =
-          'Login Failed';
+        document.getElementById('toast-message').innerText = 'Login Failed';
         loginToast.show();
         console.error(err);
       });
@@ -169,7 +168,11 @@ class Login extends PageComponent {
     }
 
     const registerModal = Modal.getOrCreateInstance('#registerModal');
-    await Fetch.post('/login/email/register', { email, nick, password })
+    await Fetch.post('/login/email/register', {
+      email,
+      username: nick,
+      password,
+    })
       .then(() => {
         registerToastMessageEl.innerText = 'Registration Successful';
         registerToast.show();
