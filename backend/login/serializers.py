@@ -13,7 +13,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         try:
             email = validated_data["email"]
             user = User.objects.get(email=email)
-            if user.is_authenticated:  # 이미 가입된 이메일인 경우, 회원가입 실패
+            if user.is_registered:  # 이미 가입된 이메일인 경우, 회원가입 실패
                 raise serializers.ValidationError("Email already exists.")
             else:  # 가입되었지만 인증되지 않은 경우, 기존 회원 정보 삭제 후 새로 가입
                 user.delete()
