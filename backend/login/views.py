@@ -41,7 +41,7 @@ class IntraCallbackView(APIView):
             intra_token = self.get_intra_token(code)
             intra_userinfo = self.get_intra_userinfo(intra_token)
         except Exception as e:
-            return Response({"error": e}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         intra_id = intra_userinfo["login"]
         email = intra_userinfo["email"]
