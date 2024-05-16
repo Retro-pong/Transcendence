@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.request import Request
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from django.http import JsonResponse
@@ -12,7 +13,6 @@ from django.shortcuts import redirect
 from django.conf import settings
 from rest_framework_simplejwt.views import TokenVerifyView, TokenRefreshView
 import requests
-from rest_framework.request import Request
 
 
 class IntraLoginView(APIView):
