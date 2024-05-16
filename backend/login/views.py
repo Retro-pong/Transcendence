@@ -196,7 +196,7 @@ class EmailLoginVerifyView(APIView):
         # Got the wrong verification code
         else:
             return Response(
-                {"error": "인증에 실패했습니다. 다시 입력하세요."},
+                {"error": "Email verification failed."},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
 
@@ -257,7 +257,7 @@ class EmailRegisterVerifyView(APIView):
         # Got the wrong verification code
         else:
             return Response(
-                {"error": "인증에 실패했습니다. 다시 입력하세요."},
+                {"error": "Email verification failed."},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
 
