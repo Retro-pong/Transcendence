@@ -84,7 +84,7 @@ class WaitingRoom extends PageComponent {
           </div>
           <div class="d-flex justify-content-center align-items-center h-25">
             ${StartButton}
-          <div>
+          </div>
         </div>
       </div>
       `;
