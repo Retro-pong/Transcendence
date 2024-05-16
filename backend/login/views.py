@@ -12,6 +12,7 @@ from django.shortcuts import redirect
 from django.conf import settings
 from rest_framework_simplejwt.views import TokenVerifyView, TokenRefreshView
 import requests
+from rest_framework.request import Request
 
 
 class IntraLoginView(APIView):
