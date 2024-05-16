@@ -27,15 +27,15 @@ const CreateRoomForm = () => {
             labelFor: 'gameMap',
             labelContent: 'MAP',
             content: `<input type="radio" class="btn-check" name="mapOptions" id="gameMap1" autocomplete="off"/>
-											<label class="btn btn-outline-light fs-9" for="gameMap1">
+											<label class="btn btn-outline-light mx-2 fs-9" for="gameMap1">
 												<img src="../../public/img/map_futuristic_horizon.jpg" height="100%" width="100%" alt="wow"/>
 											</label>
 											<input type="radio" class="btn-check" name="mapOptions" id="gameMap2" autocomplete="off"/>
-											<label class="btn btn-outline-light fs-9" for="gameMap2">
+											<label class="btn btn-outline-light mx-2 fs-9" for="gameMap2">
 												<img src="../../public/img/map_mountain.jpg" height="100%" width="100%" alt="wow"/>
 											</label>
 											<input type="radio" class="btn-check" name="mapOptions" id="gameMap3" autocomplete="off"/>
-											<label class="btn btn-outline-light fs-9" for="gameMap3">
+											<label class="btn btn-outline-light mx-2 fs-9" for="gameMap3">
 												<img src="../../public/img/map_pixel_rain.jpg" height="100%" width="100%" alt="wow"/>
 											</label>`,
           })}
@@ -44,10 +44,10 @@ const CreateRoomForm = () => {
             labelContent: 'MODE',
             content: `<span>[</span>
 											<input type="radio" class="btn-check" name="modeOptions" id="rumble" autocomplete="off"/>
-											<label class="btn btn-outline-light fs-9" for="rumble">RUMBLE</label>
+											<label class="btn btn-outline-light mx-3 fs-9" for="rumble">RUMBLE</label>
 											<span>/</span>
 											<input type="radio" class="btn-check" name="modeOptions" id="tournament" autocomplete="off"/>
-											<label class="btn btn-outline-light fs-9" for="tournament">TOURNAMENT</label>
+											<label class="btn btn-outline-light mx-3 fs-9" for="tournament">TOURNAMENT</label>
 											<span>]</span>`,
           })}
 			</div>
