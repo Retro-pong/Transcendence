@@ -11,7 +11,7 @@ from users.models import User
 from .utils import send_verification_code, obtain_jwt_token
 from django.shortcuts import redirect
 from django.conf import settings
-from rest_framework_simplejwt.views import TokenVerifyView, TokenRefreshView
+from rest_framework_simplejwt.views import TokenRefreshView
 import requests
 
 
@@ -256,29 +256,62 @@ class EmailRegisterVerifyView(APIView):
 class MyTokenRefreshView(TokenRefreshView):
     @swagger_auto_schema(
         tags=["login"],
-        operation_description="토큰 검증 및 갱신",
+        operation_description="body 없이 refresh token만 쿠키로 전송",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={},
+        ),
         responses={200: "OK", 401: "UNAUTHORIZED"},
     )
     def post(self, request: Request, *args, **kwargs) -> Response:
-        # Verify the access token
-        response = TokenVerifyView.as_view()(request, *args, **kwargs)
-        if response.status_code == 200:
-            return Response("Token verification successful.", status=status.HTTP_200_OK)
-
-        # If the access token is invalid, refresh
+        refresh_token = request.COOKIES.get("refresh_token")
+        if not refresh_token:
+            return Response(
+                {"error": "No refresh token."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+        data = {"refresh": refresh_token}
+        request._data = data
         response = super().post(request, *args, **kwargs)
-        return response
+        if response.status_code == 200:
+            return response
+        else:
+            user = request.user
+            user.is_authenticated = False
+            user.save()
+            return Response(
+                {"error": "Failed to refresh token."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
 
 
-class TokenRefreshFailedView(APIView):
+class LogoutView(APIView):  # TODO delete (for test)
     @swagger_auto_schema(
         tags=["login"],
-        operation_description="토큰 갱신 실패",
-        responses={200: "OK"},
+        operation_description="email 로그아웃 (테스트용 임시 API)",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "email": openapi.Schema(type=openapi.TYPE_STRING, description="Email")
+            },
+        ),
+        responses={200: "OK", 401: "UNAUTHORIZED"},
     )
     def post(self, request):
         email = request.data.get("email")
-        user = User.objects.get(email=email)
-        user.is_authenticated = False
-        user.save()
-        return redirect("login:email_login")
+        try:
+            user = User.objects.get(email=email)
+            if user and user.is_authenticated:
+                user.is_authenticated = False
+                user.save()
+                return Response("Logout successful.", status=status.HTTP_200_OK)
+            else:
+                return Response(
+                    {"error": "Already logged out."},
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
+        except Exception as e:
+            return Response(
+                {"error": "Invalid email."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
