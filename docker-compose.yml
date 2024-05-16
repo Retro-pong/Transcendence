@@ -1,10 +1,10 @@
 services:
-  # backend:
-  #   image: backend:transcendence
-  #   container_name: backend
-  #   build: ./backend
-  #   ports:
-  #     - '8000:8000'
+  backend:
+     image: backend:transcendence
+     container_name: backend
+     build: ./backend
+     ports:
+       - '8000:8000'
 
   frontend:
     image: frontend:transcendence
