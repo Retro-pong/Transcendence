@@ -21,7 +21,7 @@ class CreateRoom extends PageComponent {
     const createBtn = BasicButton({
       id: 'createRoomBtn',
       text: '<< Create Room >>',
-      classList: 'btn btn-outline-light fs-10',
+      classList: 'btn btn-outline-light mt-3 fs-10',
       type: 'submit',
       form: 'createRoomForm',
       disabled: true,
