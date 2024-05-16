@@ -47,18 +47,18 @@ class JoinRoom extends PageComponent {
       id: 'reloadRoomBtn',
       text: '> Reload',
       classList:
-        'fs-2 position-absolute top-0 end-0 mt-2 me-2 btn-no-outline-hover',
+        'btn fs-2 position-absolute top-0 end-0 mt-2 me-2 btn-no-outline-hover',
     });
     const prevBtn = BasicButton({
       id: 'prevBtn',
       text: '<',
-      classList: 'fs-7 btn ',
+      classList: 'fs-7 btn btn-no-outline-hover',
       disabled: this.currPage === 1,
     });
     const nextBtn = BasicButton({
       id: 'nextBtn',
       text: '>',
-      classList: 'fs-7 btn',
+      classList: 'fs-7 btn btn-no-outline-hover',
       disabled: this.totalPage === this.currPage,
     });
 

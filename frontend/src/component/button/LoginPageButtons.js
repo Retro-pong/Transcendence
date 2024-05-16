@@ -7,12 +7,12 @@ const LoginPageButtons = () => {
   const LoginBtn = BasicButton({
     id: 'loginBtn',
     text: '> Login <',
-    classList: 'fs-8',
+    classList: 'btn btn-no-outline-hover fs-8',
   });
   const Login42Btn = BasicButton({
     id: '42LoginBtn',
     text: '> 42 Login <',
-    classList: 'fs-8',
+    classList: 'btn btn-no-outline-hover fs-8',
   });
   const RegisterBtn = OpenModalButton({
     text: '> Register <',
