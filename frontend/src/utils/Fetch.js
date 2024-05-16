@@ -1,5 +1,5 @@
 class Fetch {
-  static #BASE_URL = 'http://localhost:80';
+  static #BASE_URL = 'http://localhost:80/api/v1';
 
   static #headers = {
     'Content-Type': 'application/json',
@@ -26,7 +26,9 @@ class Fetch {
       credentials: this.#credentials,
     });
     if (!response.ok) {
-      throw response;
+      return response.json().then((err) => {
+        throw err;
+      });
     }
     return response.json();
   }
@@ -39,7 +41,9 @@ class Fetch {
       body: JSON.stringify(body),
     });
     if (!response.ok) {
-      throw response;
+      return response.json().then((err) => {
+        throw err;
+      });
     }
     return response.json();
   }
