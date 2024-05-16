@@ -6,7 +6,6 @@ from .views import (
     EmailLoginVerifyView,
     EmailRegisterView,
     EmailRegisterVerifyView,
-    EmailLogoutView,
     MyTokenRefreshView,
     TokenRefreshFailedView,
 )
@@ -17,9 +16,6 @@ app_name = "login"
 urlpatterns = [
     path("intra/login/", IntraLoginView.as_view(), name="intra_login"),
     path("intra/callback/", IntraCallbackView.as_view(), name="intra_callback"),
-    path(
-        "email/logout/", EmailLogoutView.as_view(), name="email_logout"
-    ),  # TODO: delete (for test)
     path("email/login/", EmailLoginView.as_view(), name="email_login"),
     path(
         "email/login/verify/", EmailLoginVerifyView.as_view(), name="email_login_verify"

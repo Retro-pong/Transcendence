@@ -103,38 +103,6 @@ class IntraCallbackView(APIView):
         return intra_userinfo
 
 
-class EmailLogoutView(APIView):  # TODO delete (for test)
-    @swagger_auto_schema(
-        tags=["login"],
-        operation_description="email 로그아웃",
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                "email": openapi.Schema(type=openapi.TYPE_STRING, description="Email")
-            },
-        ),
-        responses={200: "OK", 401: "UNAUTHORIZED"},
-    )
-    def post(self, request):
-        email = request.data.get("email")
-        try:
-            user = User.objects.get(email=email)
-            if user and user.is_authenticated:
-                user.is_authenticated = False
-                user.save()
-                return Response("Logout successful.", status=status.HTTP_200_OK)
-            else:
-                return Response(
-                    {"error": "Already logged out."},
-                    status=status.HTTP_401_UNAUTHORIZED,
-                )
-        except Exception as e:
-            return Response(
-                {"error": "Invalid email."},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
-
-
 class EmailLoginView(APIView):
     @swagger_auto_schema(
         tags=["login"],
