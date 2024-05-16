@@ -5,7 +5,7 @@ from rest_framework import status
 import smtplib
 from .models import TFA
 from users.models import User
-import os
+from django.conf import settings
 
 
 def send_verification_code(email) -> bool:
@@ -16,15 +16,11 @@ def send_verification_code(email) -> bool:
     TFA.objects.create(email=email, code=code)  # DB에 저장
 
     try:
-        smtp = smtplib.SMTP(
-            os.environ.get("EMAIL_HOST"), int(os.environ.get("EMAIL_PORT"))
-        )
+        smtp = smtplib.SMTP(settings.EMAIL_HOST, int(settings.EMAIL_PORT))
         smtp.starttls()
-        smtp.login(
-            os.environ.get("EMAIL_HOST_USER"), os.environ.get("EMAIL_HOST_PASSWORD")
-        )
+        smtp.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
         smtp.sendmail(
-            os.environ.get("EMAIL_HOST_USER"),
+            settings.EMAIL_HOST_USER,
             email,
             f"Your verification code is <{code}>",
         )
@@ -38,18 +34,16 @@ def obtain_jwt_token(user) -> Response:
     token = TokenObtainPairSerializer.get_token(user)
     refresh_token = str(token)
     access_token = str(token.access_token)
-    # JWT.objects.create(user=user, refresh_token=refresh_token)
     response = Response(
         {
             "message": "Login successful",
             "email": user.email,
-            "jwt": {
-                "access_token": access_token,
-                "refresh_token": refresh_token,
-            },
+            "access_token": access_token,
         },
         status=status.HTTP_200_OK,
     )
+    response.set_cookie("refresh_token", refresh_token, httponly=True, secure=True)
+
     return response
 
 
