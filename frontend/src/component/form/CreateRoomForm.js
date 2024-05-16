@@ -12,10 +12,10 @@ const CreateRoomForm = () => {
 											<span class="fs-13">]</span>`,
           })}
 					${createRoomFormItem({
-            labelFor: 'gameColor',
+            labelFor: 'gameBall',
             labelContent: 'COLOR',
-            content: `<input type="color" id="gameColor" class="form-control form-control-color p-1 border-1 border-light rounded" value="#e66465"/>
-											<span id="gameColorValue" class="mx-4">#e66565</span>`,
+            content: `<input type="color" id="gameBall" class="form-control form-control-color p-1 border-1 border-light rounded" value="#e66465"/>
+											<span id="gameBallValue" class="mx-4">#e66565</span>`,
           })}
 					${createRoomFormItem({
             labelFor: 'gameSpeed',

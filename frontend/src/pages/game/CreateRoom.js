@@ -10,7 +10,7 @@ class CreateRoom extends PageComponent {
     super();
     this.setTitle('Create Room');
     this.titleState = false;
-    this.colorState = true;
+    this.ballState = true;
     this.speedState = true;
     this.mapState = false;
     this.modeState = false;
@@ -47,7 +47,7 @@ class CreateRoom extends PageComponent {
 
   async submitGameForm(form) {
     const gameTitle = form.gameTitle.value;
-    const gameColor = form.gameColor.value;
+    const gameBall = form.gameBall.value;
     const gameSpeed = form.gameSpeed.value;
     const gameMap = [...form.mapOptions].filter(
       (option) => option.checked === true
@@ -60,7 +60,7 @@ class CreateRoom extends PageComponent {
 
     await Fetch.post('/game/room', {
       gameTitle,
-      gameColor,
+      gameBall,
       gameSpeed,
       gameMap,
       gameMode,
@@ -81,7 +81,7 @@ class CreateRoom extends PageComponent {
   progressBar() {
     this.progressState =
       (this.titleState +
-        this.colorState +
+        this.ballState +
         this.speedState +
         this.mapState +
         this.modeState) *
@@ -96,8 +96,8 @@ class CreateRoom extends PageComponent {
   }
 
   addInputEvents() {
-    document.getElementById('gameColor').addEventListener('input', (e) => {
-      document.getElementById('gameColorValue').innerText = e.target.value;
+    document.getElementById('gameBall').addEventListener('input', (e) => {
+      document.getElementById('gameBallValue').innerText = e.target.value;
     });
     document.getElementById('gameSpeed').addEventListener('input', (e) => {
       document.getElementById('gameSpeedValue').innerText = e.target.value;
