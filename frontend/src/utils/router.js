@@ -4,6 +4,7 @@ import Profile from '@pages/Profile';
 import Game from '@pages/game/Game';
 import CreateRoom from '@pages/game/CreateRoom';
 import JoinRoom from '@pages/game/JoinRoom';
+import WaitingRoom from '@pages/game/WaitingRoom';
 import Friends from '@pages/Friends';
 import NavBar from '@component/navigation/NavBar';
 import ToastComponent from '@component/toast/ToastComponent';
@@ -24,6 +25,7 @@ export const router = async () => {
     '/game': Game,
     '/game/create': CreateRoom,
     '/game/join': JoinRoom,
+    '/game/waiting': WaitingRoom, // TODO: Waiting 추가
     '/friends': Friends,
     '/404': Home, // TODO: NotFound 추가
   };
