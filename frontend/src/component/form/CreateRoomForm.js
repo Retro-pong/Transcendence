@@ -28,15 +28,15 @@ const CreateRoomForm = () => {
             labelContent: 'MAP',
             content: `<input type="radio" class="btn-check" name="mapOptions" id="gameMap1" autocomplete="off"/>
 											<label class="btn btn-outline-light mx-2 fs-9" for="gameMap1">
-												<img src="../../public/img/map_futuristic_horizon.jpg" height="100%" width="100%" alt="wow"/>
+												<img src="/img/map_futuristic_horizon.jpg" height="100%" width="100%" alt="wow"/>
 											</label>
 											<input type="radio" class="btn-check" name="mapOptions" id="gameMap2" autocomplete="off"/>
 											<label class="btn btn-outline-light mx-2 fs-9" for="gameMap2">
-												<img src="../../public/img/map_mountain.jpg" height="100%" width="100%" alt="wow"/>
+												<img src="/img/map_mountain.jpg" height="100%" width="100%" alt="wow"/>
 											</label>
 											<input type="radio" class="btn-check" name="mapOptions" id="gameMap3" autocomplete="off"/>
 											<label class="btn btn-outline-light mx-2 fs-9" for="gameMap3">
-												<img src="../../public/img/map_pixel_rain.jpg" height="100%" width="100%" alt="wow"/>
+												<img src="/img/map_pixel_rain.jpg" height="100%" width="100%" alt="wow"/>
 											</label>`,
           })}
 					${createRoomFormItem({
