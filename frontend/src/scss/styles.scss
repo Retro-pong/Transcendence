@@ -162,6 +162,23 @@ input:-webkit-autofill:active {
   border-width: 15px 0;
 }
 
+#gameColor {
+  border-style: none !important;
+}
+
+.game-setting-container {
+  &::-webkit-scrollbar-thumb {
+    background-color: $mint;
+  }
+  &::-webkit-scrollbar {
+       height: 100%;
+       width: 5px;
+     }
+
+  &::-webkit-scrollbar-track {
+    background-color: $bg-main;
+  }
+
 .game-player-card-border {
   border: double $white;
   border-width: 0 15px;

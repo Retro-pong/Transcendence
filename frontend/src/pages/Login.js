@@ -2,7 +2,6 @@ import PageComponent from '@component/PageComponent.js';
 import RegisterFormItem from '@component/form/RegisterFormItem';
 import Header from '@component/text/Header';
 import LoginPageButtons from '@component/button/LoginPageButtons';
-import ToastComponent from '@component/toast/ToastComponent';
 import ModalComponent from '@component/modal/ModalComponent';
 import LoginForm from '@component/form/LoginForm';
 import { Toast, Modal } from 'bootstrap';
@@ -40,7 +39,6 @@ class Login extends PageComponent {
         <div class="p-5">
           ${LoginPageButtons()}
         </div>
-          ${ToastComponent({ id: 'login-toast', message: 'Please enter your email and password' })}
           ${LoginModal}
       </div>
       `;
@@ -49,8 +47,8 @@ class Login extends PageComponent {
   async loginCheck(loginModal) {
     const email = document.getElementById('email-login').value;
     const password = document.getElementById('password-login').value;
-    const loginToastMessageEl = document.getElementById('login-toast-message');
-    const loginToast = Toast.getOrCreateInstance('#login-toast');
+    const loginToastMessageEl = document.getElementById('toast-message');
+    const loginToast = Toast.getOrCreateInstance('#toast');
 
     if (!email || !password) {
       loginToastMessageEl.innerText = 'Please enter your email and password';
@@ -77,8 +75,8 @@ class Login extends PageComponent {
   async getAccessToken(loginModal) {
     const email = document.getElementById('email-login').value;
     const passcode = document.getElementById('passcode').value;
-    const loginToast = Toast.getOrCreateInstance('#login-toast');
-    const loginToastMessageEl = document.getElementById('login-toast-message');
+    const loginToast = Toast.getOrCreateInstance('#toast');
+    const loginToastMessageEl = document.getElementById('toast-message');
 
     if (Regex.passcode.test(passcode) === false) {
       loginToastMessageEl.innerText = passcode
@@ -125,10 +123,8 @@ class Login extends PageComponent {
     const nick = form.nick.value;
     const password = form.password.value;
     const passwordRe = form.passwordRe.value;
-    const registerToastMessageEl = document.getElementById(
-      'login-toast-message'
-    );
-    const registerToast = Toast.getOrCreateInstance('#login-toast');
+    const registerToastMessageEl = document.getElementById('toast-message');
+    const registerToast = Toast.getOrCreateInstance('#toast');
 
     if (!email || !nick || !password || !passwordRe) {
       registerToastMessageEl.innerText = 'Please fill in all fields';
