@@ -8,44 +8,98 @@ from .serializers import RegisterSerializer
 from .models import TFA
 from users.models import User
 from .utils import send_verification_code, obtain_jwt_token
+from django.shortcuts import redirect
+from django.conf import settings
+from rest_framework_simplejwt.views import TokenVerifyView, TokenRefreshView
+import requests
 
 
-class IntraView(APIView):
-    def get(self, request):
-        return Response("intra")
-
-
-class EmailLogoutView(APIView):  # TODO delete (for test)
+class IntraLoginView(APIView):
     @swagger_auto_schema(
         tags=["login"],
-        operation_description="email 로그아웃",
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                "email": openapi.Schema(type=openapi.TYPE_STRING, description="Email")
-            },
-        ),
-        responses={200: "OK", 401: "UNAUTHORIZED"},
+        operation_description="intra 로그인",
+        responses={200: "OK"},
     )
-    def post(self, request):
-        email = request.data.get("email")
+    def get(self, request):
+        authorize_api_url = settings.INTRA_AUTHORIZE_API_URL
+        client_id = settings.INTRA_CLIENT_ID
+        redirect_uri = settings.INTRA_REDIRECT_URI
+        url = f"{authorize_api_url}?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code"
+        return redirect(url)
+
+
+class IntraCallbackView(APIView):
+    @swagger_auto_schema(
+        tags=["login"],
+        operation_description="intra 콜백",
+        responses={200: "OK", 400: "BAD_REQUEST", 500: "INTERNAL_SERVER_ERROR"},
+    )
+    def get(self, request):
         try:
-            user = User.objects.get(email=email)
-            if user and user.is_active:
-                user.is_active = False
-                user.save()
-                # JWT.objects.filter(user=user).delete()
-                return Response("Logout successful.", status=status.HTTP_200_OK)
-            else:
-                return Response(
-                    {"error": "Already logged out."},
-                    status=status.HTTP_401_UNAUTHORIZED,
-                )
+            code = request.GET.get("code")
+            intra_token = self.get_intra_token(code)
+            intra_userinfo = self.get_intra_userinfo(intra_token)
         except Exception as e:
+            return Response({"error": e}, status=status.HTTP_400_BAD_REQUEST)
+
+        intra_id = intra_userinfo["login"]
+        email = intra_userinfo["email"]
+        image = intra_userinfo["image"]["link"]
+
+        user = User.objects.get(email=email)
+        # 로그인 전적이 있는 경우, 이미 접속 중인지 확인
+        if user and user.is_authenticated:
             return Response(
-                {"error": "Invalid email."},
+                {"error": "Already logged in."},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
+        # 로그인 전적이 없는 경우, 회원가입
+        if not user:
+            username = intra_id
+            while User.objects.filter(username=username).exists():
+                username = User.objects.make_random_password(length=10)
+            user = User.objects.create_user(username=username, email=email)
+        # 로그인 및 JWT 반환
+        user.is_registered = True
+        user.is_authenticated = True
+        user.image = image
+        user.save()
+        return obtain_jwt_token(user)
+
+    def get_intra_token(self, code) -> dict:
+        """
+        Get access token from 42 intra.
+        """
+        if not code:
+            raise Exception("Failed to get code from 42 intra.")
+        data = {
+            "grant_type": "authorization_code",
+            "client_id": settings.INTRA_CLIENT_ID,
+            "client_secret": settings.INTRA_CLIENT_SECRET,
+            "code": code,
+            "redirect_uri": settings.INTRA_REDIRECT_URI,  # TODO: check
+        }
+        response = requests.post(settings.INTRA_TOKEN_API_URL, data=data)
+        if not response.status_code == 200:
+            raise Exception("Failed to get access token from 42 intra.")
+        response_data = response.json()
+        return response_data
+
+    def get_intra_userinfo(self, intra_token) -> dict:
+        """
+        Get userinfo from 42 intra.
+        """
+        token_type = intra_token.get("token_type")
+        access_token = intra_token.get("access_token")
+        if not token_type or not access_token:
+            raise Exception("Failed to get access token from 42 intra.")
+
+        headers = {"Authorization": f"{token_type} {access_token}"}
+        response = requests.get(settings.INTRA_USERINFO_API_URL, headers=headers)
+        if not response.status_code == 200:
+            raise Exception("Failed to get userinfo from 42 intra.")
+        intra_userinfo = response.json()
+        return intra_userinfo
 
 
 class EmailLoginView(APIView):
@@ -70,9 +124,9 @@ class EmailLoginView(APIView):
         # Authenticate the user
         try:
             user = User.objects.get(email=email)
-            if user and user.is_authenticated:
+            if user and user.is_registered:
                 # 이미 로그인된 상태인 경우
-                if user.is_active:
+                if user.is_authenticated:
                     return Response(
                         {"error": "Already logged in."},
                         status=status.HTTP_401_UNAUTHORIZED,
@@ -124,7 +178,7 @@ class EmailLoginVerifyView(APIView):
             # 해당 이메일에 대해 모든 발신 기록 삭제
             TFA.objects.filter(email=email).delete()
             user = User.objects.get(email=email)
-            user.is_active = True
+            user.is_authenticated = True
             user.save()
             # jwt 토큰을 담은 response 반환 (status code: 200)
             return obtain_jwt_token(user)
@@ -132,42 +186,9 @@ class EmailLoginVerifyView(APIView):
         # Got the wrong verification code
         else:
             return Response(
-                {"error": "Email verification failed."},
+                {"error": "인증에 실패했습니다. 다시 입력하세요."},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
-
-
-# class RefreshTokenView(APIView):
-#     @swagger_auto_schema(
-#         tags=["login"],
-#         operation_description="refresh token",
-#         request_body=openapi.Schema(
-#             type=openapi.TYPE_OBJECT,
-#             properties={
-#                 "email": openapi.Schema(type=openapi.TYPE_STRING, description="Email"),
-#                 "refresh_token": openapi.Schema(
-#                     type=openapi.TYPE_STRING, description="Refresh token"
-#                 ),
-#             },
-#         ),
-#         responses={200: "OK", 401: "UNAUTHORIZED"},
-#     )
-#     def post(self, request):
-#         email = request.data.get("email")
-#         refresh_token = request.data.get("refresh_token")
-#         user = User.objects.get(email=email)
-#         jwt = JWT.objects.filter(user=user).first()
-#
-#         # Got the correct refresh token
-#         if jwt and jwt.refresh_token == refresh_token:
-#             return obtain_jwt_token(user)
-#
-#         # Got the wrong refresh token
-#         else:
-#             return Response(
-#                 {"error": "Invalid refresh token."},
-#                 status=status.HTTP_401_UNAUTHORIZED,
-#             )
 
 
 class EmailRegisterView(APIView):
@@ -220,12 +241,43 @@ class EmailRegisterVerifyView(APIView):
         if tfa and tfa.code == code:
             # 해당 이메일에 대해 모든 발신 기록 삭제
             TFA.objects.filter(email=email).delete()
-            User.objects.filter(email=email).update(is_authenticated=True)
+            User.objects.filter(email=email).update(is_registered=True)
             return Response("Email verification successful.", status=status.HTTP_200_OK)
 
         # Got the wrong verification code
         else:
             return Response(
-                {"error": "Email verification failed."},
+                {"error": "인증에 실패했습니다. 다시 입력하세요."},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
+
+
+class MyTokenRefreshView(TokenRefreshView):
+    @swagger_auto_schema(
+        tags=["login"],
+        operation_description="토큰 검증 및 갱신",
+        responses={200: "OK", 401: "UNAUTHORIZED"},
+    )
+    def post(self, request: Request, *args, **kwargs) -> Response:
+        # Verify the access token
+        response = TokenVerifyView.as_view()(request, *args, **kwargs)
+        if response.status_code == 200:
+            return Response("Token verification successful.", status=status.HTTP_200_OK)
+
+        # If the access token is invalid, refresh
+        response = super().post(request, *args, **kwargs)
+        return response
+
+
+class TokenRefreshFailedView(APIView):
+    @swagger_auto_schema(
+        tags=["login"],
+        operation_description="토큰 갱신 실패",
+        responses={200: "OK"},
+    )
+    def post(self, request):
+        email = request.data.get("email")
+        user = User.objects.get(email=email)
+        user.is_authenticated = False
+        user.save()
+        return redirect("login:email_login")
