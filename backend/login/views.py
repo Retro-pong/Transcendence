@@ -41,7 +41,7 @@ class IntraCallbackView(APIView):
             intra_token = self.get_intra_token(code)
             intra_userinfo = self.get_intra_userinfo(intra_token)
         except Exception as e:
-            return Response({"error": e}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         intra_id = intra_userinfo["login"]
         email = intra_userinfo["email"]
@@ -196,7 +196,7 @@ class EmailLoginVerifyView(APIView):
         # Got the wrong verification code
         else:
             return Response(
-                {"error": "인증에 실패했습니다. 다시 입력하세요."},
+                {"error": "Email verification failed."},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
 
@@ -257,7 +257,7 @@ class EmailRegisterVerifyView(APIView):
         # Got the wrong verification code
         else:
             return Response(
-                {"error": "인증에 실패했습니다. 다시 입력하세요."},
+                {"error": "Email verification failed."},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
 
