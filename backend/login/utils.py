@@ -1,6 +1,5 @@
 from rest_framework.response import Response
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import status
 import smtplib
 from .models import TFA

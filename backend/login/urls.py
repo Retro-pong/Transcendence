@@ -7,7 +7,7 @@ from .views import (
     EmailRegisterView,
     EmailRegisterVerifyView,
     MyTokenRefreshView,
-    TokenRefreshFailedView,
+    LogoutView,
 )
 
 
@@ -27,9 +27,5 @@ urlpatterns = [
         name="email_register_verify",
     ),
     path("token/refresh/", MyTokenRefreshView.as_view(), name="token_refresh"),
-    path(
-        "token/refresh/failed/",
-        TokenRefreshFailedView.as_view(),
-        name="token_refresh_failed",
-    ),
+    path("logout/", LogoutView.as_view(), name="logout"),  # TODO: delete (for test)
 ]

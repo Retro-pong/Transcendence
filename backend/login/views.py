@@ -11,7 +11,7 @@ from users.models import User
 from .utils import send_verification_code, obtain_jwt_token
 from django.shortcuts import redirect
 from django.conf import settings
-from rest_framework_simplejwt.views import TokenVerifyView, TokenRefreshView
+from rest_framework_simplejwt.views import TokenRefreshView
 import requests
 
 
@@ -47,19 +47,23 @@ class IntraCallbackView(APIView):
         email = intra_userinfo["email"]
         image = intra_userinfo["image"]["link"]
 
-        user = User.objects.get(email=email)
-        # 로그인 전적이 있는 경우, 이미 접속 중인지 확인
-        if user and user.is_authenticated:
-            return Response(
-                {"error": "Already logged in."},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
-        # 로그인 전적이 없는 경우, 회원가입
-        if not user:
+        try:
+            user = User.objects.get(email=email)
+            # 로그인 전적이 있는 경우, 이미 접속 중인지 확인
+            if user.is_authenticated:
+                return Response(
+                    {"error": "Already logged in."},
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
+        except User.DoesNotExist:
+            # 로그인 전적이 없는 경우, 회원가입
             username = intra_id
             while User.objects.filter(username=username).exists():
                 username = User.objects.make_random_password(length=10)
-            user = User.objects.create_user(username=username, email=email)
+            user = User.objects.create_user(
+                username=username, email=email, password="subinlee"
+            )
+
         # 로그인 및 JWT 반환
         user.is_registered = True
         user.is_authenticated = True
@@ -78,12 +82,18 @@ class IntraCallbackView(APIView):
             "client_id": settings.INTRA_CLIENT_ID,
             "client_secret": settings.INTRA_CLIENT_SECRET,
             "code": code,
-            "redirect_uri": settings.INTRA_REDIRECT_URI,  # TODO: check
+            "redirect_uri": settings.INTRA_REDIRECT_URI,
         }
-        response = requests.post(settings.INTRA_TOKEN_API_URL, data=data)
-        if not response.status_code == 200:
+        try:
+            response = requests.post(settings.INTRA_TOKEN_API_URL, data=data)
+            response_data = response.json()
+        except:
             raise Exception("Failed to get access token from 42 intra.")
-        response_data = response.json()
+        try:
+            response_data["access_token"]
+        except KeyError:
+            raise Exception(response_data.get("error_description"))
+
         return response_data
 
     def get_intra_userinfo(self, intra_token) -> dict:
@@ -92,14 +102,13 @@ class IntraCallbackView(APIView):
         """
         token_type = intra_token.get("token_type")
         access_token = intra_token.get("access_token")
-        if not token_type or not access_token:
-            raise Exception("Failed to get access token from 42 intra.")
 
         headers = {"Authorization": f"{token_type} {access_token}"}
-        response = requests.get(settings.INTRA_USERINFO_API_URL, headers=headers)
-        if not response.status_code == 200:
+        try:
+            response = requests.get(settings.INTRA_USERINFO_API_URL, headers=headers)
+            intra_userinfo = response.json()
+        except:
             raise Exception("Failed to get userinfo from 42 intra.")
-        intra_userinfo = response.json()
         return intra_userinfo
 
 
@@ -256,29 +265,62 @@ class EmailRegisterVerifyView(APIView):
 class MyTokenRefreshView(TokenRefreshView):
     @swagger_auto_schema(
         tags=["login"],
-        operation_description="토큰 검증 및 갱신",
+        operation_description="body 없이 refresh token만 쿠키로 전송",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={},
+        ),
         responses={200: "OK", 401: "UNAUTHORIZED"},
     )
     def post(self, request: Request, *args, **kwargs) -> Response:
-        # Verify the access token
-        response = TokenVerifyView.as_view()(request, *args, **kwargs)
-        if response.status_code == 200:
-            return Response("Token verification successful.", status=status.HTTP_200_OK)
-
-        # If the access token is invalid, refresh
+        refresh_token = request.COOKIES.get("refresh_token")
+        if not refresh_token:
+            return Response(
+                {"error": "No refresh token."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+        data = {"refresh": refresh_token}
+        request._data = data
         response = super().post(request, *args, **kwargs)
-        return response
+        if response.status_code == 200:
+            return response
+        else:
+            user = request.user
+            user.is_authenticated = False
+            user.save()
+            return Response(
+                {"error": "Failed to refresh token."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
 
 
-class TokenRefreshFailedView(APIView):
+class LogoutView(APIView):  # TODO delete (for test)
     @swagger_auto_schema(
         tags=["login"],
-        operation_description="토큰 갱신 실패",
-        responses={200: "OK"},
+        operation_description="email 로그아웃 (테스트용 임시 API)",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "email": openapi.Schema(type=openapi.TYPE_STRING, description="Email")
+            },
+        ),
+        responses={200: "OK", 401: "UNAUTHORIZED"},
     )
     def post(self, request):
         email = request.data.get("email")
-        user = User.objects.get(email=email)
-        user.is_authenticated = False
-        user.save()
-        return redirect("login:email_login")
+        try:
+            user = User.objects.get(email=email)
+            if user and user.is_authenticated:
+                user.is_authenticated = False
+                user.save()
+                return Response("Logout successful.", status=status.HTTP_200_OK)
+            else:
+                return Response(
+                    {"error": "Already logged out."},
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
+        except Exception as e:
+            return Response(
+                {"error": "Invalid email."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
