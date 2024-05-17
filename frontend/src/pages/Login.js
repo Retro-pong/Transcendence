@@ -2,7 +2,6 @@ import PageComponent from '@component/PageComponent.js';
 import RegisterFormItem from '@component/form/RegisterFormItem';
 import Header from '@component/text/Header';
 import LoginPageButtons from '@component/button/LoginPageButtons';
-import ToastComponent from '@component/toast/ToastComponent';
 import ModalComponent from '@component/modal/ModalComponent';
 import LoginForm from '@component/form/LoginForm';
 import { Toast, Modal } from 'bootstrap';
@@ -10,6 +9,7 @@ import Regex from '@/constants/Regex';
 import Fetch from '@/utils/Fetch';
 import { navigateTo } from '@/utils/router';
 import TokenManager from '@/utils/TokenManager';
+import ErrorHandler from '@/utils/ErrorHandler';
 
 class Login extends PageComponent {
   constructor() {
@@ -36,40 +36,35 @@ class Login extends PageComponent {
         <div class="p-5">
           ${RegisterFormItem('row my-5 mx-2', 'email-login', 'EMAIL', 'text', 'name @ mail')}
           ${RegisterFormItem('row mx-2', 'password-login', 'PASSWORD', 'password', 'PASSWORD')}
+          ${RegisterFormItem('row mx-2', 'verify-registered-email', 'CODE(tmp)', 'text', 'VERIFY REGISTERED EMAIL')}
         </div>
         <div class="p-5">
+          <button id="registrationCompleteBtn" class="btn btn-no-outline-hover fs-8">> Verify(tmp) <</button>
           ${LoginPageButtons()}
         </div>
-          ${ToastComponent({ id: 'login-toast', message: 'Please enter your email and password' })}
           ${LoginModal}
       </div>
       `;
   }
 
-  async loginCheck(loginModal) {
+  async get2FACode(loginModal) {
     const email = document.getElementById('email-login').value;
     const password = document.getElementById('password-login').value;
-    const loginToastMessageEl = document.getElementById('login-toast-message');
-    const loginToast = Toast.getOrCreateInstance('#login-toast');
 
     if (!email || !password) {
-      loginToastMessageEl.innerText = 'Please enter your email and password';
-      loginToast.show();
+      ErrorHandler.setToast('Please enter your email and password');
       return;
     }
     if (Regex.email.test(email) === false) {
-      loginToastMessageEl.innerText = 'Invalid Email Address';
-      loginToast.show();
+      ErrorHandler.setToast('Invalid Email Address');
       return;
     }
-    await Fetch.post('/login', { email, password })
+    await Fetch.post('/login/email/login', { email, password })
       .then(() => {
         loginModal.show();
       })
       .catch((err) => {
-        document.getElementById('login-toast-message').innerText =
-          'Login Failed';
-        loginToast.show();
+        ErrorHandler.setToast(err.error || 'Login Failed');
         console.error(err);
       });
   }
@@ -77,31 +72,30 @@ class Login extends PageComponent {
   async getAccessToken(loginModal) {
     const email = document.getElementById('email-login').value;
     const passcode = document.getElementById('passcode').value;
-    const loginToast = Toast.getOrCreateInstance('#login-toast');
-    const loginToastMessageEl = document.getElementById('login-toast-message');
 
+    if (!passcode) {
+      ErrorHandler.setToast('Please enter your passcode');
+      return;
+    }
     if (Regex.passcode.test(passcode) === false) {
-      loginToastMessageEl.innerText = passcode
-        ? 'Invalid Passcode'
-        : 'Please enter your passcode';
-      loginToast.show();
+      ErrorHandler.setToast('Invalid Passcode');
       return;
     }
 
-    // TODO: timeout 에러 처리 필요
-    await Fetch.post('/login', { email, password: passcode })
+    await Fetch.post('/login/email/login/verify', { email, code: passcode })
       .then((data) => {
+        localStorage.setItem('code', data.code); // 테스트용
+        localStorage.setItem('accessToken', data.access_token); // 테스트용
         TokenManager.storeTokens({
-          user: data.user.email,
-          accessToken: data.accessToken,
-          refreshToken: data.accessToken,
+          user: data.user,
+          accessToken: data.access_token,
         });
+        localStorage.setItem('accessToken', data.access_token); // 테스트용
         loginModal.hide();
         navigateTo('/');
       })
       .catch((err) => {
-        loginToastMessageEl.innerText = 'Invalid Passcode';
-        loginToast.show();
+        ErrorHandler.setToast(err.error || 'Verification Failed');
         console.error(err);
       });
   }
@@ -112,7 +106,7 @@ class Login extends PageComponent {
     const loginModal = new Modal('#loginModal');
 
     loginModalBtn.addEventListener('click', async () => {
-      await this.loginCheck(loginModal);
+      await this.get2FACode(loginModal);
       twoFactorLoginBtn.addEventListener('click', async () => {
         await this.getAccessToken(loginModal);
       });
@@ -125,10 +119,8 @@ class Login extends PageComponent {
     const nick = form.nick.value;
     const password = form.password.value;
     const passwordRe = form.passwordRe.value;
-    const registerToastMessageEl = document.getElementById(
-      'login-toast-message'
-    );
-    const registerToast = Toast.getOrCreateInstance('#login-toast');
+    const registerToastMessageEl = document.getElementById('toast-message');
+    const registerToast = Toast.getOrCreateInstance('#toast');
 
     if (!email || !nick || !password || !passwordRe) {
       registerToastMessageEl.innerText = 'Please fill in all fields';
@@ -172,11 +164,16 @@ class Login extends PageComponent {
     }
 
     const registerModal = Modal.getOrCreateInstance('#registerModal');
-    await Fetch.post('/register', { email, nick, password })
+
+    await Fetch.post('/login/email/register', {
+      email,
+      username: nick,
+      password,
+    })
       .then(() => {
         registerToastMessageEl.innerText = 'Registration Successful';
-        registerToast.show();
         registerModal.hide();
+        registerToast.show();
         document.getElementById('registerForm').reset();
       })
       .catch((err) => {
@@ -187,6 +184,7 @@ class Login extends PageComponent {
   }
 
   async afterRender() {
+    // 2FA 로그인
     await this.handle2FALogin();
     // TODO: 42 login api 요청 & 에러 처리
     document
@@ -200,6 +198,22 @@ class Login extends PageComponent {
       .addEventListener('submit', async (e) => {
         e.preventDefault();
         await this.submitRegisterForm(e.target.elements);
+      });
+
+    // 회원가입된 이메일 인증 (테스트용 임시 코드)
+    document
+      .getElementById('registrationCompleteBtn')
+      .addEventListener('click', async () => {
+        const email = document.getElementById('email-login').value;
+        const code = document.getElementById('verify-registered-email').value;
+
+        await Fetch.post('/login/email/register/verify', { email, code })
+          .then(() => {
+            console.log('verified');
+          })
+          .catch((err) => {
+            console.error(err);
+          });
       });
   }
 }

@@ -57,6 +57,12 @@ input:-webkit-autofill:active {
       0 0 10px 0 $mint inset,
       0 0 10px 4px $mint;
   }
+
+}
+
+.btn-outline-light.active {
+  box-shadow: 0 0 10px 0 $mint inset,
+  0 0 10px 4px $mint;
 }
 
 .btn-no-outline-hover {
@@ -76,29 +82,6 @@ input:-webkit-autofill:active {
 }
 
 .modal-content {
-  border-radius: 30px;
-}
-
-.modal-border-mint {
-  border-color: $mint;
-}
-
-.modal-border-pink {
-  border-color: $pink;
-}
-
-.btn-friend-accept {
-  border: none;
-  background-color: $light-pink;
-}
-
-.btn-friend-reject {
-  border: none;
-  background-color: $light-mint;
-}
-
-.modal-content {
-  border: solid 10px;
   border-radius: 30px;
 }
 
@@ -172,4 +155,33 @@ input:-webkit-autofill:active {
   &::-webkit-scrollbar-track {
     background-color: $bg-main;
   }
+}
+
+.game-room-border {
+  border: dashed $white;
+  border-width: 15px 0;
+}
+
+#gameColor {
+  border-style: none !important;
+}
+
+.game-setting-container {
+  &::-webkit-scrollbar-thumb {
+    background-color: $mint;
+  }
+
+  &::-webkit-scrollbar {
+    height: 100%;
+    width: 5px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: $bg-main;
+  }
+}
+
+.game-player-card-border {
+  border: double $white;
+  border-width: 0 15px;
 }

@@ -28,7 +28,7 @@ const NavBar = () => {
   const NavLinks = links.map((link) => NavLink(link).outerHTML).join('');
 
   return `
-    <div class="position-absolute bottom-0 start-0">
+    <div id="navBar" class="position-absolute bottom-0 start-0">
       <div class="collapse collapse-horizontal" id="collapseWidthExample">
         <div class="card card-body bg-black bg-gradient bg-opacity-75 border-4 border-black menubar">
           <nav class="nav flex-column">

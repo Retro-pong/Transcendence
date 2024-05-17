@@ -8,6 +8,11 @@ export default {
   },
   server: {
     port: 3000,
+    strictPort: true,
+    hmr: {
+      clientPort: 80,
+      port: 3000,
+    },
   },
   resolve: {
     alias: [

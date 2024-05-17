@@ -1,11 +1,10 @@
 import Fetch from '@/utils/Fetch';
+import ErrorHandler from '@/utils/ErrorHandler';
 
 class TokenManager {
   static #accessToken = null;
 
-  static #refreshToken = this.#initRefreshToken();
-
-  static #refreshExpiresIn = 60 * 60;
+  static #activeUser = localStorage.getItem('user') || null;
 
   static setAccessToken(accessToken) {
     this.#accessToken = accessToken;
@@ -15,65 +14,66 @@ class TokenManager {
     return this.#accessToken;
   }
 
-  static setRefreshToken(refreshToken) {
-    this.#refreshToken = refreshToken;
-    document.cookie = `refreshToken=${refreshToken}; max-age=${this.#refreshExpiresIn}`;
+  static getActiveUser() {
+    return this.#activeUser;
   }
 
-  static #initRefreshToken() {
-    const cookies = document.cookie.split(';');
-    // eslint-disable-next-line no-restricted-syntax
-    for (const cookie of cookies) {
-      const [key, value] = cookie.split('=');
-      if (key === 'refreshToken') {
-        return value;
-      }
-    }
-    return null;
+  static setActiveUser(user) {
+    if (this.#activeUser) return;
+    localStorage.setItem('user', user);
+    this.#activeUser = user;
   }
 
-  static getRefreshToken() {
-    return this.#refreshToken;
+  static removeActiveUser() {
+    this.#activeUser = null;
+    localStorage.clear();
   }
 
-  static storeTokens({ user, accessToken, refreshToken }) {
+  static storeTokens({ user, accessToken }) {
     this.setAccessToken(accessToken);
-    this.setRefreshToken(refreshToken);
-    localStorage.setItem('user', user); // 테스트용
+    this.setActiveUser(user);
     Fetch.setHeader('Authorization', `Bearer ${accessToken}`);
     Fetch.setCredentials('include');
   }
 
   static clearTokens() {
     this.#accessToken = null;
-    this.#refreshToken = null;
-    localStorage.clear();
-    document.cookie = 'refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC';
+    this.removeActiveUser();
     Fetch.removeHeader('Authorization');
     Fetch.setCredentials('omit');
   }
 
   static async authenticateUser() {
-    if (!this.#refreshToken) {
+    if (!this.#activeUser) {
       return;
     }
-    // 테스트용 mock api 요청 (실제 요청 바디엔 refresh token 보냄 body 없이 보내면 쿠키로 확인?)
-    await Fetch.post('/login', {
-      email: localStorage.getItem('user'),
-      password: '123123',
+    // 테스트용
+    await Fetch.post('/login/email/login', {
+      email: this.#activeUser,
+      code: localStorage.getItem('code'),
     })
       .then((data) => {
         this.storeTokens({
-          user: data.user.email,
-          accessToken: data.accessToken,
-          refreshToken: data.accessToken,
+          user: data.user,
+          accessToken: data.access_token,
         });
       })
       .catch((err) => {
-        // refresh token 만료 시 로그아웃 처리
         this.clearTokens();
-        console.error(err);
+        ErrorHandler.setToast(err.error || 'You need to login');
+        console.log(err);
       });
+    // await Fetch.post('/login/token/refresh')
+    //   .then((data) => {
+    //     console.log(data); // 테스트용
+    //     this.#accessToken = data.access_token;
+    //   })
+    //   .catch((err) => {
+    //     // refresh token 만료 시 로그아웃 처리
+    //     this.clearTokens();
+    //     ErrorHandler.setToast(err.error || 'You need to login');
+    //     console.error(err);
+    //   });
   }
 }
 

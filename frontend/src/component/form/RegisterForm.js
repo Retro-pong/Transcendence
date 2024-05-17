@@ -1,3 +1,4 @@
+import BasicButton from '@component/button/BasicButton';
 import RegisterFormItem from './RegisterFormItem.js';
 
 const RegisterForm = () => {
@@ -8,6 +9,8 @@ const RegisterForm = () => {
         ${RegisterFormItem('row mb-5 mx-3', 'nick', 'NICK', 'text', 'nickname')}
         ${RegisterFormItem('row mb-5 mx-3', 'password', 'PASS', 'password', 'PASSWORD')}
         ${RegisterFormItem('row mb-5 mx-3', 'passwordRe', 'PASS(re)', 'password', 'PASSWORD')}
+        ${RegisterFormItem('row mb-5 mx-3', 'emailCode', 'MAILCODE', 'text', 'MAILCODE')}
+        ${BasicButton({ id: 'mailVerifyBtn', text: 'mail' })}
       </div>
     </form>
   `;

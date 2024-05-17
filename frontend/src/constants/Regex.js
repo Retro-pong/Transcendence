@@ -3,6 +3,7 @@ const Regex = {
   nickname: /^[\w가-힣]{2,10}$/,
   password: /^(?=.*[a-zA-Z])(?=.*[0-9]).{8,}$/,
   passcode: /[a-zA-Z0-9]{6}$/,
+  gameTitle: /^[\w가-힣]{1,12}$/,
 };
 
 export default Regex;

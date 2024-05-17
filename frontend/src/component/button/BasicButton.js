@@ -1,10 +1,16 @@
-const BasicButton = ({ id, text, classList = '', disabled = false }) => {
-  const btnClass = `btn btn-no-outline-hover ${classList}`;
+const BasicButton = ({
+  id,
+  text,
+  classList = '',
+  disabled = false,
+  type = 'button',
+  form = '',
+}) => {
   return disabled
     ? `
-    <button type="button" id=${id} class="${btnClass}" disabled> ${text} </button>
+    <button type=${type} id=${id} class="${classList}" form=${form} disabled> ${text} </button>
   `
-    : `<button type="button" id=${id} class="${btnClass}"> ${text} </button>`;
+    : `<button type=${type} id=${id} class="${classList}" form=${form}> ${text} </button>`;
 };
 
 export default BasicButton;
