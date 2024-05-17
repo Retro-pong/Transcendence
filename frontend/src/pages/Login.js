@@ -186,12 +186,6 @@ class Login extends PageComponent {
   async afterRender() {
     // 2FA 로그인
     await this.handle2FALogin();
-    // TODO: 42 login api 요청 & 에러 처리
-    document
-      .getElementById('42LoginBtn')
-      .addEventListener('click', async () => {
-        console.log(`42 login`);
-      });
     // register form submit event
     document
       .getElementById('registerForm')

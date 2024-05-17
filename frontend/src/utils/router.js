@@ -52,9 +52,10 @@ export const router = async () => {
 
   const page = new routes[location.pathname]();
   const app = document.querySelector('#app');
-  if (location.pathname !== '/login') {
-    document.getElementById('navBar').classList.remove('d-none');
-  }
+  // if (location.pathname !== '/login') {
+  //   document.getElementById('navBar').classList.remove('d-none');
+  // }
+  document.getElementById('navBar').classList.remove('d-none'); // 테스트용
   app.innerHTML = await page.render();
   await page.afterRender();
 };
