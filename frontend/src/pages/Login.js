@@ -37,10 +37,8 @@ class Login extends PageComponent {
         <div class="p-5">
           ${RegisterFormItem('row my-5 mx-2', 'email-login', 'EMAIL', 'text', 'name @ mail')}
           ${RegisterFormItem('row mx-2', 'password-login', 'PASSWORD', 'password', 'PASSWORD')}
-          ${RegisterFormItem('row mx-2', 'verify-registered-email', 'CODE(tmp)', 'text', 'VERIFY REGISTERED EMAIL')}
         </div>
         <div class="p-5">
-          <button id="registrationCompleteBtn" class="btn btn-no-outline-hover fs-8">> Verify(tmp) <</button>
           ${LoginPageButtons()}
         </div>
           ${LoginModal}
@@ -51,6 +49,8 @@ class Login extends PageComponent {
   async get2FACode(loginModal) {
     const email = document.getElementById('email-login').value;
     const password = document.getElementById('password-login').value;
+
+    console.log(email, password);
 
     if (!email || !password) {
       ErrorHandler.setToast('Please enter your email and password');
@@ -206,22 +206,6 @@ class Login extends PageComponent {
     // 회원가입
     await this.submitRegisterForm();
     await this.submitEmailVerifyForm();
-
-    // 회원가입된 이메일 인증 (테스트용 임시 코드)
-    document
-      .getElementById('registrationCompleteBtn')
-      .addEventListener('click', async () => {
-        const email = document.getElementById('email-login').value;
-        const code = document.getElementById('verify-registered-email').value;
-
-        await Fetch.post('/login/email/register/verify', { email, code })
-          .then(() => {
-            console.log('verified');
-          })
-          .catch((err) => {
-            console.error(err);
-          });
-      });
   }
 }
 

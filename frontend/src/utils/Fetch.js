@@ -6,7 +6,7 @@ class Fetch {
     'Content-Type': 'application/json',
   };
 
-  static #credentials = 'omit';
+  static #credentials = 'same-origin';
 
   static setHeader(key, value) {
     this.#headers[key] = value;

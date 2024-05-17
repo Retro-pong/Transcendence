@@ -2,9 +2,10 @@ import Fetch from '@/utils/Fetch';
 import ErrorHandler from '@/utils/ErrorHandler';
 
 class TokenManager {
-  static #accessToken = null;
+  static #accessToken = localStorage.getItem('accessToken') || null; // 테스트용
 
-  static #activeUser = localStorage.getItem('user') || null;
+  static #activeUser =
+    localStorage.getItem('user') || 'hyobicho@student.42seoul.kr'; // 테스트용
 
   static setAccessToken(accessToken) {
     this.#accessToken = accessToken;
@@ -40,7 +41,7 @@ class TokenManager {
     this.#accessToken = null;
     this.removeActiveUser();
     Fetch.removeHeader('Authorization');
-    Fetch.setCredentials('omit');
+    Fetch.setCredentials('same-origin');
   }
 
   static async logout() {
@@ -59,36 +60,41 @@ class TokenManager {
   }
 
   static async authenticateUser() {
-    if (!this.#activeUser) {
+    if (!this.#accessToken) {
+      console.log('로그인 페이지로 이동해야 함'); // 테스트용
       return;
     }
     // 테스트용
-    await Fetch.post('/login/email/login', {
-      email: this.#activeUser,
-      code: localStorage.getItem('code'),
-    })
-      .then((data) => {
-        this.storeTokens({
-          user: data.user,
-          accessToken: data.access_token,
-        });
-      })
-      .catch((err) => {
-        this.clearTokens();
-        ErrorHandler.setToast(err.error || 'You need to login');
-        console.log(err);
-      });
-    // await Fetch.post('/login/token/refresh')
+    // await Fetch.post('/login/email/login', {
+    //   email: this.#activeUser,
+    //   code: localStorage.getItem('code'),
+    // })
     //   .then((data) => {
-    //     console.log(data); // 테스트용
-    //     this.#accessToken = data.access_token;
+    //     this.storeTokens({
+    //       user: data.user,
+    //       accessToken: data.access_token,
+    //     });
     //   })
     //   .catch((err) => {
-    //     // refresh token 만료 시 로그아웃 처리
     //     this.clearTokens();
     //     ErrorHandler.setToast(err.error || 'You need to login');
-    //     console.error(err);
+    //     console.log(err);
     //   });
+    console.log(
+      `activeUser: ${this.#activeUser} accessToken: ${this.#accessToken}`
+    ); // 테스트용
+    Fetch.setCredentials('include');
+    await Fetch.post('/login/token/refresh', { refresh: 'test' })
+      .then((data) => {
+        console.log(data); // 테스트용
+        this.#accessToken = data.access_token;
+      })
+      .catch((err) => {
+        // refresh token 만료 시 로그아웃 처리
+        this.clearTokens();
+        ErrorHandler.setToast(err.error || 'You need to login');
+        console.error(err);
+      });
   }
 }
 
