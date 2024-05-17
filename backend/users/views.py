@@ -21,6 +21,9 @@ class ProfileView(APIView):
         tags=["users"],  # Api 이름
         operation_description="사용자 프로필 api",  # 기능 설명
         responses={200: "OK", 400: "BAD_REQUEST"},  # 할당된 요청
+        manual_parameters=[
+            openapi.Parameter('Authorization', openapi.IN_HEADER, description="JWT token", type=openapi.TYPE_STRING)
+        ]
     )
     def get(self, request):
         try:
