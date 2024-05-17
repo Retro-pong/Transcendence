@@ -1,7 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.request import Request
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from django.http import JsonResponse
@@ -13,6 +12,8 @@ from django.shortcuts import redirect
 from django.conf import settings
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.permissions import IsAuthenticated
 import requests
 
 
@@ -72,7 +73,7 @@ class IntraCallbackView(APIView):
         # JWT 토큰 발급 및 redirect 반환
         token = TokenObtainPairSerializer.get_token(user)
         response = redirect(settings.BASE_URL)
-        response.set_cookie("refresh_token", str(token), httponly=True, secure=True)
+        response.set_cookie("refresh_token", str(token), httponly=True)
         return response
 
     def get_intra_token(self, code) -> dict:
@@ -139,12 +140,6 @@ class EmailLoginView(APIView):
         try:
             user = User.objects.get(email=email)
             if user and user.is_registered:
-                # 이미 로그인된 상태인 경우
-                if user.is_authenticated:
-                    return Response(
-                        {"error": "Already logged in."},
-                        status=status.HTTP_401_UNAUTHORIZED,
-                    )
                 # 비밀번호 일치 여부 확인
                 if user.check_password(password):
                     # 2Factor Authentication
@@ -277,7 +272,7 @@ class MyTokenRefreshView(TokenRefreshView):
         ),
         responses={200: "OK", 401: "UNAUTHORIZED"},
     )
-    def post(self, request: Request, *args, **kwargs) -> Response:
+    def post(self, request, *args, **kwargs) -> Response:
         refresh_token = request.COOKIES.get("refresh_token")
         if not refresh_token:
             return Response(
@@ -288,7 +283,7 @@ class MyTokenRefreshView(TokenRefreshView):
         request._data = data
         response = super().post(request, *args, **kwargs)
         if response.status_code == 200:
-            return response
+            return response  # TODO: User email 정보도 같이 주기
         else:
             user = request.user
             user.is_authenticated = False
@@ -300,35 +295,15 @@ class MyTokenRefreshView(TokenRefreshView):
 
 
 class LogoutView(APIView):  # TODO delete (for test)
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
     @swagger_auto_schema(
         tags=["login"],
-        operation_description="email 로그아웃 (테스트용 임시 API)",
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                "email": openapi.Schema(type=openapi.TYPE_STRING, description="Email")
-            },
-        ),
-        responses={200: "OK", 401: "UNAUTHORIZED"},
+        operation_description="로그아웃 (테스트용 임시 API)",
+        responses={200: "OK"},
     )
     def post(self, request):
-        email = request.data.get("email")
-        try:
-            user = User.objects.get(email=email)
-            if user and user.is_authenticated:
-                user.is_authenticated = False
-                user.is_active = False
-                user.save()
-                response = Response("Logout successful.", status=status.HTTP_200_OK)
-                response.delete_cookie("refresh_token")
-                return response
-            else:
-                return Response(
-                    {"error": "Already logged out."},
-                    status=status.HTTP_401_UNAUTHORIZED,
-                )
-        except Exception as e:
-            return Response(
-                {"error": "Invalid email."},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
+        response = Response("Logout successful.", status=status.HTTP_200_OK)
+        response.delete_cookie("refresh_token")
+        return response

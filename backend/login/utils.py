@@ -41,7 +41,7 @@ def obtain_jwt_token(user) -> Response:
         },
         status=status.HTTP_200_OK,
     )
-    response.set_cookie("refresh_token", refresh_token, httponly=True, secure=True)
+    response.set_cookie("refresh_token", refresh_token, httponly=True)
 
     return response
 
