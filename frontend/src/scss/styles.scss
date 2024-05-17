@@ -45,6 +45,10 @@ input:-webkit-autofill:active {
   font-size: 2rem;
 }
 
+a {
+  -webkit-text-stroke: 1px black;
+}
+
 .title {
   @include font-size(16vw);
   -webkit-text-stroke-width: 0.4rem;
