@@ -164,6 +164,7 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL = 'users.User'
 
 SIMPLE_JWT = {
+    # TODO: 'minutes=5'로 변경해야 함
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=100),  # Access Token 유효기간
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),  # Refresh Token 유효기간
     "ROTATE_REFRESH_TOKENS": False,
