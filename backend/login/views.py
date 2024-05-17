@@ -12,6 +12,7 @@ from .utils import send_verification_code, obtain_jwt_token
 from django.shortcuts import redirect
 from django.conf import settings
 from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 import requests
 
 
@@ -61,7 +62,7 @@ class IntraCallbackView(APIView):
             while User.objects.filter(username=username).exists():
                 username = User.objects.make_random_password(length=10)
             user = User.objects.create_user(
-                username=username, email=email, password="subinlee" # TODO: check
+                username=username, email=email, password="subinlee"  # TODO: check
             )
 
         # 로그인 및 JWT 반환
@@ -70,7 +71,12 @@ class IntraCallbackView(APIView):
         user.is_active = True
         user.image = image
         user.save()
-        return obtain_jwt_token(user)
+
+        # JWT 토큰 발급 및 redirect 반환
+        token = TokenObtainPairSerializer.get_token(user)
+        response = redirect(settings.BASE_URL)
+        response.set_cookie("refresh_token", str(token), httponly=True, secure=True)
+        return response
 
     def get_intra_token(self, code) -> dict:
         """
