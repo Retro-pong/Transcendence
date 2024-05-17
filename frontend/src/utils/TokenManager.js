@@ -2,17 +2,16 @@ import Fetch from '@/utils/Fetch';
 import ErrorHandler from '@/utils/ErrorHandler';
 
 class TokenManager {
-  static #accessToken = localStorage.getItem('accessToken') || null; // 테스트용
 
   static #activeUser =
     localStorage.getItem('user') || 'hyobicho@student.42seoul.kr'; // 테스트용
 
   static setAccessToken(accessToken) {
-    this.#accessToken = accessToken;
+    localStorage.setItem('accessToken', accessToken);
   }
 
   static getAccessToken() {
-    return this.#accessToken;
+    return localStorage.getItem('accessToken');
   }
 
   static getActiveUser() {
@@ -38,10 +37,19 @@ class TokenManager {
   }
 
   static clearTokens() {
-    this.#accessToken = null;
+    localStorage.removeItem('accessToken');
     this.removeActiveUser();
     Fetch.removeHeader('Authorization');
     Fetch.setCredentials('same-origin');
+  }
+
+  static async reissueAccessToken() {
+    await Fetch.post('/login/token/refresh', {}).then((res) => {
+      this.setAccessToken(res.access_token);
+    }).catch((err) => {
+      ErrorHandler.setToast('Invalid refresh token');
+      this.logout();
+    });
   }
 
   static async logout() {
@@ -60,7 +68,7 @@ class TokenManager {
   }
 
   static async authenticateUser() {
-    if (!this.#accessToken) {
+    if (!this.getAccessToken()) {
       console.log('로그인 페이지로 이동해야 함'); // 테스트용
       return;
     }
@@ -81,13 +89,13 @@ class TokenManager {
     //     console.log(err);
     //   });
     console.log(
-      `activeUser: ${this.#activeUser} accessToken: ${this.#accessToken}`
+      `activeUser: ${this.#activeUser} accessToken: ${this.getAccessToken()}`
     ); // 테스트용
     Fetch.setCredentials('include');
     await Fetch.post('/login/token/refresh', { refresh: 'test' })
       .then((data) => {
         console.log(data); // 테스트용
-        this.#accessToken = data.access_token;
+        this.setAccessToken(data.access_token);
       })
       .catch((err) => {
         // refresh token 만료 시 로그아웃 처리
