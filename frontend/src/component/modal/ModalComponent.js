@@ -12,6 +12,8 @@ const ModalComponent = ({
       '<button id="registerBtn" type="submit" class="btn btn-outline-light w-100 fs-12" form="registerForm" > >> REGISTER << </button>',
     submitBtn:
       '<button id="twoFactorLoginBtn" type="button" class="btn btn-outline-light w-100 fs-12"> >> SUBMIT << </button>',
+    emailVerifyBtn:
+      '<button id="emailVerifyBtn" type="submit" class="btn btn-outline-light w-100 fs-12" form="emailVerifyForm"> >> VERIFY << </button>',
   };
 
   return `

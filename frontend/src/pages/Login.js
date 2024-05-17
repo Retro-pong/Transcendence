@@ -15,6 +15,7 @@ class Login extends PageComponent {
   constructor() {
     super();
     this.setTitle('Login');
+    this.email = '';
   }
 
   async render() {
@@ -114,85 +115,96 @@ class Login extends PageComponent {
   }
 
   // TODO: 서버 응답 에러 분기 처리
-  async submitRegisterForm(form) {
-    const email = form.email.value;
-    const nick = form.nick.value;
-    const password = form.password.value;
-    const passwordRe = form.passwordRe.value;
-    const registerToastMessageEl = document.getElementById('toast-message');
-    const registerToast = Toast.getOrCreateInstance('#toast');
+  async submitRegisterForm() {
+    document
+      .getElementById('registerForm')
+      .addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.target.elements;
+        const email = form.email.value;
+        const username = form.nick.value;
+        const password = form.password.value;
+        const passwordRe = form.passwordRe.value;
+        if (!email || !username || !password || !passwordRe) {
+          ErrorHandler.setToast('Please fill in all fields');
+          return;
+        }
+        if (Regex.email.test(email) === false) {
+          ErrorHandler.setToast('Invalid Email Address');
+          return;
+        }
+        if (Regex.nickname.test(username) === false) {
+          ErrorHandler.setToast('Nickname must be 2-10 characters');
+          return;
+        }
 
-    if (!email || !nick || !password || !passwordRe) {
-      registerToastMessageEl.innerText = 'Please fill in all fields';
-      registerToast.show();
-      return;
-    }
-    if (Regex.email.test(email) === false) {
-      registerToastMessageEl.innerText = 'Invalid Email Address';
-      registerToast.show();
-      return;
-    }
-    if (Regex.nickname.test(nick) === false) {
-      registerToastMessageEl.innerText = 'Nickname must be 2-10 characters';
-      registerToast.show();
-      return;
-    }
+        if (password.length < 8) {
+          ErrorHandler.setToast('Password must be at least 8 characters');
+          return;
+        }
+        if (password.search(/[a-zA-Z]/) === -1) {
+          ErrorHandler.setToast('Password must contain at least one letter');
+          return;
+        }
+        if (password.search(/[0-9]/) === -1) {
+          ErrorHandler.setToast('Password must contain at least one number');
+          return;
+        }
 
-    if (password.length < 8) {
-      registerToastMessageEl.innerText =
-        'Password must be at least 8 characters';
-      registerToast.show();
-      return;
-    }
-    if (password.search(/[a-zA-Z]/) === -1) {
-      registerToastMessageEl.innerText =
-        'Password must contain at least one letter';
-      registerToast.show();
-      return;
-    }
-    if (password.search(/[0-9]/) === -1) {
-      registerToastMessageEl.innerText =
-        'Password must contain at least one number';
-      registerToast.show();
-      return;
-    }
+        if (password !== passwordRe) {
+          ErrorHandler.setToast('Password does not match');
+          return;
+        }
 
-    if (password !== passwordRe) {
-      registerToastMessageEl.innerText = 'Password does not match';
-      registerToast.show();
-      return;
-    }
+        const registerModal = Modal.getOrCreateInstance('#registerModal');
+        const verifyModal = Modal.getOrCreateInstance('#emailVerifyModal');
 
-    const registerModal = Modal.getOrCreateInstance('#registerModal');
+        await Fetch.post('/login/email/register', {
+          email,
+          username,
+          password,
+        })
+          .then(() => {
+            this.email = email;
+            ErrorHandler.setToast('Registration Successful');
+            document.getElementById('registerForm').reset();
+            registerModal.hide();
+            verifyModal.show();
+          })
+          .catch((err) => {
+            this.email = '';
+            ErrorHandler.setToast(err.error || 'Registration Failed');
+          });
+      });
+  }
 
-    await Fetch.post('/login/email/register', {
-      email,
-      username: nick,
-      password,
-    })
-      .then(() => {
-        registerToastMessageEl.innerText = 'Registration Successful';
-        registerModal.hide();
-        registerToast.show();
-        document.getElementById('registerForm').reset();
-      })
-      .catch((err) => {
-        registerToastMessageEl.innerText = 'Registration Failed';
-        registerToast.show();
-        console.error(err);
+  async submitEmailVerifyForm() {
+    document
+      .getElementById('emailVerifyBtn')
+      .addEventListener('submit', async () => {
+        const { email } = this;
+        const code = document.getElementById('emailCode').value;
+
+        const verifyModal = Modal.getOrCreateInstance('#emailVerifyModal');
+        await Fetch.post('/login/email/register/verify', { email, code })
+          .then(() => {
+            ErrorHandler.setToast('Email Verification Successful');
+            verifyModal.dispose();
+            verifyModal.hide();
+            this.email = '';
+          })
+          .catch((err) => {
+            ErrorHandler.setToast(err.error || 'Verification Failed');
+          });
       });
   }
 
   async afterRender() {
     // 2FA 로그인
     await this.handle2FALogin();
-    // register form submit event
-    document
-      .getElementById('registerForm')
-      .addEventListener('submit', async (e) => {
-        e.preventDefault();
-        await this.submitRegisterForm(e.target.elements);
-      });
+    // 회원가입
+    await this.submitRegisterForm();
+    await this.submitEmailVerifyForm();
 
     // 회원가입된 이메일 인증 (테스트용 임시 코드)
     document
