@@ -11,7 +11,25 @@
     <!-- 배경 -->
     <div id="background"></div>
     <!-- div app에 페이지 생성 -->
-    <div id="app" class="container-fluid p-5"></div>
+    <div id="app" class="container-fluid p-5">
+    </div>
+    <!-- menu 버튼 -->
+    <div id="navBar" class="position-absolute d-none" style="bottom: 8%; left: 8%;">
+      <div class="collapse collapse-horizontal" id="collapseWidthExample">
+        <div class="card card-body bg-black bg-gradient bg-opacity-75 border-4 border-black menubar">
+          <nav class="nav flex-column">
+            <a class="nav-link fs-13" href="/">Home</a>
+            <a class="nav-link fs-13" href="/profile">Profile</a>
+            <a class="nav-link fs-13" href="/game">Play Game</a>
+            <a class="nav-link fs-13" href="/friends">Friends</a>
+            <button id="logoutBtn" class="nav-link text-start fs-13">Logout</button>
+          </nav>
+        </div>
+      </div>
+      <button class="btn btn-dark fs-1" type="button" data-bs-toggle="collapse" data-bs-target="#collapseWidthExample" aria-expanded="false" aria-controls="collapseWidthExample">
+        Menu
+      </button>
+    </div>
     <!-- 토스트 -->
     <div class="toast-container position-fixed bottom-0 start-50 translate-middle-x p-5">
       <div id="toast" class="toast text-bg-dark align-items-center" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="2500">
