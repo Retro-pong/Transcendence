@@ -2,6 +2,7 @@ import BasicButton from '@component/button/BasicButton';
 import OpenModalButton from '@component/button/OpenModalButton';
 import ModalComponent from '@component/modal/ModalComponent';
 import RegisterForm from '@component/form/RegisterForm';
+import EmailCodeForm from '@component/form/EmailCodeForm';
 
 const LoginPageButtons = () => {
   const LoginBtn = BasicButton({
@@ -26,7 +27,19 @@ const LoginPageButtons = () => {
     content: RegisterForm(),
     buttonList: ['registerBtn'],
   });
-  const BtnList = [LoginBtn, Login42Btn, `${RegisterBtn} ${RegisterModal}`];
+  const EmailVerifyModal = ModalComponent({
+    borderColor: 'pink',
+    title: 'MAIL CODE',
+    modalId: 'emailVerifyModal',
+    content: EmailCodeForm(),
+    buttonList: ['emailVerifyBtn'],
+  });
+
+  const BtnList = [
+    LoginBtn,
+    Login42Btn,
+    `${RegisterBtn} ${RegisterModal} ${EmailVerifyModal}`,
+  ];
   return BtnList.map(
     (btn) => `
         <div class="row justify-content-md-center">
