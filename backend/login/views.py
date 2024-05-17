@@ -52,10 +52,7 @@ class IntraCallbackView(APIView):
             user = User.objects.get(email=email)
             # 로그인 전적이 있는 경우, 이미 접속 중인지 확인
             if user.is_authenticated:
-                return Response(
-                    {"error": "Already logged in."},
-                    status=status.HTTP_401_UNAUTHORIZED,
-                )
+                return redirect(settings.BASE_URL)
         except User.DoesNotExist:
             # 로그인 전적이 없는 경우, 회원가입
             username = intra_id
@@ -322,7 +319,9 @@ class LogoutView(APIView):  # TODO delete (for test)
                 user.is_authenticated = False
                 user.is_active = False
                 user.save()
-                return Response("Logout successful.", status=status.HTTP_200_OK)
+                response = Response("Logout successful.", status=status.HTTP_200_OK)
+                response.delete_cookie("refresh_token")
+                return response
             else:
                 return Response(
                     {"error": "Already logged out."},
