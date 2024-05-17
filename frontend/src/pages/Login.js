@@ -180,8 +180,9 @@ class Login extends PageComponent {
 
   async submitEmailVerifyForm() {
     document
-      .getElementById('emailVerifyBtn')
-      .addEventListener('submit', async () => {
+      .getElementById('emailVerifyForm')
+      .addEventListener('submit', async (e) => {
+        e.preventDefault();
         const { email } = this;
         const code = document.getElementById('emailCode').value;
 
@@ -189,7 +190,7 @@ class Login extends PageComponent {
         await Fetch.post('/login/email/register/verify', { email, code })
           .then(() => {
             ErrorHandler.setToast('Email Verification Successful');
-            verifyModal.dispose();
+            document.getElementById('emailVerifyForm').reset();
             verifyModal.hide();
             this.email = '';
           })
