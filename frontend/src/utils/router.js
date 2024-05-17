@@ -7,7 +7,6 @@ import JoinRoom from '@pages/game/JoinRoom';
 import WaitingRoom from '@pages/game/WaitingRoom';
 import Friends from '@pages/Friends';
 import NavBar from '@component/navigation/NavBar';
-import ToastComponent from '@component/toast/ToastComponent';
 import TokenManager from '@/utils/TokenManager';
 
 export const navigateTo = (url) => {
