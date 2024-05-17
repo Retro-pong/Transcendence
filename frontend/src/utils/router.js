@@ -6,8 +6,6 @@ import CreateRoom from '@pages/game/CreateRoom';
 import JoinRoom from '@pages/game/JoinRoom';
 import WaitingRoom from '@pages/game/WaitingRoom';
 import Friends from '@pages/Friends';
-import NavBar from '@component/navigation/NavBar';
-import ToastComponent from '@component/toast/ToastComponent';
 import TokenManager from '@/utils/TokenManager';
 
 export const navigateTo = (url) => {
@@ -55,12 +53,8 @@ export const router = async () => {
   const page = new routes[location.pathname]();
   const app = document.querySelector('#app');
   app.innerHTML = await page.render();
-  // if (page.getTitle() !== 'Login') {
-  app.innerHTML += NavBar();
-  // }
-  if (page.getTitle() === 'Login') {
-    const navbar = document.getElementById('navBar');
-    navbar.style.display = 'none';
+  if (location.pathname === '/login') {
+    document.getElementById('navBar').style.display = 'none';
   }
   await page.afterRender();
 };
