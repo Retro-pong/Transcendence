@@ -61,12 +61,13 @@ class IntraCallbackView(APIView):
             while User.objects.filter(username=username).exists():
                 username = User.objects.make_random_password(length=10)
             user = User.objects.create_user(
-                username=username, email=email, password="subinlee"
+                username=username, email=email, password="subinlee" # TODO: check
             )
 
         # 로그인 및 JWT 반환
         user.is_registered = True
         user.is_authenticated = True
+        user.is_active = True
         user.image = image
         user.save()
         return obtain_jwt_token(user)
@@ -189,6 +190,7 @@ class EmailLoginVerifyView(APIView):
             TFA.objects.filter(email=email).delete()
             user = User.objects.get(email=email)
             user.is_authenticated = True
+            user.is_active = True
             user.save()
             # jwt 토큰을 담은 response 반환 (status code: 200)
             return obtain_jwt_token(user)
@@ -312,6 +314,7 @@ class LogoutView(APIView):  # TODO delete (for test)
             user = User.objects.get(email=email)
             if user and user.is_authenticated:
                 user.is_authenticated = False
+                user.is_active = False
                 user.save()
                 return Response("Logout successful.", status=status.HTTP_200_OK)
             else:
