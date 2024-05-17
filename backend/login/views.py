@@ -319,7 +319,9 @@ class LogoutView(APIView):  # TODO delete (for test)
                 user.is_authenticated = False
                 user.is_active = False
                 user.save()
-                return Response("Logout successful.", status=status.HTTP_200_OK)
+                response = Response("Logout successful.", status=status.HTTP_200_OK)
+                response.delete_cookie("refresh_token")
+                return response
             else:
                 return Response(
                     {"error": "Already logged out."},
