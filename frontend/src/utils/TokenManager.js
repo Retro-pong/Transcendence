@@ -43,6 +43,21 @@ class TokenManager {
     Fetch.setCredentials('omit');
   }
 
+  static async logout() {
+    // 로그아웃 테스트용 이메일
+    const email = 'hyobicho@student.42seoul.kr';
+    await Fetch.post('/login/logout', {
+      email: this.#activeUser || email,
+    })
+      .then(() => {
+        this.clearTokens();
+      })
+      .catch((err) => {
+        ErrorHandler.setToast(err.error || 'Logout Failed');
+        console.error(err);
+      });
+  }
+
   static async authenticateUser() {
     if (!this.#activeUser) {
       return;
