@@ -9,6 +9,7 @@ import Regex from '@/constants/Regex';
 import Fetch from '@/utils/Fetch';
 import { navigateTo } from '@/utils/router';
 import TokenManager from '@/utils/TokenManager';
+import ErrorHandler from '@/utils/ErrorHandler';
 
 class Login extends PageComponent {
   constructor() {
@@ -46,20 +47,16 @@ class Login extends PageComponent {
       `;
   }
 
-  async loginCheck(loginModal) {
+  async get2FACode(loginModal) {
     const email = document.getElementById('email-login').value;
     const password = document.getElementById('password-login').value;
-    const loginToastMessageEl = document.getElementById('toast-message');
-    const loginToast = Toast.getOrCreateInstance('#toast');
 
     if (!email || !password) {
-      loginToastMessageEl.innerText = 'Please enter your email and password';
-      loginToast.show();
+      ErrorHandler.setToast('Please enter your email and password');
       return;
     }
     if (Regex.email.test(email) === false) {
-      loginToastMessageEl.innerText = 'Invalid Email Address';
-      loginToast.show();
+      ErrorHandler.setToast('Invalid Email Address');
       return;
     }
     await Fetch.post('/login/email/login', { email, password })
@@ -67,8 +64,7 @@ class Login extends PageComponent {
         loginModal.show();
       })
       .catch((err) => {
-        document.getElementById('toast-message').innerText = 'Login Failed';
-        loginToast.show();
+        ErrorHandler.setToast(err.error || 'Login Failed');
         console.error(err);
       });
   }
@@ -76,30 +72,30 @@ class Login extends PageComponent {
   async getAccessToken(loginModal) {
     const email = document.getElementById('email-login').value;
     const passcode = document.getElementById('passcode').value;
-    const loginToast = Toast.getOrCreateInstance('#toast');
-    const loginToastMessageEl = document.getElementById('toast-message');
 
+    if (!passcode) {
+      ErrorHandler.setToast('Please enter your passcode');
+      return;
+    }
     if (Regex.passcode.test(passcode) === false) {
-      loginToastMessageEl.innerText = passcode
-        ? 'Invalid Passcode'
-        : 'Please enter your passcode';
-      loginToast.show();
+      ErrorHandler.setToast('Invalid Passcode');
       return;
     }
 
     await Fetch.post('/login/email/login/verify', { email, code: passcode })
       .then((data) => {
+        localStorage.setItem('code', data.code); // 테스트용
+        localStorage.setItem('accessToken', data.access_token); // 테스트용
         TokenManager.storeTokens({
-          user: data.user.email,
-          accessToken: data.accessToken,
-          refreshToken: data.accessToken,
+          user: data.user,
+          accessToken: data.access_token,
         });
+        localStorage.setItem('accessToken', data.access_token); // 테스트용
         loginModal.hide();
         navigateTo('/');
       })
       .catch((err) => {
-        loginToastMessageEl.innerText = 'Invalid Passcode';
-        loginToast.show();
+        ErrorHandler.setToast(err.error || 'Verification Failed');
         console.error(err);
       });
   }
@@ -110,7 +106,7 @@ class Login extends PageComponent {
     const loginModal = new Modal('#loginModal');
 
     loginModalBtn.addEventListener('click', async () => {
-      await this.loginCheck(loginModal);
+      await this.get2FACode(loginModal);
       twoFactorLoginBtn.addEventListener('click', async () => {
         await this.getAccessToken(loginModal);
       });
@@ -168,6 +164,7 @@ class Login extends PageComponent {
     }
 
     const registerModal = Modal.getOrCreateInstance('#registerModal');
+
     await Fetch.post('/login/email/register', {
       email,
       username: nick,
@@ -175,8 +172,8 @@ class Login extends PageComponent {
     })
       .then(() => {
         registerToastMessageEl.innerText = 'Registration Successful';
-        registerToast.show();
         registerModal.hide();
+        registerToast.show();
         document.getElementById('registerForm').reset();
       })
       .catch((err) => {
@@ -187,6 +184,7 @@ class Login extends PageComponent {
   }
 
   async afterRender() {
+    // 2FA 로그인
     await this.handle2FALogin();
     // TODO: 42 login api 요청 & 에러 처리
     document

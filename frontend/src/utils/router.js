@@ -31,22 +31,22 @@ export const router = async () => {
   };
 
   const currPathname = location.pathname;
-  const isLoggedIn = !!TokenManager.getRefreshToken();
+  const isLoggedIn = !!TokenManager.getActiveUser();
 
-  if (!(currPathname in routes)) {
-    history.pushState(null, null, '/404');
-  } else if (currPathname === '/login' && isLoggedIn) {
-    alert('You are already logged in!');
-    let beforePage = window.localStorage.getItem('curPage');
-    if (beforePage === '/login') {
-      beforePage = '/';
-    }
-    history.pushState(null, null, beforePage);
-  } else if (currPathname !== '/login' && !isLoggedIn) {
-    history.pushState(null, null, '/login');
-  } else {
-    window.localStorage.setItem('curPage', currPathname);
-  }
+  // if (!(currPathname in routes)) {
+  //   history.pushState(null, null, '/404');
+  // } else if (currPathname === '/login' && isLoggedIn) {
+  //   alert('You are already logged in!');
+  //   let beforePage = window.localStorage.getItem('curPage');
+  //   if (beforePage === '/login') {
+  //     beforePage = '/';
+  //   }
+  //   history.pushState(null, null, beforePage);
+  // } else if (currPathname !== '/login' && !isLoggedIn) {
+  //   history.pushState(null, null, '/login');
+  // } else {
+  //   window.localStorage.setItem('curPage', currPathname);
+  // }
   // TODO: 게임방 페이지에서 뒤로가기 제한
   // else if (currPathname === '/game') {
   // history.pushState(null, null, location.href);
@@ -55,12 +55,12 @@ export const router = async () => {
   const page = new routes[location.pathname]();
   const app = document.querySelector('#app');
   app.innerHTML = await page.render();
-  if (page.getTitle() !== 'Login') {
-    app.innerHTML += NavBar();
+  // if (page.getTitle() !== 'Login') {
+  app.innerHTML += NavBar();
+  // }
+  if (page.getTitle() === 'Login') {
+    const navbar = document.getElementById('navBar');
+    navbar.style.display = 'none';
   }
-  app.innerHTML += ToastComponent({
-    id: 'toast',
-    message: '',
-  });
   await page.afterRender();
 };
