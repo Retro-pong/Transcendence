@@ -61,7 +61,7 @@ class IntraCallbackView(APIView):
             while User.objects.filter(username=username).exists():
                 username = User.objects.make_random_password(length=10)
             user = User.objects.create_user(
-                username=username, email=email, password="subinlee"
+                username=username, email=email, password="subinlee" # TODO: check
             )
 
         # 로그인 및 JWT 반환
