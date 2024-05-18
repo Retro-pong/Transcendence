@@ -16,8 +16,8 @@ class IntraLoginViewTests(APITestCase):
 
 
 class IntraCallbackViewTests(APITestCase):
-    @patch("your_app.views.IntraCallbackView.get_intra_token")
-    @patch("your_app.views.IntraCallbackView.get_intra_userinfo")
+    @patch("login.views.IntraCallbackView.get_intra_token")
+    @patch("login.views.IntraCallbackView.get_intra_userinfo")
     def test_intra_callback_existing_user(
         self, mock_get_intra_userinfo, mock_get_intra_token
     ):
@@ -34,8 +34,8 @@ class IntraCallbackViewTests(APITestCase):
         response = self.client.get(reverse("intra-callback"), {"code": "mock_code"})
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
-    @patch("your_app.views.IntraCallbackView.get_intra_token")
-    @patch("your_app.views.IntraCallbackView.get_intra_userinfo")
+    @patch("login.views.IntraCallbackView.get_intra_token")
+    @patch("login.views.IntraCallbackView.get_intra_userinfo")
     def test_intra_callback_new_user(
         self, mock_get_intra_userinfo, mock_get_intra_token
     ):
@@ -59,7 +59,7 @@ class EmailLoginViewTests(APITestCase):
         self.user.is_registered = True
         self.user.save()
 
-    @patch("your_app.utils.send_verification_code")
+    @patch("login.utils.send_verification_code")
     def test_email_login_success(self, mock_send_verification_code):
         mock_send_verification_code.return_value = True
         data = {"email": "test@example.com", "password": "testpass"}
@@ -91,7 +91,7 @@ class EmailLoginVerifyViewTests(APITestCase):
 
 
 class EmailRegisterViewTests(APITestCase):
-    @patch("your_app.utils.send_verification_code")
+    @patch("login.utils.send_verification_code")
     def test_email_register_success(self, mock_send_verification_code):
         mock_send_verification_code.return_value = True
         data = {
