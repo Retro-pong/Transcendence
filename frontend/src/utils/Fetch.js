@@ -8,6 +8,8 @@ class Fetch {
 
   static #credentials = 'same-origin';
 
+  static #retry = 1;
+
   static init() {
     const accessToken = TokenManager.getAccessToken();
     if (accessToken) {
@@ -30,12 +32,17 @@ class Fetch {
       credentials: this.#credentials,
     });
     if (!response.ok) {
-      if (!url.startsWith('/login') && response.status === 401 && retry <= 1) {
+      if (
+        !url.startsWith('/login') &&
+        response.status === 401 &&
+        retry <= this.#retry
+      ) {
         await TokenManager.reissueAccessToken().then(() => {
           return this.get(url, retry + 1);
         });
       }
       return response.json().then((err) => {
+        console.error(`GET(${url}) ERROR:`, err);
         throw err;
       });
     }
@@ -50,12 +57,17 @@ class Fetch {
       body: JSON.stringify(body),
     });
     if (!response.ok) {
-      if (!url.startsWith('/login') && response.status === 401 && retry <= 1) {
+      if (
+        !url.startsWith('/login') &&
+        response.status === 401 &&
+        retry <= this.#retry
+      ) {
         await TokenManager.reissueAccessToken().then(() => {
           return this.post(url, body, retry + 1);
         });
       }
       return response.json().then((err) => {
+        console.error(`POST(${url}) ERROR:`, err);
         throw err;
       });
     }

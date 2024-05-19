@@ -192,7 +192,29 @@ class Login extends PageComponent {
       });
   }
 
+  async handle42Login(code = '') {
+    await Fetch.get(`/login/42/callback?code=${code}`)
+      .then((data) => {
+        TokenManager.storeToken(data.access_token);
+        navigateTo('/');
+      })
+      .catch((err) => {
+        ErrorHandler.setToast(err.error || '42 Login Failed');
+      });
+  }
+
   async afterRender() {
+    // 42 로그인
+    // const code = new URLSearchParams(window.location.search).get('code');
+    // if (code) {
+    //   await this.handle42Login(code);
+    // }
+    // 임시 42 로그인
+    document
+      .getElementById('42LoginBtn')
+      .addEventListener('click', async () => {
+        TokenManager.storeToken('42 access token');
+      });
     // 2FA 로그인
     await this.handle2FALogin();
     // 테스트용 42 임시 로그인 처리
