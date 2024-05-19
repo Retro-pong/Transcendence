@@ -4,7 +4,7 @@ import Header from '@component/text/Header';
 import LoginPageButtons from '@component/button/LoginPageButtons';
 import ModalComponent from '@component/modal/ModalComponent';
 import LoginForm from '@component/form/LoginForm';
-import { Toast, Modal } from 'bootstrap';
+import { Modal } from 'bootstrap';
 import Regex from '@/constants/Regex';
 import Fetch from '@/utils/Fetch';
 import { navigateTo } from '@/utils/router';
@@ -50,8 +50,6 @@ class Login extends PageComponent {
     const email = document.getElementById('email-login').value;
     const password = document.getElementById('password-login').value;
 
-    console.log(email, password);
-
     if (!email || !password) {
       ErrorHandler.setToast('Please enter your email and password');
       return;
@@ -85,13 +83,7 @@ class Login extends PageComponent {
 
     await Fetch.post('/login/email/login/verify', { email, code: passcode })
       .then((data) => {
-        localStorage.setItem('code', data.code); // 테스트용
-        localStorage.setItem('accessToken', data.access_token); // 테스트용
-        TokenManager.storeTokens({
-          user: data.user,
-          accessToken: data.access_token,
-        });
-        localStorage.setItem('accessToken', data.access_token); // 테스트용
+        TokenManager.storeToken(data.access_token);
         loginModal.hide();
         navigateTo('/');
       })
@@ -203,6 +195,12 @@ class Login extends PageComponent {
   async afterRender() {
     // 2FA 로그인
     await this.handle2FALogin();
+    // 테스트용 42 임시 로그인 처리
+    document
+      .getElementById('42LoginBtn')
+      .addEventListener('click', async () => {
+        TokenManager.storeToken({ accessToken: '42' });
+      });
     // 회원가입
     await this.submitRegisterForm();
     await this.submitEmailVerifyForm();
