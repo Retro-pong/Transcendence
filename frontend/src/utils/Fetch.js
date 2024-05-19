@@ -1,7 +1,7 @@
 import TokenManager from '@/utils/TokenManager';
 
 class Fetch {
-  static #BASE_URL = 'http://localhost:80/api/v1';
+  static #BASE_URL = 'http://localhost/api/v1';
   // static #BASE_URL = 'http://localhost:8080';
 
   static #headers = new Headers({ 'Content-Type': 'application/json' });
@@ -23,13 +23,18 @@ class Fetch {
     return this.#headers;
   }
 
-  static async get(url) {
+  static async get(url, retry = 1) {
     const response = await fetch(`${this.#BASE_URL}${url}/`, {
       method: 'GET',
       headers: this.#headers,
       credentials: this.#credentials,
     });
     if (!response.ok) {
+      if (!url.startsWith('/login') && response.status === 401 && retry <= 1) {
+        await TokenManager.reissueAccessToken().then(() => {
+          return this.get(url, retry + 1);
+        });
+      }
       return response.json().then((err) => {
         throw err;
       });
@@ -37,7 +42,7 @@ class Fetch {
     return response.json();
   }
 
-  static async post(url, body) {
+  static async post(url, body = {}, retry = 1) {
     const response = await fetch(`${this.#BASE_URL}${url}/`, {
       method: 'POST',
       headers: this.#headers,
@@ -45,6 +50,11 @@ class Fetch {
       body: JSON.stringify(body),
     });
     if (!response.ok) {
+      if (!url.startsWith('/login') && response.status === 401 && retry <= 1) {
+        await TokenManager.reissueAccessToken().then(() => {
+          return this.post(url, body, retry + 1);
+        });
+      }
       return response.json().then((err) => {
         throw err;
       });
