@@ -23,13 +23,13 @@ export const router = async () => {
     '/game': Game,
     '/game/create': CreateRoom,
     '/game/join': JoinRoom,
-    '/game/waiting': WaitingRoom, // TODO: Waiting 추가
+    '/game/waiting': WaitingRoom,
     '/friends': Friends,
     '/404': Home, // TODO: NotFound 추가
   };
 
   const currPathname = location.pathname;
-  const isLoggedIn = !!TokenManager.getActiveUser();
+  const isLoggedIn = TokenManager.getLoginStatus();
 
   // if (!(currPathname in routes)) {
   //   history.pushState(null, null, '/404');
@@ -52,10 +52,9 @@ export const router = async () => {
 
   const page = new routes[location.pathname]();
   const app = document.querySelector('#app');
-  // if (location.pathname !== '/login') {
-  //   document.getElementById('navBar').classList.remove('d-none');
-  // }
-  document.getElementById('navBar').classList.remove('d-none'); // 테스트용
+  if (location.pathname !== '/login') {
+    document.getElementById('navBar').classList.remove('d-none');
+  }
   app.innerHTML = await page.render();
   await page.afterRender();
 };
