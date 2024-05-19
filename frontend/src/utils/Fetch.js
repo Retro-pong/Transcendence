@@ -1,23 +1,26 @@
+import TokenManager from '@/utils/TokenManager';
+
 class Fetch {
   static #BASE_URL = 'http://localhost:80/api/v1';
   // static #BASE_URL = 'http://localhost:8080';
 
-  static #headers = {
-    'Content-Type': 'application/json',
-  };
+  static #headers = new Headers({ 'Content-Type': 'application/json' });
 
   static #credentials = 'same-origin';
 
-  static setHeader(key, value) {
-    this.#headers[key] = value;
+  static init() {
+    const accessToken = TokenManager.getAccessToken();
+    if (accessToken) {
+      this.#headers.set('Authorization', `Bearer ${accessToken}`);
+      this.#credentials = 'include';
+    } else {
+      this.#headers.delete('Authorization');
+      this.#credentials = 'same-origin';
+    }
   }
 
-  static removeHeader(key) {
-    delete this.#headers[key];
-  }
-
-  static setCredentials(credentials) {
-    this.#credentials = credentials;
+  static getHeaders() {
+    return this.#headers;
   }
 
   static async get(url) {
