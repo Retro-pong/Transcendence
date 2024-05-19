@@ -64,7 +64,6 @@ class Login extends PageComponent {
       })
       .catch((err) => {
         ErrorHandler.setToast(err.error || 'Login Failed');
-        console.error(err);
       });
   }
 
@@ -89,7 +88,6 @@ class Login extends PageComponent {
       })
       .catch((err) => {
         ErrorHandler.setToast(err.error || 'Verification Failed');
-        console.error(err);
       });
   }
 
@@ -217,12 +215,6 @@ class Login extends PageComponent {
       });
     // 2FA 로그인
     await this.handle2FALogin();
-    // 테스트용 42 임시 로그인 처리
-    document
-      .getElementById('42LoginBtn')
-      .addEventListener('click', async () => {
-        TokenManager.storeToken({ accessToken: '42' });
-      });
     // 회원가입
     await this.submitRegisterForm();
     await this.submitEmailVerifyForm();
