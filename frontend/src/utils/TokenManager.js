@@ -45,10 +45,9 @@ class TokenManager {
       .then(() => {
         this.clearToken();
       })
-      .catch((err) => {
+      .catch(() => {
         ErrorHandler.setToast('Logout Failed');
-        this.clearToken(); // 테스트용
-        console.error(err);
+        // this.clearToken(); // 테스트용
       });
   }
 
