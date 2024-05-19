@@ -1,6 +1,9 @@
 import drawBackground from '@/background/background.js';
 import { navigateTo, router } from '@/utils/router';
 import TokenManager from '@/utils/TokenManager';
+import Fetch from '@/utils/Fetch';
+
+Fetch.init();
 
 window.addEventListener('popstate', router);
 
