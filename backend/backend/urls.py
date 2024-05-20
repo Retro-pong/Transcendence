@@ -42,6 +42,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/login/", include("login.urls")),
     path("api/v1/users/", include("users.urls")),
+    path("api/v1/friends/", include("friends.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
