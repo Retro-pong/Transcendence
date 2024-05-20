@@ -21,19 +21,19 @@ $utilities: map-merge(
   )
 );
 
-$my-font-size-0: $font-size-base * 2.5;
-$my-font-size-1: $font-size-base * 2.75;
-$my-font-size-2: $font-size-base * 3;
-$my-font-size-3: $font-size-base * 3.25;
-$my-font-size-4: $font-size-base * 3.5;
-$my-font-size-5: $font-size-base * 3.75;
-$my-font-size-6: $font-size-base * 4;
-$my-font-size-7: $font-size-base * 4.25;
-$my-font-size-8: $font-size-base * 4.5;
-$my-font-size-9: $font-size-base * 4.75;
-$my-font-size-10: $font-size-base * 5;
-$my-font-size-11: $font-size-base * 5.25;
-$my-font-size-12: $font-size-base * 5.5;
+$my-font-size-0: $font-size-base * 2.25;
+$my-font-size-1: $font-size-base * 2.5;
+$my-font-size-2: $font-size-base * 2.75;
+$my-font-size-3: $font-size-base * 3;
+$my-font-size-4: $font-size-base * 3.25;
+$my-font-size-5: $font-size-base * 3.5;
+$my-font-size-6: $font-size-base * 3.75;
+$my-font-size-7: $font-size-base * 4;
+$my-font-size-8: $font-size-base * 4.25;
+$my-font-size-9: $font-size-base * 4.5;
+$my-font-size-10: $font-size-base * 4.25;
+$my-font-size-11: $font-size-base * 5;
+$my-font-size-12: $font-size-base * 5.25;
 
 $font-sizes: map-merge($font-sizes, (
   6: $my-font-size-0,
