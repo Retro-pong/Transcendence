@@ -75,9 +75,7 @@ class IntraCallbackView(APIView):
         token = TokenObtainPairSerializer.get_token(user)
         refresh_token = str(token)
         response = redirect(settings.BASE_URL)
-        response.set_cookie(
-            "refresh_token", refresh_token, httponly=True, samesite="None", secure=True
-        )
+        response.set_cookie("refresh_token", refresh_token, httponly=True)
         return response
 
     def get_intra_token(self, code) -> dict:
