@@ -34,13 +34,13 @@ class Login extends PageComponent {
 
     return `
       ${LoginHeader}
-      <div class="d-flex h-80 overflow-auto">
-        <div class="d-flex flex-column justify-content-center align-items-center h-100">
-          <div class="p-5">
-            ${RegisterFormItem('row my-5 mx-2', 'email-login', 'EMAIL', 'text', 'name @ mail')}
-            ${RegisterFormItem('row mx-2', 'password-login', 'PASSWORD', 'password', 'PASSWORD')}
+      <div class="d-flex justify-content-center align-items-center h-85">
+        <div class="d-flex flex-column justify-content-around align-items-center h-100 py-3">
+          <div>
+            ${RegisterFormItem('row py-3', 'email-login', 'EMAIL', 'text', 'name @ mail')}
+            ${RegisterFormItem('row py-3', 'password-login', 'PASSWORD', 'password', 'PASSWORD')}
           </div>
-          <div class="p-5">
+          <div>
             ${LoginPageButtons()}
           </div>
         </div>
