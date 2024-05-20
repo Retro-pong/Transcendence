@@ -19,7 +19,7 @@ class Fetch {
     }
   }
 
-  static getHeaders() {
+  static get headers() {
     return this.#headers;
   }
 
@@ -28,11 +28,13 @@ class Fetch {
   }
 
   static async get(url, retry = 1) {
+    document.getElementById('loading').classList.remove('d-none');
     const response = await fetch(`${this.#BASE_URL}${url}`, {
       method: 'GET',
       headers: this.#headers,
       credentials: this.#credentials,
     });
+    document.getElementById('loading').classList.add('d-none');
     if (!response.ok) {
       if (this.isAuth(url) && response.status === 401 && retry <= this.#retry) {
         await TokenManager.reissueAccessToken();
@@ -47,12 +49,14 @@ class Fetch {
   }
 
   static async post(url, body = {}, retry = 1) {
+    document.getElementById('loading').classList.remove('d-none');
     const response = await fetch(`${this.#BASE_URL}${url}`, {
       method: 'POST',
       headers: this.#headers,
       credentials: this.#credentials,
       body: JSON.stringify(body),
     });
+    document.getElementById('loading').classList.add('d-none');
     if (!response.ok) {
       if (this.isAuth(url) && response.status === 401 && retry <= this.#retry) {
         await TokenManager.reissueAccessToken();
