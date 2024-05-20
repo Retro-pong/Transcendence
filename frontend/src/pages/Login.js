@@ -4,7 +4,7 @@ import Header from '@component/text/Header';
 import LoginPageButtons from '@component/button/LoginPageButtons';
 import ModalComponent from '@component/modal/ModalComponent';
 import LoginForm from '@component/form/LoginForm';
-import { Toast, Modal } from 'bootstrap';
+import { Modal } from 'bootstrap';
 import Regex from '@/constants/Regex';
 import Fetch from '@/utils/Fetch';
 import { navigateTo } from '@/utils/router';
@@ -16,6 +16,7 @@ class Login extends PageComponent {
     super();
     this.setTitle('Login');
     this.email = '';
+    this.code = new URLSearchParams(window.location.search).get('code');
   }
 
   async render() {
@@ -50,8 +51,6 @@ class Login extends PageComponent {
     const email = document.getElementById('email-login').value;
     const password = document.getElementById('password-login').value;
 
-    console.log(email, password);
-
     if (!email || !password) {
       ErrorHandler.setToast('Please enter your email and password');
       return;
@@ -60,13 +59,12 @@ class Login extends PageComponent {
       ErrorHandler.setToast('Invalid Email Address');
       return;
     }
-    await Fetch.post('/login/email/login', { email, password })
+    await Fetch.post('/login/email/login/', { email, password })
       .then(() => {
         loginModal.show();
       })
       .catch((err) => {
         ErrorHandler.setToast(err.error || 'Login Failed');
-        console.error(err);
       });
   }
 
@@ -83,25 +81,18 @@ class Login extends PageComponent {
       return;
     }
 
-    await Fetch.post('/login/email/login/verify', { email, code: passcode })
+    await Fetch.post('/login/email/login/verify/', { email, code: passcode })
       .then((data) => {
-        localStorage.setItem('code', data.code); // 테스트용
-        localStorage.setItem('accessToken', data.access_token); // 테스트용
-        TokenManager.storeTokens({
-          user: data.user,
-          accessToken: data.access_token,
-        });
-        localStorage.setItem('accessToken', data.access_token); // 테스트용
+        TokenManager.storeToken(data.access_token);
         loginModal.hide();
         navigateTo('/');
       })
       .catch((err) => {
         ErrorHandler.setToast(err.error || 'Verification Failed');
-        console.error(err);
       });
   }
 
-  async handle2FALogin() {
+  handle2FALogin() {
     const loginModalBtn = document.getElementById('loginBtn');
     const twoFactorLoginBtn = document.getElementById('twoFactorLoginBtn');
     const loginModal = new Modal('#loginModal');
@@ -115,7 +106,7 @@ class Login extends PageComponent {
   }
 
   // TODO: 서버 응답 에러 분기 처리
-  async submitRegisterForm() {
+  submitRegisterForm() {
     document
       .getElementById('registerForm')
       .addEventListener('submit', async (e) => {
@@ -159,7 +150,7 @@ class Login extends PageComponent {
         const registerModal = Modal.getOrCreateInstance('#registerModal');
         const verifyModal = Modal.getOrCreateInstance('#emailVerifyModal');
 
-        await Fetch.post('/login/email/register', {
+        await Fetch.post('/login/email/register/', {
           email,
           username,
           password,
@@ -178,7 +169,7 @@ class Login extends PageComponent {
       });
   }
 
-  async submitEmailVerifyForm() {
+  submitEmailVerifyForm() {
     document
       .getElementById('emailVerifyForm')
       .addEventListener('submit', async (e) => {
@@ -187,7 +178,7 @@ class Login extends PageComponent {
         const code = document.getElementById('emailCode').value;
 
         const verifyModal = Modal.getOrCreateInstance('#emailVerifyModal');
-        await Fetch.post('/login/email/register/verify', { email, code })
+        await Fetch.post('/login/email/register/verify/', { email, code })
           .then(() => {
             ErrorHandler.setToast('Email Verification Successful');
             document.getElementById('emailVerifyForm').reset();
@@ -200,12 +191,31 @@ class Login extends PageComponent {
       });
   }
 
+  async handle42Login() {
+    // TODO: 로딩 처리
+    await Fetch.get(`/login/intra/callback?code=${this.code}`)
+      .then((data) => {
+        TokenManager.storeToken(data.access_token);
+        navigateTo('/');
+      })
+      .catch((err) => {
+        console.error(err);
+        ErrorHandler.setToast('42 Login Failed');
+        TokenManager.clearToken();
+        navigateTo('/login');
+      });
+  }
+
   async afterRender() {
+    // 42 로그인
+    if (this.code) {
+      await this.handle42Login();
+    }
     // 2FA 로그인
-    await this.handle2FALogin();
+    this.handle2FALogin();
     // 회원가입
-    await this.submitRegisterForm();
-    await this.submitEmailVerifyForm();
+    this.submitRegisterForm();
+    this.submitEmailVerifyForm();
   }
 }
 

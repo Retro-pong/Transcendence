@@ -1,48 +1,73 @@
+import TokenManager from '@/utils/TokenManager';
+
 class Fetch {
-  static #BASE_URL = 'http://localhost:80/api/v1';
+  static #BASE_URL = 'http://localhost/api/v1';
   // static #BASE_URL = 'http://localhost:8080';
 
-  static #headers = {
-    'Content-Type': 'application/json',
-  };
+  static #headers = new Headers({ 'Content-Type': 'application/json' });
 
   static #credentials = 'same-origin';
 
-  static setHeader(key, value) {
-    this.#headers[key] = value;
+  static #retry = 1;
+
+  static init() {
+    const accessToken = TokenManager.getAccessToken();
+    if (accessToken) {
+      this.#headers.set('Authorization', `Bearer ${accessToken}`);
+      this.#credentials = 'include';
+    } else {
+      this.#headers.delete('Authorization');
+      this.#credentials = 'same-origin';
+    }
   }
 
-  static removeHeader(key) {
-    delete this.#headers[key];
+  static getHeaders() {
+    return this.#headers;
   }
 
-  static setCredentials(credentials) {
-    this.#credentials = credentials;
-  }
-
-  static async get(url) {
-    const response = await fetch(`${this.#BASE_URL}${url}/`, {
+  static async get(url, retry = 1) {
+    const response = await fetch(`${this.#BASE_URL}${url}`, {
       method: 'GET',
       headers: this.#headers,
       credentials: this.#credentials,
     });
     if (!response.ok) {
+      if (
+        !url.startsWith('/login') &&
+        response.status === 401 &&
+        retry <= this.#retry
+      ) {
+        await TokenManager.reissueAccessToken().then(() => {
+          return this.get(url, retry + 1);
+        });
+      }
       return response.json().then((err) => {
+        console.error(`GET(${url}) ERROR:`, err);
         throw err;
       });
     }
     return response.json();
   }
 
-  static async post(url, body) {
-    const response = await fetch(`${this.#BASE_URL}${url}/`, {
+  static async post(url, body = {}, retry = 1) {
+    const response = await fetch(`${this.#BASE_URL}${url}`, {
       method: 'POST',
       headers: this.#headers,
       credentials: this.#credentials,
       body: JSON.stringify(body),
     });
     if (!response.ok) {
+      if (
+        !url.startsWith('/login') &&
+        response.status === 401 &&
+        retry <= this.#retry
+      ) {
+        await TokenManager.reissueAccessToken().then(() => {
+          return this.post(url, body, retry + 1);
+        });
+      }
       return response.json().then((err) => {
+        console.error(`POST(${url}) ERROR:`, err);
         throw err;
       });
     }

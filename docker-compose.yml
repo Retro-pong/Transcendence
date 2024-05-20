@@ -17,7 +17,7 @@ services:
     volumes:
       - ./frontend/:/app
       - /app/node_modules
-      - frontend-data:/app/dist
+#      - frontend-data:/app/dist
 
   nginx:
     image: nginx:transcendence
@@ -25,9 +25,9 @@ services:
     build: ./nginx
     ports:
       - '80:80'
-      - '443:443'
-    volumes:
-      - frontend-data:/usr/share/nginx/html
+#      - '443:443'
+#    volumes:
+#      - frontend-data:/usr/share/nginx/html
 
 
 volumes:
