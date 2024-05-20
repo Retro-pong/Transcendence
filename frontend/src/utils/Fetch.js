@@ -14,10 +14,8 @@ class Fetch {
     const accessToken = TokenManager.getAccessToken();
     if (accessToken) {
       this.#headers.set('Authorization', `Bearer ${accessToken}`);
-      this.#credentials = 'include';
     } else {
       this.#headers.delete('Authorization');
-      this.#credentials = 'same-origin';
     }
   }
 
