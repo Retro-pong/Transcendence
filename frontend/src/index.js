@@ -14,10 +14,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       e.preventDefault();
       navigateTo(e.target.href);
     }
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-      await TokenManager.logout();
-      navigateTo('/login');
-    });
+  });
+  const logoutBtn = document.getElementById('logoutBtn');
+  logoutBtn.addEventListener('click', async () => {
+    await TokenManager.logout();
+    navigateTo('/login');
   });
   await router();
 });
