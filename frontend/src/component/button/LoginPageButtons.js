@@ -39,7 +39,7 @@ const LoginPageButtons = () => {
   return BtnList.map(
     (btn) => `
         <div class="row justify-content-md-center">
-            <div class="col-md-auto">
+            <div class="col-md-auto text-center">
               ${btn}
             </div>
           </div>

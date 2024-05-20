@@ -6,6 +6,7 @@ const Header = ({ title, subtitle = '', classList = '' }) => {
         <span class="fs-7">
           ${subtitle}
         </span>
+      </div>
     </div>
   `;
 };
