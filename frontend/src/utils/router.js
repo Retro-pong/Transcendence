@@ -7,6 +7,7 @@ import JoinRoom from '@pages/game/JoinRoom';
 import WaitingRoom from '@pages/game/WaitingRoom';
 import Friends from '@pages/Friends';
 import TokenManager from '@/utils/TokenManager';
+import ErrorHandler from '@/utils/ErrorHandler';
 
 export const navigateTo = (url) => {
   if (url === window.location.href) return;
@@ -34,7 +35,7 @@ export const router = async () => {
   if (!(currPathname in routes)) {
     history.pushState(null, null, '/404');
   } else if (currPathname === '/login' && isLoggedIn) {
-    alert('You are already logged in!');
+    ErrorHandler.setToast('You are already logged in!');
     let beforePage = window.localStorage.getItem('curPage');
     if (beforePage === '/login') {
       beforePage = '/';
