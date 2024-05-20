@@ -28,7 +28,7 @@ class IntraLoginView(APIView):
         client_id = settings.INTRA_CLIENT_ID
         redirect_uri = settings.INTRA_REDIRECT_URI
         url = f"{authorize_api_url}?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code"
-        return Response({"url": url}, status=status.HTTP_200_OK)
+        return redirect(url)
 
 
 class IntraCallbackView(APIView):
