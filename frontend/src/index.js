@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const logoutBtn = document.getElementById('logoutBtn');
   logoutBtn.addEventListener('click', async () => {
     await TokenManager.logout();
-    navigateTo('/login');
+    await navigateTo('/login');
   });
   await router();
 });
