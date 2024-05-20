@@ -8,13 +8,11 @@ Fetch.init();
 window.addEventListener('popstate', router);
 
 document.addEventListener('DOMContentLoaded', () => {
-  TokenManager.authenticateUser().then(() => {
-    document.body.addEventListener('click', (e) => {
-      if (e.target.matches('[data-link]')) {
-        e.preventDefault();
-        navigateTo(e.target.href);
-      }
-    });
+  document.body.addEventListener('click', (e) => {
+    if (e.target.matches('[data-link]')) {
+      e.preventDefault();
+      navigateTo(e.target.href);
+    }
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       await TokenManager.logout();
       navigateTo('/login');

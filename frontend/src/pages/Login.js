@@ -58,7 +58,7 @@ class Login extends PageComponent {
       ErrorHandler.setToast('Invalid Email Address');
       return;
     }
-    await Fetch.post('/login/email/login', { email, password })
+    await Fetch.post('/login/email/login/', { email, password })
       .then(() => {
         loginModal.show();
       })
@@ -80,7 +80,7 @@ class Login extends PageComponent {
       return;
     }
 
-    await Fetch.post('/login/email/login/verify', { email, code: passcode })
+    await Fetch.post('/login/email/login/verify/', { email, code: passcode })
       .then((data) => {
         TokenManager.storeToken(data.access_token);
         loginModal.hide();
@@ -149,7 +149,7 @@ class Login extends PageComponent {
         const registerModal = Modal.getOrCreateInstance('#registerModal');
         const verifyModal = Modal.getOrCreateInstance('#emailVerifyModal');
 
-        await Fetch.post('/login/email/register', {
+        await Fetch.post('/login/email/register/', {
           email,
           username,
           password,
@@ -177,7 +177,7 @@ class Login extends PageComponent {
         const code = document.getElementById('emailCode').value;
 
         const verifyModal = Modal.getOrCreateInstance('#emailVerifyModal');
-        await Fetch.post('/login/email/register/verify', { email, code })
+        await Fetch.post('/login/email/register/verify/', { email, code })
           .then(() => {
             ErrorHandler.setToast('Email Verification Successful');
             document.getElementById('emailVerifyForm').reset();
@@ -191,13 +191,16 @@ class Login extends PageComponent {
   }
 
   async handle42Login(code = '') {
-    await Fetch.get(`/login/42/callback?code=${code}`)
+    // TODO: 로딩 처리
+    await Fetch.get(`/login/intra/callback?code=${code}`)
       .then((data) => {
         TokenManager.storeToken(data.access_token);
-        navigateTo('/');
       })
       .catch((err) => {
-        ErrorHandler.setToast(err.error || '42 Login Failed');
+        console.error(err);
+        ErrorHandler.setToast('42 Login Failed');
+        TokenManager.clearToken();
+        history.replaceState(null, null, '/login');
       });
   }
 
@@ -207,12 +210,6 @@ class Login extends PageComponent {
     if (code) {
       await this.handle42Login(code);
     }
-    // 임시 42 로그인
-    document
-      .getElementById('42LoginBtn')
-      .addEventListener('click', async () => {
-        TokenManager.storeToken('42 access token');
-      });
     // 2FA 로그인
     this.handle2FALogin();
     // 회원가입

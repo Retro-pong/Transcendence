@@ -29,7 +29,7 @@ class TokenManager {
   }
 
   static async reissueAccessToken() {
-    await Fetch.post('/login/token/refresh')
+    await Fetch.post('/login/token/refresh/')
       .then((res) => {
         this.storeToken(res.access_token);
       })
@@ -41,7 +41,7 @@ class TokenManager {
   }
 
   static async logout() {
-    await Fetch.post('/login/logout')
+    await Fetch.post('/login/logout/')
       .then(() => {
         this.clearToken();
       })
@@ -49,11 +49,6 @@ class TokenManager {
         ErrorHandler.setToast('Logout Failed');
         // this.clearToken(); // 테스트용
       });
-  }
-
-  // TODO: 페이지 이동 시 유저 정보 받아오는 요청으로 수정
-  static async authenticateUser() {
-    // await this.reissueAccessToken();
   }
 }
 

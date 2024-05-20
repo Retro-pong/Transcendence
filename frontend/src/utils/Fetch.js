@@ -26,7 +26,7 @@ class Fetch {
   }
 
   static async get(url, retry = 1) {
-    const response = await fetch(`${this.#BASE_URL}${url}/`, {
+    const response = await fetch(`${this.#BASE_URL}${url}`, {
       method: 'GET',
       headers: this.#headers,
       credentials: this.#credentials,
@@ -50,7 +50,7 @@ class Fetch {
   }
 
   static async post(url, body = {}, retry = 1) {
-    const response = await fetch(`${this.#BASE_URL}${url}/`, {
+    const response = await fetch(`${this.#BASE_URL}${url}`, {
       method: 'POST',
       headers: this.#headers,
       credentials: this.#credentials,
