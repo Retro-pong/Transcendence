@@ -42,11 +42,7 @@ class IntraCallbackView(APIView):
             code = request.GET.get("code")
             intra_token = self.get_intra_token(code)
             intra_userinfo = self.get_intra_userinfo(intra_token)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Get user info from 42 intra
-        try:
             intra_id = intra_userinfo["login"]
             email = intra_userinfo["email"]
             image = intra_userinfo["image"]["link"]
@@ -55,7 +51,10 @@ class IntraCallbackView(APIView):
                 {"error": "Failed to get user info from 42 intra."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Authenticate the user
         try:
             user = User.objects.get(email=email)
         # 회원가입
