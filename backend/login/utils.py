@@ -9,7 +9,7 @@ from django.conf import settings
 
 def send_verification_code(email) -> bool:
     """
-    2차 인증 코드를 생성하고 이메일로 전송
+    메일 인증 코드 생성 및 전송
     """
     code = User.objects.make_random_password(length=6)  # 6자리 랜덤 코드 생성
     TFA.objects.create(email=email, code=code)  # DB에 저장
@@ -27,6 +27,22 @@ def send_verification_code(email) -> bool:
         return True
     except Exception as e:
         return False
+
+
+def verify_email(request) -> str:
+    """
+    메일 인증 코드 검증
+    """
+    email = request.data.get("email")
+    code = request.data.get("code")
+    tfa = TFA.objects.filter(email=email).first()
+
+    # Got the correct verification code
+    if tfa and tfa.code == code:
+        # 해당 이메일에 대해 모든 발신 기록 삭제 후 로그인
+        TFA.objects.filter(email=email).delete()
+        return email
+    return str()
 
 
 def obtain_jwt_token(user) -> Response:
