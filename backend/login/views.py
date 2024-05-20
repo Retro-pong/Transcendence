@@ -10,6 +10,7 @@ from users.models import User
 from .utils import send_verification_code, obtain_jwt_token
 from django.shortcuts import redirect
 from django.conf import settings
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -275,7 +276,7 @@ class LogoutView(APIView):  # TODO delete (for test)
 class MyTokenRefreshView(TokenRefreshView):
     @swagger_auto_schema(
         tags=["login"],
-        operation_description="body 없이 refresh token만 쿠키로 전송",
+        operation_description="body 없이 refresh token만 쿠키로 요청 받음",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={},
@@ -283,15 +284,16 @@ class MyTokenRefreshView(TokenRefreshView):
         responses={200: "OK", 401: "UNAUTHORIZED"},
     )
     def post(self, request, *args, **kwargs) -> Response:
-        print("****** Refresh token ******")
+        # Get refresh token from cookie
         refresh_token = request.COOKIES.get("refresh_token")
         if not refresh_token:
             return Response(
                 {"error": "No refresh token."},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
-        data = {"refresh": refresh_token}
-        request._data = data
+        request.data["refresh"] = refresh_token
+
+        # Refresh JWT tokens
         try:
             super().post(request, *args, **kwargs)
         except:
@@ -299,14 +301,11 @@ class MyTokenRefreshView(TokenRefreshView):
                 {"error": "Failed to refresh token."},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
-        email = request.user.email
-        access_token = request.data.get("access")
-        print("****** Token refreshed ******")
+        new_refresh_token = RefreshToken(request.data.get("refresh"))
         return Response(
             {
                 "message": "Token refreshed",
-                "email": email,
-                "access_token": access_token,
+                "access_token": str(new_refresh_token.access_token),
             },
             status=status.HTTP_200_OK,
         )
