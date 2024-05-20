@@ -69,17 +69,7 @@ class IntraCallbackView(APIView):
         user.is_active = True
         user.image = image
         user.save()
-<<<<<<< HEAD
-
-        # JWT 토큰 발급 및 redirect 반환
-        token = TokenObtainPairSerializer.get_token(user)
-        refresh_token = str(token)
-        response = redirect(settings.BASE_URL)
-        response.set_cookie("refresh_token", refresh_token, httponly=True)
-        return response
-=======
         return obtain_jwt_token(user)
->>>>>>> backend
 
     def get_intra_token(self, code) -> dict:
         """

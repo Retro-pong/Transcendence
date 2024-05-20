@@ -57,6 +57,7 @@ class ProfileEditView(APIView):
                 user.username = request.data["username"]
             if request.data["comment"]:
                 user.comment = request.data["comment"]
+            user.save()
         except Exception as e:
             return Response("error:" + str(e), status=status.HTTP_400_BAD_REQUEST)
         return Response("user profile edit")
