@@ -5,15 +5,13 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from django.http import JsonResponse
 from .serializers import RegisterSerializer
-from .models import TFA
 from users.models import User
-from .utils import send_verification_code, obtain_jwt_token
+from .utils import send_verification_code, verify_email, obtain_jwt_token
 from django.shortcuts import redirect
 from django.conf import settings
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
-from django.contrib.auth import login, logout
 import requests
 
 
@@ -28,7 +26,7 @@ class IntraLoginView(APIView):
         client_id = settings.INTRA_CLIENT_ID
         redirect_uri = settings.INTRA_REDIRECT_URI
         url = f"{authorize_api_url}?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code"
-        return Response({"url": url}, status=status.HTTP_200_OK)
+        return redirect(url)
 
 
 class IntraCallbackView(APIView):
@@ -38,48 +36,41 @@ class IntraCallbackView(APIView):
         responses={200: "OK", 400: "BAD_REQUEST", 500: "INTERNAL_SERVER_ERROR"},
     )
     def get(self, request):
+        # 42 intra authorizes the user
         try:
-            code = request.data.get("code")
+            code = request.GET.get("code")
             intra_token = self.get_intra_token(code)
             intra_userinfo = self.get_intra_userinfo(intra_token)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-        intra_id = intra_userinfo["login"]
-        email = intra_userinfo["email"]
-        image = intra_userinfo["image"]["link"]
+        # Get user info from 42 intra
+        try:
+            intra_id = intra_userinfo["login"]
+            email = intra_userinfo["email"]
+            image = intra_userinfo["image"]["link"]
+        except KeyError:
+            return Response(
+                {"error": "Failed to get user info from 42 intra."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         try:
             user = User.objects.get(email=email)
-            # 로그인 전적이 있는 경우, 이미 접속 중인지 확인
-            if user.is_authenticated:
-                return redirect(settings.BASE_URL)
+        # 회원가입
         except User.DoesNotExist:
-            # 로그인 전적이 없는 경우, 회원가입
             username = intra_id
             while User.objects.filter(username=username).exists():
                 username = User.objects.make_random_password(length=10)
             user = User.objects.create_user(
                 username=username, email=email, password="subinlee"  # TODO: check
             )
-
-        # 로그인 및 JWT 반환
-        user.is_registered = True
+            user.is_registered = True
+        # 로그인
         user.is_authenticated = True
-        user.is_active = True
         user.image = image
-        user.save()
-<<<<<<< HEAD
-
-        # JWT 토큰 발급 및 redirect 반환
-        token = TokenObtainPairSerializer.get_token(user)
-        refresh_token = str(token)
-        response = redirect(settings.BASE_URL)
-        response.set_cookie("refresh_token", refresh_token, httponly=True)
-        return response
-=======
-        return obtain_jwt_token(user)
->>>>>>> backend
+        token = obtain_jwt_token(user)
+        return token
 
     def get_intra_token(self, code) -> dict:
         """
@@ -138,14 +129,11 @@ class EmailLoginView(APIView):
         responses={200: "OK", 401: "UNAUTHORIZED", 500: "INTERNAL_SERVER_ERROR"},
     )
     def post(self, request):
-        email = request.data.get("email")
-        password = request.data.get("password")
-
-        # Authenticate the user
         try:
+            email = request.data.get("email")
+            password = request.data.get("password")
             user = User.objects.get(email=email)
-            if user and user.is_registered:
-                # 비밀번호 일치 여부 확인
+            if user.is_registered:
                 if user.check_password(password):
                     # 2Factor Authentication
                     if send_verification_code(email):
@@ -158,8 +146,7 @@ class EmailLoginView(APIView):
                             {"error": "Failed to send verification code."},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                         )
-        # Login failed
-        except Exception as e:
+        except User.DoesNotExist:
             pass
         return Response(
             {"error": "Invalid email or password."},
@@ -183,27 +170,17 @@ class EmailLoginVerifyView(APIView):
         responses={200: "OK", 401: "UNAUTHORIZED"},
     )
     def post(self, request):
-        email = request.data.get("email")
-        code = request.data.get("code")
-        tfa = TFA.objects.filter(email=email).first()
-
-        # Got the correct verification code
-        if tfa and tfa.code == code:
-            # 해당 이메일에 대해 모든 발신 기록 삭제
-            TFA.objects.filter(email=email).delete()
-            user = User.objects.get(email=email)
-            user.is_authenticated = True
-            user.is_active = True
-            user.save()
-            # jwt 토큰을 담은 response 반환 (status code: 200)
-            return obtain_jwt_token(user)
-
-        # Got the wrong verification code
-        else:
+        email = verify_email(request)
+        if email is str():
             return Response(
                 {"error": "Email verification failed."},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
+        user = User.objects.get(email=email)
+        user.is_registered = True
+        user.save()
+        token = obtain_jwt_token(user)
+        return token
 
 
 class EmailRegisterView(APIView):
@@ -248,41 +225,33 @@ class EmailRegisterVerifyView(APIView):
         responses={200: "OK", 401: "UNAUTHORIZED"},
     )
     def post(self, request):
-        email = request.data.get("email")
-        code = request.data.get("code")
-        tfa = TFA.objects.filter(email=email).first()
-
-        # Got the correct verification code
-        if tfa and tfa.code == code:
-            # 해당 이메일에 대해 모든 발신 기록 삭제
-            TFA.objects.filter(email=email).delete()
-            User.objects.filter(email=email).update(is_registered=True)
-            return Response("Email verification successful.", status=status.HTTP_200_OK)
-
-        # Got the wrong verification code
-        else:
+        email = verify_email(request)
+        if email is str():
             return Response(
                 {"error": "Email verification failed."},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
+        User.objects.filter(email=email).update(is_registered=True)
+        return Response("Email verification successful.", status=status.HTTP_200_OK)
 
 
-class LogoutView(APIView):  # TODO delete (for test)
+class LogoutView(APIView):
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated,)
 
     @swagger_auto_schema(
         tags=["login"],
-        operation_description="로그아웃 (테스트용 임시 API)",
-        responses={200: "OK"},
+        operation_description="로그아웃",
+        responses={200: "OK", 401: "UNAUTHORIZED"},
     )
     def post(self, request):
+        request.user.object.update(is_authenticated=False)
         response = Response("Logout successful.", status=status.HTTP_200_OK)
         response.delete_cookie("refresh_token")
         return response
 
 
-class MyTokenRefreshView(TokenRefreshView):
+class MyTokenRefreshView(TokenRefreshView):  # 에러 시 logout 처리
     @swagger_auto_schema(
         tags=["login"],
         operation_description="body 없이 refresh token만 쿠키로 전송",
@@ -293,7 +262,7 @@ class MyTokenRefreshView(TokenRefreshView):
         responses={200: "OK", 401: "UNAUTHORIZED"},
     )
     def post(self, request, *args, **kwargs) -> Response:
-        print("****** Refresh token ******")
+        print("****** Refresh token ******")  # TODO: debug
         refresh_token = request.COOKIES.get("refresh_token")
         if not refresh_token:
             return Response(
@@ -311,7 +280,7 @@ class MyTokenRefreshView(TokenRefreshView):
             )
         email = request.user.email
         access_token = request.data.get("access")
-        print("****** Token refreshed ******")
+        print("****** Token refreshed ******")  # TODO: debug
         return Response(
             {
                 "message": "Token refreshed",
