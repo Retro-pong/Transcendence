@@ -276,7 +276,7 @@ class LogoutView(APIView):  # TODO delete (for test)
 class MyTokenRefreshView(TokenRefreshView):
     @swagger_auto_schema(
         tags=["login"],
-        operation_description="body 없이 refresh token만 쿠키로 전송",
+        operation_description="body 없이 refresh token만 쿠키로 요청 받음",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={},
