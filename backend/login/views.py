@@ -69,17 +69,7 @@ class IntraCallbackView(APIView):
         user.is_active = True
         user.image = image
         user.save()
-<<<<<<< HEAD
-
-        # JWT 토큰 발급 및 redirect 반환
-        token = TokenObtainPairSerializer.get_token(user)
-        refresh_token = str(token)
-        response = redirect(settings.BASE_URL)
-        response.set_cookie("refresh_token", refresh_token, httponly=True)
-        return response
-=======
         return obtain_jwt_token(user)
->>>>>>> backend
 
     def get_intra_token(self, code) -> dict:
         """
@@ -282,7 +272,7 @@ class LogoutView(APIView):  # TODO delete (for test)
         return response
 
 
-class MyTokenRefreshView(TokenRefreshView):
+class MyTokenRefreshView(TokenRefreshView):  # 에러 시 logout 처리
     @swagger_auto_schema(
         tags=["login"],
         operation_description="body 없이 refresh token만 쿠키로 전송",
