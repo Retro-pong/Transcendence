@@ -8,7 +8,8 @@ Fetch.init();
 window.addEventListener('popstate', router);
 
 document.addEventListener('DOMContentLoaded', async () => {
-  document.body.addEventListener('click', (e) => {
+  const navigation = document.querySelector('#navBarCollapse');
+  navigation.addEventListener('click', (e) => {
     if (e.target.matches('[data-link]')) {
       e.preventDefault();
       navigateTo(e.target.href);
