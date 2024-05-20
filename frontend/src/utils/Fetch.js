@@ -25,6 +25,10 @@ class Fetch {
     return this.#headers;
   }
 
+  static isAuth(url) {
+    return !url.startsWith('/login') || url === '/login/logout/';
+  }
+
   static async get(url, retry = 1) {
     const response = await fetch(`${this.#BASE_URL}${url}`, {
       method: 'GET',
@@ -32,14 +36,9 @@ class Fetch {
       credentials: this.#credentials,
     });
     if (!response.ok) {
-      if (
-        !url.startsWith('/login') &&
-        response.status === 401 &&
-        retry <= this.#retry
-      ) {
-        await TokenManager.reissueAccessToken().then(() => {
-          return this.get(url, retry + 1);
-        });
+      if (this.isAuth(url) && response.status === 401 && retry <= this.#retry) {
+        await TokenManager.reissueAccessToken();
+        return this.get(url, retry + 1);
       }
       return response.json().then((err) => {
         console.error(`GET(${url}) ERROR:`, err);
@@ -57,14 +56,9 @@ class Fetch {
       body: JSON.stringify(body),
     });
     if (!response.ok) {
-      if (
-        !url.startsWith('/login') &&
-        response.status === 401 &&
-        retry <= this.#retry
-      ) {
-        await TokenManager.reissueAccessToken().then(() => {
-          return this.post(url, body, retry + 1);
-        });
+      if (this.isAuth(url) && response.status === 401 && retry <= this.#retry) {
+        await TokenManager.reissueAccessToken();
+        return this.post(url, body, retry + 1);
       }
       return response.json().then((err) => {
         console.error(`POST(${url}) ERROR:`, err);
