@@ -26,6 +26,48 @@ body {
   }
 }
 
+@include media-breakpoint-only(xs) {
+  html {
+    font-size: 10px;
+  }
+}
+
+@include media-breakpoint-between(sm, md) {
+  html {
+    font-size: 11px;
+  }
+}
+
+@include media-breakpoint-between(md, lg) {
+  html {
+    font-size: 12px;
+  }
+}
+
+@include media-breakpoint-between(lg, xl) {
+  html {
+    font-size: 14px;
+  }
+}
+
+@include media-breakpoint-between(xl, xxl) {
+  html {
+    font-size: 15px;
+  }
+}
+
+@include media-breakpoint-between(xxl, xxxl) {
+  html {
+    font-size: 16px;
+  }
+}
+
+@include media-breakpoint-up(xxxl) {
+  html {
+    font-size: 18px;
+  }
+}
+
 input {
   border-width: 0 0 0.8rem 0 !important;
   border-style: dashed !important;
