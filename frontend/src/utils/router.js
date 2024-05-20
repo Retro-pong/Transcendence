@@ -41,7 +41,7 @@ export const router = async () => {
     }
     history.pushState(null, null, beforePage);
   } else if (currPathname !== '/login' && !isLoggedIn) {
-    // history.pushState(null, null, '/login');
+    history.pushState(null, null, '/login');
   } else {
     window.localStorage.setItem('curPage', currPathname);
   }
