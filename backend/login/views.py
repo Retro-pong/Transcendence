@@ -10,6 +10,7 @@ from users.models import User
 from .utils import send_verification_code, obtain_jwt_token
 from django.shortcuts import redirect
 from django.conf import settings
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -290,8 +291,7 @@ class MyTokenRefreshView(TokenRefreshView):
                 {"error": "No refresh token."},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
-        data = {"refresh": refresh_token}
-        request._data = data
+        request.data["refresh"] = refresh_token
         try:
             super().post(request, *args, **kwargs)
         except:
@@ -299,14 +299,12 @@ class MyTokenRefreshView(TokenRefreshView):
                 {"error": "Failed to refresh token."},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
-        email = request.user.email
-        access_token = request.data.get("access")
+        refresh_token = RefreshToken(request.data.get("refresh"))
         print("****** Token refreshed ******")
         return Response(
             {
                 "message": "Token refreshed",
-                "email": email,
-                "access_token": access_token,
+                "access_token": str(refresh_token.access_token),
             },
             status=status.HTTP_200_OK,
         )
