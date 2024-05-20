@@ -16,6 +16,7 @@ class Login extends PageComponent {
     super();
     this.setTitle('Login');
     this.email = '';
+    this.code = new URLSearchParams(window.location.search).get('code');
   }
 
   async render() {
@@ -190,25 +191,25 @@ class Login extends PageComponent {
       });
   }
 
-  async handle42Login(code = '') {
+  async handle42Login() {
     // TODO: 로딩 처리
-    await Fetch.get(`/login/intra/callback?code=${code}`)
+    await Fetch.get(`/login/intra/callback?code=${this.code}`)
       .then((data) => {
         TokenManager.storeToken(data.access_token);
+        navigateTo('/');
       })
       .catch((err) => {
         console.error(err);
         ErrorHandler.setToast('42 Login Failed');
         TokenManager.clearToken();
-        history.replaceState(null, null, '/login');
+        navigateTo('/login');
       });
   }
 
   async afterRender() {
     // 42 로그인
-    const code = new URLSearchParams(window.location.search).get('code');
-    if (code) {
-      await this.handle42Login(code);
+    if (this.code) {
+      await this.handle42Login();
     }
     // 2FA 로그인
     this.handle2FALogin();
