@@ -198,8 +198,7 @@ class Login extends PageComponent {
         TokenManager.storeToken(data.access_token);
         navigateTo('/');
       })
-      .catch((err) => {
-        console.error(err);
+      .catch(() => {
         ErrorHandler.setToast('42 Login Failed');
         TokenManager.clearToken();
         navigateTo('/login');
