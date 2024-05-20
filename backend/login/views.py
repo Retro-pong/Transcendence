@@ -13,6 +13,7 @@ from django.conf import settings
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth import login, logout
 import requests
 
 
@@ -68,7 +69,17 @@ class IntraCallbackView(APIView):
         user.is_active = True
         user.image = image
         user.save()
+<<<<<<< HEAD
+
+        # JWT 토큰 발급 및 redirect 반환
+        token = TokenObtainPairSerializer.get_token(user)
+        refresh_token = str(token)
+        response = redirect(settings.BASE_URL)
+        response.set_cookie("refresh_token", refresh_token, httponly=True)
+        return response
+=======
         return obtain_jwt_token(user)
+>>>>>>> backend
 
     def get_intra_token(self, code) -> dict:
         """
@@ -256,38 +267,6 @@ class EmailRegisterVerifyView(APIView):
             )
 
 
-class MyTokenRefreshView(TokenRefreshView):
-    @swagger_auto_schema(
-        tags=["login"],
-        operation_description="body 없이 refresh token만 쿠키로 전송",
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={},
-        ),
-        responses={200: "OK", 401: "UNAUTHORIZED"},
-    )
-    def post(self, request, *args, **kwargs) -> Response:
-        refresh_token = request.COOKIES.get("refresh_token")
-        if not refresh_token:
-            return Response(
-                {"error": "No refresh token."},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
-        data = {"refresh": refresh_token}
-        request._data = data
-        response = super().post(request, *args, **kwargs)
-        if response.status_code == 200:
-            return response  # TODO: User email 정보도 같이 주기
-        else:
-            user = request.user
-            user.is_authenticated = False
-            user.save()
-            return Response(
-                {"error": "Failed to refresh token."},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
-
-
 class LogoutView(APIView):  # TODO delete (for test)
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated,)
@@ -301,3 +280,43 @@ class LogoutView(APIView):  # TODO delete (for test)
         response = Response("Logout successful.", status=status.HTTP_200_OK)
         response.delete_cookie("refresh_token")
         return response
+
+
+class MyTokenRefreshView(TokenRefreshView):
+    @swagger_auto_schema(
+        tags=["login"],
+        operation_description="body 없이 refresh token만 쿠키로 전송",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={},
+        ),
+        responses={200: "OK", 401: "UNAUTHORIZED"},
+    )
+    def post(self, request, *args, **kwargs) -> Response:
+        print("****** Refresh token ******")
+        refresh_token = request.COOKIES.get("refresh_token")
+        if not refresh_token:
+            return Response(
+                {"error": "No refresh token."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+        data = {"refresh": refresh_token}
+        request._data = data
+        try:
+            super().post(request, *args, **kwargs)
+        except:
+            return Response(
+                {"error": "Failed to refresh token."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+        email = request.user.email
+        access_token = request.data.get("access")
+        print("****** Token refreshed ******")
+        return Response(
+            {
+                "message": "Token refreshed",
+                "email": email,
+                "access_token": access_token,
+            },
+            status=status.HTTP_200_OK,
+        )
