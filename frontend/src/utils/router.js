@@ -8,10 +8,10 @@ import WaitingRoom from '@pages/game/WaitingRoom';
 import Friends from '@pages/Friends';
 import TokenManager from '@/utils/TokenManager';
 
-export const navigateTo = (url) => {
+export const navigateTo = async (url) => {
   if (url === window.location.href) return;
   history.pushState(null, null, url);
-  router();
+  await router();
 };
 
 // 동적라우팅 추가 필요
@@ -41,7 +41,7 @@ export const router = async () => {
     }
     history.pushState(null, null, beforePage);
   } else if (currPathname !== '/login' && !isLoggedIn) {
-    history.pushState(null, null, '/login');
+    // history.pushState(null, null, '/login');
   } else {
     window.localStorage.setItem('curPage', currPathname);
   }
