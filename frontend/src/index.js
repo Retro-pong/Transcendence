@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       navigateTo('/login');
     });
   });
-  router();
+  await router();
 });
 
 document.addEventListener('click', (e) => {
