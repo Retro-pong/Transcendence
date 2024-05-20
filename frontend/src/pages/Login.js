@@ -91,7 +91,7 @@ class Login extends PageComponent {
       });
   }
 
-  async handle2FALogin() {
+  handle2FALogin() {
     const loginModalBtn = document.getElementById('loginBtn');
     const twoFactorLoginBtn = document.getElementById('twoFactorLoginBtn');
     const loginModal = new Modal('#loginModal');
@@ -105,7 +105,7 @@ class Login extends PageComponent {
   }
 
   // TODO: 서버 응답 에러 분기 처리
-  async submitRegisterForm() {
+  submitRegisterForm() {
     document
       .getElementById('registerForm')
       .addEventListener('submit', async (e) => {
@@ -168,7 +168,7 @@ class Login extends PageComponent {
       });
   }
 
-  async submitEmailVerifyForm() {
+  submitEmailVerifyForm() {
     document
       .getElementById('emailVerifyForm')
       .addEventListener('submit', async (e) => {
@@ -203,10 +203,10 @@ class Login extends PageComponent {
 
   async afterRender() {
     // 42 로그인
-    // const code = new URLSearchParams(window.location.search).get('code');
-    // if (code) {
-    //   await this.handle42Login(code);
-    // }
+    const code = new URLSearchParams(window.location.search).get('code');
+    if (code) {
+      await this.handle42Login(code);
+    }
     // 임시 42 로그인
     document
       .getElementById('42LoginBtn')
@@ -214,10 +214,10 @@ class Login extends PageComponent {
         TokenManager.storeToken('42 access token');
       });
     // 2FA 로그인
-    await this.handle2FALogin();
+    this.handle2FALogin();
     // 회원가입
-    await this.submitRegisterForm();
-    await this.submitEmailVerifyForm();
+    this.submitRegisterForm();
+    this.submitEmailVerifyForm();
   }
 }
 
