@@ -69,6 +69,7 @@ class IntraCallbackView(APIView):
         # 로그인
         user.is_authenticated = True
         user.image = image
+        user.save()
         token = obtain_jwt_token(user)
         return token
 
