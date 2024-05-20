@@ -7,7 +7,7 @@ Fetch.init();
 
 window.addEventListener('popstate', router);
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   document.body.addEventListener('click', (e) => {
     if (e.target.matches('[data-link]')) {
       e.preventDefault();
@@ -17,8 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
       await TokenManager.logout();
       navigateTo('/login');
     });
-    router();
   });
+  router();
 });
 
 document.addEventListener('click', (e) => {
