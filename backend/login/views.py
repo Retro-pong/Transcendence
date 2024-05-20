@@ -272,7 +272,7 @@ class LogoutView(APIView):  # TODO delete (for test)
         return response
 
 
-class MyTokenRefreshView(TokenRefreshView):
+class MyTokenRefreshView(TokenRefreshView):  # 에러 시 logout 처리
     @swagger_auto_schema(
         tags=["login"],
         operation_description="body 없이 refresh token만 쿠키로 전송",
