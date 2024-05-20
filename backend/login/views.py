@@ -284,7 +284,7 @@ class MyTokenRefreshView(TokenRefreshView):
         responses={200: "OK", 401: "UNAUTHORIZED"},
     )
     def post(self, request, *args, **kwargs) -> Response:
-        print("****** Refresh token ******")
+        # Get refresh token from cookie
         refresh_token = request.COOKIES.get("refresh_token")
         if not refresh_token:
             return Response(
@@ -292,6 +292,8 @@ class MyTokenRefreshView(TokenRefreshView):
                 status=status.HTTP_401_UNAUTHORIZED,
             )
         request.data["refresh"] = refresh_token
+
+        # Refresh JWT tokens
         try:
             super().post(request, *args, **kwargs)
         except:
@@ -299,12 +301,11 @@ class MyTokenRefreshView(TokenRefreshView):
                 {"error": "Failed to refresh token."},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
-        refresh_token = RefreshToken(request.data.get("refresh"))
-        print("****** Token refreshed ******")
+        new_refresh_token = RefreshToken(request.data.get("refresh"))
         return Response(
             {
                 "message": "Token refreshed",
-                "access_token": str(refresh_token.access_token),
+                "access_token": str(new_refresh_token.access_token),
             },
             status=status.HTTP_200_OK,
         )
