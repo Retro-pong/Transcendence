@@ -11,7 +11,6 @@ from .utils import send_verification_code, obtain_jwt_token
 from django.shortcuts import redirect
 from django.conf import settings
 from rest_framework_simplejwt.views import TokenRefreshView
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import login, logout
@@ -29,7 +28,7 @@ class IntraLoginView(APIView):
         client_id = settings.INTRA_CLIENT_ID
         redirect_uri = settings.INTRA_REDIRECT_URI
         url = f"{authorize_api_url}?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code"
-        return redirect(url)
+        return Response({"url": url}, status=status.HTTP_200_OK)
 
 
 class IntraCallbackView(APIView):
@@ -40,7 +39,7 @@ class IntraCallbackView(APIView):
     )
     def get(self, request):
         try:
-            code = request.GET.get("code")
+            code = request.data.get("code")
             intra_token = self.get_intra_token(code)
             intra_userinfo = self.get_intra_userinfo(intra_token)
         except Exception as e:
@@ -70,6 +69,7 @@ class IntraCallbackView(APIView):
         user.is_active = True
         user.image = image
         user.save()
+<<<<<<< HEAD
 
         # JWT 토큰 발급 및 redirect 반환
         token = TokenObtainPairSerializer.get_token(user)
@@ -77,6 +77,9 @@ class IntraCallbackView(APIView):
         response = redirect(settings.BASE_URL)
         response.set_cookie("refresh_token", refresh_token, httponly=True)
         return response
+=======
+        return obtain_jwt_token(user)
+>>>>>>> backend
 
     def get_intra_token(self, code) -> dict:
         """
