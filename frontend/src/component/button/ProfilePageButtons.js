@@ -2,20 +2,19 @@ import OpenModalButton from '@component/button/OpenModalButton';
 import ModalComponent from '@component/modal/ModalComponent';
 import EditProfileForm from '@component/form/EditProfileForm';
 
-const ProfilePageButtons = () => {
+const ProfilePageButtons = ({ nick, comment }) => {
   const editModalBtn = OpenModalButton({
     text: '>> EDIT PROFILE <<',
     classList: 'btn btn-no-outline-hover fs-8',
-    modalId: '#editProfileForm',
+    modalId: '#editProfile',
   });
-  const editModal = ({ nick, comment }) =>
-    ModalComponent({
-      borderColor: 'pink',
-      title: 'EDIT PROFILE',
-      modalId: 'editProfile',
-      content: EditProfileForm({ nick, comment }),
-      buttonList: ['confirmBtn'],
-    });
+  const editModal = ModalComponent({
+    borderColor: 'pink',
+    title: 'EDIT PROFILE',
+    modalId: 'editProfile',
+    content: EditProfileForm({ nick, comment }),
+    buttonList: ['profileEditBtn'],
+  });
 
   const BtnList = [`${editModalBtn} ${editModal}`];
 
