@@ -1,6 +1,7 @@
 import PageComponent from '@component/PageComponent.js';
 import NavLink from '@component/navigation/NavLink';
 import BasicButton from '@component/button/BasicButton';
+import Pagination from '@component/navigation/Pagination';
 import Fetch from '@/utils/Fetch';
 
 class JoinRoom extends PageComponent {
@@ -49,18 +50,6 @@ class JoinRoom extends PageComponent {
       classList:
         'btn fs-2 position-absolute top-0 end-0 mt-2 me-2 btn-no-outline-hover',
     });
-    const prevBtn = BasicButton({
-      id: 'prevBtn',
-      text: '<',
-      classList: 'fs-7 btn btn-no-outline-hover',
-      disabled: this.currPage === 1,
-    });
-    const nextBtn = BasicButton({
-      id: 'nextBtn',
-      text: '>',
-      classList: 'fs-7 btn btn-no-outline-hover',
-      disabled: this.totalPage === this.currPage,
-    });
 
     return `
       <div class="container h-100 p-3 game-room-border">
@@ -76,13 +65,7 @@ class JoinRoom extends PageComponent {
           <div id="joinRoomBody" class="tab-pane active d-flex flex-column flex-column overflow-auto h-100">
             ${RoomLinks}
           </div>
-          <div class="d-flex justify-content-center">
-            ${prevBtn}
-            <div class="fs-7 align-self-center">
-              <span id="currPage">${this.currPage}</span> / <span id="totalPage">${this.totalPage}</span>
-            </div>
-            ${nextBtn}
-          </div>
+          ${Pagination({ currPage: this.currPage, totalPage: this.totalPage })}
         </div>
       </div>
       `;
