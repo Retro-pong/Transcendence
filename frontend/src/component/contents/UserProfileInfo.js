@@ -1,9 +1,9 @@
-const UserProfileInfo = ({ nickname, email, winLose, comment }) => {
+const UserProfileInfo = ({ nick, email, winLose, comment }) => {
   return `
 	  <div class="row">
-	  	<div class="col-4">NICKNAME</div>
+	  	<div class="col-4">NICK</div>
 	  	<div class="col-1">:</div>
-	  	<div class="col-7">${nickname}</div>
+	  	<div class="col-7">${nick}</div>
 	  </div>
 	  <div class="row">
 	  	<div class="col-4">EMAIL</div>
