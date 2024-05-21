@@ -1,8 +1,8 @@
 import TokenManager from '@/utils/TokenManager';
 
 class Fetch {
-  static #BASE_URL = 'http://localhost/api/v1';
-  // static #BASE_URL = 'http://localhost:8080';
+  // static #BASE_URL = 'http://localhost/api/v1';
+  static #BASE_URL = 'http://localhost:8080';
 
   static #headers = new Headers({ 'Content-Type': 'application/json' });
 
