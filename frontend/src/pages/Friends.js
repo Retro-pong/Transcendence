@@ -6,8 +6,7 @@ import FriendSearchListItem from '@component/contents/FriendSearchListItem';
 import ModalComponent from '@component/modal/ModalComponent';
 import FriendWaitList from '@component/contents/FriendWaitList';
 import FriendSearch from '@component/contents/FriendSearch';
-import PaginationNav from '@component/navigation/PaginationNav';
-import initTooltip from '@/utils/initTooltip';
+import Pagination from '@component/navigation/Pagination';
 import Fetch from '@/utils/Fetch';
 import debounce from '@/utils/debounce';
 
@@ -15,24 +14,15 @@ class Friends extends PageComponent {
   constructor() {
     super();
     this.setTitle('Friends');
-    this.currPage = this.getCurrPage();
-    this.totalPage = 1;
-    this.limit = 6;
-    this.offset = this.limit * (this.currPage - 1);
-  }
-
-  getCurrPage() {
-    const pageParam = new URLSearchParams(window.location.search).get('_page');
-    return parseInt(pageParam, 10) || 1;
   }
 
   async getFriends() {
-    // 없는 페이지 요청 시 에러 처리
     const response = await Fetch.get(
       `/friends?_page=${this.currPage}&_limit=${this.limit}`
     );
     // TODO: totalPage 응답으로 받기
     this.totalPage = 2;
+    this.setPaginationStyle();
     return response;
   }
 
@@ -87,8 +77,14 @@ class Friends extends PageComponent {
     );
   }
 
+  // TODO: 친구 없을 때 컴포넌트 추가
+  async getPageData() {
+    const data = (await this.getFriends()) || [];
+    return data.map((friend) => FriendInfoCard(friend)).join('');
+  }
+
   async render() {
-    const dummyFriends = (await this.getFriends()) || [];
+    const dummyFriends = await this.getPageData();
     const FriendWaitModal = ModalComponent({
       borderColor: 'mint',
       title: 'WAITING',
@@ -113,15 +109,17 @@ class Friends extends PageComponent {
           ${FriendPageButtons()}
         </div>
       </div>
-      <div class="d-flex flex-wrap justify-content-evenly overflow-auto h-75">
-        ${dummyFriends.map((friend) => FriendInfoCard(friend)).join('')}
+      <div id="pageBody" class="d-flex flex-wrap justify-content-evenly overflow-auto h-75">
+        ${dummyFriends}
       </div>
-      ${PaginationNav({ currPage: this.currPage, totalPage: this.totalPage, limit: this.limit })}
+      ${Pagination({ currPage: this.currPage, totalPage: this.totalPage })}
       `;
   }
 
   async afterRender() {
-    initTooltip();
+    this.initTooltip();
+    this.onReloadButtonClick(this);
+    this.onPaginationClick(this);
     await this.addFriendWaitModalEvent();
     await this.addFriendAddModalEvent();
   }

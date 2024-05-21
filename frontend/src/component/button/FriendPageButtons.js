@@ -13,7 +13,7 @@ const FriendPageButtons = () => {
     modalId: '#friendAddModal',
   });
   const ReloadRoomBtn = BasicButton({
-    id: 'reloadRoomBtn',
+    id: 'reloadBtn',
     text: '> Reload',
     classList: 'btn btn-no-outline-hover fs-7',
   });
