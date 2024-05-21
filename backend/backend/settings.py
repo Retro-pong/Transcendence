@@ -164,7 +164,7 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL = "users.User"
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),  # Access Token 유효기간
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),  # Access Token 유효기간
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),  # Refresh Token 유효기간
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": True,

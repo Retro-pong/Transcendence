@@ -254,7 +254,7 @@ class LogoutView(APIView):
 class MyTokenRefreshView(TokenRefreshView):  # 에러 시 logout 처리
     @swagger_auto_schema(
         tags=["login"],
-        operation_description="body 없이 refresh token만 쿠키로 전송",
+        operation_description="body 없이 refresh token만 쿠키로 요청 받음",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={},
