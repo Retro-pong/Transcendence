@@ -9,19 +9,21 @@ class FriendSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Friend
-        fields = ['friend_user', 'friend_info']
+        fields = ["friend_user", "friend_info"]
 
     def get_friend_info(self, obj):
         friend_user = obj.friend_user  # This is the User object representing the friend
         serializer = ProfileSerializer(friend_user)
         return serializer.data
 
+
 class FriendRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = FriendRequest
-        fields = ['friend_name']
+        fields = ["friend_name"]
+
 
 class UsernameSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username']
+        fields = ["username"]
