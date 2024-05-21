@@ -31,11 +31,20 @@ class Fetch {
     return !url.startsWith('/login') || url === '/login/logout/';
   }
 
-  static async handleResponseWithRetry(request, response, url, body, retry) {
+  static async handleResponseWithRetry(
+    request,
+    response,
+    url,
+    body,
+    retry,
+    formData = false
+  ) {
     if (!response.ok) {
       if (this.isAuth(url) && response.status === 401 && retry <= this.#retry) {
         await TokenManager.reissueAccessToken();
-        return this[request](url, body, retry + 1);
+        return formData
+          ? this[request](url, body, retry + 1, formData)
+          : this[request](url, body, retry + 1);
       }
       return response.json().then((err) => {
         const requestType = request.toUpperCase();
@@ -87,7 +96,15 @@ class Fetch {
         body: JSON.stringify(body),
       });
     }
-    return this.handleResponseWithRetry('patch', response, url, body, retry);
+    this.hideLoading();
+    return this.handleResponseWithRetry(
+      'patch',
+      response,
+      url,
+      body,
+      retry,
+      formData
+    );
   }
 }
 
