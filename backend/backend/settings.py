@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     "channels",
     "login",
     "users",
+    "friends",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -159,6 +160,8 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 6,  # 기본 한 페이지에 6개 항목
 }
 
 AUTH_USER_MODEL = "users.User"
