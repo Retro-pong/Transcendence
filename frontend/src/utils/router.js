@@ -68,7 +68,7 @@ export const router = async () => {
     background.classList.remove('d-none');
     app.classList.remove('d-none');
     gameCanvas.classList.add('d-none');
-    if (location.pathname === '/login') {
+    if (location.pathname !== '/login') {
       navBar.classList.remove('d-none');
     } else {
       navBar.classList.add('d-none');
