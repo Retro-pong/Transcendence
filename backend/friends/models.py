@@ -32,7 +32,7 @@ class FriendRequest(models.Model):
     friend_name = models.CharField(max_length=100)
 
     @classmethod
-    def create_friend_request(cls, user, friend_name):
+    def create_request(cls, user, friend_name):
         try:
             request = cls(user=user, friend_name=friend_name)
             request.save()

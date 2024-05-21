@@ -122,11 +122,11 @@ class WaitingListAPIView(APIView):
         friend_name = request.data['friend_name']
         request_patch = request.data['request_patch'] #친구 수락 1, 친구 거부 0
         if not friend_name or not request_patch:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        friend_request = FriendRequest.objects.filter(user=user, friend_name=friend_name)
+            return Response({"error": "Invalid data"}, status=status.HTTP_400_BAD_REQUEST)
+        friend_request = FriendRequest.objects.get(user=user, friend_name=friend_name)
         if not friend_request:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        friend_request.delete_request(user=user, friend_name=friend_name)
+            return Response({"error": "Request does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+        FriendRequest.delete_request(user=user, friend_name=friend_name)
         if request_patch:
             Friend.create_friend(user, friend_name)
         return Response(status=status.HTTP_200_OK)
@@ -157,8 +157,9 @@ class AddListAPIView(APIView):
     def get(self, request): #search_name을 포함하는 모든 user 반환
         try:
             user = request.user
-            search_name = request.data['search_name']
-            serializer = UsernameSerializer(User.objects.filter(username__contain=search_name), many=True)
+            search_name = request.query_params.get('search_name')
+            users = User.objects.filter(username__icontains=search_name)
+            serializer = UsernameSerializer(users, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -185,9 +186,9 @@ class AddListAPIView(APIView):
         user = request.user
         friend_name = request.data['friend_name']
         if not friend_name:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        send_user = User.objects.filter(username=friend_name)
+            return Response({"error": "Invalid data"}, status=status.HTTP_400_BAD_REQUEST)
+        send_user = User.objects.get(username=friend_name)
         if not send_user:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        FriendRequest.create_friend(user=send_user, friend_name=user.username)
+            return Response({"error": "User with friend name does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+        FriendRequest.create_request(user=send_user, friend_name=user.username)
         return Response(status=status.HTTP_200_OK)

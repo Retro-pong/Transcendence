@@ -2,7 +2,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from django.urls import reverse
 from users.models import User
-from .models import Friend
+from .models import Friend, FriendRequest
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 class FriendsListAPIViewTestCase(APITestCase):
@@ -12,6 +12,7 @@ class FriendsListAPIViewTestCase(APITestCase):
         self.user2 = User.objects.create_user(username='friend1', email='friend1@example.com', password='testpassword')
         self.user3 = User.objects.create_user(username='friend2', email='friend2@example.com', password='testpassword')
         self.user4 = User.objects.create_user(username='friend3', email='friend3@example.com', password='testpassword')
+        self.user5 = User.objects.create_user(username='friend4', email='friend4@example.com', password='testpassword')
 
         # Friend 관계 설정
         Friend.create_friend(self.user, self.user2)
@@ -63,3 +64,54 @@ class FriendsListAPIViewTestCase(APITestCase):
 
         response = self.client.get(url)
         self.assertEqual(response.data['friends'][0]['friend_info']['username'], 'friend2')
+
+    def test_get_friend_requests(self):
+        FriendRequest.objects.create(user=self.user, friend_name='friend1')
+        FriendRequest.objects.create(user=self.user, friend_name='friend2')
+
+        url = reverse('friends:waiting_list')
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+
+    def test_process_friend_request(self):
+        friend_request = FriendRequest.objects.create(user=self.user, friend_name='friend4')
+
+        url = reverse('friends:waiting_list')
+        data = {'friend_name': 'friend4', 'request_patch': 1}
+        response = self.client.patch(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(FriendRequest.objects.filter(id=friend_request.id).exists())
+
+class AddListAPIViewTest(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', email='test@example.com', password='testpassword')
+        self.user1 = User.objects.create_user(username='user1', email='test1@example.com', password='testpassword')
+        self.user2 = User.objects.create_user(username='user2', email='test2@example.com', password='testpassword')
+        self.user.is_authenticated = True
+        self.user.is_registered = True
+        self.user.is_active = True
+        self.user.save()
+
+        token = TokenObtainPairSerializer.get_token(self.user)
+        refresh_token = str(token)
+        access_token = str(token.access_token)
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + access_token)
+
+    def test_get_users_with_search_name(self):
+        url = reverse('friends:add_list')
+        response = self.client.get(url, {'search_name': 'user'})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 3)
+
+    def test_send_friend_request(self):
+        url = reverse('friends:add_list')
+        data = {'friend_name': 'user1'}
+        response = self.client.patch(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        send_user = User.objects.get(username='user1')
+        self.assertTrue(FriendRequest.objects.filter(user=send_user, friend_name=self.user.username).exists())
