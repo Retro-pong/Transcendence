@@ -32,13 +32,7 @@ class Friend(models.Model):
 #     friend_name = models.CharField(max_length=100)
 #
 #     @classmethod
-#     def create_request(cls, user, friend_name):
-#
-#     @classmethod
-#     def accept_request(cls, user, friend_name):
-#
-#     @classmethod
-#     def refuse_request(cls, user, friend_name):
+#     def delete_request(cls, user, friend_name):
 #
 #     class Meta:
 #         db_table = 'friends_request'

@@ -34,10 +34,10 @@ class FriendsListAPIViewTestCase(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 3)
-        self.assertEqual(response.data[0]['friend_info']['username'], 'friend1')
-        self.assertEqual(response.data[1]['friend_info']['username'], 'friend2')
-        self.assertEqual(response.data[2]['friend_info']['username'], 'friend3')
+        self.assertEqual(response.data['total'], 3)
+        self.assertEqual(response.data['friends'][0]['friend_info']['username'], 'friend1')
+        self.assertEqual(response.data['friends'][1]['friend_info']['username'], 'friend2')
+        self.assertEqual(response.data['friends'][2]['friend_info']['username'], 'friend3')
 
     def test_pagination_friends_list(self):
         # 더 많은 친구 생성
@@ -49,9 +49,17 @@ class FriendsListAPIViewTestCase(APITestCase):
         response = self.client.get(url, {'limit': 5, 'offset': 0})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 5)
+        self.assertEqual(len(response.data['friends']), 5)
 
-        response = self.client.get(url, {'limit': 5, 'offset': 5})
+        response = self.client.get(url, {'limit': 3, 'offset': 5})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 5)
+        self.assertEqual(len(response.data['friends']), 3)
+
+    def test_friend_delete(self):
+        url = reverse('friends:friend_list')
+        response = self.client.patch(url, {'friend_name': 'friend1'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.client.get(url)
+        self.assertEqual(response.data['friends'][0]['friend_info']['username'], 'friend2')
