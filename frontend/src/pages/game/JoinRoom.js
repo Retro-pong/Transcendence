@@ -45,7 +45,7 @@ class JoinRoom extends PageComponent {
   async render() {
     const RoomLinks = await this.getPageData();
     const reloadRoomBtn = BasicButton({
-      id: 'reloadRoomBtn',
+      id: 'reloadBtn',
       text: '> Reload',
       classList:
         'btn fs-2 position-absolute top-0 end-0 mt-2 me-2 btn-no-outline-hover',
@@ -72,16 +72,10 @@ class JoinRoom extends PageComponent {
   }
 
   async afterRender() {
-    const pageBody = document.getElementById('pageBody');
-
-    // 새로고침
-    const reloadRoomBtn = document.getElementById('reloadRoomBtn');
-    reloadRoomBtn.addEventListener('click', async () => {
-      this.currPage = 1;
-      pageBody.innerHTML = await this.getPageData();
-    });
+    this.onReloadButtonClick(this);
 
     // 탭
+    const pageBody = document.getElementById('pageBody');
     const rumbleTab = document.getElementById('rumbleTab');
     const tournamentTab = document.getElementById('tournamentTab');
     rumbleTab.addEventListener('click', async () => {

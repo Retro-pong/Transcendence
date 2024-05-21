@@ -39,7 +39,6 @@ class PageComponent {
 
     if (!prevBtn || !nextBtn || !currPage || !totalPage) return;
 
-    console.log(`currPage: ${this.currPage}, totalPage: ${this.totalPage}`);
     totalPage.innerHTML = this.totalPage;
     currPage.innerHTML = this.currPage;
     if (this.currPage === 1) {
@@ -67,6 +66,16 @@ class PageComponent {
     nextBtn.addEventListener('click', async () => {
       if (this.currPage === this.totalPage) return;
       this.currPage += 1;
+      pageBody.innerHTML = await child.getPageData();
+    });
+  }
+
+  onReloadButtonClick(child) {
+    const reloadBtn = document.getElementById('reloadBtn');
+    const pageBody = document.getElementById('pageBody');
+
+    reloadBtn.addEventListener('click', async () => {
+      this.currPage = 1;
       pageBody.innerHTML = await child.getPageData();
     });
   }
