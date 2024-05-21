@@ -15,7 +15,7 @@ const Pagination = ({ currPage, totalPage }) => {
   });
 
   return `
-    <div class="d-flex justify-content-center">
+    <div class="d-flex justify-content-center position-sticky bottom-0">
       ${prevBtn}
       <div class="fs-7 align-self-center">
         <span id="currPage">${currPage}</span> / <span id="totalPage">${totalPage}</span>

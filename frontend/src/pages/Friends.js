@@ -113,7 +113,7 @@ class Friends extends PageComponent {
           ${FriendPageButtons()}
         </div>
       </div>
-      <div class="d-flex flex-wrap justify-content-evenly overflow-auto h-90">
+      <div class="d-flex flex-wrap justify-content-evenly overflow-auto h-75">
         ${dummyFriends.map((friend) => FriendInfoCard(friend)).join('')}
       </div>
       ${PaginationNav({ currPage: this.currPage, totalPage: this.totalPage, limit: this.limit })}
