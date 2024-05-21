@@ -27,10 +27,6 @@ class Fetch {
     document.getElementById('loading').classList.add('d-none');
   }
 
-  static get headers() {
-    return this.#headers;
-  }
-
   static isAuth(url) {
     return !url.startsWith('/login') || url === '/login/logout/';
   }
