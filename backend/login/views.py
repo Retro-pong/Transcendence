@@ -245,13 +245,15 @@ class LogoutView(APIView):
         responses={200: "OK", 401: "UNAUTHORIZED"},
     )
     def post(self, request):
-        request.user.object.update(is_authenticated=False)
+        user = request.user
+        user.is_authenticated = False
+        user.save()
         response = Response("Logout successful.", status=status.HTTP_200_OK)
         response.delete_cookie("refresh_token")
         return response
 
 
-class MyTokenRefreshView(TokenRefreshView):  # 에러 시 logout 처리
+class MyTokenRefreshView(TokenRefreshView):
     @swagger_auto_schema(
         tags=["login"],
         operation_description="body 없이 refresh token만 쿠키로 요청 받음",
@@ -279,11 +281,11 @@ class MyTokenRefreshView(TokenRefreshView):  # 에러 시 logout 처리
                 {"error": "Failed to refresh token."},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
-        new_refresh_token = RefreshToken(request.data.get("refresh"))
+        new_token = RefreshToken(request.data.get("refresh"))
         return Response(
             {
                 "message": "Token refreshed",
-                "access_token": str(new_refresh_token.access_token),
+                "access_token": str(new_token.access_token),
             },
             status=status.HTTP_200_OK,
         )
