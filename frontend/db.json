@@ -53,6 +53,42 @@
       "comment": "woff woff",
       "status": "offline",
       "profileImg": "https://img4.daumcdn.net/thumb/R658x0.q70/?fname=https://t1.daumcdn.net/news/202105/25/holapet/20210525081724428qquq.jpg"
+    },
+    {
+      "id": "7",
+      "name": "hyobicho",
+      "win": 99,
+      "lose": 1,
+      "comment": "hello world",
+      "status": "online",
+      "profileImg": "https://www.blueconomy.co.kr/news/photo/202402/2399_3001_921.png"
+    },
+    {
+      "id": "8",
+      "name": "hyungjpa",
+      "win": 10,
+      "lose": 1,
+      "comment": "",
+      "status": "offline",
+      "profileImg": "https://www.blueconomy.co.kr/news/photo/202402/2399_3001_921.png"
+    },
+    {
+      "id": "9",
+      "name": "wonjilee",
+      "win": 1,
+      "lose": 99,
+      "comment": "동해물과 백두산이",
+      "status": "online",
+      "profileImg": "https://www.blueconomy.co.kr/news/photo/202402/2399_3001_921.png"
+    },
+    {
+      "id": "10",
+      "name": "subinlee",
+      "win": 5,
+      "lose": 5,
+      "comment": "🥳🥳🥳 this is a very long comment hahaha",
+      "status": "offline",
+      "profileImg": "https://www.blueconomy.co.kr/news/photo/202402/2399_3001_921.png"
     }
   ],
   "users": [
