@@ -32,5 +32,13 @@ class Room(models.Model):
         room.save()
         return room
 
+    @classmethod
+    def delete_room(cls, room_name):
+        try:
+            room = cls.objects.get(room_name=room_name)
+            room.delete()
+        except cls.DoesNotExist:
+            raise ValueError("Room not found")
+
     class Meta:
         db_table = "room"
