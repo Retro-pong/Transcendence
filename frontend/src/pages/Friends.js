@@ -3,10 +3,10 @@ import FriendInfoCard from '@component/card/FriendInfoCard';
 import FriendPageButtons from '@component/button/FriendPageButtons';
 import FriendWaitListItem from '@component/contents/FriendWaitListItem';
 import FriendSearchListItem from '@component/contents/FriendSearchListItem';
-import Pagination from '@component/navigation/Pagination';
 import ModalComponent from '@component/modal/ModalComponent';
 import FriendWaitList from '@component/contents/FriendWaitList';
 import FriendSearch from '@component/contents/FriendSearch';
+import PaginationNav from '@component/navigation/PaginationNav';
 import initTooltip from '@/utils/initTooltip';
 import Fetch from '@/utils/Fetch';
 import debounce from '@/utils/debounce';
@@ -15,11 +15,25 @@ class Friends extends PageComponent {
   constructor() {
     super();
     this.setTitle('Friends');
+    this.currPage = this.getCurrPage();
+    this.totalPage = 1;
+    this.limit = 6;
+    this.offset = this.limit * (this.currPage - 1);
   }
 
-  // TODO: 친구 목록 api 요청
+  getCurrPage() {
+    const pageParam = new URLSearchParams(window.location.search).get('_page');
+    return parseInt(pageParam, 10) || 1;
+  }
+
   async getFriends() {
-    return Fetch.get('/friends');
+    // 없는 페이지 요청 시 에러 처리
+    const response = await Fetch.get(
+      `/friends?_page=${this.currPage}&_limit=${this.limit}`
+    );
+    // TODO: totalPage 응답으로 받기
+    this.totalPage = 2;
+    return response;
   }
 
   async getWaitingFriends() {
@@ -102,7 +116,7 @@ class Friends extends PageComponent {
       <div class="d-flex flex-wrap justify-content-evenly overflow-auto h-90">
         ${dummyFriends.map((friend) => FriendInfoCard(friend)).join('')}
       </div>
-      ${Pagination({ currPage: this.currPage, totalPage: this.totalPage })}
+      ${PaginationNav({ currPage: this.currPage, totalPage: this.totalPage, limit: this.limit })}
       `;
   }
 

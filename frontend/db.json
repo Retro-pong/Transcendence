@@ -59,7 +59,7 @@
       "name": "hyobicho",
       "win": 99,
       "lose": 1,
-      "comment": "hello world",
+      "comment": "hello",
       "status": "online",
       "profileImg": "https://www.blueconomy.co.kr/news/photo/202402/2399_3001_921.png"
     },
@@ -68,7 +68,7 @@
       "name": "hyungjpa",
       "win": 10,
       "lose": 1,
-      "comment": "",
+      "comment": "hi",
       "status": "offline",
       "profileImg": "https://www.blueconomy.co.kr/news/photo/202402/2399_3001_921.png"
     },
@@ -77,7 +77,7 @@
       "name": "wonjilee",
       "win": 1,
       "lose": 99,
-      "comment": "동해물과 백두산이",
+      "comment": "안녕하세요",
       "status": "online",
       "profileImg": "https://www.blueconomy.co.kr/news/photo/202402/2399_3001_921.png"
     },
@@ -86,7 +86,7 @@
       "name": "subinlee",
       "win": 5,
       "lose": 5,
-      "comment": "🥳🥳🥳 this is a very long comment hahaha",
+      "comment": "how are you?",
       "status": "offline",
       "profileImg": "https://www.blueconomy.co.kr/news/photo/202402/2399_3001_921.png"
     }
