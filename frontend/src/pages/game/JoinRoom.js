@@ -25,7 +25,7 @@ class JoinRoom extends PageComponent {
           );
 
     this.totalPage = 2; // TODO: totalPage 받아오기
-    this.setPagination();
+    this.setPaginationStyle();
 
     return roomList
       .map((room) => {

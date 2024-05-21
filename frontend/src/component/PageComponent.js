@@ -1,10 +1,12 @@
+import { Tooltip } from 'bootstrap';
+
 class PageComponent {
   constructor() {
     this.state = null;
     this.currPage = 1;
     this.totalPage = 1;
     this.limit = 6;
-    this.offset = 1;
+    this.offset = 0;
   }
 
   setTitle(title) {
@@ -31,7 +33,16 @@ class PageComponent {
     return '';
   }
 
-  setPagination() {
+  initTooltip() {
+    const tooltipTriggerList = document.querySelectorAll(
+      '[data-bs-toggle="tooltip"]'
+    );
+    [...tooltipTriggerList].map(
+      (tooltipTriggerEl) => new Tooltip(tooltipTriggerEl)
+    );
+  }
+
+  setPaginationStyle() {
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
     const currPage = document.getElementById('currPage');
@@ -60,13 +71,17 @@ class PageComponent {
     prevBtn.addEventListener('click', async () => {
       if (this.currPage === 1) return;
       this.currPage -= 1;
+      this.offset = this.getOffset();
       pageBody.innerHTML = await child.getPageData();
+      this.initTooltip();
     });
 
     nextBtn.addEventListener('click', async () => {
       if (this.currPage === this.totalPage) return;
       this.currPage += 1;
+      this.offset = this.getOffset();
       pageBody.innerHTML = await child.getPageData();
+      this.initTooltip();
     });
   }
 
@@ -76,7 +91,9 @@ class PageComponent {
 
     reloadBtn.addEventListener('click', async () => {
       this.currPage = 1;
+      this.offset = 0;
       pageBody.innerHTML = await child.getPageData();
+      this.initTooltip();
     });
   }
 }
