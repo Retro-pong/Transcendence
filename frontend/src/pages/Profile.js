@@ -38,7 +38,7 @@ class Profile extends PageComponent {
           })}
         </div>
         <div class="row d-flex justify-content-center">
-          ${ProfilePageButtons()}
+          ${ProfilePageButtons({ nick: userInfo.nickname, comment: userInfo.comment })}
         </div>
       </div>
     `;
@@ -46,7 +46,7 @@ class Profile extends PageComponent {
 
   updateProfile() {
     document
-      .getElementById('editProfileBtn')
+      .getElementById('editProfileForm')
       .addEventListener('submit', async (e) => {
         e.preventDefault();
         const nick = document.getElementById('editNickname').value;
