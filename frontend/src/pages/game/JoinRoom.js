@@ -14,7 +14,7 @@ class JoinRoom extends PageComponent {
     this.setTitle('Join Room');
   }
 
-  async getRoomList() {
+  async getPageData() {
     const roomList =
       this.mode === 'rumble'
         ? await Fetch.get(
@@ -43,7 +43,7 @@ class JoinRoom extends PageComponent {
   }
 
   async render() {
-    const RoomLinks = await this.getRoomList();
+    const RoomLinks = await this.getPageData();
     const reloadRoomBtn = BasicButton({
       id: 'reloadRoomBtn',
       text: '> Reload',
@@ -62,7 +62,7 @@ class JoinRoom extends PageComponent {
           <button class="col btn btn-outline-light fs-1" id="tournamentTab" data-bs-toggle="tab" type="button" >Tournament</button>
         </nav>
         <div class="d-flex flex-column h-75 justify-content-center">
-          <div id="joinRoomBody" class="tab-pane active d-flex flex-column flex-column overflow-auto h-100">
+          <div id="pageBody" class="tab-pane active d-flex flex-column flex-column overflow-auto h-100">
             ${RoomLinks}
           </div>
           ${Pagination({ currPage: this.currPage, totalPage: this.totalPage })}
@@ -71,36 +71,14 @@ class JoinRoom extends PageComponent {
       `;
   }
 
-  setPagination() {
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const currPage = document.getElementById('currPage');
-    const totalPage = document.getElementById('totalPage');
-
-    if (!prevBtn || !nextBtn || !currPage || !totalPage) return;
-
-    totalPage.innerHTML = this.totalPage;
-    currPage.innerHTML = this.currPage;
-    if (this.currPage === 1) {
-      prevBtn.setAttribute('disabled', 'true');
-    } else {
-      prevBtn.removeAttribute('disabled');
-    }
-    if (this.currPage === this.totalPage) {
-      nextBtn.setAttribute('disabled', 'true');
-    } else {
-      nextBtn.removeAttribute('disabled');
-    }
-  }
-
   async afterRender() {
-    const joinRoomBody = document.getElementById('joinRoomBody');
+    const pageBody = document.getElementById('pageBody');
 
     // 새로고침
     const reloadRoomBtn = document.getElementById('reloadRoomBtn');
     reloadRoomBtn.addEventListener('click', async () => {
       this.currPage = 1;
-      joinRoomBody.innerHTML = await this.getRoomList();
+      pageBody.innerHTML = await this.getPageData();
     });
 
     // 탭
@@ -109,28 +87,15 @@ class JoinRoom extends PageComponent {
     rumbleTab.addEventListener('click', async () => {
       this.mode = 'rumble';
       this.currPage = 1;
-      joinRoomBody.innerHTML = await this.getRoomList();
+      pageBody.innerHTML = await this.getPageData();
     });
     tournamentTab.addEventListener('click', async () => {
       this.mode = 'tournament';
       this.currPage = 1;
-      joinRoomBody.innerHTML = await this.getRoomList();
+      pageBody.innerHTML = await this.getPageData();
     });
 
-    // 페이지네이션
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    prevBtn.addEventListener('click', async () => {
-      if (this.currPage === 1) return;
-      this.currPage -= 1;
-      joinRoomBody.innerHTML = await this.getRoomList();
-    });
-
-    nextBtn.addEventListener('click', async () => {
-      if (this.currPage === this.totalPage) return;
-      this.currPage += 1;
-      joinRoomBody.innerHTML = await this.getRoomList();
-    });
+    this.onPaginationClick(this);
   }
 }
 
