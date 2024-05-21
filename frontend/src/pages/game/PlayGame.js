@@ -7,8 +7,7 @@ class PlayGame extends PageComponent {
     this.setTitle('Play Game');
   }
 
-  async render() {
-  }
+  async render() {}
 
   async afterRender() {
     game();
