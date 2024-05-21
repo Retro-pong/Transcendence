@@ -19,6 +19,14 @@ class Fetch {
     }
   }
 
+  static showLoading() {
+    document.getElementById('loading').classList.remove('d-none');
+  }
+
+  static hideLoading() {
+    document.getElementById('loading').classList.add('d-none');
+  }
+
   static get headers() {
     return this.#headers;
   }
@@ -28,13 +36,13 @@ class Fetch {
   }
 
   static async get(url, retry = 1) {
-    document.getElementById('loading').classList.remove('d-none');
+    this.showLoading();
     const response = await fetch(`${this.#BASE_URL}${url}`, {
       method: 'GET',
       headers: this.#headers,
       credentials: this.#credentials,
     });
-    document.getElementById('loading').classList.add('d-none');
+    this.hideLoading();
     if (!response.ok) {
       if (this.isAuth(url) && response.status === 401 && retry <= this.#retry) {
         await TokenManager.reissueAccessToken();
@@ -49,14 +57,14 @@ class Fetch {
   }
 
   static async post(url, body = {}, retry = 1) {
-    document.getElementById('loading').classList.remove('d-none');
+    this.showLoading();
     const response = await fetch(`${this.#BASE_URL}${url}`, {
       method: 'POST',
       headers: this.#headers,
       credentials: this.#credentials,
       body: JSON.stringify(body),
     });
-    document.getElementById('loading').classList.add('d-none');
+    this.hideLoading();
     if (!response.ok) {
       if (this.isAuth(url) && response.status === 401 && retry <= this.#retry) {
         await TokenManager.reissueAccessToken();
