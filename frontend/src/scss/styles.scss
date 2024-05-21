@@ -242,6 +242,12 @@ a {
   border-width: 0 15px;
 }
 
+#gameCanvas {
+  &:focus {
+    outline: none;
+  }
+}
+
 #loading {
   position: fixed;
   top: 0;
