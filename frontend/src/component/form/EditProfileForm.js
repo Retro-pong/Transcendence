@@ -1,27 +1,27 @@
-const editProfile = ({ nickname, comment }) => {
+const EditProfileForm = ({ nick, comment }) => {
   return `
-	<form class="container-fluid px-5">
+	<form id="editProfileForm" class="container-fluid px-5" >
 		<div class="row d-flex flex-row my-5">
 			<div class="col-5 d-flex align-items-center justify-content-start fs-8">
-				<label for="name" class="form-label">NAME</label>
+				<label for="editNickname" class="form-label">NICK</label>
 			</div>
 			<div class="col-1 d-flex align-items-center fs-8">:</div>
 			<div class="col-6 d-flex align-items-center justify-content-center fs-8">
-				<input type="text" id="name" class="form-control h-100 fs-8 bg-transparent" value=${nickname} />
+				<input type="text" id="editNickname" class="form-control h-100 fs-8 bg-transparent" value=${nick} />
 			</div>
 		</div>
 		
 		<div class="row d-flex flex-row my-5">
 			<div class="col-5 d-flex align-items-center justify-content-start fs-8">
-				<label for="comment" class="form-label">COMMENT</label>
+				<label for="editComment" class="form-label">COMMENT</label>
 			</div>
 			<div class="col-1 d-flex align-items-center fs-8">:</div>
 			<div class="col-6 d-flex align-items-center justify-content-center fs-8">
-				<textarea type="text" id="comment" class="form-control h-100 fs-8 bg-transparent">${comment}</textarea>
+				<textarea type="text" id="editComment" class="form-control h-100 fs-8 bg-transparent">${comment}</textarea>
 			</div>
 		</div>
 		
 	</form>
 	`;
 };
-export default editProfile;
+export default EditProfileForm;
