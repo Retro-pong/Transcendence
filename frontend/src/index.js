@@ -8,15 +8,17 @@ Fetch.init();
 window.addEventListener('popstate', router);
 
 document.addEventListener('DOMContentLoaded', async () => {
-  document.body.addEventListener('click', (e) => {
+  const navigation = document.querySelector('#navBarCollapse');
+  navigation.addEventListener('click', (e) => {
     if (e.target.matches('[data-link]')) {
       e.preventDefault();
       navigateTo(e.target.href);
     }
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-      await TokenManager.logout();
-      navigateTo('/login');
-    });
+  });
+  const logoutBtn = document.getElementById('logoutBtn');
+  logoutBtn.addEventListener('click', async () => {
+    await TokenManager.logout();
+    await navigateTo('/login');
   });
   await router();
 });

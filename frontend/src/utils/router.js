@@ -9,10 +9,10 @@ import Friends from '@pages/Friends';
 import TokenManager from '@/utils/TokenManager';
 import ErrorHandler from '@/utils/ErrorHandler';
 
-export const navigateTo = (url) => {
+export const navigateTo = async (url) => {
   if (url === window.location.href) return;
   history.pushState(null, null, url);
-  router();
+  await router();
 };
 
 // 동적라우팅 추가 필요

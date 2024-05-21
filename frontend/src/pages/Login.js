@@ -200,8 +200,7 @@ class Login extends PageComponent {
         TokenManager.storeToken(data.access_token);
         navigateTo('/');
       })
-      .catch((err) => {
-        console.error(err);
+      .catch(() => {
         ErrorHandler.setToast('42 Login Failed');
         TokenManager.clearToken();
         navigateTo('/login');
@@ -212,6 +211,7 @@ class Login extends PageComponent {
     // 42 로그인
     if (this.code) {
       await this.handle42Login();
+      return;
     }
     // 2FA 로그인
     this.handle2FALogin();

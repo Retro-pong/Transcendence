@@ -33,10 +33,9 @@ class TokenManager {
       .then((res) => {
         this.storeToken(res.access_token);
       })
-      .catch((err) => {
+      .catch(() => {
         ErrorHandler.setToast('You need to login');
-        // this.clearToken();
-        console.error(err);
+        this.clearToken();
       });
   }
 
@@ -46,8 +45,7 @@ class TokenManager {
         this.clearToken();
       })
       .catch(() => {
-        ErrorHandler.setToast('Logout Failed');
-        // this.clearToken(); // 테스트용
+        this.clearToken();
       });
   }
 }
