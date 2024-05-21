@@ -3,6 +3,10 @@ import FriendInfoCard from '@component/card/FriendInfoCard';
 import FriendPageButtons from '@component/button/FriendPageButtons';
 import FriendWaitListItem from '@component/contents/FriendWaitListItem';
 import FriendSearchListItem from '@component/contents/FriendSearchListItem';
+import Pagination from '@component/navigation/Pagination';
+import ModalComponent from '@component/modal/ModalComponent';
+import FriendWaitList from '@component/contents/FriendWaitList';
+import FriendSearch from '@component/contents/FriendSearch';
 import initTooltip from '@/utils/initTooltip';
 import Fetch from '@/utils/Fetch';
 import debounce from '@/utils/debounce';
@@ -71,14 +75,34 @@ class Friends extends PageComponent {
 
   async render() {
     const dummyFriends = (await this.getFriends()) || [];
+    const FriendWaitModal = ModalComponent({
+      borderColor: 'mint',
+      title: 'WAITING',
+      modalId: 'friendWaitModal',
+      content: FriendWaitList(),
+      buttonList: [],
+    });
+    const FriendAddModal = ModalComponent({
+      borderColor: 'pink',
+      title: 'ADD FRIEND',
+      modalId: 'friendAddModal',
+      content: FriendSearch(),
+      buttonList: [],
+    });
+
     return `
-      <h1 class="fs-15">Friends</h1>
-      <div class="d-flex flex-row justify-content-end" style="padding-right: 10%">
-        ${FriendPageButtons()}
+      ${FriendWaitModal}
+      ${FriendAddModal}
+      <div class="d-flex justify-content-between position-sticky top-0 z-1">
+        <h1 class="fs-14">Friends</h1>
+        <div class="d-flex flex-row" style="padding-right: 5%">
+          ${FriendPageButtons()}
+        </div>
       </div>
-      <div class="d-flex flex-wrap justify-content-evenly overflow-auto h-75">
+      <div class="d-flex flex-wrap justify-content-evenly overflow-auto h-90">
         ${dummyFriends.map((friend) => FriendInfoCard(friend)).join('')}
       </div>
+      ${Pagination({ currPage: this.currPage, totalPage: this.totalPage })}
       `;
   }
 
