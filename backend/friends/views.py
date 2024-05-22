@@ -144,22 +144,22 @@ class AddListAPIView(APIView):
     permission_classes = (IsAuthenticated,)
 
     @swagger_auto_schema(
-        operation_description="Get users with search_name",
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                "search_name": openapi.Schema(
-                    type=openapi.TYPE_STRING, description="Search term for username"
-                )
-            },
-            required=["search_name"],
-        ),
+        operation_description="Search users by username containing search_name",
+        manual_parameters=[
+            openapi.Parameter(
+                "search_name",
+                openapi.IN_QUERY,
+                description="Part of the username to search for",
+                type=openapi.TYPE_STRING,
+            )
+        ],
         responses={
             200: openapi.Response(
-                description="Successful response",
+                description="List of users", schema=UsernameSerializer(many=True)
             ),
             400: openapi.Response(
                 description="Bad request",
+                examples={"application/json": {"error": "Error message"}},
             ),
         },
     )
