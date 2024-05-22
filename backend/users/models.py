@@ -3,21 +3,25 @@ from django.db import models
 
 
 class UserManager(BaseUserManager):
-    # Overriding the create_user method
-    def create_user(self, username, email, password):
+    def create_user(self, username, email, password=None, **extra_fields):
         if not username:
             raise ValueError("닉네임을 입력하세요")
         if not email:
             raise ValueError("이메일을 입력하세요")
         if not password:
             raise ValueError("비밀번호를 입력하세요")
-        user = self.model(
-            username=username,
-            email=self.normalize_email(email),
-        )
+
+        email = self.normalize_email(email)
+        user = self.model(username=username, email=email, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
+
+    def create_superuser(self, username, email, password=None, **extra_fields):
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+        extra_fields.setdefault("is_active", True)
+        return self.create_user(username, email, password, **extra_fields)
 
 
 class User(AbstractUser):
