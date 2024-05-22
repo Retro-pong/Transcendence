@@ -10,6 +10,10 @@ class Fetch {
 
   static #retry = 1;
 
+  static #loadingDelay = 150;
+
+  static #loadingTimer;
+
   static init() {
     const accessToken = TokenManager.getAccessToken();
     if (accessToken) {
@@ -20,10 +24,13 @@ class Fetch {
   }
 
   static showLoading() {
-    document.getElementById('loading').classList.remove('d-none');
+    this.#loadingTimer = setTimeout(() => {
+      document.getElementById('loading').classList.remove('d-none');
+    }, this.#loadingDelay);
   }
 
   static hideLoading() {
+    clearTimeout(this.#loadingTimer);
     document.getElementById('loading').classList.add('d-none');
   }
 
