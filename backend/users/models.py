@@ -26,11 +26,13 @@ class User(AbstractUser):
     email = models.EmailField(max_length=200, null=False)
     is_registered = models.BooleanField(default=False)
     is_authenticated = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)  # TODO: False로 바꾸기
     win = models.IntegerField(default=0)
     lose = models.IntegerField(default=0)
     comment = models.CharField(max_length=20, null=True, blank=True)
-    image = models.ImageField(default="images/default_image.jpeg", null=True, blank=True, upload_to="images/")
+    image = models.ImageField(
+        default="images/default_image.jpeg", null=True, blank=True, upload_to="images/"
+    )
     objects = UserManager()
 
     USERNAME_FIELD = "username"  # 주 식별자 필드
