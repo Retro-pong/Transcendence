@@ -28,6 +28,61 @@ class Friends extends PageComponent {
     return response.friends;
   }
 
+  async getPageData() {
+    const friendList = await this.getFriends();
+    if (friendList.length === 0) {
+      document.getElementById('pagination').classList.add('d-none');
+      return `<div class="fs-15 align-self-center"> No Friends :( </div>`;
+    }
+    document.getElementById('pagination').classList.remove('d-none');
+
+    const friends = friendList
+      .map((data) =>
+        FriendInfoCard({
+          id: data.friend_user,
+          name: data.friend_info.username,
+          win: data.friend_info.win,
+          lose: data.friend_info.lose,
+          comment: data.friend_info.comment,
+          isActive: data.friend_info.is_active,
+          profileImg: data.friend_info.image,
+        })
+      )
+      .join('');
+    return `
+      <div class="row row-cols-lg-2 w-100">
+        ${friends}
+      </div>
+    `;
+  }
+
+  /* 페이지네이션 테스트용 -> Fetch BASE_URL 변경 필요
+  async getFriendsTest() {
+    const URL = `/friends?_limit=${this.limit}&_page=${this.currPage}`;
+    const response = await Fetch.get(URL).catch(() => {
+      document.getElementById('pagination').classList.add('d-none');
+      ErrorHandler.setToast('Failed to get friends list');
+      return [];
+    });
+    this.totalPage = 2;
+    return response;
+  }
+
+  async getPageData() {
+    const friendList = await this.getFriendsTest();
+    if (friendList.length === 0) {
+      document.getElementById('pagination').classList.add('d-none');
+      return `<div class="fs-15 align-self-center"> No Friends :( </div>`;
+    }
+    document.getElementById('pagination').classList.remove('d-none');
+    const friends = friendList.map((data) => FriendInfoCard(data)).join('');
+    return `
+      <div class="row row-cols-lg-2 w-100">
+        ${friends}
+      </div>
+    `;
+  }
+*/
   async getWaitingFriends() {
     return Fetch.get('/friends-wait-list');
   }
@@ -77,34 +132,6 @@ class Friends extends PageComponent {
         );
       }, 1000)
     );
-  }
-
-  async getPageData() {
-    const friendList = await this.getFriends();
-    if (friendList.length === 0) {
-      document.getElementById('pagination').classList.add('d-none');
-      return `<div class="fs-15 align-self-center"> No Friends :( </div>`;
-    }
-    document.getElementById('pagination').classList.remove('d-none');
-
-    const friends = friendList
-      .map((data) =>
-        FriendInfoCard({
-          id: data.friend_user,
-          name: data.friend_info.username,
-          win: data.friend_info.win,
-          lose: data.friend_info.lose,
-          comment: data.friend_info.comment,
-          isActive: data.friend_info.is_active,
-          profileImg: data.friend_info.image,
-        })
-      )
-      .join('');
-    return `
-      <div class="row row-cols-lg-2 w-100">
-        ${friends}
-      </div>
-    `;
   }
 
   async render() {
