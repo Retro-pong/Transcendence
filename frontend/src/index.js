@@ -8,6 +8,7 @@ Fetch.init();
 window.addEventListener('popstate', router);
 
 document.addEventListener('DOMContentLoaded', async () => {
+  await TokenManager.reissueAccessToken();
   const navigation = document.querySelector('#navBarCollapse');
   navigation.addEventListener('click', (e) => {
     if (e.target.matches('[data-link]')) {
