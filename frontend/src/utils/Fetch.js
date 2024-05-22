@@ -1,8 +1,8 @@
 import TokenManager from '@/utils/TokenManager';
 
 class Fetch {
-  // static #BASE_URL = 'http://localhost/api/v1';
-  static #BASE_URL = 'http://localhost:8080';
+  static #BASE_URL = 'http://localhost/api/v1';
+  // static #BASE_URL = 'http://localhost:8080';
 
   static #headers = new Headers({ 'Content-Type': 'application/json' });
 
@@ -75,6 +75,28 @@ class Fetch {
       }
       return response.json().then((err) => {
         console.error(`POST(${url}) ERROR:`, err);
+        throw err;
+      });
+    }
+    return response.json();
+  }
+
+  static async patch(url, body = {}, retry = 1) {
+    await this.showLoading();
+    const response = await fetch(`${this.#BASE_URL}${url}`, {
+      method: 'PATCH',
+      headers: this.#headers,
+      credentials: this.#credentials,
+      body: JSON.stringify(body),
+    });
+    this.hideLoading();
+    if (!response.ok) {
+      if (this.isAuth(url) && response.status === 401 && retry <= this.#retry) {
+        await TokenManager.reissueAccessToken();
+        return this.patch(url, body, retry + 1);
+      }
+      return response.json().then((err) => {
+        console.error(`PATCH(${url}) ERROR:`, err);
         throw err;
       });
     }

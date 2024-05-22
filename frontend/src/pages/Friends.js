@@ -18,8 +18,8 @@ class Friends extends PageComponent {
   }
 
   async getFriends() {
-    // const url = `/friends/friend_list?limit=${this.limit}&offset=${this.offset}`;
-    const url = `/friends?_page=${this.currPage}&_limit=${this.limit}`;
+    const url = `/friends/friend_list?limit=${this.limit}&offset=${this.offset}`;
+    // const url = `/friends?_page=${this.currPage}&_limit=${this.limit}`;
     const response = await Fetch.get(url).catch(() => {
       ErrorHandler.setToast('Something went wrong!');
       return [];
@@ -121,6 +121,7 @@ class Friends extends PageComponent {
         <h1 class="fs-14">Friends</h1>
         <div class="d-flex flex-row pe-5">
           ${FriendPageButtons()}
+          <button id="testBtn" class="btn btn-no-outline-hover fs-7 bg-danger"> > Test </button>
         </div>
       </div>
       <div id="pageBody" class="d-flex flex-wrap justify-content-evenly overflow-auto h-75">
@@ -129,12 +130,35 @@ class Friends extends PageComponent {
       `;
   }
 
+  async searchFriend(friendName) {
+    try {
+      await Fetch.get(`/friends/add?search_name=${friendName}`);
+    } catch (err) {
+      ErrorHandler.setToast(err.error || 'search failed');
+    }
+  }
+
+  async addFriend(friendName) {
+    try {
+      await Fetch.patch('/friends/add/', { friend_name: friendName });
+    } catch (err) {
+      ErrorHandler.setToast(err.error || 'add failed');
+    }
+  }
+
   async afterRender() {
     await this.initPageData(this);
     this.onReloadButtonClick(this);
     this.onPaginationClick(this);
     await this.addFriendWaitModalEvent();
     await this.addFriendAddModalEvent();
+
+    document.getElementById('testBtn').addEventListener('click', async () => {
+      console.log('test');
+      const friendName = 'hyobicho';
+      await this.searchFriend(friendName);
+      await this.addFriend(friendName);
+    });
   }
 }
 
