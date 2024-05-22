@@ -18,9 +18,9 @@ class Friends extends PageComponent {
   }
 
   async getFriends() {
-    const response = await Fetch.get(
-      `/friends?_page=${this.currPage}&_limit=${this.limit}`
-    ).catch(() => {
+    // const url = `/friends/friend_list?limit=${this.limit}&offset=${this.offset}`;
+    const url = `/friends?_page=${this.currPage}&_limit=${this.limit}`;
+    const response = await Fetch.get(url).catch(() => {
       ErrorHandler.setToast('Something went wrong!');
       return [];
     });
@@ -90,7 +90,12 @@ class Friends extends PageComponent {
     if (data.length === 0) {
       return `<div class="fs-15 align-self-center"> No Friends :( </div>`;
     }
-    return data.map((friend) => FriendInfoCard(friend)).join('');
+    const friends = data.map((friend) => FriendInfoCard(friend)).join('');
+    return `
+      <div class="row row-cols-lg-2 w-100">
+        ${friends}
+      </div>
+    `;
   }
 
   async render() {

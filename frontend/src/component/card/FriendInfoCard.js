@@ -10,6 +10,7 @@ const FriendInfoCard = ({
   const statusColor = status === 'online' ? 'bg-success' : 'bg-danger';
   const commentMessage = comment || '...';
   return `
+  <div class="col d-flex justify-content-center align-self-center">
     <div id="${id}" class="card text-bg-dark border-5 border-light justify-content-center rounded-5 p-3 my-1" style="width: 33rem; min-width: 33rem;">
       <div class="row g-0">
         <div class="col-md-8 align-self-center">
@@ -35,6 +36,7 @@ const FriendInfoCard = ({
         </div>
       </div>
     </div>
+  </div>
   `;
 };
 
