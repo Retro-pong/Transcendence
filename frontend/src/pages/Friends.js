@@ -18,20 +18,14 @@ class Friends extends PageComponent {
   }
 
   async getFriends() {
-    const url = `/friends/friend_list?limit=${this.limit}&offset=${this.offset}`;
-    // const url = `/friends?_page=${this.currPage}&_limit=${this.limit}`;
-    const response = await Fetch.get(url).catch(() => {
-      ErrorHandler.setToast('Something went wrong!');
+    const URL = `/friends/friend_list?limit=${this.limit}&offset=${this.offset}`;
+    const response = await Fetch.get(URL).catch(() => {
+      document.getElementById('pagination').classList.add('d-none');
+      ErrorHandler.setToast('Failed to get friends list');
       return [];
     });
-    if (response.length === 0) {
-      document.getElementById('pagination').classList.add('d-none');
-    } else {
-      document.getElementById('pagination').classList.remove('d-none');
-    }
-    // TODO: totalPage 응답으로 받기
-    this.totalPage = 2;
-    return response;
+    this.totalPage = response.total;
+    return response.friends;
   }
 
   async getWaitingFriends() {
@@ -86,11 +80,26 @@ class Friends extends PageComponent {
   }
 
   async getPageData() {
-    const data = await this.getFriends();
-    if (data.length === 0) {
+    const friendList = await this.getFriends();
+    if (friendList.length === 0) {
+      document.getElementById('pagination').classList.add('d-none');
       return `<div class="fs-15 align-self-center"> No Friends :( </div>`;
     }
-    const friends = data.map((friend) => FriendInfoCard(friend)).join('');
+    document.getElementById('pagination').classList.remove('d-none');
+
+    const friends = friendList
+      .map((data) =>
+        FriendInfoCard({
+          id: data.friend_user,
+          name: data.friend_info.username,
+          win: data.friend_info.win,
+          lose: data.friend_info.lose,
+          comment: data.friend_info.comment,
+          isActive: data.friend_info.is_active,
+          profileImg: data.friend_info.image,
+        })
+      )
+      .join('');
     return `
       <div class="row row-cols-lg-2 w-100">
         ${friends}
@@ -154,7 +163,6 @@ class Friends extends PageComponent {
     await this.addFriendAddModalEvent();
 
     document.getElementById('testBtn').addEventListener('click', async () => {
-      console.log('test');
       const friendName = 'hyobicho';
       await this.searchFriend(friendName);
       await this.addFriend(friendName);

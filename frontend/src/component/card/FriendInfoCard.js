@@ -4,14 +4,22 @@ const FriendInfoCard = ({
   win,
   lose,
   comment,
-  status,
+  isActive,
   profileImg,
 }) => {
-  const statusColor = status === 'online' ? 'bg-success' : 'bg-danger';
+  const status = isActive
+    ? {
+        color: 'bg-success',
+        text: 'online',
+      }
+    : {
+        color: 'bg-danger',
+        text: 'offline',
+      };
   const commentMessage = comment || '...';
   return `
   <div class="col d-flex justify-content-center align-self-center">
-    <div id="${id}" class="card text-bg-dark border-5 border-light justify-content-center rounded-5 p-3 my-1" style="width: 33rem; min-width: 33rem;">
+    <div id="friend${id}" class="card text-bg-dark border-5 border-light justify-content-center rounded-5 p-3 my-1" style="width: 33rem; min-width: 33rem;">
       <div class="row g-0">
         <div class="col-md-8 align-self-center">
           <div class="card-body fs-4 text-break">
@@ -25,7 +33,7 @@ const FriendInfoCard = ({
               <p class="card-text text-truncate">comment: ${comment}</p>
             </div>
             <div class="row">
-              <p class="card-text position-relative">status: ${status} <span class="position-absolute p-2 text-bg-secondary rounded-circle ${statusColor} ms-1" style="top: 27%;" /></p>
+              <p class="card-text position-relative">status: ${status.text} <span class="position-absolute p-2 text-bg-secondary rounded-circle ${status.color} ms-1" style="top: 27%;" /></p>
             </div>
           </div>
         </div>
