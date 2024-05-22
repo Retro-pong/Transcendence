@@ -67,6 +67,7 @@ class IntraCallbackView(APIView):
             user.is_registered = True
         # 로그인
         user.is_authenticated = True
+        user.is_active = True
         user.image = image
         user.save()
         token = obtain_jwt_token(user)
@@ -177,7 +178,8 @@ class EmailLoginVerifyView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED,
             )
         user = User.objects.get(email=email)
-        user.is_registered = True
+        user.is_authenticated = True
+        user.is_active = True
         user.save()
         token = obtain_jwt_token(user)
         return token
@@ -194,7 +196,6 @@ class EmailRegisterView(APIView):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            # 이메일 인증
             email = serializer.validated_data["email"]
             if send_verification_code(email):
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -247,6 +248,7 @@ class LogoutView(APIView):
     def post(self, request):
         user = request.user
         user.is_authenticated = False
+        user.is_active = False
         user.save()
         response = Response("Logout successful.", status=status.HTTP_200_OK)
         response.delete_cookie("refresh_token")
