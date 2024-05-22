@@ -11,3 +11,13 @@ $toast-max-width: 100%;
 $toast-font-size: 2.5rem;
 $toast-box-shadow: $mint-box-shadow;
 
+// Breakpoints
+$grid-breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+  xxl: 1400px,
+  xxxl: 1600px,
+);

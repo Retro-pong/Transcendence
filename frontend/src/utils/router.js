@@ -6,12 +6,14 @@ import CreateRoom from '@pages/game/CreateRoom';
 import JoinRoom from '@pages/game/JoinRoom';
 import WaitingRoom from '@pages/game/WaitingRoom';
 import Friends from '@pages/Friends';
+import PlayGame from '@pages/game/PlayGame';
 import TokenManager from '@/utils/TokenManager';
+import ErrorHandler from '@/utils/ErrorHandler';
 
-export const navigateTo = (url) => {
+export const navigateTo = async (url) => {
   if (url === window.location.href) return;
   history.pushState(null, null, url);
-  router();
+  await router();
 };
 
 // 동적라우팅 추가 필요
@@ -24,6 +26,7 @@ export const router = async () => {
     '/game/create': CreateRoom,
     '/game/join': JoinRoom,
     '/game/waiting': WaitingRoom,
+    '/game/play': PlayGame,
     '/friends': Friends,
     '/404': Home, // TODO: NotFound 추가
   };
@@ -34,7 +37,7 @@ export const router = async () => {
   if (!(currPathname in routes)) {
     history.pushState(null, null, '/404');
   } else if (currPathname === '/login' && isLoggedIn) {
-    alert('You are already logged in!');
+    ErrorHandler.setToast('You are already logged in!');
     let beforePage = window.localStorage.getItem('curPage');
     if (beforePage === '/login') {
       beforePage = '/';
@@ -52,11 +55,26 @@ export const router = async () => {
 
   const page = new routes[location.pathname]();
   const app = document.querySelector('#app');
-  if (location.pathname !== '/login') {
-    document.getElementById('navBar').classList.remove('d-none');
+  const background = document.getElementById('background');
+  const navBar = document.getElementById('navBar');
+  const gameCanvas = document.getElementById('gameCanvas');
+
+  if (location.pathname === '/game/play') {
+    background.classList.add('d-none');
+    app.classList.add('d-none');
+    navBar.classList.add('d-none');
+    gameCanvas.classList.remove('d-none');
   } else {
-    document.getElementById('navBar').classList.add('d-none');
+    background.classList.remove('d-none');
+    app.classList.remove('d-none');
+    gameCanvas.classList.add('d-none');
+    if (location.pathname !== '/login') {
+      navBar.classList.remove('d-none');
+    } else {
+      navBar.classList.add('d-none');
+    }
   }
+
   app.innerHTML = await page.render();
   await page.afterRender();
 };

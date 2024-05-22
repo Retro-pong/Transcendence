@@ -21,12 +21,14 @@ class Game extends PageComponent {
     }).outerHTML;
 
     return `
-      <h1 class="text-center" style="font-size: 8rem;">Get ready for the next battle!</h1>
-      <div class="d-flex flex-column p-5">
+    <div class="d-flex flex-column justify-content-around align-items-center h-90">
+      <h1 class="text-center fs-18">Get ready for the next battle!</h1>
+      <div class="d-flex flex-column">
         ${CreateRoomButton}
         ${JoinRoomButton}
       </div>
-      `;
+    </div>
+    `;
   }
 }
 

@@ -8,12 +8,12 @@ const LoginPageButtons = () => {
   const LoginBtn = BasicButton({
     id: 'loginBtn',
     text: '> Login <',
-    classList: 'btn btn-no-outline-hover fs-8',
+    classList: 'btn btn-no-outline-hover fs-7',
   });
-  const Login42Btn = `<a id='42LoginBtn' href="http://localhost:80/api/v1/login/intra/login/" class="btn btn-no-outline-hover fs-8">> 42 Login <</a>`;
+  const Login42Btn = `<a id='42LoginBtn' href="http://localhost:80/api/v1/login/intra/login/" class="btn btn-no-outline-hover fs-7">> 42 Login <</a>`;
   const RegisterBtn = OpenModalButton({
     text: '> Register <',
-    classList: 'btn btn-no-outline-hover fs-8',
+    classList: 'btn btn-no-outline-hover fs-7',
     modalId: '#registerModal',
   });
   const RegisterModal = ModalComponent({
@@ -39,7 +39,7 @@ const LoginPageButtons = () => {
   return BtnList.map(
     (btn) => `
         <div class="row justify-content-md-center">
-            <div class="col-md-auto">
+            <div class="col-md-auto text-center">
               ${btn}
             </div>
           </div>

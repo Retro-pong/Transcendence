@@ -3,7 +3,7 @@ from django.db import models
 
 class Room(models.Model):
     room_name = models.CharField(max_length=50)
-    game_mode = models.CharField(max_length=50)  # rumble, tournament
+    game_mode = models.CharField(max_length=50)  # normal, tournament
     game_map = models.CharField(max_length=50)
     game_speed = models.IntegerField()
     current_players = models.IntegerField(default=0)

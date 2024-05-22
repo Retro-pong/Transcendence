@@ -1,12 +1,11 @@
-const Header = ({ title, subtitle = '', classList = '' }) => {
+const Header = ({ title, subtitle = '' }) => {
   return `
-    <div class="row ${classList}">
-      <div class="col-md-auto display-1">
+      <div class="col-md-auto display-1 position-sticky top-0">
         ${title}
         <span class="fs-7">
           ${subtitle}
         </span>
-    </div>
+      </div>
   `;
 };
 

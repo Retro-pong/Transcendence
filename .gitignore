@@ -7,7 +7,8 @@
 backend/.venv/
 backend/venv/
 backend/myvenv/
-backend/**/migrations/
+backend/**/migrations/*.py
+!backend/**/migrations/__init__.py
 **/.DS_Store
 
 # CMake

@@ -1,12 +1,14 @@
 const RegisterFormItem = (classList, labelId, content, type, placeholder) => {
   return `
     <div class="${classList}">
-      <div class="col-5 d-flex align-items-center justify-content-start fs-8">
-        <label for="${labelId}" class="form-label">${content}</label>
+      <div class="col-md-6 d-flex align-items-center justify-content-start fs-7">
+        <div class="col-9 d-flex align-items-center justify-content-start fs-7">
+          <label for="${labelId}" class="form-label mb-0">${content}</label>
+        </div>
+        <div class="col-3 d-flex align-items-center fs-7 d-none d-md-block">:</div>
       </div>
-      <div class="col-1 d-flex align-items-center fs-8">:</div>
-      <div class="col-6 d-flex align-items-center justify-content-center fs-8">
-        <input type="${type}" id="${labelId}" class="form-control h-100 fs-8 bg-transparent" placeholder="${placeholder}" />
+      <div class="col-md-6 d-flex align-items-center justify-content-center fs-7">
+        <input type="${type}" id="${labelId}" class="form-control h-100 fs-7 bg-transparent" placeholder="${placeholder}" />
       </div>
     </div>
   `;
