@@ -10,25 +10,116 @@ from .models import Room
 from .serializers import RoomSerializer
 
 
-class JoinRoomAPIView(APIView):
+class JoinNormalRoomAPIView(APIView):
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated,)
 
     @swagger_auto_schema(
-        operation_description="Get the list of all rooms",
+        operation_description="Get the list of tournament rooms",
         responses={
             200: openapi.Response(
-                description="List of rooms",
+                description="List of tournament rooms",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_ARRAY,
+                    items=openapi.Schema(
+                        type=openapi.TYPE_OBJECT,
+                        properties={
+                            "id": openapi.Schema(
+                                type=openapi.TYPE_INTEGER, description="Room ID"
+                            ),
+                            "room_name": openapi.Schema(
+                                type=openapi.TYPE_STRING, description="Room name"
+                            ),
+                            "game_mode": openapi.Schema(
+                                type=openapi.TYPE_STRING,
+                                description="Game mode(normal)",
+                            ),
+                            "game_map": openapi.Schema(
+                                type=openapi.TYPE_STRING, description="Game map"
+                            ),
+                            "game_speed": openapi.Schema(
+                                type=openapi.TYPE_INTEGER, description="Game speed"
+                            ),
+                            "current_players": openapi.Schema(
+                                type=openapi.TYPE_INTEGER,
+                                description="Current number of players",
+                            ),
+                            "max_players": openapi.Schema(
+                                type=openapi.TYPE_INTEGER,
+                                description="Maximum number of players",
+                            ),
+                        },
+                    ),
+                ),
             ),
             400: openapi.Response(
                 description="Bad request",
+                examples={"application/json": {"error": "Error message"}},
             ),
         },
     )
     def get(self, request):
         try:
             user = request.user
-            rooms = Room.objects.all()
+            rooms = Room.objects.filter(game_mode="normal")
+            serializer = RoomSerializer(rooms, many=True)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class JoinTournamentRoomAPIView(APIView):
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    @swagger_auto_schema(
+        operation_description="Get the list of tournament rooms",
+        responses={
+            200: openapi.Response(
+                description="List of tournament rooms",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_ARRAY,
+                    items=openapi.Schema(
+                        type=openapi.TYPE_OBJECT,
+                        properties={
+                            "id": openapi.Schema(
+                                type=openapi.TYPE_INTEGER, description="Room ID"
+                            ),
+                            "room_name": openapi.Schema(
+                                type=openapi.TYPE_STRING, description="Room name"
+                            ),
+                            "game_mode": openapi.Schema(
+                                type=openapi.TYPE_STRING,
+                                description="Game mode(tournament)",
+                            ),
+                            "game_map": openapi.Schema(
+                                type=openapi.TYPE_STRING, description="Game map"
+                            ),
+                            "game_speed": openapi.Schema(
+                                type=openapi.TYPE_INTEGER, description="Game speed"
+                            ),
+                            "current_players": openapi.Schema(
+                                type=openapi.TYPE_INTEGER,
+                                description="Current number of players",
+                            ),
+                            "max_players": openapi.Schema(
+                                type=openapi.TYPE_INTEGER,
+                                description="Maximum number of players",
+                            ),
+                        },
+                    ),
+                ),
+            ),
+            400: openapi.Response(
+                description="Bad request",
+                examples={"application/json": {"error": "Error message"}},
+            ),
+        },
+    )
+    def get(self, request):
+        try:
+            user = request.user
+            rooms = Room.objects.filter(game_mode="tournament")
             serializer = RoomSerializer(rooms, many=True)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
