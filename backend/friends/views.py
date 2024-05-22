@@ -9,6 +9,7 @@ from rest_framework.pagination import LimitOffsetPagination
 from users.models import User
 from .models import Friend, FriendRequest
 from .serializers import FriendSerializer, FriendRequestSerializer, UsernameSerializer
+import math
 
 
 class FriendsListPagination(LimitOffsetPagination):
@@ -111,9 +112,9 @@ class FriendsListAPIView(APIView):
         try:
             user = request.user
             friends = Friend.objects.filter(user=user)
-            limit = request.query_params.get("limit")
+            limit = int(request.query_params.get("limit", 10))  # default value: 10
             total = friends.count()
-            total = total / limit + 1
+            total = math.ceil(total / limit)
             paginator = self.pagination_class()
             paginated_friends = paginator.paginate_queryset(friends, request, view=self)
             serializer = FriendSerializer(paginated_friends, many=True)
