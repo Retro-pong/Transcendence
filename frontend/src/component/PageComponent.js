@@ -85,15 +85,19 @@ class PageComponent {
     });
   }
 
+  async initPageData(child) {
+    const pageBody = document.getElementById('pageBody');
+    this.currPage = 1;
+    this.offset = 0;
+    pageBody.innerHTML = await child.getPageData();
+    this.initTooltip();
+  }
+
   onReloadButtonClick(child) {
     const reloadBtn = document.getElementById('reloadBtn');
-    const pageBody = document.getElementById('pageBody');
 
     reloadBtn.addEventListener('click', async () => {
-      this.currPage = 1;
-      this.offset = 0;
-      pageBody.innerHTML = await child.getPageData();
-      this.initTooltip();
+      await this.initPageData(child);
     });
   }
 }

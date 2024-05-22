@@ -9,6 +9,7 @@ import FriendSearch from '@component/contents/FriendSearch';
 import Pagination from '@component/navigation/Pagination';
 import Fetch from '@/utils/Fetch';
 import debounce from '@/utils/debounce';
+import ErrorHandler from '@/utils/ErrorHandler';
 
 class Friends extends PageComponent {
   constructor() {
@@ -19,7 +20,15 @@ class Friends extends PageComponent {
   async getFriends() {
     const response = await Fetch.get(
       `/friends?_page=${this.currPage}&_limit=${this.limit}`
-    );
+    ).catch(() => {
+      ErrorHandler.setToast('Something went wrong!');
+      return [];
+    });
+    if (response.length === 0) {
+      document.getElementById('pagination').classList.add('d-none');
+    } else {
+      document.getElementById('pagination').classList.remove('d-none');
+    }
     // TODO: totalPage 응답으로 받기
     this.totalPage = 2;
     this.setPaginationStyle();
@@ -77,14 +86,15 @@ class Friends extends PageComponent {
     );
   }
 
-  // TODO: 친구 없을 때 컴포넌트 추가
   async getPageData() {
-    const data = (await this.getFriends()) || [];
+    const data = await this.getFriends();
+    if (data.length === 0) {
+      return `<div class="fs-15 align-self-center"> No Friends :( </div>`;
+    }
     return data.map((friend) => FriendInfoCard(friend)).join('');
   }
 
   async render() {
-    const dummyFriends = await this.getPageData();
     const FriendWaitModal = ModalComponent({
       borderColor: 'mint',
       title: 'WAITING',
@@ -105,19 +115,18 @@ class Friends extends PageComponent {
       ${FriendAddModal}
       <div class="d-flex justify-content-between position-sticky top-0 z-1">
         <h1 class="fs-14">Friends</h1>
-        <div class="d-flex flex-row" style="padding-right: 5%">
+        <div class="d-flex flex-row pe-5">
           ${FriendPageButtons()}
         </div>
       </div>
       <div id="pageBody" class="d-flex flex-wrap justify-content-evenly overflow-auto h-75">
-        ${dummyFriends}
       </div>
       ${Pagination({ currPage: this.currPage, totalPage: this.totalPage })}
       `;
   }
 
   async afterRender() {
-    this.initTooltip();
+    await this.initPageData(this);
     this.onReloadButtonClick(this);
     this.onPaginationClick(this);
     await this.addFriendWaitModalEvent();
