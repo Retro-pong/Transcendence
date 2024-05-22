@@ -6,7 +6,7 @@
       "win": 99,
       "lose": 1,
       "comment": "hello world",
-      "status": "online",
+      "isActive": true,
       "profileImg": "https://www.blueconomy.co.kr/news/photo/202402/2399_3001_921.png"
     },
     {
@@ -15,7 +15,7 @@
       "win": 10,
       "lose": 1,
       "comment": "",
-      "status": "offline",
+      "isActive": false,
       "profileImg": "https://www.blueconomy.co.kr/news/photo/202402/2399_3001_921.png"
     },
     {
@@ -24,7 +24,7 @@
       "win": 1,
       "lose": 99,
       "comment": "동해물과 백두산이",
-      "status": "online",
+      "isActive": true,
       "profileImg": "https://www.blueconomy.co.kr/news/photo/202402/2399_3001_921.png"
     },
     {
@@ -33,7 +33,7 @@
       "win": 5,
       "lose": 5,
       "comment": "🥳🥳🥳 this is a very long comment hahaha",
-      "status": "offline",
+      "isActive": false,
       "profileImg": "https://www.blueconomy.co.kr/news/photo/202402/2399_3001_921.png"
     },
     {
@@ -42,7 +42,7 @@
       "win": 1511,
       "lose": 95,
       "comment": "meooooow",
-      "status": "online",
+      "isActive": true,
       "profileImg": "https://i.pinimg.com/236x/91/be/98/91be9861cc5cef854ccc3f8ece507918.jpg"
     },
     {
@@ -51,7 +51,7 @@
       "win": 124,
       "lose": 94,
       "comment": "woff woff",
-      "status": "offline",
+      "isActive": false,
       "profileImg": "https://img4.daumcdn.net/thumb/R658x0.q70/?fname=https://t1.daumcdn.net/news/202105/25/holapet/20210525081724428qquq.jpg"
     },
     {
@@ -60,7 +60,7 @@
       "win": 99,
       "lose": 1,
       "comment": "hello",
-      "status": "online",
+      "isActive": true,
       "profileImg": "https://www.blueconomy.co.kr/news/photo/202402/2399_3001_921.png"
     },
     {
@@ -69,7 +69,7 @@
       "win": 10,
       "lose": 1,
       "comment": "hi",
-      "status": "offline",
+      "isActive": false,
       "profileImg": "https://www.blueconomy.co.kr/news/photo/202402/2399_3001_921.png"
     },
     {
@@ -78,7 +78,7 @@
       "win": 1,
       "lose": 99,
       "comment": "안녕하세요",
-      "status": "online",
+      "isActive": true,
       "profileImg": "https://www.blueconomy.co.kr/news/photo/202402/2399_3001_921.png"
     },
     {
@@ -87,7 +87,7 @@
       "win": 5,
       "lose": 5,
       "comment": "how are you?",
-      "status": "offline",
+      "isActive": false,
       "profileImg": "https://www.blueconomy.co.kr/news/photo/202402/2399_3001_921.png"
     }
   ],
