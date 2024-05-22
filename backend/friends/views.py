@@ -111,7 +111,9 @@ class FriendsListAPIView(APIView):
         try:
             user = request.user
             friends = Friend.objects.filter(user=user)
+            limit = request.query_params.get("limit")
             total = friends.count()
+            total = total / limit + 1
             paginator = self.pagination_class()
             paginated_friends = paginator.paginate_queryset(friends, request, view=self)
             serializer = FriendSerializer(paginated_friends, many=True)
@@ -239,15 +241,16 @@ class WaitingListAPIView(APIView):
             return Response(
                 {"error": "Invalid data"}, status=status.HTTP_400_BAD_REQUEST
             )
-        friend_request = FriendRequest.objects.get(user=user, friend_name=friend_name)
-        if not friend_request:
-            return Response(
-                {"error": "Request does not exist"}, status=status.HTTP_400_BAD_REQUEST
+        try:
+            friend_request = FriendRequest.objects.get(
+                user=user, friend_name=friend_name
             )
-        FriendRequest.delete_request(user=user, friend_name=friend_name)
-        if request_patch:
-            Friend.create_friend(user, friend_name)
-        return Response(status=status.HTTP_200_OK)
+            FriendRequest.delete_request(user=user, friend_name=friend_name)
+            if request_patch:
+                Friend.create_friend(user, friend_name)
+            return Response(status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AddListAPIView(APIView):
@@ -335,11 +338,14 @@ class AddListAPIView(APIView):
             return Response(
                 {"error": "Invalid data"}, status=status.HTTP_400_BAD_REQUEST
             )
-        send_user = User.objects.get(username=friend_name)
-        if not send_user:
-            return Response(
-                {"error": "User with friend name does not exist"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        FriendRequest.create_request(user=send_user, friend_name=user.username)
-        return Response(status=status.HTTP_200_OK)
+        try:
+            send_user = User.objects.get(username=friend_name)
+            if not send_user:
+                return Response(
+                    {"error": "User with friend name does not exist"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            FriendRequest.create_request(user=send_user, friend_name=user.username)
+            return Response(status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
