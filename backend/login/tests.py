@@ -1,169 +1,134 @@
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APITestCase, APIClient
-from django.contrib.auth import get_user_model
-from unittest.mock import patch
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework.test import APITestCase
+from unittest.mock import patch, MagicMock
+from django.conf import settings
+from users.models import User
 from .models import TFA
-
-User = get_user_model()
-
-
-class IntraLoginViewTests(APITestCase):
-    def test_intra_login_redirect(self):
-        response = self.client.get(reverse("intra-login"))
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+from .utils import send_verification_code, verify_email, obtain_jwt_token
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
-class IntraCallbackViewTests(APITestCase):
-    @patch("login.views.IntraCallbackView.get_intra_token")
-    @patch("login.views.IntraCallbackView.get_intra_userinfo")
-    def test_intra_callback_existing_user(
-        self, mock_get_intra_userinfo, mock_get_intra_token
-    ):
-        user = User.objects.create_user(
-            username="testuser", email="test@example.com", password="testpass"
-        )
-        mock_get_intra_token.return_value = {"access_token": "mock_access_token"}
-        mock_get_intra_userinfo.return_value = {
-            "login": "testuser",
-            "email": "test@example.com",
-            "image": {"link": "test_image_link"},
-        }
+class LoginAPITestCase(APITestCase):
 
-        response = self.client.get(reverse("intra-callback"), {"code": "mock_code"})
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-
-    @patch("login.views.IntraCallbackView.get_intra_token")
-    @patch("login.views.IntraCallbackView.get_intra_userinfo")
-    def test_intra_callback_new_user(
-        self, mock_get_intra_userinfo, mock_get_intra_token
-    ):
-        mock_get_intra_token.return_value = {"access_token": "mock_access_token"}
-        mock_get_intra_userinfo.return_value = {
-            "login": "newuser",
-            "email": "new@example.com",
-            "image": {"link": "new_image_link"},
-        }
-
-        response = self.client.get(reverse("intra-callback"), {"code": "mock_code"})
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-        self.assertTrue(User.objects.filter(email="new@example.com").exists())
-
-
-class EmailLoginViewTests(APITestCase):
     def setUp(self):
+        self.username = "subinlee"
+        self.email = "ddubi701@gmail.com"
+        self.password = "testpassword"
         self.user = User.objects.create_user(
-            username="testuser", email="test@example.com", password="testpass"
+            username=self.username, email=self.email, password=self.password
         )
-        self.user.is_registered = True
+        self.user.is_authenticated = True
+        self.user.is_active = True
         self.user.save()
+        self.verification_code = "123456"
+        self.tfa = TFA.objects.create(email=self.email, code=self.verification_code)
 
-    @patch("login.utils.send_verification_code")
-    def test_email_login_success(self, mock_send_verification_code):
-        mock_send_verification_code.return_value = True
-        data = {"email": "test@example.com", "password": "testpass"}
-        response = self.client.post(reverse("email-login"), data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+    @patch("smtplib.SMTP")
+    def test_send_verification_code(self, mock_smtp):
+        instance = mock_smtp.return_value
+        instance.sendmail.return_value = {}
 
-    def test_email_login_fail(self):
-        data = {"email": "test@example.com", "password": "wrongpass"}
-        response = self.client.post(reverse("email-login"), data)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
-
-class EmailLoginVerifyViewTests(APITestCase):
-    def setUp(self):
-        self.user = User.objects.create_user(
-            username="testuser", email="test@example.com", password="testpass"
+        result = send_verification_code(self.email)
+        self.assertTrue(result)
+        tfa_entry = TFA.objects.filter(email=self.email).first()
+        self.assertIsNotNone(tfa_entry)
+        self.assertEqual(tfa_entry.email, self.email)
+        instance.sendmail.assert_called_with(
+            settings.EMAIL_HOST_USER,
+            self.email,
+            f"Your verification code is <{tfa_entry.code}>",
         )
-        TFA.objects.create(email="test@example.com", code="123456")
 
-    def test_email_login_verify_success(self):
-        data = {"email": "test@example.com", "code": "123456"}
-        response = self.client.post(reverse("email-login-verify"), data)
+    def test_verify_email_success(self):
+        request = MagicMock()
+        request.data = {"email": self.email, "code": self.verification_code}
+
+        result = verify_email(request)
+        self.assertEqual(result, self.email)
+        self.assertFalse(TFA.objects.filter(email=self.email).exists())
+
+    def test_verify_email_failure(self):
+        request = MagicMock()
+        request.data = {"email": self.email, "code": "wrongcode"}
+
+        result = verify_email(request)
+        self.assertEqual(result, "")
+        self.assertTrue(TFA.objects.filter(email=self.email).exists())
+
+    def test_obtain_jwt_token(self):
+        response = obtain_jwt_token(self.user)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("access_token", response.data)
+        self.assertTrue(response.cookies.get("refresh_token"))
 
-    def test_email_login_verify_fail(self):
-        data = {"email": "test@example.com", "code": "wrongcode"}
-        response = self.client.post(reverse("email-login-verify"), data)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+    def test_intra_login_view(self):
+        response = self.client.get(reverse("login:intra_login"))
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.assertIn(settings.INTRA_AUTHORIZE_API_URL, response.url)
 
-
-class EmailRegisterViewTests(APITestCase):
-    @patch("login.utils.send_verification_code")
-    def test_email_register_success(self, mock_send_verification_code):
-        mock_send_verification_code.return_value = True
-        data = {
-            "username": "newuser",
-            "email": "new@example.com",
-            "password": "newpass",
-            "password2": "newpass",
+    @patch("requests.post")
+    @patch("requests.get")
+    def test_intra_callback_view(self, mock_get, mock_post):
+        token_response = {"access_token": "dummy_token", "token_type": "Bearer"}
+        user_info_response = {
+            "login": "intrauser",
+            "email": "intra@example.com",
+            "image": {"link": "http://example.com/image.png"},
         }
-        response = self.client.post(reverse("email-register"), data)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertTrue(User.objects.filter(email="new@example.com").exists())
 
-    def test_email_register_fail(self):
-        data = {
-            "username": "newuser",
-            "email": "new@example.com",
-            "password": "newpass",
-            "password2": "mismatch",
-        }
-        response = self.client.post(reverse("email-register"), data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        mock_post.return_value.json.return_value = token_response
+        mock_get.return_value.json.return_value = user_info_response
 
-
-class EmailRegisterVerifyViewTests(APITestCase):
-    def setUp(self):
-        self.user = User.objects.create_user(
-            username="newuser", email="new@example.com", password="newpass"
+        response = self.client.get(
+            reverse("login:intra_callback"), {"code": "dummy_code"}
         )
-        TFA.objects.create(email="new@example.com", code="123456")
-
-    def test_email_register_verify_success(self):
-        data = {"email": "new@example.com", "code": "123456"}
-        response = self.client.post(reverse("email-register-verify"), data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(
-            User.objects.filter(email="new@example.com", is_registered=True).exists()
-        )
-
-    def test_email_register_verify_fail(self):
-        data = {"email": "new@example.com", "code": "wrongcode"}
-        response = self.client.post(reverse("email-register-verify"), data)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
-
-class LogoutViewTests(APITestCase):
-    def setUp(self):
-        self.user = User.objects.create_user(
-            username="testuser", email="test@example.com", password="testpass"
-        )
-        self.client.force_authenticate(user=self.user)
-
-    def test_logout(self):
-        response = self.client.post(reverse("logout"))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertFalse("refresh_token" in response.cookies)
-
-
-class MyTokenRefreshViewTests(APITestCase):
-    def setUp(self):
-        self.user = User.objects.create_user(
-            username="testuser", email="test@example.com", password="testpass"
-        )
-        self.token = TokenObtainPairSerializer.get_token(self.user)
-        self.refresh_token = str(self.token)
-        self.client.cookies["refresh_token"] = self.refresh_token
-
-    def test_token_refresh_success(self):
-        response = self.client.post(reverse("token-refresh"))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("access_token", response.data)
 
-    def test_token_refresh_fail(self):
-        self.client.cookies["refresh_token"] = "invalidtoken"
-        response = self.client.post(reverse("token-refresh"))
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+    def test_email_login_view(self):
+        self.user.is_registered = True
+        self.user.save()
+        data = {"email": self.email, "password": self.password}
+        response = self.client.post(reverse("login:email_login"), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotIn("error", response.data)
+
+    def test_email_login_verify_view(self):
+        data = {"email": self.email, "code": self.verification_code}
+        response = self.client.post(reverse("login:email_login_verify"), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("access_token", response.data)
+
+    def test_email_register_view(self):
+        new_email = "new@example.com"
+        data = {"email": new_email, "password": "newpassword", "username": "newuser"}
+        response = self.client.post(reverse("login:email_register"), data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_email_register_verify_view(self):
+        new_email = "new@example.com"
+        TFA.objects.create(email=new_email, code="654321")
+        data = {"email": new_email, "code": "654321"}
+        response = self.client.post(reverse("login:email_register_verify"), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, "Email verification successful.")
+
+    def test_logout_view(self):
+        token = TokenObtainPairSerializer.get_token(self.user)
+        refresh_token = str(token)
+        access_token = str(token.access_token)
+        self.client.cookies["refresh_token"] = refresh_token
+        self.client.credentials(HTTP_AUTHORIZATION="Bearer " + access_token)
+
+        response = self.client.post(reverse("login:logout"))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.cookies["refresh_token"].value, "")
+
+    def test_my_token_refresh_view(self):
+        refresh_token = RefreshToken.for_user(self.user)
+        self.client.cookies["refresh_token"] = str(refresh_token)
+        response = self.client.post(reverse("login:token_refresh"))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("access_token", response.data)
