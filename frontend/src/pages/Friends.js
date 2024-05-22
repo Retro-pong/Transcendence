@@ -31,7 +31,6 @@ class Friends extends PageComponent {
     }
     // TODO: totalPage 응답으로 받기
     this.totalPage = 2;
-    this.setPaginationStyle();
     return response;
   }
 

@@ -48,8 +48,6 @@ class PageComponent {
     const currPage = document.getElementById('currPage');
     const totalPage = document.getElementById('totalPage');
 
-    if (!prevBtn || !nextBtn || !currPage || !totalPage) return;
-
     totalPage.innerHTML = this.totalPage;
     currPage.innerHTML = this.currPage;
     if (this.currPage === 1) {
@@ -73,6 +71,7 @@ class PageComponent {
       this.currPage -= 1;
       this.offset = this.getOffset();
       pageBody.innerHTML = await child.getPageData();
+      this.setPaginationStyle();
       this.initTooltip();
     });
 
@@ -81,6 +80,7 @@ class PageComponent {
       this.currPage += 1;
       this.offset = this.getOffset();
       pageBody.innerHTML = await child.getPageData();
+      this.setPaginationStyle();
       this.initTooltip();
     });
   }
@@ -90,6 +90,7 @@ class PageComponent {
     this.currPage = 1;
     this.offset = 0;
     pageBody.innerHTML = await child.getPageData();
+    this.setPaginationStyle();
     this.initTooltip();
   }
 
