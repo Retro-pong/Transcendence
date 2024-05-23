@@ -23,12 +23,20 @@ function createGameObject(scene) {
   ball.add(ballPlane);
 
   const redPaddleGeometry = new THREE.BoxGeometry(0.5, 3, 3);
-  const redPaddleMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000, transparent: true, opacity: 0.7});
+  const redPaddleMaterial = new THREE.MeshPhongMaterial({
+    color: 0xff0000,
+    transparent: true,
+    opacity: 0.7,
+  });
   const redPaddle = new THREE.Mesh(redPaddleGeometry, redPaddleMaterial);
   redPaddle.position.set(25, 0, 0);
 
   const bluePaddleGeometry = new THREE.BoxGeometry(0.5, 3, 3);
-  const bluePaddleMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff, transparent: true, opacity: 0.7});
+  const bluePaddleMaterial = new THREE.MeshPhongMaterial({
+    color: 0x0000ff,
+    transparent: true,
+    opacity: 0.7,
+  });
   const bluePaddle = new THREE.Mesh(bluePaddleGeometry, bluePaddleMaterial);
   bluePaddle.position.set(-25, 0, 0);
 
