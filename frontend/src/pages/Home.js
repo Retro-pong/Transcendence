@@ -36,7 +36,7 @@ class Home extends PageComponent {
       .addEventListener('click', async () => {
         await TokenManager.reissueAccessToken();
       });
-    await this.onNavButtonClick();
+    this.onNavButtonClick();
   }
 }
 

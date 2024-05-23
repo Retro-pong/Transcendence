@@ -103,12 +103,12 @@ class PageComponent {
     });
   }
 
-  async onNavButtonClick() {
+  onNavButtonClick() {
     const navigations = document.querySelectorAll('[data-nav="true"]');
-    Array.prototype.forEach.call(navigations, (nav) => {
-      nav.addEventListener('click', (e) => {
+    navigations.forEach((nav) => {
+      nav.addEventListener('click', async (e) => {
         e.preventDefault();
-        navigateTo(nav.href);
+        await navigateTo(nav.href);
       });
     });
   }

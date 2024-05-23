@@ -32,7 +32,7 @@ class Game extends PageComponent {
   }
 
   async afterRender() {
-    await this.onNavButtonClick();
+    this.onNavButtonClick();
   }
 }
 

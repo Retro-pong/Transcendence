@@ -10,9 +10,9 @@ window.addEventListener('popstate', router);
 document.addEventListener('DOMContentLoaded', async () => {
   const navigations = document.getElementsByTagName('a');
   Array.prototype.forEach.call(navigations, (nav) => {
-    nav.addEventListener('click', (e) => {
+    nav.addEventListener('click', async (e) => {
       e.preventDefault();
-      navigateTo(nav.href);
+      await navigateTo(nav.href);
     });
   });
 
