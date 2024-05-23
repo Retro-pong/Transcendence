@@ -6,6 +6,7 @@ function eventHandler(canvas, scene, camera, renderer, controls) {
   const redPaddle = scene.getObjectByName('redPaddle');
   const bluePaddle = scene.getObjectByName('bluePaddle');
 
+  canvas.focus();
   // 키보드 컨트롤
   canvas.addEventListener('keydown', (e) => {
     // 시점
