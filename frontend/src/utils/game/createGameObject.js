@@ -9,13 +9,26 @@ function createGameObject(scene) {
   const ball = new THREE.Mesh(ballGeometry, ballMaterial);
   ball.position.set(0, 0, 0);
 
+  const ballPlaneGeometry = new THREE.PlaneGeometry(15, 10);
+  const ballPlaneMaterial = new THREE.MeshPhongMaterial({
+    color: 0x00ffff,
+    transparent: true,
+    opacity: 0.3,
+  });
+  ballPlaneMaterial.side = THREE.DoubleSide;
+  const ballPlane = new THREE.Mesh(ballPlaneGeometry, ballPlaneMaterial);
+  ballPlane.rotation.y = Math.PI / 2;
+  ballPlane.position.set(0, 0, 0);
+  ballPlane.name = 'ballPlane';
+  ball.add(ballPlane);
+
   const redPaddleGeometry = new THREE.BoxGeometry(0.5, 3, 3);
-  const redPaddleMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000 });
+  const redPaddleMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000, transparent: true, opacity: 0.7});
   const redPaddle = new THREE.Mesh(redPaddleGeometry, redPaddleMaterial);
   redPaddle.position.set(25, 0, 0);
 
   const bluePaddleGeometry = new THREE.BoxGeometry(0.5, 3, 3);
-  const bluePaddleMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff });
+  const bluePaddleMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff, transparent: true, opacity: 0.7});
   const bluePaddle = new THREE.Mesh(bluePaddleGeometry, bluePaddleMaterial);
   bluePaddle.position.set(-25, 0, 0);
 
