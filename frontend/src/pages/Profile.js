@@ -67,7 +67,7 @@ class Profile extends PageComponent {
             </div>
             <div class="col-3 p-2 h-90 border-5 border-success rounded">
               <label for="profileImg" class="h-100">
-                <img id="profileImgSrc" src=${img} width="100%" height="90%" alt="user profile"/>
+                <img id="profileImgSrc" src=${profileData.image} width="100%" height="90%" alt="IMG"/>
               </label>
               <input type="file" accept="image/jpg, image/png" id="profileImg" class="d-none border-0">
             </div>
