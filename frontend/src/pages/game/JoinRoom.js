@@ -24,7 +24,7 @@ class JoinRoom extends PageComponent {
     if (roomList.length === 0) {
       return `
       <div class="d-flex justify-content-center align-items-center h-100">
-        <div class="fs-15 align-self-center"> No Rooms :( </div>
+        <div class="fs-11 align-self-center"> No Rooms :( </div>
       </div>`;
     }
 
