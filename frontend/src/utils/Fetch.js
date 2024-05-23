@@ -10,6 +10,10 @@ class Fetch {
 
   static #retry = 1;
 
+  static #loadingDelay = 150;
+
+  static #loadingTimer;
+
   static init() {
     const accessToken = TokenManager.getAccessToken();
     if (accessToken) {
@@ -20,10 +24,13 @@ class Fetch {
   }
 
   static showLoading() {
-    document.getElementById('loading').classList.remove('d-none');
+    this.#loadingTimer = setTimeout(() => {
+      document.getElementById('loading').classList.remove('d-none');
+    }, this.#loadingDelay);
   }
 
   static hideLoading() {
+    clearTimeout(this.#loadingTimer);
     document.getElementById('loading').classList.add('d-none');
   }
 
@@ -105,6 +112,28 @@ class Fetch {
       retry,
       formData
     );
+  }
+
+  static async patch(url, body = {}, retry = 1) {
+    await this.showLoading();
+    const response = await fetch(`${this.#BASE_URL}${url}`, {
+      method: 'PATCH',
+      headers: this.#headers,
+      credentials: this.#credentials,
+      body: JSON.stringify(body),
+    });
+    this.hideLoading();
+    if (!response.ok) {
+      if (this.isAuth(url) && response.status === 401 && retry <= this.#retry) {
+        await TokenManager.reissueAccessToken();
+        return this.patch(url, body, retry + 1);
+      }
+      return response.json().then((err) => {
+        console.error(`PATCH(${url}) ERROR:`, err);
+        throw err;
+      });
+    }
+    return response.json();
   }
 }
 

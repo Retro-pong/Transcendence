@@ -4,7 +4,7 @@ const BasicButton = ({
   classList = '',
   disabled = false,
   type = 'button',
-  form = '',
+  form = 'form',
 }) => {
   return disabled
     ? `

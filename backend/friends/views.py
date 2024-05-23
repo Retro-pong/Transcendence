@@ -9,6 +9,7 @@ from rest_framework.pagination import LimitOffsetPagination
 from users.models import User
 from .models import Friend, FriendRequest
 from .serializers import FriendSerializer, FriendRequestSerializer, UsernameSerializer
+import math
 
 
 class FriendsListPagination(LimitOffsetPagination):
@@ -19,16 +20,91 @@ class FriendsListPagination(LimitOffsetPagination):
 class FriendsListAPIView(APIView):
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated,)
-    pagination_class = FriendsListPagination
+    pagination_class = LimitOffsetPagination
 
     @swagger_auto_schema(
-        operation_description="Get a list of friends",
+        operation_description="Get the list of friends with pagination",
+        manual_parameters=[
+            openapi.Parameter(
+                "Authorization",
+                openapi.IN_HEADER,
+                description="JWT token",
+                type=openapi.TYPE_STRING,
+            ),
+            openapi.Parameter(
+                "limit",
+                openapi.IN_QUERY,
+                description="Number of results to return per page.",
+                type=openapi.TYPE_INTEGER,
+            ),
+            openapi.Parameter(
+                "offset",
+                openapi.IN_QUERY,
+                description="The initial index from which to return the results.",
+                type=openapi.TYPE_INTEGER,
+            ),
+        ],
         responses={
             200: openapi.Response(
-                description="Successful response",
+                description="List of friends with total count",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        "total": openapi.Schema(
+                            type=openapi.TYPE_INTEGER,
+                            description="Total number of friends",
+                        ),
+                        "friends": openapi.Schema(
+                            type=openapi.TYPE_ARRAY,
+                            items=openapi.Schema(
+                                type=openapi.TYPE_OBJECT,
+                                properties={
+                                    "friend_user": openapi.Schema(
+                                        type=openapi.TYPE_INTEGER,
+                                        description="ID of the friend user",
+                                    ),
+                                    "friend_info": openapi.Schema(
+                                        type=openapi.TYPE_OBJECT,
+                                        properties={
+                                            "username": openapi.Schema(
+                                                type=openapi.TYPE_STRING,
+                                                description="Username of the friend",
+                                            ),
+                                            "email": openapi.Schema(
+                                                type=openapi.TYPE_STRING,
+                                                description="Email of the friend",
+                                            ),
+                                            "image": openapi.Schema(
+                                                type=openapi.TYPE_STRING,
+                                                description="Image URL of the friend",
+                                            ),
+                                            "win": openapi.Schema(
+                                                type=openapi.TYPE_INTEGER,
+                                                description="Number of wins",
+                                            ),
+                                            "lose": openapi.Schema(
+                                                type=openapi.TYPE_INTEGER,
+                                                description="Number of losses",
+                                            ),
+                                            "comment": openapi.Schema(
+                                                type=openapi.TYPE_STRING,
+                                                description="Comment",
+                                            ),
+                                            "is_active": openapi.Schema(
+                                                type=openapi.TYPE_BOOLEAN,
+                                                description="Active status",
+                                            ),
+                                        },
+                                    ),
+                                },
+                            ),
+                        ),
+                    },
+                ),
             ),
             400: openapi.Response(
                 description="Bad request",
+                examples={"application/json": {"error": "Error message"}},
             ),
         },
     )
@@ -36,7 +112,9 @@ class FriendsListAPIView(APIView):
         try:
             user = request.user
             friends = Friend.objects.filter(user=user)
+            limit = int(request.query_params.get("limit", 10))  # default value: 10
             total = friends.count()
+            total = math.ceil(total / limit)
             paginator = self.pagination_class()
             paginated_friends = paginator.paginate_queryset(friends, request, view=self)
             serializer = FriendSerializer(paginated_friends, many=True)
@@ -47,6 +125,14 @@ class FriendsListAPIView(APIView):
 
     @swagger_auto_schema(
         operation_description="Delete a friend",
+        manual_parameters=[
+            openapi.Parameter(
+                "Authorization",
+                openapi.IN_HEADER,
+                description="JWT token",
+                type=openapi.TYPE_STRING,
+            ),
+        ],
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
@@ -80,12 +166,32 @@ class WaitingListAPIView(APIView):
 
     @swagger_auto_schema(
         operation_description="Get the list of friend requests",
+        manual_parameters=[
+            openapi.Parameter(
+                "Authorization",
+                openapi.IN_HEADER,
+                description="JWT token",
+                type=openapi.TYPE_STRING,
+            ),
+        ],
         responses={
             200: openapi.Response(
                 description="Successful response",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_ARRAY,
+                    items=openapi.Schema(
+                        type=openapi.TYPE_OBJECT,
+                        properties={
+                            "friend_name": openapi.Schema(
+                                type=openapi.TYPE_STRING, description="Friend name"
+                            )
+                        },
+                    ),
+                ),
             ),
             400: openapi.Response(
                 description="Bad request",
+                examples={"application/json": {"error": "Error message"}},
             ),
         },
     )
@@ -100,6 +206,14 @@ class WaitingListAPIView(APIView):
 
     @swagger_auto_schema(
         operation_description="Process a friend request",
+        manual_parameters=[
+            openapi.Parameter(
+                "Authorization",
+                openapi.IN_HEADER,
+                description="JWT token",
+                type=openapi.TYPE_STRING,
+            ),
+        ],
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
@@ -128,15 +242,16 @@ class WaitingListAPIView(APIView):
             return Response(
                 {"error": "Invalid data"}, status=status.HTTP_400_BAD_REQUEST
             )
-        friend_request = FriendRequest.objects.get(user=user, friend_name=friend_name)
-        if not friend_request:
-            return Response(
-                {"error": "Request does not exist"}, status=status.HTTP_400_BAD_REQUEST
+        try:
+            friend_request = FriendRequest.objects.get(
+                user=user, friend_name=friend_name
             )
-        FriendRequest.delete_request(user=user, friend_name=friend_name)
-        if request_patch:
-            Friend.create_friend(user, friend_name)
-        return Response(status=status.HTTP_200_OK)
+            FriendRequest.delete_request(user=user, friend_name=friend_name)
+            if request_patch:
+                Friend.create_friend(user, friend_name)
+            return Response(status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AddListAPIView(APIView):
@@ -144,22 +259,39 @@ class AddListAPIView(APIView):
     permission_classes = (IsAuthenticated,)
 
     @swagger_auto_schema(
-        operation_description="Get users with search_name",
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                "search_name": openapi.Schema(
-                    type=openapi.TYPE_STRING, description="Search term for username"
-                )
-            },
-            required=["search_name"],
-        ),
+        operation_description="Get users whose username contains the search_name",
+        manual_parameters=[
+            openapi.Parameter(
+                "search_name",
+                openapi.IN_QUERY,
+                description="Part of the username to search for",
+                type=openapi.TYPE_STRING,
+            ),
+            openapi.Parameter(
+                "Authorization",
+                openapi.IN_HEADER,
+                description="JWT token",
+                type=openapi.TYPE_STRING,
+            ),
+        ],
         responses={
             200: openapi.Response(
                 description="Successful response",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_ARRAY,
+                    items=openapi.Schema(
+                        type=openapi.TYPE_OBJECT,
+                        properties={
+                            "username": openapi.Schema(
+                                type=openapi.TYPE_STRING, description="Username"
+                            )
+                        },
+                    ),
+                ),
             ),
             400: openapi.Response(
                 description="Bad request",
+                examples={"application/json": {"error": "Error message"}},
             ),
         },
     )
@@ -175,6 +307,14 @@ class AddListAPIView(APIView):
 
     @swagger_auto_schema(
         operation_description="Send a friend request",
+        manual_parameters=[
+            openapi.Parameter(
+                "Authorization",
+                openapi.IN_HEADER,
+                description="JWT token",
+                type=openapi.TYPE_STRING,
+            ),
+        ],
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
@@ -199,11 +339,14 @@ class AddListAPIView(APIView):
             return Response(
                 {"error": "Invalid data"}, status=status.HTTP_400_BAD_REQUEST
             )
-        send_user = User.objects.get(username=friend_name)
-        if not send_user:
-            return Response(
-                {"error": "User with friend name does not exist"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        FriendRequest.create_request(user=send_user, friend_name=user.username)
-        return Response(status=status.HTTP_200_OK)
+        try:
+            send_user = User.objects.get(username=friend_name)
+            if not send_user:
+                return Response(
+                    {"error": "User with friend name does not exist"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            FriendRequest.create_request(user=send_user, friend_name=user.username)
+            return Response(status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

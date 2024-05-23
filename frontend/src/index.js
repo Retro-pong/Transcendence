@@ -8,13 +8,17 @@ Fetch.init();
 window.addEventListener('popstate', router);
 
 document.addEventListener('DOMContentLoaded', async () => {
-  const navigation = document.querySelector('#navBarCollapse');
-  navigation.addEventListener('click', (e) => {
-    if (e.target.matches('[data-link]')) {
+  if (!TokenManager.getAccessToken()) {
+    await TokenManager.reissueAccessToken();
+  }
+  const navigations = document.getElementsByTagName('a');
+  Array.prototype.forEach.call(navigations, (nav) => {
+    nav.addEventListener('click', async (e) => {
       e.preventDefault();
-      navigateTo(e.target.href);
-    }
+      await navigateTo(nav.href);
+    });
   });
+
   const logoutBtn = document.getElementById('logoutBtn');
   logoutBtn.addEventListener('click', async () => {
     await TokenManager.logout();

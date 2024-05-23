@@ -26,7 +26,7 @@ class JoinRoomAPIViewTest(APITestCase):
         # Create test rooms
         Room.objects.create(
             room_name="Room1",
-            game_mode="rumble",
+            game_mode="normal",
             game_speed=1,
             game_map="map1",
             max_players=4,
@@ -39,15 +39,23 @@ class JoinRoomAPIViewTest(APITestCase):
             max_players=2,
         )
 
-    def test_get_rooms(self):
-        url = reverse("room:join_room")
+    def test_get_normal_rooms(self):
+        url = reverse("room:join_normal")
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(len(response.data), 1)
 
         room_names = [room["room_name"] for room in response.data]
         self.assertIn("Room1", room_names)
+
+    def test_get_tournament_room(self):
+        url = reverse("room:join_tournament")
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        room_names = [room["room_name"] for room in response.data]
         self.assertIn("Room2", room_names)
 
 
