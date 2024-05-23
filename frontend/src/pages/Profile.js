@@ -1,9 +1,12 @@
 import PageComponent from '@component/PageComponent.js';
-import UserProfile from '@component/contents/UserProfile.js';
 import Header from '@component/text/Header';
-import ProfilePageButtons from '@component/button/ProfilePageButtons';
-import ErrorHandler from '@/utils/ErrorHandler';
+import OpenModalButton from '@component/button/OpenModalButton';
+import ModalComponent from '@component/modal/ModalComponent';
+import EditProfileForm from '@component/form/EditProfileForm';
+import ProfileItem from '@component/contents/ProfileItem';
+import ProfileBattleHistory from '@component/contents/ProfileBattleHistory';
 import Fetch from '@/utils/Fetch';
+import ErrorHandler from '@/utils/ErrorHandler';
 
 class Profile extends PageComponent {
   constructor() {
@@ -11,37 +14,87 @@ class Profile extends PageComponent {
     this.setTitle('Profile');
   }
 
-  async getUserInfo() {
-    return fetch('http://localhost:8080/userInfo').then((res) =>
-      res
-        .json()
-        .catch((err) =>
-          ErrorHandler.setToast(err.message || 'Failed to get user info')
+  async getProfile() {
+    return Fetch.get('/users/profile/').catch(() => {
+      ErrorHandler.setToast('Failed to get user info');
+      return [];
+    });
+  }
+
+  async getPageData() {
+    const profileData = await this.getProfile();
+
+    if (profileData.length === 0) {
+      return `
+        <div class="d-flex justify-content-center align-items-center h-100">
+          <div class="fs-11"> No User Profile :( </div>
+        </div>
+      `;
+    }
+
+    const profile = profileData
+      .map((data, idx) => {
+        if (
+          Object.keys(profile)[idx] === 'image' ||
+          Object.keys(profile)[idx] === 'battleHistory'
         )
-    );
+          return '';
+        return `${ProfileItem({ type: Object.keys(profile)[idx], content: data })}`;
+      })
+      .join('');
+
+    const editModalBtn = OpenModalButton({
+      text: '>> EDIT PROFILE <<',
+      classList: 'btn btn-no-outline-hover fs-8',
+      modalId: '#editProfile',
+    });
+    const editModal = ModalComponent({
+      borderColor: 'pink',
+      title: 'EDIT PROFILE',
+      modalId: 'editProfile',
+      content: EditProfileForm({
+        nick: profile.nick,
+        comment: profile.comment,
+      }),
+      buttonList: ['profileEditBtn'],
+    });
+
+    return `
+        <div class="row d-flex justify-content-center">
+          <div class="row d-flex flex-row mt-4">
+            <div class="col-9 px-4 fs-7">
+              ${profile}
+            </div>
+            <div class="col-3 p-2 h-90 border-5 border-success rounded">
+              <label for="profileImg" class="h-100">
+                <img id="profileImgSrc" src=${img} width="100%" height="90%" alt="user profile"/>
+              </label>
+              <input type="file" accept="image/jpg, image/png" id="profileImg" class="d-none border-0">
+            </div>
+          </div>
+          <div class="row my-4">
+            <div class="d-flex justify-content-center fs-8">BATTLE HISTORY</div>
+            ${ProfileBattleHistory({ user: profileData.nick, history: profileData.battleHistory })}
+          </div>
+        </div>
+        <div class="row d-flex justify-content-center">
+          ${editModalBtn}
+          ${editModal}
+        </div>
+    `;
   }
 
   async render() {
-    const userInfo = await this.getUserInfo();
-
     return `
       ${Header({ title: 'PLAYER PROFILE' })}
-      <div class="container h-100" style="width: 80%">
-        <div class="row d-flex justify-content-center">
-          ${UserProfile({
-            nick: userInfo.nickname,
-            email: userInfo.email,
-            winLose: userInfo.winLose,
-            comment: userInfo.comment,
-            img: userInfo.img,
-            battle: userInfo.battleHistory,
-          })}
-        </div>
-        <div class="row d-flex justify-content-center">
-          ${ProfilePageButtons({ nick: userInfo.nickname, comment: userInfo.comment })}
-        </div>
+      <div id="pageBody" class="container h-75 w-80">
       </div>
     `;
+  }
+
+  async initPageData() {
+    const pageBody = document.getElementById('pageBody');
+    pageBody.innerHTML = await this.getPageData();
   }
 
   updateProfile() {
@@ -87,6 +140,7 @@ class Profile extends PageComponent {
   }
 
   async afterRender() {
+    await this.initPageData();
     this.updateProfile();
     this.updateProfileImg();
   }
