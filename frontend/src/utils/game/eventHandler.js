@@ -5,10 +5,9 @@ function eventHandler(canvas, scene, camera, renderer, controls) {
   const ball = scene.getObjectByName('ball');
   const redPaddle = scene.getObjectByName('redPaddle');
   const bluePaddle = scene.getObjectByName('bluePaddle');
+
   // 키보드 컨트롤
   canvas.addEventListener('keydown', (e) => {
-    console.log(e.key);
-
     // 시점
     if (e.key === '1') {
       camera.position.set(-40, 0, 0);
@@ -20,17 +19,18 @@ function eventHandler(canvas, scene, camera, renderer, controls) {
     }
 
     // 방향키
+    const move = 1;
     if (e.key === 'w') {
-      if (redPaddle.position.y < 5) redPaddle.position.y += 1;
+      if (redPaddle.position.y < 5) redPaddle.position.y += move;
     }
     if (e.key === 's') {
-      if (redPaddle.position.y > -5) redPaddle.position.y -= 1;
+      if (redPaddle.position.y > -5) redPaddle.position.y -= move;
     }
     if (e.key === 'a') {
-      if (redPaddle.position.z < 7.5) redPaddle.position.z += 1;
+      if (redPaddle.position.z < 7.5) redPaddle.position.z += move;
     }
     if (e.key === 'd') {
-      if (redPaddle.position.z > -7.5) redPaddle.position.z -= 1;
+      if (redPaddle.position.z > -7.5) redPaddle.position.z -= move;
     }
   });
 
