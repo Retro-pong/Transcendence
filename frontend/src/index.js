@@ -8,6 +8,9 @@ Fetch.init();
 window.addEventListener('popstate', router);
 
 document.addEventListener('DOMContentLoaded', async () => {
+  if (!TokenManager.getAccessToken()) {
+    await TokenManager.reissueAccessToken();
+  }
   const navigations = document.getElementsByTagName('a');
   Array.prototype.forEach.call(navigations, (nav) => {
     nav.addEventListener('click', async (e) => {
