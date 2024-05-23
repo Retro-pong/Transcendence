@@ -1,6 +1,7 @@
 import PageComponent from '@component/PageComponent.js';
 import NavLink from '@component/navigation/NavLink.js';
 import TokenManager from '@/utils/TokenManager';
+import { navigateTo } from '@/utils/router';
 
 class Home extends PageComponent {
   constructor() {
@@ -36,6 +37,7 @@ class Home extends PageComponent {
       .addEventListener('click', async () => {
         await TokenManager.reissueAccessToken();
       });
+    await this.onNavButtonClick();
   }
 }
 
