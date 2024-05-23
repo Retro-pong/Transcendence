@@ -32,14 +32,12 @@ class Profile extends PageComponent {
       `;
     }
 
-    const profile = profileData
-      .map((data, idx) => {
-        if (
-          Object.keys(profile)[idx] === 'image' ||
-          Object.keys(profile)[idx] === 'battleHistory'
-        )
+    console.log(profileData);
+    const profile = Object.keys(profileData)
+      .map((key) => {
+        if (key === 'image' || key === 'battleHistory' || key === 'is_active')
           return '';
-        return `${ProfileItem({ type: Object.keys(profile)[idx], content: data })}`;
+        return `${ProfileItem({ type: key, content: profileData[key] })}`;
       })
       .join('');
 
@@ -53,12 +51,13 @@ class Profile extends PageComponent {
       title: 'EDIT PROFILE',
       modalId: 'editProfile',
       content: EditProfileForm({
-        nick: profile.nick,
-        comment: profile.comment,
+        nick: profileData.username,
+        comment: profileData.comment ?? 'Please write a comment',
       }),
       buttonList: ['profileEditBtn'],
     });
 
+    // TODO: battleHistory 정보 추가
     return `
         <div class="row d-flex justify-content-center">
           <div class="row d-flex flex-row mt-4">
@@ -72,15 +71,14 @@ class Profile extends PageComponent {
               <input type="file" accept="image/jpg, image/png" id="profileImg" class="d-none border-0">
             </div>
           </div>
-          <div class="row my-4">
-            <div class="d-flex justify-content-center fs-8">BATTLE HISTORY</div>
-            ${ProfileBattleHistory({ user: profileData.nick, history: profileData.battleHistory })}
+          <div class="row d-flex justify-content-center">
+            ${editModalBtn}
+            ${editModal}
           </div>
         </div>
-        <div class="row d-flex justify-content-center">
-          ${editModalBtn}
-          ${editModal}
-        </div>
+          <div class="row my-4">
+            <div class="d-flex justify-content-center fs-8 border border-light">BATTLE HISTORY</div>
+          </div>
     `;
   }
 
