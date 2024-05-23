@@ -25,8 +25,6 @@ function createGameObject(scene) {
   gameObjs.add(ball);
   gameObjs.add(redPaddle);
   gameObjs.add(bluePaddle);
-
-  return { ball, redPaddle, bluePaddle };
 }
 
 export default createGameObject;
