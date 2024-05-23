@@ -3,7 +3,8 @@ const NavLink = ({ text, path, classList = 'nav-link fs-13' }) => {
   a.href = path;
   a.className = classList;
   a.innerHTML = text;
-  a.dataset.link = text;
+  a.dataset.nav = 'true';
+
   return a;
 };
 
