@@ -1,4 +1,4 @@
-const profileItem = ({ type, content }) => {
+const ProfileItem = ({ type, content }) => {
   if (type === 'comment') {
     return `
 	  <div class="row">
@@ -17,5 +17,4 @@ const profileItem = ({ type, content }) => {
 	
 	`;
 };
-
-export default profileItem;
+export default ProfileItem;
