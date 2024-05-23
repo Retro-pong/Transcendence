@@ -1,5 +1,5 @@
 import PageComponent from '@component/PageComponent';
-import game from '@/utils/game';
+import game from '@/utils/game/game';
 
 class PlayGame extends PageComponent {
   constructor() {
