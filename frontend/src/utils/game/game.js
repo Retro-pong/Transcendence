@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import createMap from './createMap';
+import createGameObject from "@/utils/game/createGameObject";
 
 function game() {
   const canvas = document.getElementById('gameCanvas');
@@ -11,7 +12,7 @@ function game() {
   const near = 0.1;
   const far = 1000;
   const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-  camera.position.set(0, 0, 100);
+  camera.position.set(-50, -1, 0);
 
   const controls = new OrbitControls(camera, canvas);
   controls.target.set(0, 0, 0);
@@ -43,19 +44,9 @@ function game() {
     scene.add(light.target);
   }
 
-  createMap(scene);
+  const map = createMap(scene);
+  const { ball, redPaddle, bluePaddle } = createGameObject(scene);
 
-  const redPaddleGeometry = new THREE.BoxGeometry(0.5, 3, 3);
-  const redPaddleMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000 });
-  const redPaddle = new THREE.Mesh(redPaddleGeometry, redPaddleMaterial);
-  redPaddle.position.set(25, 0, 0);
-  scene.add(redPaddle);
-
-  const bluePaddleGeometry = new THREE.BoxGeometry(0.5, 3, 3);
-  const bluePaddleMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff });
-  const bluePaddle = new THREE.Mesh(bluePaddleGeometry, bluePaddleMaterial);
-  bluePaddle.position.set(-25, 0, 0);
-  scene.add(bluePaddle);
 
 
   function resizeRendererToDisplaySize(renderer) {
@@ -78,8 +69,10 @@ function game() {
       camera.aspect = canvas.clientWidth / canvas.clientHeight;
       camera.updateProjectionMatrix();
     }
+    if (map) {
+      map.rotation.x += 0.005;
+    }
     renderer.render(scene, camera);
-
     requestAnimationFrame(render);
   }
 
