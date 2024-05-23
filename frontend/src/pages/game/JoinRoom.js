@@ -1,16 +1,12 @@
 import PageComponent from '@component/PageComponent.js';
 import NavLink from '@component/navigation/NavLink';
 import BasicButton from '@component/button/BasicButton';
-import Pagination from '@component/navigation/Pagination';
 import Fetch from '@/utils/Fetch';
 
 class JoinRoom extends PageComponent {
   constructor() {
     super();
     this.mode = 'rumble';
-    this.currPage = 1;
-    this.totalPage = 1;
-    this.size = 5;
     this.setTitle('Join Room');
   }
 
@@ -23,9 +19,6 @@ class JoinRoom extends PageComponent {
         : await Fetch.get(
             `/tournamentList?_page=${this.currPage}&_limit=${this.size}`
           );
-
-    this.totalPage = 2; // TODO: totalPage 받아오기
-    this.setPaginationStyle();
 
     return roomList
       .map((room) => {
@@ -43,7 +36,6 @@ class JoinRoom extends PageComponent {
   }
 
   async render() {
-    const RoomLinks = await this.getPageData();
     const reloadRoomBtn = BasicButton({
       id: 'reloadBtn',
       text: '> Reload',
@@ -63,17 +55,13 @@ class JoinRoom extends PageComponent {
         </nav>
         <div class="d-flex flex-column h-75 justify-content-center">
           <div id="pageBody" class="tab-pane active d-flex flex-column flex-column overflow-auto h-100">
-            ${RoomLinks}
           </div>
-          ${Pagination({ currPage: this.currPage, totalPage: this.totalPage })}
         </div>
       </div>
       `;
   }
 
   async afterRender() {
-    this.onReloadButtonClick(this);
-
     // 탭
     const pageBody = document.getElementById('pageBody');
     const rumbleTab = document.getElementById('rumbleTab');
@@ -88,8 +76,6 @@ class JoinRoom extends PageComponent {
       this.currPage = 1;
       pageBody.innerHTML = await this.getPageData();
     });
-
-    this.onPaginationClick(this);
   }
 }
 
