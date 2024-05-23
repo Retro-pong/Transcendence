@@ -1,8 +1,10 @@
+import gameUtils from '@/utils/game/gameUtils';
+
 function eventHandler(canvas, scene, camera, renderer, controls) {
+  const mapBox = scene.getObjectByName('mapBox');
   const ball = scene.getObjectByName('ball');
   const redPaddle = scene.getObjectByName('redPaddle');
   const bluePaddle = scene.getObjectByName('bluePaddle');
-
   // 키보드 컨트롤
   canvas.addEventListener('keydown', (e) => {
     console.log(e.key);
@@ -18,10 +20,36 @@ function eventHandler(canvas, scene, camera, renderer, controls) {
     }
 
     // 방향키
+    if (e.key === 'w') {
+      if (redPaddle.position.y < 5) redPaddle.position.y += 1;
+    }
+    if (e.key === 's') {
+      if (redPaddle.position.y > -5) redPaddle.position.y -= 1;
+    }
+    if (e.key === 'a') {
+      if (redPaddle.position.z < 7.5) redPaddle.position.z += 1;
+    }
+    if (e.key === 'd') {
+      if (redPaddle.position.z > -7.5) redPaddle.position.z -= 1;
+    }
   });
 
   // 마우스 컨트롤
-  canvas.addEventListener('mousemove', (e) => {});
+  canvas.addEventListener('mousemove', (e) => {
+    const x = e.clientX;
+    const y = e.clientY;
+
+    const mousePosition = gameUtils.getMouseWorldPositionInObject(
+      x,
+      y,
+      camera,
+      mapBox
+    );
+
+    if (!mousePosition) return;
+    bluePaddle.position.y = mousePosition.y;
+    bluePaddle.position.z = mousePosition.z;
+  });
 }
 
 export default eventHandler;
