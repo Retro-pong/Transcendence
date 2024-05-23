@@ -2,16 +2,21 @@ import Fetch from '@/utils/Fetch';
 import ErrorHandler from '@/utils/ErrorHandler';
 
 class TokenManager {
+  static #accessToken = null;
+
   static setAccessToken(accessToken) {
-    localStorage.setItem('accessToken', accessToken);
+    this.#accessToken = accessToken;
+    // localStorage.setItem('accessToken', accessToken);
   }
 
   static getAccessToken() {
-    return localStorage.getItem('accessToken');
+    return this.#accessToken;
+    // return localStorage.getItem('accessToken');
   }
 
   static deleteAccessToken() {
-    localStorage.removeItem('accessToken');
+    this.#accessToken = null;
+    // localStorage.removeItem('accessToken');
   }
 
   static getLoginStatus() {
@@ -33,8 +38,10 @@ class TokenManager {
       .then((res) => {
         this.storeToken(res.access_token);
       })
-      .catch(() => {
-        ErrorHandler.setToast('You need to login');
+      .catch((err) => {
+        if (err.error !== 'No refresh token.') {
+          ErrorHandler.setToast('You need to login');
+        }
         this.clearToken();
       });
   }
