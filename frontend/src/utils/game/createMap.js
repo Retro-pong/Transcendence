@@ -23,6 +23,9 @@ function createMap(scene) {
   map.add(mapBox);
   map.add(mapBox2);
 
+  mapBox.name = 'mapBox';
+  mapBox2.name = 'mapBox2';
+
   return map;
 }
 

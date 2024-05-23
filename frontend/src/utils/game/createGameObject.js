@@ -19,6 +19,9 @@ function createGameObject(scene) {
   const bluePaddle = new THREE.Mesh(bluePaddleGeometry, bluePaddleMaterial);
   bluePaddle.position.set(-25, 0, 0);
 
+  ball.name = 'ball';
+  redPaddle.name = 'redPaddle';
+  bluePaddle.name = 'bluePaddle';
   gameObjs.add(ball);
   gameObjs.add(redPaddle);
   gameObjs.add(bluePaddle);
