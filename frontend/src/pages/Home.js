@@ -1,7 +1,6 @@
 import PageComponent from '@component/PageComponent.js';
 import NavLink from '@component/navigation/NavLink.js';
 import TokenManager from '@/utils/TokenManager';
-import { navigateTo } from '@/utils/router';
 
 class Home extends PageComponent {
   constructor() {
