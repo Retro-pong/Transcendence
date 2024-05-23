@@ -7,12 +7,9 @@ function createMap(scene, controls) {
     wireframe: true,
   });
   const map = new THREE.Mesh(mapGeometry, mapMaterial);
-
   map.position.set(0, 0, 0);
-
-  scene.add(map);
-
   map.name = 'map';
+  scene.add(map);
 
   const box3 = new THREE.Box3().setFromObject(map);
   const boxCenter = new THREE.Vector3();
