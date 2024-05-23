@@ -1,4 +1,5 @@
 import { Tooltip } from 'bootstrap';
+import { navigateTo } from '@/utils/router';
 
 class PageComponent {
   constructor() {
@@ -99,6 +100,16 @@ class PageComponent {
 
     reloadBtn.addEventListener('click', async () => {
       await this.initPageData(child);
+    });
+  }
+
+  onNavButtonClick() {
+    const navigations = document.querySelectorAll('[data-nav="true"]');
+    navigations.forEach((nav) => {
+      nav.addEventListener('click', async (e) => {
+        e.preventDefault();
+        await navigateTo(nav.href);
+      });
     });
   }
 }

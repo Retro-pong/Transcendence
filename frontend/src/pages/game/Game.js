@@ -30,6 +30,10 @@ class Game extends PageComponent {
     </div>
     `;
   }
+
+  async afterRender() {
+    this.onNavButtonClick();
+  }
 }
 
 export default Game;
