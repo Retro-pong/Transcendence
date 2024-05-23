@@ -1,41 +1,42 @@
 import PageComponent from '@component/PageComponent.js';
 import NavLink from '@component/navigation/NavLink';
 import BasicButton from '@component/button/BasicButton';
-import Pagination from '@component/navigation/Pagination';
 import Fetch from '@/utils/Fetch';
+import ErrorHandler from '@/utils/ErrorHandler';
 
 class JoinRoom extends PageComponent {
   constructor() {
     super();
-    this.mode = 'rumble';
-    this.currPage = 1;
-    this.totalPage = 1;
-    this.size = 5;
+    this.mode = 'normal';
     this.setTitle('Join Room');
   }
 
-  async getPageData() {
-    const roomList =
-      this.mode === 'rumble'
-        ? await Fetch.get(
-            `/rumbleList?_page=${this.currPage}&_limit=${this.size}`
-          )
-        : await Fetch.get(
-            `/tournamentList?_page=${this.currPage}&_limit=${this.size}`
-          );
+  async getRoomList() {
+    return Fetch.get(`/rooms/join/${this.mode}/`).catch(() => {
+      ErrorHandler.setToast('Failed to get room list');
+      return [];
+    });
+  }
 
-    this.totalPage = 2; // TODO: totalPage 받아오기
-    this.setPaginationStyle();
+  async getPageData() {
+    const roomList = await this.getRoomList();
+
+    if (roomList.length === 0) {
+      return `
+      <div class="d-flex justify-content-center align-items-center h-100">
+        <div class="fs-11 align-self-center"> No Rooms :( </div>
+      </div>`;
+    }
 
     return roomList
       .map((room) => {
         const text =
-          this.mode === 'rumble'
-            ? `[ ${room.title} ]`
-            : `[ ${room.title} ] (${room.currentParty}/4)`;
+          this.mode === 'normal'
+            ? `[ ${room.room_name} ]`
+            : `[ ${room.room_name} ] (${room.current_players}/${room.max_players})`;
         return NavLink({
           text,
-          path: `/game/waiting?room=${room.id}&title=${room.title}&mode=${this.mode}`,
+          path: `/game/waiting?room=${room.id}&title=${room.room_name}&mode=${this.mode}`,
           classList: 'btn btn-no-outline-hover fs-11 btn-arrow',
         }).outerHTML;
       })
@@ -43,7 +44,6 @@ class JoinRoom extends PageComponent {
   }
 
   async render() {
-    const RoomLinks = await this.getPageData();
     const reloadRoomBtn = BasicButton({
       id: 'reloadBtn',
       text: '> Reload',
@@ -52,44 +52,49 @@ class JoinRoom extends PageComponent {
     });
 
     return `
-      <div class="container h-100 p-3 game-room-border">
+      <div class="container h-100 p-3 game-room-border overflow-hidden">
         <div class="d-flex justify-content-center position-relative">
           <h1 class="display-1 text-center">[ Room List ]</h1>
           ${reloadRoomBtn}
         </div>
         <nav class="nav nav-tabs">
-          <button class="col btn btn-outline-light fs-1 active" id="rumbleTab" data-bs-toggle="tab" type="button">Rumble</button>
+          <button class="col btn btn-outline-light fs-1 active" id="normalTab" data-bs-toggle="tab" type="button">Normal</button>
           <button class="col btn btn-outline-light fs-1" id="tournamentTab" data-bs-toggle="tab" type="button" >Tournament</button>
         </nav>
         <div class="d-flex flex-column h-75 justify-content-center">
-          <div id="pageBody" class="tab-pane active d-flex flex-column flex-column overflow-auto h-100">
-            ${RoomLinks}
+          <div id="pageBody" class="tab-pane active d-flex flex-column flex-column overflow-auto h-100 my-3 px-3">
           </div>
-          ${Pagination({ currPage: this.currPage, totalPage: this.totalPage })}
         </div>
       </div>
       `;
   }
 
-  async afterRender() {
-    this.onReloadButtonClick(this);
-
-    // 탭
+  async initPageData() {
     const pageBody = document.getElementById('pageBody');
-    const rumbleTab = document.getElementById('rumbleTab');
-    const tournamentTab = document.getElementById('tournamentTab');
-    rumbleTab.addEventListener('click', async () => {
-      this.mode = 'rumble';
-      this.currPage = 1;
-      pageBody.innerHTML = await this.getPageData();
-    });
-    tournamentTab.addEventListener('click', async () => {
-      this.mode = 'tournament';
-      this.currPage = 1;
-      pageBody.innerHTML = await this.getPageData();
-    });
+    pageBody.innerHTML = await this.getPageData();
+  }
 
-    this.onPaginationClick(this);
+  onTabClick() {
+    const navTabs = document.querySelectorAll('[data-bs-toggle="tab"]');
+    navTabs.forEach((tab) => {
+      tab.addEventListener('click', async (e) => {
+        this.mode = e.target.id === 'normalTab' ? 'normal' : 'tournament';
+        await this.initPageData();
+      });
+    });
+  }
+
+  onReloadButtonClick() {
+    const reloadBtn = document.getElementById('reloadBtn');
+    reloadBtn.addEventListener('click', async () => {
+      await this.initPageData();
+    });
+  }
+
+  async afterRender() {
+    await this.initPageData();
+    this.onTabClick();
+    this.onReloadButtonClick();
   }
 }
 
