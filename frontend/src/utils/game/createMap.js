@@ -4,7 +4,7 @@ function createMap(scene, controls) {
   const map = new THREE.Object3D();
   scene.add(map);
 
-  const mapBoxGeometry = new THREE.BoxGeometry(50, 10, 10, 4, 4, 4);
+  const mapBoxGeometry = new THREE.BoxGeometry(50, 10, 15, 4, 4, 4);
   const mapBoxMaterial = new THREE.MeshBasicMaterial({
     color: 0x00ff00,
     wireframe: true,
