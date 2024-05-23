@@ -1,7 +1,7 @@
 import gameUtils from '@/utils/game/gameUtils';
 
 function eventHandler(canvas, scene, camera, renderer, controls) {
-  const mapBox = scene.getObjectByName('mapBox');
+  const map = scene.getObjectByName('map');
   const ball = scene.getObjectByName('ball');
   const redPaddle = scene.getObjectByName('redPaddle');
   const bluePaddle = scene.getObjectByName('bluePaddle');
@@ -43,7 +43,7 @@ function eventHandler(canvas, scene, camera, renderer, controls) {
       x,
       y,
       camera,
-      mapBox
+      map
     );
 
     if (!mousePosition) return;

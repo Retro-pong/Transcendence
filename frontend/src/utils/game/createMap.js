@@ -1,23 +1,20 @@
 import * as THREE from 'three';
 
 function createMap(scene, controls) {
-  const map = new THREE.Object3D();
-  scene.add(map);
-
-  const mapBoxGeometry = new THREE.BoxGeometry(50, 10, 15, 4, 4, 4);
-  const mapBoxMaterial = new THREE.MeshBasicMaterial({
+  const mapGeometry = new THREE.BoxGeometry(50, 10, 15, 4, 4, 4);
+  const mapMaterial = new THREE.MeshBasicMaterial({
     color: 0x00ff00,
     wireframe: true,
   });
-  const mapBox = new THREE.Mesh(mapBoxGeometry, mapBoxMaterial);
+  const map = new THREE.Mesh(mapGeometry, mapMaterial);
 
-  mapBox.position.set(0, 0, 0);
+  map.position.set(0, 0, 0);
 
-  map.add(mapBox);
+  map.add(map);
 
-  mapBox.name = 'mapBox';
+  map.name = 'map';
 
-  const box3 = new THREE.Box3().setFromObject(mapBox);
+  const box3 = new THREE.Box3().setFromObject(map);
   const boxCenter = new THREE.Vector3();
   box3.getCenter(boxCenter);
 
