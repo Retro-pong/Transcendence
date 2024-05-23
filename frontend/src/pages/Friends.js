@@ -3,9 +3,13 @@ import FriendInfoCard from '@component/card/FriendInfoCard';
 import FriendPageButtons from '@component/button/FriendPageButtons';
 import FriendWaitListItem from '@component/contents/FriendWaitListItem';
 import FriendSearchListItem from '@component/contents/FriendSearchListItem';
-import initTooltip from '@/utils/initTooltip';
+import ModalComponent from '@component/modal/ModalComponent';
+import FriendWaitList from '@component/contents/FriendWaitList';
+import FriendSearch from '@component/contents/FriendSearch';
+import Pagination from '@component/navigation/Pagination';
 import Fetch from '@/utils/Fetch';
 import debounce from '@/utils/debounce';
+import ErrorHandler from '@/utils/ErrorHandler';
 
 class Friends extends PageComponent {
   constructor() {
@@ -13,11 +17,72 @@ class Friends extends PageComponent {
     this.setTitle('Friends');
   }
 
-  // TODO: 친구 목록 api 요청
   async getFriends() {
-    return Fetch.get('/friends');
+    const URL = `/friends/friend_list?limit=${this.limit}&offset=${this.offset}`;
+    const response = await Fetch.get(URL).catch(() => {
+      document.getElementById('pagination').classList.add('d-none');
+      ErrorHandler.setToast('Failed to get friends list');
+      return [];
+    });
+    this.totalPage = response.total;
+    return response.friends;
   }
 
+  async getPageData() {
+    const friendList = await this.getFriends();
+    if (friendList.length === 0) {
+      document.getElementById('pagination').classList.add('d-none');
+      return `<div class="fs-15 align-self-center"> No Friends :( </div>`;
+    }
+    document.getElementById('pagination').classList.remove('d-none');
+
+    const friends = friendList
+      .map((data) =>
+        FriendInfoCard({
+          id: data.friend_user,
+          name: data.friend_info.username,
+          win: data.friend_info.win,
+          lose: data.friend_info.lose,
+          comment: data.friend_info.comment,
+          isActive: data.friend_info.is_active,
+          profileImg: data.friend_info.image,
+        })
+      )
+      .join('');
+    return `
+      <div class="row row-cols-lg-2 w-100">
+        ${friends}
+      </div>
+    `;
+  }
+
+  /* 페이지네이션 테스트용 -> Fetch BASE_URL 변경 필요
+  async getFriendsTest() {
+    const URL = `/friends?_limit=${this.limit}&_page=${this.currPage}`;
+    const response = await Fetch.get(URL).catch(() => {
+      document.getElementById('pagination').classList.add('d-none');
+      ErrorHandler.setToast('Failed to get friends list');
+      return [];
+    });
+    this.totalPage = 2;
+    return response;
+  }
+
+  async getPageData() {
+    const friendList = await this.getFriendsTest();
+    if (friendList.length === 0) {
+      document.getElementById('pagination').classList.add('d-none');
+      return `<div class="fs-15 align-self-center"> No Friends :( </div>`;
+    }
+    document.getElementById('pagination').classList.remove('d-none');
+    const friends = friendList.map((data) => FriendInfoCard(data)).join('');
+    return `
+      <div class="row row-cols-lg-2 w-100">
+        ${friends}
+      </div>
+    `;
+  }
+*/
   async getWaitingFriends() {
     return Fetch.get('/friends-wait-list');
   }
@@ -70,22 +135,65 @@ class Friends extends PageComponent {
   }
 
   async render() {
-    const dummyFriends = (await this.getFriends()) || [];
+    const FriendWaitModal = ModalComponent({
+      borderColor: 'mint',
+      title: 'WAITING',
+      modalId: 'friendWaitModal',
+      content: FriendWaitList(),
+      buttonList: [],
+    });
+    const FriendAddModal = ModalComponent({
+      borderColor: 'pink',
+      title: 'ADD FRIEND',
+      modalId: 'friendAddModal',
+      content: FriendSearch(),
+      buttonList: [],
+    });
+
     return `
-      <h1 class="fs-15">Friends</h1>
-      <div class="d-flex flex-row justify-content-end" style="padding-right: 10%">
-        ${FriendPageButtons()}
+      ${FriendWaitModal}
+      ${FriendAddModal}
+      <div class="d-flex justify-content-between position-sticky top-0 z-1">
+        <h1 class="fs-14">Friends</h1>
+        <div class="d-flex flex-row pe-5">
+          ${FriendPageButtons()}
+          <button id="testBtn" class="btn btn-no-outline-hover fs-7 bg-danger"> > Test </button>
+        </div>
       </div>
-      <div class="d-flex flex-wrap justify-content-evenly overflow-auto h-75">
-        ${dummyFriends.map((friend) => FriendInfoCard(friend)).join('')}
+      <div id="pageBody" class="d-flex flex-wrap justify-content-evenly overflow-auto h-75">
       </div>
+      ${Pagination({ currPage: this.currPage, totalPage: this.totalPage })}
       `;
   }
 
+  async searchFriend(friendName) {
+    try {
+      await Fetch.get(`/friends/add?search_name=${friendName}`);
+    } catch (err) {
+      ErrorHandler.setToast(err.error || 'search failed');
+    }
+  }
+
+  async addFriend(friendName) {
+    try {
+      await Fetch.patch('/friends/add/', { friend_name: friendName });
+    } catch (err) {
+      ErrorHandler.setToast(err.error || 'add failed');
+    }
+  }
+
   async afterRender() {
-    initTooltip();
+    await this.initPageData(this);
+    this.onReloadButtonClick(this);
+    this.onPaginationClick(this);
     await this.addFriendWaitModalEvent();
     await this.addFriendAddModalEvent();
+
+    document.getElementById('testBtn').addEventListener('click', async () => {
+      const friendName = 'hyobicho';
+      await this.searchFriend(friendName);
+      await this.addFriend(friendName);
+    });
   }
 }
 
