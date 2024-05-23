@@ -10,7 +10,7 @@ function createMap(scene, controls) {
 
   map.position.set(0, 0, 0);
 
-  map.add(map);
+  scene.add(map);
 
   map.name = 'map';
 
