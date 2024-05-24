@@ -243,34 +243,12 @@ class Friends extends PageComponent {
       `;
   }
 
-  async searchFriend(friendName) {
-    try {
-      await Fetch.get(`/friends/add?search_name=${friendName}`);
-    } catch (err) {
-      ErrorHandler.setToast(err.error || 'search failed');
-    }
-  }
-
-  async addFriend(friendName) {
-    try {
-      await Fetch.patch('/friends/add/', { friend_name: friendName });
-    } catch (err) {
-      ErrorHandler.setToast(err.error || 'add failed');
-    }
-  }
-
   async afterRender() {
     await this.initPageData(this);
     this.onReloadButtonClick(this);
     this.onPaginationClick(this);
     this.onFriendWaitModalEvent();
     this.onFriendAddModalEvent();
-
-    document.getElementById('testBtn').addEventListener('click', async () => {
-      const friendName = 'hyobicho';
-      await this.searchFriend(friendName);
-      await this.addFriend(friendName);
-    });
   }
 }
 
