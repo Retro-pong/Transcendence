@@ -103,6 +103,7 @@ class Friends extends PageComponent {
     });
   }
 
+  // 친구 추가 모달
   onFriendAddModalEvent() {
     const friendAddModal = document.getElementById('friendAddModal');
     const input = document.getElementById('searchFriend');
@@ -117,6 +118,7 @@ class Friends extends PageComponent {
       }
     });
 
+    // 친구 검색창 이벤트
     input.addEventListener(
       'input',
       debounce(async (e) => {
@@ -127,10 +129,25 @@ class Friends extends PageComponent {
         }
         await Fetch.get(`/friends/add?search_name=${username}`)
           .then((res) => {
+            // 친구 검색 결과 생성
             friendSearchList.innerHTML =
               res
                 .map((friend) => FriendSearchListItem({ nick: friend }))
                 .join('') || 'No search results';
+            // 친구 추가 버튼에 이벤트 추가
+            document.querySelectorAll('.friend-add-btn').forEach((btn) => {
+              btn.addEventListener('click', async (e) => {
+                const friendName = e.target.dataset.nick;
+                await Fetch.patch('/friends/add/', { friend_name: friendName })
+                  .then(() => {
+                    ErrorHandler.setToast('Friend added');
+                    this.afterRender();
+                  })
+                  .catch(() => {
+                    ErrorHandler.setToast('Friend add failed');
+                  });
+              });
+            });
             friendSearchList.scrollIntoView({ behavior: 'smooth' });
           })
           .catch(() => {
