@@ -38,30 +38,6 @@ class Fetch {
     return !url.startsWith('/login') || url === '/login/logout/';
   }
 
-  static async handleResponseWithRetry(
-    request,
-    response,
-    url,
-    body,
-    retry,
-    formData = false
-  ) {
-    if (!response.ok) {
-      if (this.isAuth(url) && response.status === 401 && retry <= this.#retry) {
-        await TokenManager.reissueAccessToken();
-        return formData
-          ? this[request](url, body, retry + 1, formData)
-          : this[request](url, body, retry + 1);
-      }
-      return response.json().then((err) => {
-        const requestType = request.toUpperCase();
-        console.error(`${requestType}(${url}) ERROR:`, err);
-        throw err;
-      });
-    }
-    return response.json();
-  }
-
   static async get(url, retry = 1) {
     this.showLoading();
     const response = await fetch(`${this.#BASE_URL}${url}`, {
@@ -70,7 +46,17 @@ class Fetch {
       credentials: this.#credentials,
     });
     this.hideLoading();
-    return this.handleResponseWithRetry('get', response, url, {}, retry);
+    if (!response.ok) {
+      if (this.isAuth(url) && response.status === 401 && retry <= this.#retry) {
+        await TokenManager.reissueAccessToken();
+        return this.get(url, retry + 1);
+      }
+      return response.json().then((err) => {
+        console.error(`GET(${url}) ERROR:`, err);
+        throw err;
+      });
+    }
+    return response.json();
   }
 
   static async post(url, body = {}, retry = 1) {
@@ -82,36 +68,17 @@ class Fetch {
       body: JSON.stringify(body),
     });
     this.hideLoading();
-    return this.handleResponseWithRetry('post', response, url, body, retry);
-  }
-
-  static async patch(url, body, formData, retry = 1) {
-    this.showLoading();
-    let response;
-    if (formData) {
-      response = await fetch(`${this.#BASE_URL}${url}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'multipart/form-data' },
-        credentials: this.#credentials,
-        body,
-      });
-    } else {
-      response = await fetch(`${this.#BASE_URL}${url}`, {
-        method: 'PATCH',
-        headers: this.#headers,
-        credentials: this.#credentials,
-        body: JSON.stringify(body),
+    if (!response.ok) {
+      if (this.isAuth(url) && response.status === 401 && retry <= this.#retry) {
+        await TokenManager.reissueAccessToken();
+        return this.post(url, body, retry + 1);
+      }
+      return response.json().then((err) => {
+        console.error(`POST(${url}) ERROR:`, err);
+        throw err;
       });
     }
-    this.hideLoading();
-    return this.handleResponseWithRetry(
-      'patch',
-      response,
-      url,
-      body,
-      retry,
-      formData
-    );
+    return response.json();
   }
 
   static async patch(url, body = {}, retry = 1) {
