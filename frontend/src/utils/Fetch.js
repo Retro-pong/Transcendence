@@ -83,14 +83,16 @@ class Fetch {
 
   static async patch(url, body = {}, type = '', retry = 1) {
     await this.showLoading();
+    const header =
+      type !== 'image'
+        ? this.#headers
+        : { Authorization: `Bearer ${TokenManager.getAccessToken()}` };
+    const reqBody = type === 'image' ? body : JSON.stringify(body);
     const response = await fetch(`${this.#BASE_URL}${url}`, {
       method: 'PATCH',
-      headers:
-        type !== 'form'
-          ? this.#headers
-          : { 'Content-Type': 'multipart/form-data' },
+      headers: header,
       credentials: this.#credentials,
-      body: type !== 'form' ? JSON.stringify(body) : body,
+      body: reqBody,
     });
     this.hideLoading();
     if (!response.ok) {
