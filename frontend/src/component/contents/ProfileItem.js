@@ -1,8 +1,9 @@
 const ProfileItem = ({ type, content }) => {
+  const contentId = `profile-${type}`;
   const contentItem =
     type === 'comment'
-      ? `<textarea class="col-7 bg-transparent border-0 text-white" style="resize: none" disabled>${content ?? 'Please write a comment'}</textarea>`
-      : `<div class="col-7 overflow-y-scroll overflow-scrollbar-x ">${content}</div>`;
+      ? `<textarea id=${contentId} class="col-7 bg-transparent border-0 text-white" style="resize: none" disabled>${content || 'Please write a comment'}</textarea>`
+      : `<div id=${contentId} class="col-7 overflow-y-scroll overflow-scrollbar-x">${content}</div>`;
 
   return `
 	<div class="row">
