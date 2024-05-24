@@ -85,6 +85,62 @@ class Friends extends PageComponent {
   }
 */
 
+  onFriendAcceptBtnClick() {
+    document.querySelectorAll('.friend-accept-btn').forEach((btn) => {
+      btn.addEventListener('click', async (e) => {
+        const friendName = e.target.dataset.nick;
+        await Fetch.patch('/friends/waiting/', {
+          friend_name: friendName,
+          request_patch: '1',
+        })
+          .then(() => {
+            ErrorHandler.setToast('Friend accepted');
+            this.afterRender();
+          })
+          .catch(() => {
+            ErrorHandler.setToast('Failed to accept friend');
+          });
+      });
+    });
+  }
+
+  onFriendRejectBtnClick() {
+    document.querySelectorAll('.friend-reject-btn').forEach((btn) => {
+      btn.addEventListener('click', async (e) => {
+        const friendName = e.target.dataset.nick;
+        await Fetch.patch('/friends/waiting/', {
+          friend_name: friendName,
+          request_patch: '0',
+        })
+          .then(() => {
+            ErrorHandler.setToast('Friend rejected');
+            this.afterRender();
+          })
+          .catch(() => {
+            ErrorHandler.setToast('Failed to reject friend');
+          });
+      });
+    });
+  }
+
+  onFriendRequestBtnClick() {
+    document.querySelectorAll('.friend-request-btn').forEach((btn) => {
+      btn.addEventListener('click', async (e) => {
+        const friendName = e.target.dataset.nick;
+        await Fetch.patch('/friends/add/', { friend_name: friendName })
+          .then(() => {
+            ErrorHandler.setToast(`friend request ${friendName}`);
+            this.afterRender();
+          })
+          .catch(() => {
+            ErrorHandler.setToast(
+              `failed to friend request ${friendName}`
+            );
+          });
+      });
+    });
+  }
+
   onFriendWaitModalEvent() {
     const friendWaitModal = document.getElementById('friendWaitModal');
     const friendWaitList = document.getElementById('friendWaitListContainer');
@@ -96,14 +152,22 @@ class Friends extends PageComponent {
     });
 
     friendWaitModal.addEventListener('show.bs.modal', async () => {
-      const waitingFriends = await this.getWaitingFriends();
-      waitingFriends.map((friend) =>
-        friendWaitList.appendChild(FriendWaitListItem({ nick: friend }))
-      );
+      await Fetch.get('/friends/waiting')
+        .then((res) => {
+          friendWaitList.innerHTML =
+            res
+              .map((friend) => FriendWaitListItem({ nick: friend }))
+              .join('') || 'No waiting list';
+          // 친구 수락, 거절 버튼에 이벤트 추가
+          this.onFriendAcceptBtnClick();
+          this.onFriendRejectBtnClick();
+        })
+        .catch(() => {
+          ErrorHandler.setToast('Failed to get waiting list');
+        });
     });
   }
 
-  // 친구 추가 모달
   onFriendAddModalEvent() {
     const friendAddModal = document.getElementById('friendAddModal');
     const input = document.getElementById('searchFriend');
@@ -132,22 +196,12 @@ class Friends extends PageComponent {
             // 친구 검색 결과 생성
             friendSearchList.innerHTML =
               res
-                .map((friend) => FriendSearchListItem({ nick: friend }))
+                .map((friend) =>
+                  FriendSearchListItem({ nick: friend.username })
+                )
                 .join('') || 'No search results';
             // 친구 추가 버튼에 이벤트 추가
-            document.querySelectorAll('.friend-add-btn').forEach((btn) => {
-              btn.addEventListener('click', async (e) => {
-                const friendName = e.target.dataset.nick;
-                await Fetch.patch('/friends/add/', { friend_name: friendName })
-                  .then(() => {
-                    ErrorHandler.setToast('Friend added');
-                    this.afterRender();
-                  })
-                  .catch(() => {
-                    ErrorHandler.setToast('Friend add failed');
-                  });
-              });
-            });
+            this.onFriendRequestBtnClick();
             friendSearchList.scrollIntoView({ behavior: 'smooth' });
           })
           .catch(() => {
