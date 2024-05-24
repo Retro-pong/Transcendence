@@ -5,8 +5,11 @@ import ModalComponent from '@component/modal/ModalComponent';
 import EditProfileForm from '@component/form/EditProfileForm';
 import ProfileItem from '@component/contents/ProfileItem';
 import ProfileBattleHistory from '@component/contents/ProfileBattleHistory';
+import { Modal } from 'bootstrap';
 import Fetch from '@/utils/Fetch';
 import ErrorHandler from '@/utils/ErrorHandler';
+import resizeImage from '@/utils/resizeImage';
+import regex from "@/constants/Regex";
 
 class Profile extends PageComponent {
   constructor() {
@@ -43,12 +46,12 @@ class Profile extends PageComponent {
     const editModalBtn = OpenModalButton({
       text: '>> EDIT PROFILE <<',
       classList: 'btn btn-no-outline-hover fs-8',
-      modalId: '#editProfile',
+      modalId: '#editProfileModal',
     });
     const editModal = ModalComponent({
       borderColor: 'pink',
       title: 'EDIT PROFILE',
-      modalId: 'editProfile',
+      modalId: 'editProfileModal',
       content: EditProfileForm({
         nick: profileData.username,
         comment: profileData.comment ?? 'Please write a comment',
@@ -56,7 +59,8 @@ class Profile extends PageComponent {
       buttonList: ['profileEditBtn'],
     });
 
-    // TODO: battleHistory 정보 추가
+    // TODO: battleHistory 정보 요청
+    // TODO: image url 정보 요청
     return `
         <div class="row d-flex justify-content-center">
           <div class="row d-flex flex-row mt-4">
@@ -64,10 +68,12 @@ class Profile extends PageComponent {
               ${profile}
             </div>
             <div class="col-3 p-2 h-90">
-              <label for="profileImg" class="h-100 w-100">
-                <img id="profileImgSrc" src='/img/map_mountain.jpg' class="border border-3 rounded" width="100%" height="100%" alt="IMG"/>
-              </label>
-              <input type="file" accept="image/jpg, image/png" id="profileImg" class="d-none border-0">
+              <div class="h-100 w-100 d-flex justify-content-center align-items-center border border-2 border-light rounded">
+                <label for="profileImg" class="h-100 w-100">
+                  <img id="profileImgSrc" src=${profileData.image || '/img/profile_fallback.jpg'} width="95%" height="95%" alt="PROFILE IMAGE"/>
+                </label>
+                <input type="file" accept="image/jpg, image/png" id="profileImg" class="d-none border-0">
+              </div>
             </div>
           </div>
           <div class="row d-flex justify-content-center">
@@ -95,52 +101,72 @@ class Profile extends PageComponent {
   }
 
   onEditClick() {
-    document
-      .getElementById('editProfileForm')
-      .addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const nick = document.getElementById('editNickname').value;
-        const comment = document.getElementById('editComment').value;
-        await Fetch.patch('/users/profile/edit/', { username: nick, comment })
-          .then(() => {
-            ErrorHandler.setToast('Profile Update Successful');
-            this.render();
-          })
-          .catch((err) =>
-            ErrorHandler.setToast(err.message || 'Profile Update Failed')
-          );
-      });
+    const editProfileModal = Modal.getOrCreateInstance('#editProfileModal');
+    const editProfileForm = document.getElementById('editProfileForm');
+
+    editProfileForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const nick = document.getElementById('editNickname').value;
+      const comment = document.getElementById('editComment').value;
+
+      // 바뀐 내용 없는 경우
+      if (
+        nick === document.getElementById('profile-username').innerText &&
+        comment === document.getElementById('profile-comment').value
+      ) {
+        ErrorHandler.setToast('No changes made');
+        return;
+      }
+
+      await Fetch.patch('/users/profile/edit/', { username: nick, comment })
+        .then(() => {
+          ErrorHandler.setToast('Profile Update Successful');
+          editProfileModal.hide();
+          this.afterRender();
+        })
+        .catch(() => ErrorHandler.setToast('Profile Update Failed'));
+    });
   }
 
   onProfileImgClick() {
     document
       .getElementById('profileImg')
       .addEventListener('change', async (e) => {
-        const reqBody = new FormData();
-        reqBody.append('image', e.target.files[0]);
-        await Fetch.patch('/users/profile/upload/', reqBody, 'form')
+        const file = e.target.files[0];
+        let resizeImg;
+        // 파일 선택 안했을 때
+        if (!file) {
+          ErrorHandler.setToast('No file selected');
+          return;
+        }
+        // 이미지 리사이징
+        try {
+          resizeImg = await resizeImage(file);
+        } catch (error) {
+          ErrorHandler.setToast('Image Upload Failed');
+          return;
+        }
+        const formData = new FormData();
+        formData.append('image', resizeImg);
+
+        await Fetch.patch('/users/profile/upload/', formData, 'image')
           .then(() => {
-            document.getElementById('profileImgSrc').src = URL.createObjectURL(
-              e.target.files[0]
-            );
             ErrorHandler.setToast('Profile Image Update Successful');
+            this.afterRender();
           })
-          .catch((err) =>
-            ErrorHandler.setToast(err.message || 'Profile Image Update Failed')
-          );
+          .catch(() => ErrorHandler.setToast('Profile Image Update Failed'));
       });
   }
 
   onEditProfileClick() {
-    const editProfileModal = document.getElementById('editProfile');
+    const editProfileModal = document.getElementById('editProfileModal');
     const nickname = document.getElementById('editNickname');
     const comment = document.getElementById('editComment');
 
+    // 모달 열릴 때마다 기존 정보 불러오기
     editProfileModal.addEventListener('show.bs.modal', () => {
       nickname.value = document.getElementById('profile-username').innerText;
-      comment.value =
-        document.getElementById('profile-comment').innerText ||
-        'Please write a comment';
+      comment.value = document.getElementById('profile-comment').value;
     });
   }
 
