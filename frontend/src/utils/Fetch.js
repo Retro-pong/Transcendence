@@ -81,19 +81,22 @@ class Fetch {
     return response.json();
   }
 
-  static async patch(url, body = {}, retry = 1) {
+  static async patch(url, body = {}, type = '', retry = 1) {
     await this.showLoading();
     const response = await fetch(`${this.#BASE_URL}${url}`, {
       method: 'PATCH',
-      headers: this.#headers,
+      headers:
+        type !== 'form'
+          ? this.#headers
+          : { 'Content-Type': 'multipart/form-data' },
       credentials: this.#credentials,
-      body: JSON.stringify(body),
+      body: type !== 'form' ? JSON.stringify(body) : body,
     });
     this.hideLoading();
     if (!response.ok) {
       if (this.isAuth(url) && response.status === 401 && retry <= this.#retry) {
         await TokenManager.reissueAccessToken();
-        return this.patch(url, body, retry + 1);
+        return this.patch(url, body, type, retry + 1);
       }
       return response.json().then((err) => {
         console.error(`PATCH(${url}) ERROR:`, err);
