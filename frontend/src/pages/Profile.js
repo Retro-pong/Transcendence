@@ -38,7 +38,7 @@ class Profile extends PageComponent {
       .map((key) => {
         if (key === 'image' || key === 'battleHistory' || key === 'is_active')
           return '';
-        return `${ProfileItem({ type: key, content: profileData[key] })}`;
+        return `${ProfileItem({ type: key, content: profileData[key] ?? '' })}`;
       })
       .join('');
 
