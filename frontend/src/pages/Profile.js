@@ -9,7 +9,8 @@ import { Modal } from 'bootstrap';
 import Fetch from '@/utils/Fetch';
 import ErrorHandler from '@/utils/ErrorHandler';
 import resizeImage from '@/utils/resizeImage';
-import regex from "@/constants/Regex";
+import regex from '@/constants/Regex';
+import Regex from '@/constants/Regex';
 
 class Profile extends PageComponent {
   constructor() {
@@ -115,6 +116,15 @@ class Profile extends PageComponent {
         comment === document.getElementById('profile-comment').value
       ) {
         ErrorHandler.setToast('No changes made');
+        return;
+      }
+
+      if (Regex.nickname.test(nick) === false) {
+        ErrorHandler.setToast('Invalid nickname');
+        return;
+      }
+      if (Regex.comment.test(comment) === false) {
+        ErrorHandler.setToast('Invalid comment');
         return;
       }
 
