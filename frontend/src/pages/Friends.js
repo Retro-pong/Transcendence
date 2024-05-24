@@ -10,6 +10,7 @@ import Pagination from '@component/navigation/Pagination';
 import Fetch from '@/utils/Fetch';
 import debounce from '@/utils/debounce';
 import ErrorHandler from '@/utils/ErrorHandler';
+import Regex from '@/constants/Regex';
 
 class Friends extends PageComponent {
   constructor() {
@@ -83,15 +84,8 @@ class Friends extends PageComponent {
     `;
   }
 */
-  async getWaitingFriends() {
-    return Fetch.get('/friends-wait-list');
-  }
 
-  async getSearchFriends(friendName) {
-    return Fetch.get('/friends-search', { friendName });
-  }
-
-  async addFriendWaitModalEvent() {
+  onFriendWaitModalEvent() {
     const friendWaitModal = document.getElementById('friendWaitModal');
     const friendWaitList = document.getElementById('friendWaitListContainer');
 
@@ -109,7 +103,7 @@ class Friends extends PageComponent {
     });
   }
 
-  async addFriendAddModalEvent() {
+  onFriendAddModalEvent() {
     const friendAddModal = document.getElementById('friendAddModal');
     const input = document.getElementById('searchFriend');
     const friendSearchList = document.getElementById(
@@ -126,10 +120,22 @@ class Friends extends PageComponent {
     input.addEventListener(
       'input',
       debounce(async (e) => {
-        const searchResult = await this.getSearchFriends(e.target.value);
-        searchResult.map((friend) =>
-          friendSearchList.appendChild(FriendSearchListItem({ nick: friend }))
-        );
+        const username = e.target.value;
+        if (Regex.nickname.test(username) === false) {
+          ErrorHandler.setToast('Invalid nickname');
+          return;
+        }
+        await Fetch.get(`/friends/add?search_name=${username}`)
+          .then((res) => {
+            friendSearchList.innerHTML =
+              res
+                .map((friend) => FriendSearchListItem({ nick: friend }))
+                .join('') || 'No search results';
+            friendSearchList.scrollIntoView({ behavior: 'smooth' });
+          })
+          .catch(() => {
+            ErrorHandler.setToast('search failed');
+          });
       }, 1000)
     );
   }
@@ -186,8 +192,8 @@ class Friends extends PageComponent {
     await this.initPageData(this);
     this.onReloadButtonClick(this);
     this.onPaginationClick(this);
-    await this.addFriendWaitModalEvent();
-    await this.addFriendAddModalEvent();
+    this.onFriendWaitModalEvent();
+    this.onFriendAddModalEvent();
 
     document.getElementById('testBtn').addEventListener('click', async () => {
       const friendName = 'hyobicho';
