@@ -4,12 +4,10 @@ import OpenModalButton from '@component/button/OpenModalButton';
 import ModalComponent from '@component/modal/ModalComponent';
 import EditProfileForm from '@component/form/EditProfileForm';
 import ProfileItem from '@component/contents/ProfileItem';
-import ProfileBattleHistory from '@component/contents/ProfileBattleHistory';
 import { Modal } from 'bootstrap';
 import Fetch from '@/utils/Fetch';
 import ErrorHandler from '@/utils/ErrorHandler';
 import resizeImage from '@/utils/resizeImage';
-import regex from '@/constants/Regex';
 import Regex from '@/constants/Regex';
 
 class Profile extends PageComponent {
