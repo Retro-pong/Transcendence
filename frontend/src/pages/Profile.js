@@ -63,9 +63,9 @@ class Profile extends PageComponent {
             <div class="col-9 px-4 fs-7">
               ${profile}
             </div>
-            <div class="col-3 p-2 h-90 border-5 border-success rounded">
-              <label for="profileImg" class="h-100">
-                <img id="profileImgSrc" src=${profileData.image} width="100%" height="90%" alt="IMG"/>
+            <div class="col-3 p-2 h-90">
+              <label for="profileImg" class="h-100 w-100">
+                <img id="profileImgSrc" src='/img/map_mountain.jpg' class="border border-3 rounded" width="100%" height="100%" alt="IMG"/>
               </label>
               <input type="file" accept="image/jpg, image/png" id="profileImg" class="d-none border-0">
             </div>
@@ -94,18 +94,14 @@ class Profile extends PageComponent {
     pageBody.innerHTML = await this.getPageData();
   }
 
-  updateProfile() {
+  onEditClick() {
     document
       .getElementById('editProfileForm')
       .addEventListener('submit', async (e) => {
         e.preventDefault();
         const nick = document.getElementById('editNickname').value;
         const comment = document.getElementById('editComment').value;
-        await Fetch.patch(
-          '/users/profile/edit/',
-          { username: nick, comment },
-          false
-        )
+        await Fetch.patch('/users/profile/edit/', { username: nick, comment })
           .then(() => {
             ErrorHandler.setToast('Profile Update Successful');
             this.render();
@@ -116,14 +112,13 @@ class Profile extends PageComponent {
       });
   }
 
-  updateProfileImg() {
+  onProfileImgClick() {
     document
       .getElementById('profileImg')
       .addEventListener('change', async (e) => {
-        console.log(e.target.files[0]);
         const reqBody = new FormData();
         reqBody.append('image', e.target.files[0]);
-        await Fetch.patch('/users/profile/upload/', reqBody, true)
+        await Fetch.patch('/users/profile/upload/', reqBody, 'form')
           .then(() => {
             document.getElementById('profileImgSrc').src = URL.createObjectURL(
               e.target.files[0]
@@ -136,10 +131,24 @@ class Profile extends PageComponent {
       });
   }
 
+  onEditProfileClick() {
+    const editProfileModal = document.getElementById('editProfile');
+    const nickname = document.getElementById('editNickname');
+    const comment = document.getElementById('editComment');
+
+    editProfileModal.addEventListener('show.bs.modal', () => {
+      nickname.value = document.getElementById('profile-username').innerText;
+      comment.value =
+        document.getElementById('profile-comment').innerText ||
+        'Please write a comment';
+    });
+  }
+
   async afterRender() {
     await this.initPageData();
-    this.updateProfile();
-    this.updateProfileImg();
+    this.onEditClick();
+    this.onProfileImgClick();
+    this.onEditProfileClick();
   }
 }
 
