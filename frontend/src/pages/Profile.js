@@ -32,7 +32,6 @@ class Profile extends PageComponent {
       `;
     }
 
-    console.log(profileData);
     const profile = Object.keys(profileData)
       .map((key) => {
         if (key === 'image' || key === 'battleHistory' || key === 'is_active')
