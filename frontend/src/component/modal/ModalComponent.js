@@ -14,6 +14,8 @@ const ModalComponent = ({
       '<button id="twoFactorLoginBtn" type="button" class="btn btn-outline-light w-100 fs-12"> >> SUBMIT << </button>',
     emailVerifyBtn:
       '<button id="emailVerifyBtn" type="submit" class="btn btn-outline-light w-100 fs-12" form="emailVerifyForm"> >> VERIFY << </button>',
+    profileEditBtn:
+      '<button id="profileEditBtn" type="submit" class="btn btn-outline-light w-100 fs-12" form="editProfileForm"> >> EDIT << </button>',
   };
 
   return `
