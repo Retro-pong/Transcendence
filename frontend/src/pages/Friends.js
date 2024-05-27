@@ -93,9 +93,11 @@ class Friends extends PageComponent {
           friend_name: friendName,
           request_patch: '1',
         })
-          .then(() => {
+          .then(async () => {
+            await this.initPageData(this);
+            this.onReloadButtonClick(this);
+            this.onPaginationClick(this);
             ErrorHandler.setToast('Friend accepted');
-            this.afterRender();
           })
           .catch(() => {
             ErrorHandler.setToast('Failed to accept friend');
@@ -113,8 +115,8 @@ class Friends extends PageComponent {
           request_patch: '0',
         })
           .then(() => {
+            btn.classList.add('d-none');
             ErrorHandler.setToast('Friend rejected');
-            this.afterRender();
           })
           .catch(() => {
             ErrorHandler.setToast('Failed to reject friend');
@@ -130,12 +132,11 @@ class Friends extends PageComponent {
         await Fetch.patch('/friends/add/', { friend_name: friendName })
           .then(() => {
             ErrorHandler.setToast(`friend request ${friendName}`);
-            this.afterRender();
           })
-          .catch(() => {
-            ErrorHandler.setToast(
-              `failed to friend request ${friendName}`
-            );
+          .catch((error) => {
+            // TODO: 이미 요청 보낸 친구에게 재요청시 에러처리
+            console.log(error);
+            ErrorHandler.setToast(`failed to friend request ${friendName}`);
           });
       });
     });
@@ -156,7 +157,7 @@ class Friends extends PageComponent {
         .then((res) => {
           friendWaitList.innerHTML =
             res
-              .map((friend) => FriendWaitListItem({ nick: friend }))
+              .map((friend) => FriendWaitListItem({ nick: friend.friend_name }))
               .join('') || 'No waiting list';
           // 친구 수락, 거절 버튼에 이벤트 추가
           this.onFriendAcceptBtnClick();
