@@ -164,7 +164,7 @@ class Friends extends PageComponent {
           ErrorHandler.setToast('Invalid nickname');
           return;
         }
-        await Fetch.get(`/friends/add?search_name=${username}`)
+        await Fetch.get(`/friends/add?search_name=${username.toLowerCase()}`)
           .then((res) => {
             // 친구 검색 결과 생성
             friendSearchList.innerHTML =
