@@ -13,7 +13,6 @@ class JoinRoomAPIViewTest(APITestCase):
             username="testuser", email="test@example.com", password="testpassword"
         )
 
-        self.user.is_authenticated = True
         self.user.is_registered = True
         self.user.is_active = True
         self.user.save()
@@ -65,7 +64,6 @@ class CreateRoomAPIViewTest(APITestCase):
             username="testuser", email="test@example.com", password="testpassword"
         )
 
-        self.user.is_authenticated = True
         self.user.is_registered = True
         self.user.is_active = True
         self.user.save()
