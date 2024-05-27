@@ -82,7 +82,7 @@ class Fetch {
   }
 
   static async patch(url, body = {}, type = '', retry = 1) {
-    await this.showLoading();
+    this.showLoading();
     const header =
       type !== 'image'
         ? this.#headers
