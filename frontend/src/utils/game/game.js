@@ -106,9 +106,9 @@ function game() {
         ball.position.set(0, Math.random() * 8 - 4, Math.random() * 12 - 6);
         start = 0;
       } else {
-        ball.position.x = ball.position.x + a * v;
-        ball.position.y = ball.position.y + b * v;
-        ball.position.z = ball.position.z + c * v;
+        ball.position.x += a * v;
+        ball.position.y += b * v;
+        ball.position.z += c * v;
         scene.getObjectByName('ballPlane').position.x = ball.position.x;
         // 패들에 부딪히면 방향 바꾸기
         if (ball.position.x > 23.5 && ball.position.x < 24.5) {
