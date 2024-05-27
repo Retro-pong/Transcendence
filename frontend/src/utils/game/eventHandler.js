@@ -16,7 +16,6 @@ function eventHandler(canvas, scene, camera, renderer, controls) {
 
   // 키보드 컨트롤
   canvas.addEventListener('keydown', (e) => {
-    console.log(e.key);
     // 시점
     if (e.key === '1') {
       camera.position.set(-40, 0, 0);
