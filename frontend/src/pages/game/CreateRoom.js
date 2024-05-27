@@ -1,9 +1,9 @@
 import PageComponent from '@component/PageComponent.js';
 import BasicButton from '@component/button/BasicButton';
 import createRoomForm from '@component/form/CreateRoomForm';
-import { Toast } from 'bootstrap';
 import Fetch from '@/utils/Fetch';
 import regex from '@/constants/Regex';
+import ErrorHandler from '@/utils/ErrorHandler';
 
 class CreateRoom extends PageComponent {
   constructor() {
@@ -55,25 +55,21 @@ class CreateRoom extends PageComponent {
     const gameMode = [...form.modeOptions].filter(
       (option) => option.checked === true
     )[0]?.id;
-    const toastMessage = document.getElementById('toast-message');
-    const toast = Toast.getOrCreateInstance('#toast');
 
-    await Fetch.post('/game/room', {
-      gameTitle,
-      gameBall,
-      gameSpeed,
-      gameMap,
-      gameMode,
+    await Fetch.post('/rooms/create/', {
+      room_name: gameTitle.toLowerCase(),
+      game_ball: gameBall,
+      game_speed: gameSpeed,
+      game_map: gameMap,
+      game_mode: gameMode,
     })
       .then(() => {
         document.getElementById('createRoomForm').reset();
-        toastMessage.innerText = 'Room created successfully';
-        toast.show();
+        ErrorHandler.setToast('Room created successfully');
         // TODO: navigate to the created room
       })
       .catch((err) => {
-        toastMessage.innerText = 'Failed to create room';
-        toast.show();
+        ErrorHandler.setToast('Failed to create room');
         console.error(err);
       });
   }
