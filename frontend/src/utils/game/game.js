@@ -75,31 +75,30 @@ function game() {
   let beforeX = 0;
   let beforeY = 0;
   let beforeZ = 0;
-  let ballDirection = 0;
 
-
+  let hit;
   let hitPoint;
   let ratio;
 
-  point1 = new THREE.Vector3(0, 0, 0);
-  point2 = new THREE.Vector3(-24, 0, 0);
-  curve = new THREE.LineCurve3(point1, point2);
+  function startCurve() {
+    point1 = new THREE.Vector3(0, 0, 0);
+    point2 = new THREE.Vector3(-24, 0, 0);
+    curve = new THREE.LineCurve3(point1, point2);
+    return curve;
+  }
 
-  function hitPaddle() {
-    // 공이 파란 패들에 부딪히는 경우
-    if (ball.position.x < -23.5) {
-      t = 0;
+
+  let ballDirection = -1;
+  function hitPaddle(type) {
+    if (type === 'blue') {
       point1 = new THREE.Vector3(-23.5, ball.position.y, ball.position.z);
-      // 부딪친 여부 확인
       hitPoint = checkPaddleHit('blue');
       if (hitPoint === 0) {
         console.log('out!');
-        return ;
+        return null;
       }
-
       ballDirection = 1;
       ratio = ball.position.distanceToSquared(bluePaddle.position);
-
       if (hitPoint === 1) {
         point2 = new THREE.Vector3(24, 5 * ratio, 7.5 * ratio);
       }
@@ -119,20 +118,17 @@ function game() {
           (Math.random() * 15 - 7.5) * ratio
         );
       }
-
       curve = new THREE.LineCurve3(point1, point2);
       beforeX = -23.5;
       beforeY = ball.position.y;
       beforeZ = ball.position.z;
     }
-    // 공이 빨간 패들에 부딪히는 경우
-    if (ball.position.x > 23.5) {
-      t = 0;
+    if (type === 'red') {
       point1 = new THREE.Vector3(23.5, ball.position.y, ball.position.z);
       hitPoint = checkPaddleHit('red');
       if (hitPoint === 0) {
         console.log('out!');
-        return;
+        return null;
       }
       ratio = ball.position.distanceToSquared(redPaddle.position);
       ballDirection = -1;
@@ -159,8 +155,9 @@ function game() {
       beforeX = 23.5;
       beforeY = ball.position.y;
       beforeZ = ball.position.z;
-
     }
+    hit = true;
+    return curve;
   }
 
   // red z +는 왼쪽
@@ -213,41 +210,30 @@ function game() {
 
     point1 = new THREE.Vector3(bx, by, bz);
 
-
-    // 시작점이 주어진 경우
-    const startPointOnly = new THREE.Vector3(beforeX, beforeY, beforeZ); // 시작점
-
-    // 시작점을 기준으로 끝점 계산
-    const direction = curve.getTangentAt(0); // 시작점에서의 방향
-    const desiredLength = 80; // 원하는 길이
-    const endPoint = startPointOnly
-      .clone()
-      .add(direction.multiplyScalar(desiredLength));
+    point2 = null;
 
     // 블루 왼쪽면, 레드 오른쪽면
-    if (ball.position.z < -7.4) {
-      t = 0;
-      point2 = new THREE.Vector3(endPoint.x, endPoint.y, -endPoint.z);
+    if (ball.position.z < -7.4 && ball.position.z > -7.6) {
+      point2 = new THREE.Vector3(ballDirection > 0 ? 24 : -24, 5 * ratio, 7.5 * ratio);
     }
     // 블루 오른쪽면, 레드 왼쪽면
-    if (ball.position.z > 7.4) {
-      t = 0;
-      point2 = new THREE.Vector3(endPoint.x, endPoint.y, -endPoint.z);
+    if (ball.position.z > 7.4 && ball.position.z < 7.6) {
+      point2 = new THREE.Vector3(ballDirection > 0 ? 24 : -24, 5 * ratio, -7.5 * ratio);
     }
     // 위
-    if (ball.position.y > 4.9) {
-      t = 0;
-      point2 = new THREE.Vector3(endPoint.x, -endPoint.y, endPoint.z);
+    if (ball.position.y > 4.9 && ball.position.y < 5.1) {
+      point2 = new THREE.Vector3(ballDirection > 0 ? 24 : -24, -5 * ratio, 5 * ratio);
     }
     // 아래
-    if (ball.position.y < -4.9) {
-      t = 0;
-      point2 = new THREE.Vector3(endPoint.x, -endPoint.y, endPoint.z);
+    if (ball.position.y < -4.9 && ball.position.y > -5.1) {
+      point2 = new THREE.Vector3(ballDirection > 0 ? 24 : -24, 5 * ratio, 5 * ratio);
     }
+
     curve = new THREE.LineCurve3(point1, point2);
     beforeX = bx;
     beforeY = by;
     beforeZ = bz;
+    return curve;
   }
 
   function resizeRendererToDisplaySize(renderer) {
@@ -263,7 +249,8 @@ function game() {
   }
 
   let t = 0;
-
+  let setCurve = 0;
+  let point;
   function render() {
     t += 0.005;
     if (resizeRendererToDisplaySize(renderer)) {
@@ -273,24 +260,45 @@ function game() {
     }
     if (ball) {
       if (setCurve === 0) {
-        curve = makeBallCurve(
-
-        );
+        curve = startCurve();
         setCurve = 1;
       } else {
-        hit = false;
+        console.log(ball.position);
         point = curve.getPointAt(t);
         ball.position.copy(point);
-        hitPaddle();
 
         if (ball.position.x > 23.5 && ball.position.x < 24.5) {
           t = 0;
-          if (hit) {
-            curve = makeBallCurve();
-          }
+          curve = hitPaddle('red');
+          if (!curve) setCurve = 0;
+        }
+
+        if (ball.position.x < -23.5 && ball.position.x > -24.5) {
+          t = 0;
+          curve = hitPaddle('blue');
+          if (!curve) setCurve = 0;
+        }
+
+        if (ball.position.z < -7.4 && ball.position.z > 7.6) {
+          t = 0;
+          curve = hitWall();
+        }
+        // 블루 오른쪽면, 레드 왼쪽면
+        if (ball.position.z > 7.4 && ball.position.z < 7.6) {
+          t = 0;
+          curve = hitWall();
+        }
+        // 위
+        if (ball.position.y > 4.9 && ball.position.y < 5.1) {
+          t = 0;
+          curve = hitWall();
+        }
+        // 아래
+        if (ball.position.y < -4.9 && ball.position.y > -5.1) {
+          t = 0;
+          curve = hitWall();
         }
       }
-
     }
 
     renderer.render(scene, camera);
