@@ -7,8 +7,16 @@ function eventHandler(canvas, scene, camera, renderer, controls) {
   const bluePaddle = scene.getObjectByName('bluePaddle');
 
   canvas.focus();
+  const keyPressed = {
+    w: false,
+    s: false,
+    a: false,
+    d: false,
+  };
+
   // 키보드 컨트롤
   canvas.addEventListener('keydown', (e) => {
+    console.log(e.key);
     // 시점
     if (e.key === '1') {
       camera.position.set(-40, 0, 0);
@@ -20,20 +28,44 @@ function eventHandler(canvas, scene, camera, renderer, controls) {
     }
 
     // 방향키
-    const move = 1;
     if (e.key === 'w') {
-      if (redPaddle.position.y < 5) redPaddle.position.y += move;
+      keyPressed.w = true;
     }
     if (e.key === 's') {
-      if (redPaddle.position.y > -5) redPaddle.position.y -= move;
+      keyPressed.s = true;
     }
     if (e.key === 'a') {
-      if (redPaddle.position.z < 7.5) redPaddle.position.z += move;
+      keyPressed.a = true;
     }
     if (e.key === 'd') {
-      if (redPaddle.position.z > -7.5) redPaddle.position.z -= move;
+      keyPressed.d = true;
     }
   });
+
+  canvas.addEventListener('keyup', (e) => {
+    if (e.key === 'w') keyPressed.w = false;
+    if (e.key === 's') keyPressed.s = false;
+    if (e.key === 'a') keyPressed.a = false;
+    if (e.key === 'd') keyPressed.d = false;
+  });
+
+  const movePaddle = () => {
+    const move = 0.2;
+    if (keyPressed.w) {
+      if (redPaddle.position.y < 5) redPaddle.position.y += move;
+    }
+    if (keyPressed.s) {
+      if (redPaddle.position.y > -5) redPaddle.position.y -= move;
+    }
+    if (keyPressed.a) {
+      if (redPaddle.position.z < 7.5) redPaddle.position.z += move;
+    }
+    if (keyPressed.d) {
+      if (redPaddle.position.z > -7.5) redPaddle.position.z -= move;
+    }
+  };
+
+  setInterval(movePaddle, 10);
 
   // 마우스 컨트롤
   canvas.addEventListener('mousemove', (e) => {
