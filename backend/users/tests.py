@@ -15,7 +15,6 @@ class ProfileAPITestCase(APITestCase):
         self.user.win = 10
         self.user.lose = 10
         self.user.comment = "Hello world"
-        self.user.is_authenticated = True
         self.user.is_registered = True
         self.user.is_active = True
         self.user.save()
