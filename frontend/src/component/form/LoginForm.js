@@ -5,7 +5,7 @@ const LoginForm = () => {
       <form id="loginForm" class="form-floating p-4">
         <div class="row justify-content-center">
           <div class="col-6">
-            <input type="text" minlength="6" maxlength="6" id="passcode" class="form-control text-center fs-8 bg-transparent" placeholder="passcode"/>
+            <input type="text" minlength="6" maxlength="6" id="passcode" class="form-control text-center fs-8 bg-transparent code-input" placeholder="passcode"/>
           </div>
         </div>
       </form>
