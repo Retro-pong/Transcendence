@@ -10,6 +10,7 @@ import Pagination from '@component/navigation/Pagination';
 import Fetch from '@/utils/Fetch';
 import debounce from '@/utils/debounce';
 import ErrorHandler from '@/utils/ErrorHandler';
+import Regex from '@/constants/Regex';
 
 class Friends extends PageComponent {
   constructor() {
@@ -83,15 +84,65 @@ class Friends extends PageComponent {
     `;
   }
 */
-  async getWaitingFriends() {
-    return Fetch.get('/friends-wait-list');
+
+  onFriendAcceptBtnClick() {
+    document.querySelectorAll('.friend-accept-btn').forEach((btn) => {
+      btn.addEventListener('click', async (e) => {
+        const friendName = e.target.dataset.nick;
+        await Fetch.patch('/friends/waiting/', {
+          friend_name: friendName,
+          request_patch: '1',
+        })
+          .then(async () => {
+            await this.initPageData(this);
+            this.onReloadButtonClick(this);
+            this.onPaginationClick(this);
+            ErrorHandler.setToast('Friend accepted');
+          })
+          .catch(() => {
+            ErrorHandler.setToast('Failed to accept friend');
+          });
+      });
+    });
   }
 
-  async getSearchFriends(friendName) {
-    return Fetch.get('/friends-search', { friendName });
+  onFriendRejectBtnClick() {
+    document.querySelectorAll('.friend-reject-btn').forEach((btn) => {
+      btn.addEventListener('click', async (e) => {
+        const friendName = e.target.dataset.nick;
+        await Fetch.patch('/friends/waiting/', {
+          friend_name: friendName,
+          request_patch: '0',
+        })
+          .then(() => {
+            ErrorHandler.setToast('Friend rejected');
+            btn.remove();
+          })
+          .catch(() => {
+            ErrorHandler.setToast('Failed to reject friend');
+          });
+      });
+    });
   }
 
-  async addFriendWaitModalEvent() {
+  onFriendRequestBtnClick() {
+    document.querySelectorAll('.friend-request-btn').forEach((btn) => {
+      btn.addEventListener('click', async (e) => {
+        const friendName = e.target.dataset.nick;
+        await Fetch.patch('/friends/add/', { friend_name: friendName })
+          .then(() => {
+            ErrorHandler.setToast(`friend request ${friendName}`);
+          })
+          .catch((error) => {
+            // TODO: 이미 요청 보낸 친구에게 재요청시 에러처리
+            console.log(error);
+            ErrorHandler.setToast(`failed to friend request ${friendName}`);
+          });
+      });
+    });
+  }
+
+  onFriendWaitModalEvent() {
     const friendWaitModal = document.getElementById('friendWaitModal');
     const friendWaitList = document.getElementById('friendWaitListContainer');
 
@@ -102,14 +153,23 @@ class Friends extends PageComponent {
     });
 
     friendWaitModal.addEventListener('show.bs.modal', async () => {
-      const waitingFriends = await this.getWaitingFriends();
-      waitingFriends.map((friend) =>
-        friendWaitList.appendChild(FriendWaitListItem({ nick: friend }))
-      );
+      await Fetch.get('/friends/waiting/')
+        .then((res) => {
+          friendWaitList.innerHTML =
+            res
+              .map((friend) => FriendWaitListItem({ nick: friend.friend_name }))
+              .join('') || 'No waiting list';
+          // 친구 수락, 거절 버튼에 이벤트 추가
+          this.onFriendAcceptBtnClick();
+          this.onFriendRejectBtnClick();
+        })
+        .catch(() => {
+          ErrorHandler.setToast('Failed to get waiting list');
+        });
     });
   }
 
-  async addFriendAddModalEvent() {
+  onFriendAddModalEvent() {
     const friendAddModal = document.getElementById('friendAddModal');
     const input = document.getElementById('searchFriend');
     const friendSearchList = document.getElementById(
@@ -123,13 +183,31 @@ class Friends extends PageComponent {
       }
     });
 
+    // 친구 검색창 이벤트
     input.addEventListener(
       'input',
       debounce(async (e) => {
-        const searchResult = await this.getSearchFriends(e.target.value);
-        searchResult.map((friend) =>
-          friendSearchList.appendChild(FriendSearchListItem({ nick: friend }))
-        );
+        const username = e.target.value;
+        if (Regex.nickname.test(username) === false) {
+          ErrorHandler.setToast('Invalid nickname');
+          return;
+        }
+        await Fetch.get(`/friends/add?search_name=${username}`)
+          .then((res) => {
+            // 친구 검색 결과 생성
+            friendSearchList.innerHTML =
+              res
+                .map((friend) =>
+                  FriendSearchListItem({ nick: friend.username })
+                )
+                .join('') || 'No search results';
+            // 친구 추가 버튼에 이벤트 추가
+            this.onFriendRequestBtnClick();
+            friendSearchList.scrollIntoView({ behavior: 'smooth' });
+          })
+          .catch(() => {
+            ErrorHandler.setToast('search failed');
+          });
       }, 1000)
     );
   }
@@ -157,7 +235,6 @@ class Friends extends PageComponent {
         <h1 class="fs-14">Friends</h1>
         <div class="d-flex flex-row pe-5">
           ${FriendPageButtons()}
-          <button id="testBtn" class="btn btn-no-outline-hover fs-7 bg-danger"> > Test </button>
         </div>
       </div>
       <div id="pageBody" class="d-flex flex-wrap justify-content-evenly overflow-auto h-75">
@@ -166,34 +243,12 @@ class Friends extends PageComponent {
       `;
   }
 
-  async searchFriend(friendName) {
-    try {
-      await Fetch.get(`/friends/add?search_name=${friendName}`);
-    } catch (err) {
-      ErrorHandler.setToast(err.error || 'search failed');
-    }
-  }
-
-  async addFriend(friendName) {
-    try {
-      await Fetch.patch('/friends/add/', { friend_name: friendName });
-    } catch (err) {
-      ErrorHandler.setToast(err.error || 'add failed');
-    }
-  }
-
   async afterRender() {
     await this.initPageData(this);
     this.onReloadButtonClick(this);
     this.onPaginationClick(this);
-    await this.addFriendWaitModalEvent();
-    await this.addFriendAddModalEvent();
-
-    document.getElementById('testBtn').addEventListener('click', async () => {
-      const friendName = 'hyobicho';
-      await this.searchFriend(friendName);
-      await this.addFriend(friendName);
-    });
+    this.onFriendWaitModalEvent();
+    this.onFriendAddModalEvent();
   }
 }
 
