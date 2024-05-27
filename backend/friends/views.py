@@ -237,7 +237,7 @@ class WaitingListAPIView(APIView):
     def patch(self, request):
         user = request.user
         friend_name = request.data["friend_name"]
-        request_patch = request.data["request_patch"]  # 친구 수락 1, 친구 거부 0
+        request_patch = int(request.data["request_patch"])  # 친구 수락 1, 친구 거부 0
         if not friend_name or not request_patch:
             return Response(
                 {"error": "Invalid data"}, status=status.HTTP_400_BAD_REQUEST
