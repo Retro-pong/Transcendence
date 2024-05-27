@@ -43,8 +43,8 @@ const CreateRoomForm = () => {
             labelFor: 'gameMode',
             labelContent: 'MODE',
             content: `<span>[</span>
-											<input type="radio" class="btn-check" name="modeOptions" id="rumble" autocomplete="off"/>
-											<label class="btn btn-outline-light mx-3 fs-9" for="rumble">RUMBLE</label>
+											<input type="radio" class="btn-check" name="modeOptions" id="normal" autocomplete="off"/>
+											<label class="btn btn-outline-light mx-3 fs-9" for="normal">NORMAL</label>
 											<span>/</span>
 											<input type="radio" class="btn-check" name="modeOptions" id="tournament" autocomplete="off"/>
 											<label class="btn btn-outline-light mx-3 fs-9" for="tournament">TOURNAMENT</label>
