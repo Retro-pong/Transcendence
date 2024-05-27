@@ -33,7 +33,7 @@ class User(AbstractUser):
     is_active = models.BooleanField(default=False)
     win = models.IntegerField(default=0)
     lose = models.IntegerField(default=0)
-    comment = models.CharField(max_length=20, null=True, blank=True)
+    comment = models.CharField(max_length=20, default="hello!", blank=True)
     image = models.ImageField(
         default="images/default_image.jpeg", null=True, blank=True, upload_to="images/"
     )

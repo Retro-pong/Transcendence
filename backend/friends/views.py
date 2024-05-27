@@ -1,3 +1,5 @@
+from sqlite3 import IntegrityError
+
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
@@ -330,6 +332,9 @@ class AddListAPIView(APIView):
             400: openapi.Response(
                 description="Bad request",
             ),
+            409: openapi.Response(
+                description="Friend request already sent",
+            ),
         },
     )
     def patch(self, request):
@@ -346,7 +351,14 @@ class AddListAPIView(APIView):
                     {"error": "User with friend name does not exist"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
+            if send_user == request.user:
+                return Response(
+                    {"error": "You can't be friends yourself"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
             FriendRequest.create_request(user=send_user, friend_name=user.username)
             return Response(status=status.HTTP_200_OK)
+        except ValueError as e:
+            return Response({"error": str(e)}, status=status.HTTP_409_CONFLICT)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
