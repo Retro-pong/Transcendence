@@ -126,7 +126,10 @@ class Profile extends PageComponent {
         return;
       }
 
-      await Fetch.patch('/users/profile/edit/', { username: nick, comment })
+      await Fetch.patch('/users/profile/edit/', {
+        username: nick.toLowerCase(),
+        comment,
+      })
         .then(() => {
           ErrorHandler.setToast('Profile Update Successful');
           editProfileModal.hide();
