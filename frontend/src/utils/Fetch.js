@@ -78,7 +78,7 @@ class Fetch {
     return response.json();
   }
 
-  static async patch(url, body = {}, type = '', retry = 1) {
+  static async patch(url, body = {}, type = '', retry = 1, returnResponse = false) {
     const timer = this.showLoading();
     const header =
       type !== 'image'
@@ -101,6 +101,9 @@ class Fetch {
         console.error(`PATCH(${url}) ERROR:`, err);
         throw err;
       });
+    }
+    if (!returnResponse) {
+      return '';
     }
     return response.json();
   }
