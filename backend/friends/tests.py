@@ -17,7 +17,7 @@ class FriendsListAPIViewTestCase(APITestCase):
         # Friend 관계 설정
         Friend.create_friend(self.user, self.user2)
         Friend.create_friend(self.user, self.user3)
-        Friend.create_friend(self.user, self.user4)
+        Friend.create_friend(self.user4, self.user)
 
         self.user.is_authenticated = True
         self.user.is_registered = True
@@ -35,10 +35,11 @@ class FriendsListAPIViewTestCase(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['total'], 3)
+        self.assertEqual(response.data['total'], 1)
         self.assertEqual(response.data['friends'][0]['friend_info']['username'], 'friend1')
         self.assertEqual(response.data['friends'][1]['friend_info']['username'], 'friend2')
         self.assertEqual(response.data['friends'][2]['friend_info']['username'], 'friend3')
+
 
     def test_pagination_friends_list(self):
         # 더 많은 친구 생성
@@ -109,9 +110,29 @@ class AddListAPIViewTest(APITestCase):
 
     def test_send_friend_request(self):
         url = reverse('friends:add_list')
-        data = {'friend_name': 'user1'}
+        data = {'friend_name': 'user2'}
         response = self.client.patch(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        send_user = User.objects.get(username='user1')
+        send_user = User.objects.get(username='user2')
         self.assertTrue(FriendRequest.objects.filter(user=send_user, friend_name=self.user.username).exists())
+
+    def test_send_friend_request_again(self):
+        url = reverse('friends:add_list')
+        data = {'friend_name': 'user1'}
+        response = self.client.patch(url, data)
+        response = self.client.patch(url, data)
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+
+    def test_send_friend_request_already_exists(self):
+        url = reverse('friends:add_list')
+        data = {'friend_name': 'user1'}
+        Friend.objects.create(user=User.objects.get(username='user1'), friend_user=self.user)
+        response = self.client.patch(url, data)
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+
+    def test_send_myself(self):
+        url = reverse('friends:add_list')
+        data = {'friend_name': 'testuser'}
+        response = self.client.patch(url, data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

@@ -243,7 +243,7 @@ class WaitingListAPIView(APIView):
                 {"error": "Invalid data"}, status=status.HTTP_400_BAD_REQUEST
             )
         try:
-            friend_request = FriendRequest.objects.get(
+            FriendRequest.objects.get(
                 user=user, friend_name=friend_name
             )
             FriendRequest.delete_request(user=user, friend_name=friend_name)
@@ -297,7 +297,6 @@ class AddListAPIView(APIView):
     )
     def get(self, request):  # search_name을 포함하는 모든 user 반환
         try:
-            user = request.user
             search_name = request.query_params.get("search_name")
             users = User.objects.filter(username__icontains=search_name)
             serializer = UsernameSerializer(users, many=True)
@@ -330,6 +329,9 @@ class AddListAPIView(APIView):
             400: openapi.Response(
                 description="Bad request",
             ),
+            409: openapi.Response(
+                description="Friend request already sent",
+            ),
         },
     )
     def patch(self, request):
@@ -346,7 +348,14 @@ class AddListAPIView(APIView):
                     {"error": "User with friend name does not exist"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
+            if send_user == request.user:
+                return Response(
+                    {"error": "You can't be friends yourself"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
             FriendRequest.create_request(user=send_user, friend_name=user.username)
             return Response(status=status.HTTP_200_OK)
+        except ValueError as e:
+            return Response({"error": str(e)}, status=status.HTTP_409_CONFLICT)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
