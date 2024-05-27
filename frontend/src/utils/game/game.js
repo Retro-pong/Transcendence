@@ -16,7 +16,6 @@ function game() {
   camera.position.set(-40, 0, 0);
 
   const controls = new OrbitControls(camera, canvas);
-  // controls.target.set(0, 0, 0);
   controls.update();
 
   const scene = new THREE.Scene();
@@ -93,7 +92,7 @@ function game() {
   let a = 0.1;
   let b = 0.1;
   let c = 0.1;
-  let v = 1;
+  let v = 1.2;
   let start = 1;
 
   function render() {
@@ -104,7 +103,7 @@ function game() {
     }
     if (ball) {
       if (start === 1) {
-        ball.position.set(0, 3, 0);
+        ball.position.set(0, Math.random() * 8 - 4, Math.random() * 12 - 6);
         start = 0;
       } else {
         ball.position.x = ball.position.x + a * v;
