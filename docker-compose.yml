@@ -5,6 +5,10 @@ services:
     build: ./backend
     ports:
       - '8000:8000'
+    networks:
+      - network
+    volumes:
+      - backend-media:/app/media
 
   frontend:
     image: frontend:transcendence
@@ -18,6 +22,8 @@ services:
       - ./frontend/:/app
       - /app/node_modules
 #      - frontend-data:/app/dist
+    networks:
+      - network
 
   nginx:
     image: nginx:transcendence
@@ -26,10 +32,19 @@ services:
     ports:
       - '80:80'
 #      - '443:443'
+    networks:
+      - network
 #    volumes:
 #      - frontend-data:/usr/share/nginx/html
+    volumes:
+      - backend-media:/app/media
 
 
 volumes:
   frontend-data:
+  backend-media:
   # backend-data:
+
+networks:
+  network:
+    driver: bridge
