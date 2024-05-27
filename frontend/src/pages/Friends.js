@@ -115,8 +115,8 @@ class Friends extends PageComponent {
           request_patch: '0',
         })
           .then(() => {
-            btn.classList.add('d-none');
             ErrorHandler.setToast('Friend rejected');
+            btn.remove();
           })
           .catch(() => {
             ErrorHandler.setToast('Failed to reject friend');
@@ -235,7 +235,6 @@ class Friends extends PageComponent {
         <h1 class="fs-14">Friends</h1>
         <div class="d-flex flex-row pe-5">
           ${FriendPageButtons()}
-          <button id="testBtn" class="btn btn-no-outline-hover fs-7 bg-danger"> > Test </button>
         </div>
       </div>
       <div id="pageBody" class="d-flex flex-wrap justify-content-evenly overflow-auto h-75">
