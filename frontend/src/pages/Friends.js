@@ -19,7 +19,7 @@ class Friends extends PageComponent {
   }
 
   async getFriends() {
-    const URL = `/friends/friend_list?limit=${this.limit}&offset=${this.offset}`;
+    const URL = `/friends/friend_list/?limit=${this.limit}&offset=${this.offset}`;
     const response = await Fetch.get(URL).catch(() => {
       document.getElementById('pagination').classList.add('d-none');
       ErrorHandler.setToast('Failed to get friends list');
