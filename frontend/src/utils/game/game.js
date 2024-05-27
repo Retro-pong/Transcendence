@@ -49,119 +49,10 @@ function game() {
   createGameObject(scene);
   eventHandler(canvas, scene, camera, renderer, controls);
 
-  const map = scene.getObjectByName('map');
   const ball = scene.getObjectByName('ball');
   const redPaddle = scene.getObjectByName('redPaddle');
   const bluePaddle = scene.getObjectByName('bluePaddle');
 
-  // // 첫 번째 점과 두 번째 점 생성
-  //   const point1 = new THREE.Vector3(-2, 0, 0);
-  //   const point2 = new THREE.Vector3(2, 0, 0);
-  // // LineCurve3 생성
-  //   const curve = new THREE.LineCurve3(point1, point2);
-  // // LineCurve3를 사용하여 곡선을 표현하는 지오메트리 생성
-  //   const points = curve.getPoints(50);
-  //   const geometry = new THREE.BufferGeometry().setFromPoints(points);
-  // // 라인 마테리얼 생성
-  //   const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
-  // // 라인 생성
-  //   const curveObject = new THREE.Line(geometry, material);
-  //   scene.add(curveObject);
-
-  let curve;
-  let point1;
-  let point2;
-
-  let beforeX = 0;
-  let beforeY = 0;
-  let beforeZ = 0;
-
-  let hit;
-  let hitPoint;
-  let ratio;
-
-  function startCurve() {
-    point1 = new THREE.Vector3(0, 0, 0);
-    point2 = new THREE.Vector3(-24, 0, 0);
-    curve = new THREE.LineCurve3(point1, point2);
-    return curve;
-  }
-
-
-  let ballDirection = -1;
-  function hitPaddle(type) {
-    if (type === 'blue') {
-      point1 = new THREE.Vector3(-23.5, ball.position.y, ball.position.z);
-      hitPoint = checkPaddleHit('blue');
-      if (hitPoint === 0) {
-        console.log('out!');
-        return null;
-      }
-      ballDirection = 1;
-      ratio = ball.position.distanceToSquared(bluePaddle.position);
-      if (hitPoint === 1) {
-        point2 = new THREE.Vector3(24, 5 * ratio, 7.5 * ratio);
-      }
-      if (hitPoint === 2) {
-        point2 = new THREE.Vector3(24, 5 * ratio, -7.5 * ratio);
-      }
-      if (hitPoint === 3) {
-        point2 = new THREE.Vector3(24, -5 * ratio, -7.5 * ratio);
-      }
-      if (hitPoint === 4) {
-        point2 = new THREE.Vector3(24, -5 * ratio, 7.5 * ratio);
-      }
-      if (hitPoint === 5) {
-        point2 = new THREE.Vector3(
-          24,
-          (Math.random() * 10 - 5) * ratio,
-          (Math.random() * 15 - 7.5) * ratio
-        );
-      }
-      curve = new THREE.LineCurve3(point1, point2);
-      beforeX = -23.5;
-      beforeY = ball.position.y;
-      beforeZ = ball.position.z;
-    }
-    if (type === 'red') {
-      point1 = new THREE.Vector3(23.5, ball.position.y, ball.position.z);
-      hitPoint = checkPaddleHit('red');
-      if (hitPoint === 0) {
-        console.log('out!');
-        return null;
-      }
-      ratio = ball.position.distanceToSquared(redPaddle.position);
-      ballDirection = -1;
-      if (hitPoint === 1) {
-        point2 = new THREE.Vector3(-24, 5 * ratio, -7.5 * ratio);
-      }
-      if (hitPoint === 2) {
-        point2 = new THREE.Vector3(-24, 5 * ratio, 7.5 * ratio);
-      }
-      if (hitPoint === 3) {
-        point2 = new THREE.Vector3(-24, -5 * ratio, 7.5 * ratio);
-      }
-      if (hitPoint === 4) {
-        point2 = new THREE.Vector3(-24, -5 * ratio, -7.5 * ratio);
-      }
-      if (hitPoint === 5) {
-        point2 = new THREE.Vector3(
-          -24,
-          (Math.random() * 10 - 5) * ratio,
-          (Math.random() * 15 - 7.5) * ratio
-        );
-      }
-      curve = new THREE.LineCurve3(point1, point2);
-      beforeX = 23.5;
-      beforeY = ball.position.y;
-      beforeZ = ball.position.z;
-    }
-    hit = true;
-    return curve;
-  }
-
-  // red z +는 왼쪽
-  // blue z +는 오른쪽
   function checkPaddleHit(type) {
     let py;
     let pz;
@@ -181,59 +72,10 @@ function game() {
       ((bz - 1 > pz - 1.5 && bz - 1 < pz + 1.5) ||
         (bz + 1 > pz - 1.5 && bz + 1 < pz + 1.5))
     ) {
-      console.log('hit');
-      // 1사분면
-      if (by > py && bz > pz) {
-        return type === 'blue' ? 1 : 2;
-      }
-      // 2사분면
-      if (by > py && bz < pz) {
-        return type === 'blue' ? 2 : 1;
-      }
-      // 3사분면
-      if (by < py && bz < pz) {
-        return type === 'blue' ? 3 : 4;
-      }
-      // 4사분면
-      if (by < py && bz > pz) {
-        return type === 'blue' ? 4 : 3;
-      }
-      return 5;
+      console.log('hit!');
+      return 1;
     }
     return 0;
-  }
-
-  function hitWall() {
-    const bx = ball.position.x;
-    const by = ball.position.y;
-    const bz = ball.position.z;
-
-    point1 = new THREE.Vector3(bx, by, bz);
-
-    point2 = null;
-
-    // 블루 왼쪽면, 레드 오른쪽면
-    if (ball.position.z < -7.4 && ball.position.z > -7.6) {
-      point2 = new THREE.Vector3(ballDirection > 0 ? 24 : -24, 5 * ratio, 7.5 * ratio);
-    }
-    // 블루 오른쪽면, 레드 왼쪽면
-    if (ball.position.z > 7.4 && ball.position.z < 7.6) {
-      point2 = new THREE.Vector3(ballDirection > 0 ? 24 : -24, 5 * ratio, -7.5 * ratio);
-    }
-    // 위
-    if (ball.position.y > 4.9 && ball.position.y < 5.1) {
-      point2 = new THREE.Vector3(ballDirection > 0 ? 24 : -24, -5 * ratio, 5 * ratio);
-    }
-    // 아래
-    if (ball.position.y < -4.9 && ball.position.y > -5.1) {
-      point2 = new THREE.Vector3(ballDirection > 0 ? 24 : -24, 5 * ratio, 5 * ratio);
-    }
-
-    curve = new THREE.LineCurve3(point1, point2);
-    beforeX = bx;
-    beforeY = by;
-    beforeZ = bz;
-    return curve;
   }
 
   function resizeRendererToDisplaySize(renderer) {
@@ -248,55 +90,55 @@ function game() {
     return needResize;
   }
 
-  let t = 0;
-  let setCurve = 0;
-  let point;
+  let a = 0.1;
+  let b = 0.1;
+  let c = 0.1;
+  let v = 1;
+  let start = 1;
+
   function render() {
-    t += 0.005;
     if (resizeRendererToDisplaySize(renderer)) {
       const canvas = renderer.domElement;
       camera.aspect = canvas.clientWidth / canvas.clientHeight;
       camera.updateProjectionMatrix();
     }
     if (ball) {
-      if (setCurve === 0) {
-        curve = startCurve();
-        setCurve = 1;
+      if (start === 1) {
+        ball.position.set(0, 3, 0);
+        start = 0;
       } else {
-        console.log(ball.position);
-        point = curve.getPointAt(t);
-        ball.position.copy(point);
-
+        ball.position.x = ball.position.x + a * v;
+        ball.position.y = ball.position.y + b * v;
+        ball.position.z = ball.position.z + c * v;
+        scene.getObjectByName('ballPlane').position.x = ball.position.x;
+        // 패들에 부딪히면 방향 바꾸기
         if (ball.position.x > 23.5 && ball.position.x < 24.5) {
-          t = 0;
-          curve = hitPaddle('red');
-          if (!curve) setCurve = 0;
+          if (!checkPaddleHit('red')) {
+            start = 1;
+          } else {
+            a *= -1;
+          }
         }
-
         if (ball.position.x < -23.5 && ball.position.x > -24.5) {
-          t = 0;
-          curve = hitPaddle('blue');
-          if (!curve) setCurve = 0;
+          if (!checkPaddleHit('blue')) {
+            start = 1;
+          } else {
+            a *= -1;
+          }
         }
 
-        if (ball.position.z < -7.4 && ball.position.z > 7.6) {
-          t = 0;
-          curve = hitWall();
+        // 벽에 부딪히면 방향 바꾸기
+        if (ball.position.z < -7 && ball.position.z > -8) {
+          c *= -1;
         }
-        // 블루 오른쪽면, 레드 왼쪽면
-        if (ball.position.z > 7.4 && ball.position.z < 7.6) {
-          t = 0;
-          curve = hitWall();
+        if (ball.position.z > 7 && ball.position.z < 8) {
+          c *= -1;
         }
-        // 위
-        if (ball.position.y > 4.9 && ball.position.y < 5.1) {
-          t = 0;
-          curve = hitWall();
+        if (ball.position.y > 4.5 && ball.position.y < 5.5) {
+          b *= -1;
         }
-        // 아래
-        if (ball.position.y < -4.9 && ball.position.y > -5.1) {
-          t = 0;
-          curve = hitWall();
+        if (ball.position.y < -4.5 && ball.position.y > -5.5) {
+          b *= -1;
         }
       }
     }
