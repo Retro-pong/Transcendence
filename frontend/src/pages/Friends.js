@@ -153,7 +153,7 @@ class Friends extends PageComponent {
     });
 
     friendWaitModal.addEventListener('show.bs.modal', async () => {
-      await Fetch.get('/friends/waiting')
+      await Fetch.get('/friends/waiting/')
         .then((res) => {
           friendWaitList.innerHTML =
             res
