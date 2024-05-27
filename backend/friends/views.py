@@ -245,7 +245,7 @@ class WaitingListAPIView(APIView):
                 {"error": "Invalid data"}, status=status.HTTP_400_BAD_REQUEST
             )
         try:
-            friend_request = FriendRequest.objects.get(
+            FriendRequest.objects.get(
                 user=user, friend_name=friend_name
             )
             FriendRequest.delete_request(user=user, friend_name=friend_name)
@@ -299,7 +299,6 @@ class AddListAPIView(APIView):
     )
     def get(self, request):  # search_name을 포함하는 모든 user 반환
         try:
-            user = request.user
             search_name = request.query_params.get("search_name")
             users = User.objects.filter(username__icontains=search_name)
             serializer = UsernameSerializer(users, many=True)

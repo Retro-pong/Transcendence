@@ -49,7 +49,7 @@ class IntraCallbackView(APIView):
         try:
             intra_id = intra_userinfo["login"]
             email = intra_userinfo["email"]
-            image = intra_userinfo["image"]["link"]
+            #image = intra_userinfo["image"]["link"]
             user = User.objects.get(email=email)
         except KeyError:
             return Response(
@@ -68,7 +68,7 @@ class IntraCallbackView(APIView):
         # 로그인
         user.is_authenticated = True
         user.is_active = True
-        user.image = image
+        #user.image = image
         user.save()
         token = obtain_jwt_token(user)
         return token
