@@ -2,7 +2,6 @@ import TokenManager from '@/utils/TokenManager';
 
 class Fetch {
   static #BASE_URL = 'http://localhost/api/v1';
-  // static #BASE_URL = 'http://localhost:8080';
 
   static #headers = new Headers({ 'Content-Type': 'application/json' });
 
@@ -11,8 +10,6 @@ class Fetch {
   static #retry = 1;
 
   static #loadingDelay = 150;
-
-  static #loadingTimer;
 
   static init() {
     const accessToken = TokenManager.getAccessToken();
@@ -24,13 +21,13 @@ class Fetch {
   }
 
   static showLoading() {
-    this.#loadingTimer = setTimeout(() => {
+    return setTimeout(() => {
       document.getElementById('loading').classList.remove('d-none');
     }, this.#loadingDelay);
   }
 
-  static hideLoading() {
-    clearTimeout(this.#loadingTimer);
+  static hideLoading(timer) {
+    clearTimeout(timer);
     document.getElementById('loading').classList.add('d-none');
   }
 
@@ -39,13 +36,13 @@ class Fetch {
   }
 
   static async get(url, retry = 1) {
-    this.showLoading();
+    const timer = this.showLoading();
     const response = await fetch(`${this.#BASE_URL}${url}`, {
       method: 'GET',
       headers: this.#headers,
       credentials: this.#credentials,
     });
-    this.hideLoading();
+    this.hideLoading(timer);
     if (!response.ok) {
       if (this.isAuth(url) && response.status === 401 && retry <= this.#retry) {
         await TokenManager.reissueAccessToken();
@@ -60,14 +57,14 @@ class Fetch {
   }
 
   static async post(url, body = {}, retry = 1) {
-    this.showLoading();
+    const timer = this.showLoading();
     const response = await fetch(`${this.#BASE_URL}${url}`, {
       method: 'POST',
       headers: this.#headers,
       credentials: this.#credentials,
       body: JSON.stringify(body),
     });
-    this.hideLoading();
+    this.hideLoading(timer);
     if (!response.ok) {
       if (this.isAuth(url) && response.status === 401 && retry <= this.#retry) {
         await TokenManager.reissueAccessToken();
@@ -82,7 +79,7 @@ class Fetch {
   }
 
   static async patch(url, body = {}, type = '', retry = 1) {
-    await this.showLoading();
+    const timer = this.showLoading();
     const header =
       type !== 'image'
         ? this.#headers
@@ -94,7 +91,7 @@ class Fetch {
       credentials: this.#credentials,
       body: reqBody,
     });
-    this.hideLoading();
+    this.hideLoading(timer);
     if (!response.ok) {
       if (this.isAuth(url) && response.status === 401 && retry <= this.#retry) {
         await TokenManager.reissueAccessToken();

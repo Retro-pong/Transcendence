@@ -83,6 +83,13 @@ input:-webkit-autofill:active {
   font-family: 3Dventure;
 }
 
+.code-input {
+  font-family: 'DungGeunMo', var(--bs-font-sans-serif), 'monospace';
+  &::placeholder {
+    font-family: '3Dventure', 'DungGeunMo', var(--bs-font-sans-serif), 'monospace';
+  }
+}
+
 :root {
   --bs-body-color: #ffffff;
   --bs-body-font-family: '3Dventure', 'DungGeunMo', var(--bs-font-sans-serif);
@@ -257,7 +264,7 @@ a {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 10;
+  z-index: 2000;
   color: $white;
 
   @for $i from 1 through 10 {

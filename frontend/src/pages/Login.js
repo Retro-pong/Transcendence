@@ -154,7 +154,7 @@ class Login extends PageComponent {
 
         await Fetch.post('/login/email/register/', {
           email,
-          username,
+          username: username.toLowerCase(),
           password,
         })
           .then(() => {

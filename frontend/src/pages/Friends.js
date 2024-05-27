@@ -57,34 +57,6 @@ class Friends extends PageComponent {
     `;
   }
 
-  /* 페이지네이션 테스트용 -> Fetch BASE_URL 변경 필요
-  async getFriendsTest() {
-    const URL = `/friends?_limit=${this.limit}&_page=${this.currPage}`;
-    const response = await Fetch.get(URL).catch(() => {
-      document.getElementById('pagination').classList.add('d-none');
-      ErrorHandler.setToast('Failed to get friends list');
-      return [];
-    });
-    this.totalPage = 2;
-    return response;
-  }
-
-  async getPageData() {
-    const friendList = await this.getFriendsTest();
-    if (friendList.length === 0) {
-      document.getElementById('pagination').classList.add('d-none');
-      return `<div class="fs-15 align-self-center"> No Friends :( </div>`;
-    }
-    document.getElementById('pagination').classList.remove('d-none');
-    const friends = friendList.map((data) => FriendInfoCard(data)).join('');
-    return `
-      <div class="row row-cols-lg-2 w-100">
-        ${friends}
-      </div>
-    `;
-  }
-*/
-
   onFriendAcceptBtnClick() {
     document.querySelectorAll('.friend-accept-btn').forEach((btn) => {
       btn.addEventListener('click', async (e) => {
@@ -192,7 +164,7 @@ class Friends extends PageComponent {
           ErrorHandler.setToast('Invalid nickname');
           return;
         }
-        await Fetch.get(`/friends/add?search_name=${username}`)
+        await Fetch.get(`/friends/add?search_name=${username.toLowerCase()}`)
           .then((res) => {
             // 친구 검색 결과 생성
             friendSearchList.innerHTML =
