@@ -102,7 +102,7 @@ function createGameObject(scene) {
   const paddleMaterial = new THREE.MeshBasicMaterial({
     color: 0xa0a0a0,
     transparent: true,
-    opacity: 0.7,
+    opacity: 0.5,
   });
   const redPaddle = new THREE.Mesh(paddleGeometry, paddleMaterial);
   const bluePaddle = new THREE.Mesh(paddleGeometry, paddleMaterial);
@@ -131,8 +131,8 @@ function createGameObject(scene) {
 
   const paddleBorderMaterial = (color) => {
     return new THREE.MeshBasicMaterial({
-      color: color === 'blue' ? 0x00ffff : 0xb6226d,
-      opacity: 0.8,
+      color: color === 'blue' ? 0x0000ff : 0xff0000,
+      opacity: 1,
     });
   };
 
