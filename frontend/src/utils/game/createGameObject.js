@@ -6,62 +6,84 @@ function createGameObject(scene) {
 
   // ball
   const ballGeometry = new THREE.SphereGeometry(1, 32, 16);
-  const ballMaterial = new THREE.MeshBasicMaterial({ color: 0x00ffff });
+  const colors = [];
+  const color1 = new THREE.Color(0xff0000); // Red
+  const color2 = new THREE.Color(0x0000ff); // Blue
+
+  for (let i = 0; i < ballGeometry.attributes.position.count; i++) {
+    const y = ballGeometry.attributes.position.getY(i);
+    const alpha = (y + 1) / 2; // Normalize y value to range [0, 1]
+
+    const color = new THREE.Color();
+    color.lerpColors(color1, color2, alpha);
+    colors.push(color.r, color.g, color.b);
+  }
+
+  ballGeometry.setAttribute(
+    'color',
+    new THREE.Float32BufferAttribute(colors, 3)
+  );
+
+  const ballMaterial = new THREE.MeshStandardMaterial({
+    vertexColors: true,
+  });
+
   const ball = new THREE.Mesh(ballGeometry, ballMaterial);
   ball.position.set(0, 0, 0);
   ball.name = 'ball';
   gameObjs.add(ball);
 
   // ballPlane
+  const ballPlane = new THREE.Group();
   const planeY = 10;
   const planeZ = 15;
   const lineWidth = 0.5;
 
-  const lineGeometry1 = new THREE.BoxGeometry(
-    lineWidth,
-    planeY + lineWidth,
-    lineWidth
-  );
-  const lineGeometry2 = new THREE.BoxGeometry(
-    lineWidth,
-    planeY + lineWidth,
-    lineWidth
-  );
-  const lineGeometry3 = new THREE.BoxGeometry(
-    lineWidth,
-    lineWidth,
-    planeZ + lineWidth
-  );
-  const lineGeometry4 = new THREE.BoxGeometry(
-    lineWidth,
-    lineWidth,
-    planeZ + lineWidth
-  );
   const ballPlaneMaterial = new THREE.MeshBasicMaterial({
     color: 0x9bfab6,
-    opacity: 1,
+    transparent: true,
+    opacity: 0.6,
   });
+  const ballPlanes = [
+    {
+      w: lineWidth,
+      h: planeY + lineWidth,
+      d: lineWidth,
+      position: { x: 0, y: 0, z: planeZ / 2 },
+      rotation: { x: 0, y: 0, z: 0 },
+    },
+    {
+      w: lineWidth,
+      h: planeY + lineWidth,
+      d: lineWidth,
+      position: { x: 0, y: 0, z: -planeZ / 2 },
+      rotation: { x: 0, y: 0, z: 0 },
+    },
+    {
+      w: lineWidth,
+      h: lineWidth,
+      d: planeZ + lineWidth,
+      position: { x: 0, y: planeY / 2, z: 0 },
+      rotation: { x: 0, y: 0, z: 0 },
+    },
+    {
+      w: lineWidth,
+      h: lineWidth,
+      d: planeZ + lineWidth,
+      position: { x: 0, y: -planeY / 2, z: 0 },
+      rotation: { x: 0, y: 0, z: 0 },
+    },
+  ];
 
-  const ballPlaneLine1 = new THREE.Mesh(lineGeometry1, ballPlaneMaterial);
-  const ballPlaneLine2 = new THREE.Mesh(lineGeometry2, ballPlaneMaterial);
-  const ballPlaneLine3 = new THREE.Mesh(lineGeometry3, ballPlaneMaterial);
-  const ballPlaneLine4 = new THREE.Mesh(lineGeometry4, ballPlaneMaterial);
-
-  ballPlaneLine1.position.z = planeZ / 2;
-  ballPlaneLine2.position.z = -planeZ / 2;
-  ballPlaneLine3.position.y = planeY / 2;
-  ballPlaneLine4.position.y = -planeY / 2;
-
-  ballPlaneLine1.rotation.y = Math.PI / 2;
-  ballPlaneLine2.rotation.y = Math.PI / 2;
-  ballPlaneLine3.rotation.z = Math.PI / 2;
-  ballPlaneLine4.rotation.z = Math.PI / 2;
-
-  const ballPlane = new THREE.Group();
-  ballPlane.add(ballPlaneLine1);
-  ballPlane.add(ballPlaneLine2);
-  ballPlane.add(ballPlaneLine3);
-  ballPlane.add(ballPlaneLine4);
+  ballPlanes.forEach((plane) => {
+    const mesh = new THREE.Mesh(
+      new THREE.BoxGeometry(plane.w, plane.h, plane.d),
+      ballPlaneMaterial
+    );
+    mesh.position.set(plane.position.x, plane.position.y, plane.position.z);
+    mesh.rotation.set(plane.rotation.x, plane.rotation.y, plane.rotation.z);
+    ballPlane.add(mesh);
+  });
 
   ballPlane.position.set(0, 0, 0);
   ballPlane.name = 'ballPlane';
