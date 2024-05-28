@@ -17,12 +17,15 @@ function game() {
 
   const controls = new OrbitControls(camera, canvas);
   controls.update();
+  controls.enableRotate = false;
+  controls.enableZoom = false;
+  controls.enablePan = false;
 
   const scene = new THREE.Scene();
 
   // 배경 이미지
   // const loader = new THREE.TextureLoader();
-  // loader.load('/img/map_pixel_rain.jpg', function (texture) {
+  // loader.load('/img/map_mountain.jpg', function (texture) {
   //   scene.background = texture;
   // });
   scene.background = new THREE.Color(0x000000);
@@ -44,7 +47,7 @@ function game() {
     scene.add(light.target);
   }
 
-  createMap(scene, controls);
+  createMap(scene);
   createGameObject(scene);
   eventHandler(canvas, scene, camera, renderer, controls);
 
@@ -92,7 +95,7 @@ function game() {
   let a = 0.1;
   let b = 0.1;
   let c = 0.1;
-  let v = 1.2;
+  let v = 1.5;
   let start = 1;
 
   function render() {

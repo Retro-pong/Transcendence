@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-function createMap(scene, controls) {
+function createMap(scene) {
   const map = new THREE.Group();
 
   const planeX = 40;
@@ -163,12 +163,6 @@ function createMap(scene, controls) {
   const box3 = new THREE.Box3().setFromObject(map);
   const boxCenter = new THREE.Vector3();
   box3.getCenter(boxCenter);
-
-  controls.maxDistance = box3.getSize(new THREE.Vector3()).length();
-  controls.minDistance = 20;
-
-  controls.target.copy(boxCenter);
-  controls.update();
 }
 
 export default createMap;
