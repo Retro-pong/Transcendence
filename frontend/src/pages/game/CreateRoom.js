@@ -71,7 +71,20 @@ class CreateRoom extends PageComponent {
       .catch((err) => {
         ErrorHandler.setToast('Failed to create room');
         console.error(err);
+      })
+      .finally(() => {
+        this.resetProgressState();
+        this.progressBar();
       });
+  }
+
+  resetProgressState() {
+    this.titleState = false;
+    this.ballState = true;
+    this.speedState = true;
+    this.mapState = false;
+    this.modeState = false;
+    this.progressState = 40;
   }
 
   progressBar() {
