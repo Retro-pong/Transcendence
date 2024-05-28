@@ -18,11 +18,11 @@ function eventHandler(canvas, scene, camera, renderer, controls) {
   canvas.addEventListener('keydown', (e) => {
     // 시점
     if (e.code === 'Digit1') {
-      camera.position.set(-40, 0, 0);
+      camera.position.set(-33, 0, 0);
       controls.update();
     }
     if (e.code === 'Digit2') {
-      camera.position.set(40, 0, 0);
+      camera.position.set(33, 0, 0);
       controls.update();
     }
 

@@ -13,7 +13,7 @@ function game() {
   const near = 0.1;
   const far = 1000;
   const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-  camera.position.set(-40, 0, 0);
+  camera.position.set(-33, 0, 0);
 
   const controls = new OrbitControls(camera, canvas);
   controls.update();
