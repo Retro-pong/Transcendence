@@ -111,14 +111,14 @@ function game() {
         ball.position.z += c * v;
         scene.getObjectByName('ballPlane').position.x = ball.position.x;
         // 패들에 부딪히면 방향 바꾸기
-        if (ball.position.x > 23.5 && ball.position.x < 24.5) {
+        if (ball.position.x > 19.5 && ball.position.x < 20.5) {
           if (!checkPaddleHit('red')) {
             start = 1;
           } else {
             a *= -1;
           }
         }
-        if (ball.position.x < -23.5 && ball.position.x > -24.5) {
+        if (ball.position.x < -19.5 && ball.position.x > -20.5) {
           if (!checkPaddleHit('blue')) {
             start = 1;
           } else {

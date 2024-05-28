@@ -29,7 +29,7 @@ function createGameObject(scene) {
     opacity: 0.7,
   });
   const redPaddle = new THREE.Mesh(redPaddleGeometry, redPaddleMaterial);
-  redPaddle.position.set(25, 0, 0);
+  redPaddle.position.set(20, 0, 0);
 
   const bluePaddleGeometry = new THREE.BoxGeometry(0.5, 3, 3);
   const bluePaddleMaterial = new THREE.MeshBasicMaterial({
@@ -38,7 +38,7 @@ function createGameObject(scene) {
     opacity: 0.7,
   });
   const bluePaddle = new THREE.Mesh(bluePaddleGeometry, bluePaddleMaterial);
-  bluePaddle.position.set(-25, 0, 0);
+  bluePaddle.position.set(-20, 0, 0);
 
   ball.name = 'ball';
   redPaddle.name = 'redPaddle';
