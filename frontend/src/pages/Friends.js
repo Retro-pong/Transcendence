@@ -19,7 +19,7 @@ class Friends extends PageComponent {
   }
 
   async getFriends() {
-    const URL = `/friends/friend_list?limit=${this.limit}&offset=${this.offset}`;
+    const URL = `/friends/friend_list/?limit=${this.limit}&offset=${this.offset}`;
     const response = await Fetch.get(URL).catch(() => {
       document.getElementById('pagination').classList.add('d-none');
       ErrorHandler.setToast('Failed to get friends list');
@@ -70,6 +70,7 @@ class Friends extends PageComponent {
             this.onReloadButtonClick(this);
             this.onPaginationClick(this);
             ErrorHandler.setToast('Friend accepted');
+            document.querySelector(`[data-wait-item="${friendName}"]`).remove();
           })
           .catch(() => {
             ErrorHandler.setToast('Failed to accept friend');
@@ -88,7 +89,7 @@ class Friends extends PageComponent {
         })
           .then(() => {
             ErrorHandler.setToast('Friend rejected');
-            btn.remove();
+            document.querySelector(`[data-wait-item="${friendName}"]`).remove();
           })
           .catch(() => {
             ErrorHandler.setToast('Failed to reject friend');
@@ -106,9 +107,11 @@ class Friends extends PageComponent {
             ErrorHandler.setToast(`friend request ${friendName}`);
           })
           .catch((error) => {
-            // TODO: 이미 요청 보낸 친구에게 재요청시 에러처리
-            console.log(error);
-            ErrorHandler.setToast(`failed to friend request ${friendName}`);
+            ErrorHandler.setToast(
+              error.status === 409
+                ? error.message
+                : `failed to friend request ${friendName}`
+            );
           });
       });
     });
@@ -164,7 +167,7 @@ class Friends extends PageComponent {
           ErrorHandler.setToast('Invalid nickname');
           return;
         }
-        await Fetch.get(`/friends/add?search_name=${username.toLowerCase()}`)
+        await Fetch.get(`/friends/add/?search_name=${username.toLowerCase()}`)
           .then((res) => {
             // 친구 검색 결과 생성
             friendSearchList.innerHTML =

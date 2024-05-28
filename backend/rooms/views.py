@@ -44,9 +44,9 @@ class JoinNormalRoomAPIView(APIView):
                                 type=openapi.TYPE_INTEGER,
                                 description="Current number of players",
                             ),
-                            "max_players": openapi.Schema(
-                                type=openapi.TYPE_INTEGER,
-                                description="Maximum number of players",
+                            "game_ball": openapi.Schema(
+                                type=openapi.TYPE_STRING,
+                                description="ball color in game",
                             ),
                         },
                     ),
@@ -102,9 +102,9 @@ class JoinTournamentRoomAPIView(APIView):
                                 type=openapi.TYPE_INTEGER,
                                 description="Current number of players",
                             ),
-                            "max_players": openapi.Schema(
-                                type=openapi.TYPE_INTEGER,
-                                description="Maximum number of players",
+                            "game_ball": openapi.Schema(
+                                type=openapi.TYPE_STRING,
+                                description="ball color in game",
                             ),
                         },
                     ),
@@ -147,9 +147,9 @@ class CreateRoomAPIView(APIView):
                 "game_map": openapi.Schema(
                     type=openapi.TYPE_STRING, description="Game map of the room"
                 ),
-                "max_players": openapi.Schema(
-                    type=openapi.TYPE_INTEGER,
-                    description="Maximum number of players in the room",
+                "game_ball": openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="ball color in game",
                 ),
             },
             required=[
@@ -157,7 +157,7 @@ class CreateRoomAPIView(APIView):
                 "game_mode",
                 "game_speed",
                 "game_map",
-                "max_players",
+                "game_ball",
             ],
         ),
         responses={
@@ -174,8 +174,8 @@ class CreateRoomAPIView(APIView):
             game_mode = request.data["game_mode"]
             game_speed = request.data["game_speed"]
             game_map = request.data["game_map"]
-            max_players = request.data["max_players"]
-            Room.create_room(room_name, game_mode, game_map, game_speed, max_players)
+            game_ball = request.data["game_ball"]
+            Room.create_room(room_name, game_mode, game_map, game_speed, game_ball)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_200_OK)

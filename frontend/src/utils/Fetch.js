@@ -99,10 +99,10 @@ class Fetch {
       }
       return response.json().then((err) => {
         console.error(`PATCH(${url}) ERROR:`, err);
-        throw err;
+        throw { message: err.error, status: response.status };
       });
     }
-    return response.json();
+    return response.json().catch(() => '');
   }
 }
 

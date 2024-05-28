@@ -195,7 +195,7 @@ class Login extends PageComponent {
 
   async handle42Login() {
     // TODO: 로딩 처리
-    await Fetch.get(`/login/intra/callback?code=${this.code}`)
+    await Fetch.get(`/login/intra/callback/?code=${this.code}`)
       .then((data) => {
         TokenManager.storeToken(data.access_token);
         navigateTo('/');

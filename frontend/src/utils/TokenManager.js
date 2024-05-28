@@ -1,5 +1,6 @@
 import Fetch from '@/utils/Fetch';
 import ErrorHandler from '@/utils/ErrorHandler';
+import { navigateTo } from '@/utils/router';
 
 class TokenManager {
   static #accessToken = null;
@@ -43,6 +44,7 @@ class TokenManager {
           ErrorHandler.setToast('You need to login');
         }
         this.clearToken();
+        navigateTo('/login');
       });
   }
 
