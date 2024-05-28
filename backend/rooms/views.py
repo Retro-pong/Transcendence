@@ -45,7 +45,7 @@ class JoinNormalRoomAPIView(APIView):
                                 description="Current number of players",
                             ),
                             "game_ball": openapi.Schema(
-                                type=openapi.TYPE_INTEGER,
+                                type=openapi.TYPE_STRING,
                                 description="ball color in game",
                             ),
                         },
@@ -103,7 +103,7 @@ class JoinTournamentRoomAPIView(APIView):
                                 description="Current number of players",
                             ),
                             "game_ball": openapi.Schema(
-                                type=openapi.TYPE_INTEGER,
+                                type=openapi.TYPE_STRING,
                                 description="ball color in game",
                             ),
                         },
@@ -148,7 +148,7 @@ class CreateRoomAPIView(APIView):
                     type=openapi.TYPE_STRING, description="Game map of the room"
                 ),
                 "game_ball": openapi.Schema(
-                    type=openapi.TYPE_INTEGER,
+                    type=openapi.TYPE_STRING,
                     description="ball color in game",
                 ),
             },
