@@ -18,14 +18,33 @@ class PlayGame extends PageComponent {
     game(this.settings);
 
     document.getElementById('mapTest').addEventListener('click', (e) => {
-      if (this.map === 'mountain') {
-        this.map = 'pixel';
-      } else if (this.map === 'pixel') {
-        this.map = 'horizon';
+      if (this.settings.map === 'mountain') {
+        this.settings.map = 'pixel';
+      } else if (this.settings.map === 'pixel') {
+        this.settings.map = 'horizon';
       } else {
-        this.map = 'mountain';
+        this.settings.map = 'mountain';
       }
-      game(this.map);
+      game(this.settings);
+    });
+
+    document.getElementById('colorTest').addEventListener('click', (e) => {
+      if (this.settings.ball === 0x0000ff) {
+        this.settings.ball = 0xff0000;
+      } else if (this.settings.ball === 0xff0000) {
+        this.settings.ball = 0x00ff00;
+      } else {
+        this.settings.ball = 0x0000ff;
+      }
+      game(this.settings);
+    });
+    document.getElementById('speedTest').addEventListener('click', (e) => {
+      if (this.settings.speed < 5) {
+        this.settings.speed += 1;
+      } else {
+        this.settings.speed = 1;
+      }
+      game(this.settings);
     });
   }
 }
