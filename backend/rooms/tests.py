@@ -77,7 +77,7 @@ class CreateRoomAPIViewTest(APITestCase):
         url = reverse("room:create_room")
         data = {
             "room_name": "NewRoom",
-            "game_mode": "rumble",
+            "game_mode": "normal",
             "game_speed": 3,
             "game_map": "map2",
             "game_ball": "0xffffff",
