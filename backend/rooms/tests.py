@@ -28,14 +28,14 @@ class JoinRoomAPIViewTest(APITestCase):
             game_mode="normal",
             game_speed=1,
             game_map="map1",
-            max_players=4,
+            ball_color="0xffffff",
         )
         Room.objects.create(
             room_name="Room2",
             game_mode="tournament",
             game_speed=5,
             game_map="map2",
-            max_players=2,
+            ball_color="0x000000",
         )
 
     def test_get_normal_rooms(self):
@@ -80,7 +80,7 @@ class CreateRoomAPIViewTest(APITestCase):
             "game_mode": "rumble",
             "game_speed": 3,
             "game_map": "map2",
-            "max_players": 4,
+            "game_ball": "0xffffff",
         }
         response = self.client.post(url, data, format="json")
 
