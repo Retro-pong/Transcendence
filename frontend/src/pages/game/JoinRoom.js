@@ -1,6 +1,8 @@
 import PageComponent from '@component/PageComponent.js';
 import NavLink from '@component/navigation/NavLink';
 import BasicButton from '@component/button/BasicButton';
+import ModalComponent from '@component/modal/ModalComponent';
+import GameRoomInfo from '@component/contents/GameRoomInfo';
 import Fetch from '@/utils/Fetch';
 import ErrorHandler from '@/utils/ErrorHandler';
 
@@ -9,6 +11,7 @@ class JoinRoom extends PageComponent {
     super();
     this.mode = 'normal';
     this.setTitle('Join Room');
+    this.roomMap = new Map();
   }
 
   async getRoomList() {
@@ -20,7 +23,7 @@ class JoinRoom extends PageComponent {
 
   async getPageData() {
     const roomList = await this.getRoomList();
-
+    this.roomMap.clear();
     if (roomList.length === 0) {
       return `
       <div class="d-flex justify-content-center align-items-center h-100">
@@ -28,19 +31,41 @@ class JoinRoom extends PageComponent {
       </div>`;
     }
 
-    return roomList
-      .map((room) => {
-        const text =
-          this.mode === 'normal'
-            ? `[ ${room.room_name} ]`
-            : `[ ${room.room_name} ] (${room.current_players}/${room.max_players})`;
-        return NavLink({
-          text,
-          path: `/game/waiting?room=${room.id}&title=${room.room_name}&mode=${this.mode}`,
-          classList: 'btn btn-no-outline-hover fs-11 btn-arrow',
-        }).outerHTML;
-      })
-      .join('');
+    const setRoomModalButton = (room) => {
+      this.roomMap.set(`room${room.id}`, {
+        title: room.room_name,
+        map: room.game_map,
+        speed: room.game_speed,
+        ball: room.ball_color,
+      });
+      const text =
+        this.mode === 'normal'
+          ? `[ ${room.room_name} ]`
+          : `[ ${room.room_name} ] (${room.current_players}/4)`;
+      return `
+        <button id="room${room.id}" type="button" class="btn btn-no-outline-hover fs-11 btn-arrow" data-bs-toggle="modal" data-bs-target="#roomInfoModal">
+          ${text}
+        </button>`;
+    };
+    return roomList.map(setRoomModalButton).join('');
+  }
+
+  onModalOpen() {
+    const roomInfoModal = document.getElementById('roomInfoModal');
+    roomInfoModal.addEventListener('show.bs.modal', (e) => {
+      const roomId = e.relatedTarget.id;
+      const roomInfo = this.roomMap.get(roomId);
+      const modalBody = document.querySelector('#roomInfoModal .modal-body');
+      const modalFooter = document.querySelector(
+        '#roomInfoModal .modal-footer'
+      );
+      modalFooter.innerHTML = NavLink({
+        text: '>> ENTER <<',
+        path: `/game/waiting?title=${roomInfo.title}`,
+        classList: 'btn btn-outline-light w-100 fs-12',
+      }).outerHTML;
+      modalBody.innerHTML = GameRoomInfo(roomInfo);
+    });
   }
 
   async render() {
@@ -50,8 +75,16 @@ class JoinRoom extends PageComponent {
       classList:
         'btn fs-2 position-absolute top-0 end-0 mt-2 me-2 btn-no-outline-hover',
     });
+    const RoomInfoModal = ModalComponent({
+      borderColor: 'pink',
+      title: 'Room Info',
+      modalId: 'roomInfoModal',
+      content: '',
+      buttonList: ['joinRoomBtn'],
+    });
 
     return `
+      ${RoomInfoModal}
       <div class="container h-100 p-3 game-room-border overflow-hidden">
         <div class="d-flex justify-content-center position-relative">
           <h1 class="display-1 text-center">[ Room List ]</h1>
@@ -95,6 +128,8 @@ class JoinRoom extends PageComponent {
     await this.initPageData();
     this.onTabClick();
     this.onReloadButtonClick();
+    this.onNavButtonClick();
+    this.onModalOpen();
   }
 }
 
