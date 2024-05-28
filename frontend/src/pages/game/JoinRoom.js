@@ -80,7 +80,7 @@ class JoinRoom extends PageComponent {
       title: 'Room Info',
       modalId: 'roomInfoModal',
       content: '',
-      buttonList: ['joinRoomBtn'],
+      buttonList: [],
     });
 
     return `
