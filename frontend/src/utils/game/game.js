@@ -4,7 +4,7 @@ import createMap from './createMap';
 import createGameObject from '@/utils/game/createGameObject';
 import eventHandler from '@/utils/game/eventHandler';
 
-function game() {
+function game(map) {
   const canvas = document.getElementById('gameCanvas');
   const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
 
@@ -13,19 +13,28 @@ function game() {
   const near = 0.1;
   const far = 1000;
   const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-  camera.position.set(-40, 0, 0);
+  camera.position.set(-33, 0, 0);
 
   const controls = new OrbitControls(camera, canvas);
   controls.update();
+  // controls.enableRotate = false;
+  // controls.enableZoom = false;
+  // controls.enablePan = false;
 
   const scene = new THREE.Scene();
 
   // 배경 이미지
-  // const loader = new THREE.TextureLoader();
-  // loader.load('/img/map_pixel_rain.jpg', function (texture) {
-  //   scene.background = texture;
-  // });
-  scene.background = new THREE.Color(0x000000);
+  const mapList = {
+    horizon: '/img/map_futuristic_horizon.jpg',
+    mountain: '/img/map_mountain.jpg',
+    pixel: '/img/map_pixel_rain.jpg',
+  };
+
+  console.log(mapList[map]);
+  const loader = new THREE.TextureLoader();
+  loader.load(mapList[map], function (texture) {
+    scene.background = texture;
+  });
 
   {
     const skyColor = 0xb1e1ff; // light blue
@@ -38,13 +47,17 @@ function game() {
   {
     const color = 0xffffff;
     const intensity = 2.5;
-    const light = new THREE.DirectionalLight(color, intensity);
-    light.position.set(5, 10, 2);
-    scene.add(light);
-    scene.add(light.target);
+    const light1 = new THREE.DirectionalLight(color, intensity);
+    const light2 = new THREE.DirectionalLight(color, intensity);
+    light1.position.set(-40, 0, 0);
+    light2.position.set(40, 0, 0);
+    scene.add(light1);
+    scene.add(light2);
+    scene.add(light1.target);
+    scene.add(light2.target);
   }
 
-  createMap(scene, controls);
+  createMap(scene);
   createGameObject(scene);
   eventHandler(canvas, scene, camera, renderer, controls);
 
@@ -92,7 +105,7 @@ function game() {
   let a = 0.1;
   let b = 0.1;
   let c = 0.1;
-  let v = 1.2;
+  const v = 1.5;
   let start = 1;
 
   function render() {
@@ -109,16 +122,21 @@ function game() {
         ball.position.x += a * v;
         ball.position.y += b * v;
         ball.position.z += c * v;
+        ball.rotation.set(
+          ball.rotation.x + 0.1,
+          ball.rotation.y + 0.1,
+          ball.rotation.z + 0.1
+        );
         scene.getObjectByName('ballPlane').position.x = ball.position.x;
         // 패들에 부딪히면 방향 바꾸기
-        if (ball.position.x > 23.5 && ball.position.x < 24.5) {
+        if (ball.position.x > 19.5 && ball.position.x < 20.5) {
           if (!checkPaddleHit('red')) {
             start = 1;
           } else {
             a *= -1;
           }
         }
-        if (ball.position.x < -23.5 && ball.position.x > -24.5) {
+        if (ball.position.x < -19.5 && ball.position.x > -20.5) {
           if (!checkPaddleHit('blue')) {
             start = 1;
           } else {
