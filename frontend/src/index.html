@@ -31,7 +31,17 @@
     <div id="app" class="container-fluid p-5 min-vh-100 overflow-auto">
     </div>
     <!-- 게임 캔버스 -->
-    <canvas id="gameCanvas" tabindex="0" class="d-none h-100 w-100"></canvas>
+    <div id="gameCanvasContainer" style="position: relative;">
+      <canvas id="gameCanvas" tabindex="0" class="d-none h-100 w-100"></canvas>
+      <div class="position-absolute top-0 px-3 text-white d-flex flex-column align-items-center border border-5 rounded">
+        <span class="fs-10">score</span>
+        <div class="d-flex w-100 fs-8">
+          <span id="player1Score" class="w-50 d-flex justify-content-center text-danger">1</span>
+          <span id="player2Score" class="w-50 d-flex justify-content-center text-primary">2</span>
+        </div>
+        <button id="mapTest" class="fs-10">TEST</button>
+      </div>
+    </div>
     <!-- menu 버튼 -->
     <div id="navBar" class="position-absolute d-none z-1" style="bottom: 8%; left: 8%;">
       <div class="collapse collapse-horizontal" id="navBarCollapse">
