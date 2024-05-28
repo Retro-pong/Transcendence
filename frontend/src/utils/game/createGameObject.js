@@ -38,8 +38,8 @@ function createGameObject(scene) {
     planeZ + lineWidth
   );
   const ballPlaneMaterial = new THREE.MeshBasicMaterial({
-    color: 0x0000ff,
-    opacity: 0.5,
+    color: 0x9bfab6,
+    opacity: 1,
   });
 
   const ballPlaneLine1 = new THREE.Mesh(lineGeometry1, ballPlaneMaterial);
@@ -80,7 +80,7 @@ function createGameObject(scene) {
   const paddleMaterial = new THREE.MeshBasicMaterial({
     color: 0xa0a0a0,
     transparent: true,
-    opacity: 0.5,
+    opacity: 0.7,
   });
   const redPaddle = new THREE.Mesh(paddleGeometry, paddleMaterial);
   const bluePaddle = new THREE.Mesh(paddleGeometry, paddleMaterial);
@@ -88,111 +88,100 @@ function createGameObject(scene) {
   bluePaddle.position.set(-20, 0, 0);
 
   // paddle 내부, 테두리
-  const paddleLineWidth = 0.3;
   const bluePaddleBox = new THREE.Group();
   const redPaddleBox = new THREE.Group();
 
   const paddleBorder = (type) => {
     return new THREE.BoxGeometry(
       paddleWidth,
-      type === 'horizontal'
-        ? paddleWidth - paddleLineWidth
-        : paddleHeight + paddleWidth - paddleLineWidth,
-      type === 'horizontal'
-        ? paddleDepth + paddleWidth - paddleLineWidth
-        : paddleWidth - paddleLineWidth
+      type === 'horizontal' ? paddleWidth - paddleWidth / 2 : paddleHeight,
+      type === 'horizontal' ? paddleDepth : paddleWidth - paddleWidth / 2
     );
   };
 
   const paddleInner = (type) => {
     return new THREE.BoxGeometry(
       paddleWidth,
-      type === 'horizontal' ? paddleWidth - paddleLineWidth : paddleHeight / 3,
-      type === 'horizontal' ? paddleDepth / 3 : paddleWidth - paddleLineWidth
+      type === 'horizontal' ? paddleWidth / 2 : paddleHeight / 3,
+      type === 'horizontal' ? paddleDepth / 3 : paddleWidth / 2
     );
   };
 
   const paddleBorderMaterial = (color) => {
     return new THREE.MeshBasicMaterial({
-      color: color === 'blue' ? 0x00ff : 0xff0000,
+      color: color === 'blue' ? 0x00ffff : 0xb6226d,
       opacity: 0.8,
     });
   };
 
-  const border = {
-    top: new THREE.Mesh(
-      paddleBorder('horizontal'),
-      paddleBorderMaterial('blue')
-    ),
-    bottom: new THREE.Mesh(
-      paddleBorder('horizontal'),
-      paddleBorderMaterial('blue')
-    ),
-    left: new THREE.Mesh(
-      paddleBorder('vertical'),
-      paddleBorderMaterial('blue')
-    ),
-    right: new THREE.Mesh(
-      paddleBorder('vertical'),
-      paddleBorderMaterial('blue')
-    ),
-  };
+  const border = [
+    {
+      name: 'top',
+      mesh: paddleBorder('horizontal'),
+      position: { x: 0, y: paddleHeight / 2 - paddleWidth / 4, z: 0 },
+    },
+    {
+      name: 'bottom',
+      mesh: paddleBorder('horizontal'),
+      position: { x: 0, y: -paddleHeight / 2 + paddleWidth / 4, z: 0 },
+    },
+    {
+      name: 'left',
+      mesh: paddleBorder('vertical'),
+      position: { x: 0, y: 0, z: paddleDepth / 2 - paddleWidth / 4 },
+    },
+    {
+      name: 'right',
+      mesh: paddleBorder('vertical'),
+      position: { x: 0, y: 0, z: -paddleDepth / 2 + paddleWidth / 4 },
+    },
+    {
+      name: 'innerTop',
+      mesh: paddleInner('vertical'),
+      position: { x: 0, y: paddleHeight / 3, z: 0 },
+    },
+    {
+      name: 'innerBottom',
+      mesh: paddleInner('vertical'),
+      position: { x: 0, y: -paddleHeight / 3, z: 0 },
+    },
+    {
+      name: 'innerLeft',
+      mesh: paddleInner('horizontal'),
+      position: { x: 0, y: 0, z: paddleDepth / 3 },
+    },
+    {
+      name: 'innerRight',
+      mesh: paddleInner('horizontal'),
+      position: { x: 0, y: 0, z: -paddleDepth / 3 },
+    },
+    {
+      name: 'boxTop',
+      mesh: paddleInner('horizontal'),
+      position: { x: 0, y: paddleHeight / 6, z: 0 },
+    },
+    {
+      name: 'boxBottom',
+      mesh: paddleInner('horizontal'),
+      position: { x: 0, y: -paddleHeight / 6, z: 0 },
+    },
+    {
+      name: 'boxLeft',
+      mesh: paddleInner('vertical'),
+      position: { x: 0, y: 0, z: paddleDepth / 6 },
+    },
+    {
+      name: 'boxRight',
+      mesh: paddleInner('vertical'),
+      position: { x: 0, y: 0, z: -paddleDepth / 6 },
+    },
+  ];
 
-  const inner = {
-    top: new THREE.Mesh(paddleInner('vertical'), paddleBorderMaterial('blue')),
-    bottom: new THREE.Mesh(
-      paddleInner('vertical'),
-      paddleBorderMaterial('blue')
-    ),
-    left: new THREE.Mesh(
-      paddleInner('horizontal'),
-      paddleBorderMaterial('blue')
-    ),
-    right: new THREE.Mesh(
-      paddleInner('horizontal'),
-      paddleBorderMaterial('blue')
-    ),
-    boxTop: new THREE.Mesh(
-      paddleInner('horizontal'),
-      paddleBorderMaterial('blue')
-    ),
-    boxBottom: new THREE.Mesh(
-      paddleInner('horizontal'),
-      paddleBorderMaterial('blue')
-    ),
-    boxLeft: new THREE.Mesh(
-      paddleInner('vertical'),
-      paddleBorderMaterial('blue')
-    ),
-    boxRight: new THREE.Mesh(
-      paddleInner('vertical'),
-      paddleBorderMaterial('blue')
-    ),
-  };
-
-  border.top.position.set(0, paddleHeight / 2, 0);
-  border.bottom.position.set(0, -paddleHeight / 2, 0);
-  border.left.position.set(0, 0, paddleDepth / 2);
-  border.right.position.set(0, 0, -paddleDepth / 2);
-
-  inner.top.position.set(0, paddleHeight / 3, 0);
-  inner.bottom.position.set(0, -paddleHeight / 3, 0);
-  inner.left.position.set(0, 0, paddleDepth / 3);
-  inner.right.position.set(0, 0, -paddleDepth / 3);
-
-  inner.boxTop.position.set(0, paddleHeight / 6, 0);
-  inner.boxBottom.position.set(0, -paddleHeight / 6, 0);
-  inner.boxLeft.position.set(0, 0, paddleDepth / 6);
-  inner.boxRight.position.set(0, 0, -paddleDepth / 6);
-
-  for (let i = 0; i < Object.values(inner).length; i += 1) {
-    const obj = Object.values(inner)[i];
-    bluePaddleBox.add(obj);
-  }
-  for (let i = 0; i < Object.values(border).length; i += 1) {
-    const obj = Object.values(border)[i];
-    bluePaddleBox.add(obj);
-  }
+  border.forEach((border) => {
+    const mesh = new THREE.Mesh(border.mesh, paddleBorderMaterial('blue'));
+    mesh.position.set(border.position.x, border.position.y, border.position.z);
+    bluePaddleBox.add(mesh);
+  });
 
   redPaddleBox.copy(bluePaddleBox);
   for (let i = 0; i < redPaddleBox.children.length; i += 1) {
