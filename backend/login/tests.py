@@ -19,7 +19,6 @@ class LoginAPITestCase(APITestCase):
         self.user = User.objects.create_user(
             username=self.username, email=self.email, password=self.password
         )
-        self.user.is_authenticated = True
         self.user.is_active = True
         self.user.save()
         self.verification_code = "123456"

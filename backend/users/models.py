@@ -29,7 +29,7 @@ class User(AbstractUser):
     username = models.CharField(max_length=10, null=False, unique=True)
     email = models.EmailField(max_length=200, null=False)
     is_registered = models.BooleanField(default=False)
-    is_authenticated = models.BooleanField(default=False)
+    is_authenticated = models.BooleanField(default=True)
     is_active = models.BooleanField(default=False)
     win = models.IntegerField(default=0)
     lose = models.IntegerField(default=0)

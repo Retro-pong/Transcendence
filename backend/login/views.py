@@ -65,7 +65,6 @@ class IntraCallbackView(APIView):
             )
             user.is_registered = True
         # 로그인
-        user.is_authenticated = True
         user.is_active = True
         user.save()
         token = obtain_jwt_token(user)
@@ -176,7 +175,6 @@ class EmailLoginVerifyView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED,
             )
         user = User.objects.get(email=email)
-        user.is_authenticated = True
         user.is_active = True
         user.save()
         token = obtain_jwt_token(user)
@@ -245,7 +243,6 @@ class LogoutView(APIView):
     )
     def post(self, request):
         user = request.user
-        user.is_authenticated = False
         user.is_active = False
         user.save()
         response = Response("Logout successful.", status=status.HTTP_200_OK)
@@ -267,25 +264,30 @@ class MyTokenRefreshView(TokenRefreshView):
         # Get refresh token from cookie
         refresh_token = request.COOKIES.get("refresh_token")
         if not refresh_token:
-            return Response(
+            response = Response(
                 {"error": "No refresh token."},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
+            response.delete_cookie("refresh_token")
+            return response
         request.data["refresh"] = refresh_token
 
         # Refresh JWT tokens
         try:
             super().post(request, *args, **kwargs)
         except:
-            return Response(
+            response = Response(
                 {"error": "Failed to refresh token."},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
+            response.delete_cookie("refresh_token")
+            return response
         new_token = RefreshToken(request.data.get("refresh"))
+        access_token = str(new_token.access_token)
         return Response(
             {
                 "message": "Token refreshed",
-                "access_token": str(new_token.access_token),
+                "access_token": access_token,
             },
             status=status.HTTP_200_OK,
         )

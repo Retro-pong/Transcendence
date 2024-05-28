@@ -16,7 +16,6 @@ function game() {
   camera.position.set(-40, 0, 0);
 
   const controls = new OrbitControls(camera, canvas);
-  // controls.target.set(0, 0, 0);
   controls.update();
 
   const scene = new THREE.Scene();
@@ -49,12 +48,34 @@ function game() {
   createGameObject(scene);
   eventHandler(canvas, scene, camera, renderer, controls);
 
-  const map = scene.getObjectByName('map');
   const ball = scene.getObjectByName('ball');
   const redPaddle = scene.getObjectByName('redPaddle');
   const bluePaddle = scene.getObjectByName('bluePaddle');
 
-  let ballDirection = 1;
+  function checkPaddleHit(type) {
+    let py;
+    let pz;
+    if (type === 'red') {
+      py = redPaddle.position.y;
+      pz = redPaddle.position.z;
+    } else {
+      py = bluePaddle.position.y;
+      pz = bluePaddle.position.z;
+    }
+    const by = ball.position.y;
+    const bz = ball.position.z;
+    // 범위 안에 들어왔는지 체크
+    if (
+      ((by - 1 > py - 1.5 && by - 1 < py + 1.5) ||
+        (by + 1 > py - 1.5 && by + 1 < py + 1.5)) &&
+      ((bz - 1 > pz - 1.5 && bz - 1 < pz + 1.5) ||
+        (bz + 1 > pz - 1.5 && bz + 1 < pz + 1.5))
+    ) {
+      console.log('hit!');
+      return 1;
+    }
+    return 0;
+  }
 
   function resizeRendererToDisplaySize(renderer) {
     const canvas = renderer.domElement;
@@ -68,24 +89,56 @@ function game() {
     return needResize;
   }
 
-  function render(time) {
-    time *= 0.001;
+  let a = 0.1;
+  let b = 0.1;
+  let c = 0.1;
+  let v = 1.2;
+  let start = 1;
 
+  function render() {
     if (resizeRendererToDisplaySize(renderer)) {
       const canvas = renderer.domElement;
       camera.aspect = canvas.clientWidth / canvas.clientHeight;
       camera.updateProjectionMatrix();
     }
-
     if (ball) {
-      if (ball.position.x > 23.5 || ball.position.x < -23.5) {
-        ballDirection *= -1;
-      }
-
-      if (ballDirection === 1) {
-        ball.position.x += 0.5;
+      if (start === 1) {
+        ball.position.set(0, Math.random() * 8 - 4, Math.random() * 12 - 6);
+        start = 0;
       } else {
-        ball.position.x -= 0.5;
+        ball.position.x += a * v;
+        ball.position.y += b * v;
+        ball.position.z += c * v;
+        scene.getObjectByName('ballPlane').position.x = ball.position.x;
+        // 패들에 부딪히면 방향 바꾸기
+        if (ball.position.x > 23.5 && ball.position.x < 24.5) {
+          if (!checkPaddleHit('red')) {
+            start = 1;
+          } else {
+            a *= -1;
+          }
+        }
+        if (ball.position.x < -23.5 && ball.position.x > -24.5) {
+          if (!checkPaddleHit('blue')) {
+            start = 1;
+          } else {
+            a *= -1;
+          }
+        }
+
+        // 벽에 부딪히면 방향 바꾸기
+        if (ball.position.z < -7 && ball.position.z > -8) {
+          c *= -1;
+        }
+        if (ball.position.z > 7 && ball.position.z < 8) {
+          c *= -1;
+        }
+        if (ball.position.y > 4.5 && ball.position.y < 5.5) {
+          b *= -1;
+        }
+        if (ball.position.y < -4.5 && ball.position.y > -5.5) {
+          b *= -1;
+        }
       }
     }
 

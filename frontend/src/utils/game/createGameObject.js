@@ -20,7 +20,7 @@ function createGameObject(scene) {
   ballPlane.rotation.y = Math.PI / 2;
   ballPlane.position.set(0, 0, 0);
   ballPlane.name = 'ballPlane';
-  ball.add(ballPlane);
+  scene.getObjectByName('map').add(ballPlane);
 
   const redPaddleGeometry = new THREE.BoxGeometry(0.5, 3, 3);
   const redPaddleMaterial = new THREE.MeshBasicMaterial({
