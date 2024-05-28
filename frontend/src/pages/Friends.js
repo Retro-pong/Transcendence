@@ -19,7 +19,7 @@ class Friends extends PageComponent {
   }
 
   async getFriends() {
-    const URL = `/friends/friend_list?limit=${this.limit}&offset=${this.offset}`;
+    const URL = `/friends/friend_list/?limit=${this.limit}&offset=${this.offset}`;
     const response = await Fetch.get(URL).catch(() => {
       document.getElementById('pagination').classList.add('d-none');
       ErrorHandler.setToast('Failed to get friends list');
@@ -167,7 +167,7 @@ class Friends extends PageComponent {
           ErrorHandler.setToast('Invalid nickname');
           return;
         }
-        await Fetch.get(`/friends/add?search_name=${username.toLowerCase()}`)
+        await Fetch.get(`/friends/add/?search_name=${username.toLowerCase()}`)
           .then((res) => {
             // 친구 검색 결과 생성
             friendSearchList.innerHTML =
