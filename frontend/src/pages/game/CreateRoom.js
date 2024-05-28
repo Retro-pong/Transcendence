@@ -52,7 +52,7 @@ class CreateRoom extends PageComponent {
     const gameSpeed = form.gameSpeed.value;
     const gameMap = [...form.mapOptions].filter(
       (option) => option.checked === true
-    )[0]?.id;
+    )[0]?.dataset.map;
     const gameMode = [...form.modeOptions].filter(
       (option) => option.checked === true
     )[0]?.id;
