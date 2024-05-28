@@ -71,24 +71,16 @@ class CreateRoom extends PageComponent {
       .catch((err) => {
         if (err.error === 'UNIQUE constraint failed: room.room_name') {
           ErrorHandler.setToast('Room name already exists');
+          this.titleState = false;
+          this.progressBar();
+          const gameTitle = document.getElementById('gameTitle');
+          gameTitle.focus();
+          gameTitle.select();
         } else {
           ErrorHandler.setToast('Failed to create room');
         }
         console.error(err);
-      })
-      .finally(() => {
-        this.resetProgressState();
-        this.progressBar();
       });
-  }
-
-  resetProgressState() {
-    this.titleState = false;
-    this.ballState = true;
-    this.speedState = true;
-    this.mapState = false;
-    this.modeState = false;
-    this.progressState = 40;
   }
 
   progressBar() {
