@@ -5,13 +5,17 @@ class PlayGame extends PageComponent {
   constructor() {
     super();
     this.setTitle('Play Game');
-    this.map = 'mountain';
+    this.settings = {
+      ball: 0x0000ff,
+      speed: 1,
+      map: 'mountain',
+    };
   }
 
   async render() {}
 
   async afterRender() {
-    game(this.map);
+    game(this.settings);
 
     document.getElementById('mapTest').addEventListener('click', (e) => {
       if (this.map === 'mountain') {

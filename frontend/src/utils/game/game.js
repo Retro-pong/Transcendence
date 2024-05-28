@@ -4,7 +4,7 @@ import createMap from './createMap';
 import createGameObject from '@/utils/game/createGameObject';
 import eventHandler from '@/utils/game/eventHandler';
 
-function game(map) {
+function game(settings) {
   const canvas = document.getElementById('gameCanvas');
   const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
 
@@ -30,9 +30,9 @@ function game(map) {
     pixel: '/img/map_pixel_rain.jpg',
   };
 
-  console.log(mapList[map]);
+  console.log(mapList[settings.map]);
   const loader = new THREE.TextureLoader();
-  loader.load(mapList[map], function (texture) {
+  loader.load(mapList[settings.map], function (texture) {
     scene.background = texture;
   });
 
@@ -58,7 +58,7 @@ function game(map) {
   }
 
   createMap(scene);
-  createGameObject(scene);
+  createGameObject(scene, settings.ball);
   eventHandler(canvas, scene, camera, renderer, controls);
 
   const ball = scene.getObjectByName('ball');
@@ -105,7 +105,7 @@ function game(map) {
   let a = 0.1;
   let b = 0.1;
   let c = 0.1;
-  const v = 1.5;
+  const v = 1.5 + settings.speed * 0.2;
   let start = 1;
 
   function render() {
