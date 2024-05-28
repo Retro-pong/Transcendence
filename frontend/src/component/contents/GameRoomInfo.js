@@ -6,7 +6,7 @@ const GameRoomInfo = ({ title, map, speed, ball }) => {
   };
   const mapName = mapSrcs[map][0];
   const imgSrc = mapSrcs[map][1];
-  const ballColor = ball.replace('0x', '#');
+  const ballColor = ball.replace('0x', '#'); // 테스트용 (db 수정 예정)
 
   return `
 <div class="container">
