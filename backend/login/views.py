@@ -283,6 +283,17 @@ class MyTokenRefreshView(TokenRefreshView):
             response.delete_cookie("refresh_token")
             return response
         new_token = RefreshToken(request.data.get("refresh"))
+        payload = new_token.payload
+        email = payload["email"]
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            response = Response(
+                {"error": "User does not exist."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+            response.delete_cookie("refresh_token")
+            return response
         access_token = str(new_token.access_token)
         return Response(
             {

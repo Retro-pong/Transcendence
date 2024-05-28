@@ -53,10 +53,8 @@ class ProfileEditView(APIView):
     def patch(self, request):
         user = request.user
         try:
-            if request.data["username"]:
-                user.username = request.data["username"]
-            if request.data["comment"]:
-                user.comment = request.data["comment"]
+            user.username = request.data["username"]
+            user.comment = request.data["comment"]
             user.save()
         except Exception as e:
             return Response("error:" + str(e), status=status.HTTP_400_BAD_REQUEST)
