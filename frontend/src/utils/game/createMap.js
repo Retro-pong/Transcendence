@@ -151,7 +151,7 @@ function createMap(scene, controls) {
     edgePoints.M5_A,
   ]);
 
-  const edgesMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff });
+  const edgesMaterial = new THREE.LineBasicMaterial({ color: 0x00ff00 });
   const box = new THREE.LineSegments(edgesGeometry, edgesMaterial);
 
   map.add(box);
