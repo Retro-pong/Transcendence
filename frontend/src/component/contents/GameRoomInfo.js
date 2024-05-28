@@ -28,7 +28,7 @@ const GameRoomInfo = ({ title, map, speed, ball }) => {
           <th scope="row">Speed</th>
           <td>:</td>
           <td colspan="4">
-            <input type="range" class="form-range" id="gameSpeedRange" min="1" max="5" step="1" value="${speed}" style="border: 0 !important;" disabled>
+            <input type="range" class="form-range" id="gameSpeedRange" min="0" max="5" step="1" value="${speed}" style="border: 0 !important;" disabled>
           </td>
           <td colspan="1">
             <span>X${speed}</span>
