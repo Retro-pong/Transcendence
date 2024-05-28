@@ -69,7 +69,11 @@ class CreateRoom extends PageComponent {
         // TODO: navigate to the created room
       })
       .catch((err) => {
-        ErrorHandler.setToast('Failed to create room');
+        if (err.error === 'UNIQUE constraint failed: room.room_name') {
+          ErrorHandler.setToast('Room name already exists');
+        } else {
+          ErrorHandler.setToast('Failed to create room');
+        }
         console.error(err);
       })
       .finally(() => {
