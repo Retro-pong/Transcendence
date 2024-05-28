@@ -4,6 +4,7 @@ import createRoomForm from '@component/form/CreateRoomForm';
 import Fetch from '@/utils/Fetch';
 import regex from '@/constants/Regex';
 import ErrorHandler from '@/utils/ErrorHandler';
+import { navigateTo } from '@/utils/router';
 
 class CreateRoom extends PageComponent {
   constructor() {
@@ -46,7 +47,7 @@ class CreateRoom extends PageComponent {
   }
 
   async submitGameForm(form) {
-    const gameTitle = form.gameTitle.value;
+    const gameTitle = form.gameTitle.value.toLowerCase();
     const gameBall = form.gameBall.value;
     const gameSpeed = form.gameSpeed.value;
     const gameMap = [...form.mapOptions].filter(
@@ -57,7 +58,7 @@ class CreateRoom extends PageComponent {
     )[0]?.id;
 
     await Fetch.post('/rooms/create/', {
-      room_name: gameTitle.toLowerCase(),
+      room_name: gameTitle,
       game_ball: gameBall,
       game_speed: gameSpeed,
       game_map: gameMap,
@@ -66,7 +67,7 @@ class CreateRoom extends PageComponent {
       .then(() => {
         document.getElementById('createRoomForm').reset();
         ErrorHandler.setToast('Room created successfully');
-        // TODO: navigate to the created room
+        navigateTo(`/game/waiting?title=${gameTitle}`);
       })
       .catch((err) => {
         if (err.error === 'UNIQUE constraint failed: room.room_name') {
