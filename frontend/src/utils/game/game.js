@@ -4,7 +4,7 @@ import createMap from './createMap';
 import createGameObject from '@/utils/game/createGameObject';
 import eventHandler from '@/utils/game/eventHandler';
 
-function game() {
+function game(map) {
   const canvas = document.getElementById('gameCanvas');
   const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
 
@@ -17,21 +17,22 @@ function game() {
 
   const controls = new OrbitControls(camera, canvas);
   controls.update();
-  controls.enableRotate = false;
-  controls.enableZoom = false;
-  controls.enablePan = false;
+  // controls.enableRotate = false;
+  // controls.enableZoom = false;
+  // controls.enablePan = false;
 
   const scene = new THREE.Scene();
 
   // 배경 이미지
   const mapList = {
-    horizon: 'img/map_horizon.jpg',
+    horizon: '/img/map_futuristic_horizon.jpg',
     mountain: '/img/map_mountain.jpg',
-    pixel: '/img/map_pixel.jpg',
+    pixel: '/img/map_pixel_rain.jpg',
   };
 
+  console.log(mapList[map]);
   const loader = new THREE.TextureLoader();
-  loader.load('/img/map_mountain.jpg', function (texture) {
+  loader.load(mapList[map], function (texture) {
     scene.background = texture;
   });
 
