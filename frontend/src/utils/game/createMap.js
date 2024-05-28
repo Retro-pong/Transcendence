@@ -28,133 +28,115 @@ function createMap(scene) {
   map.add(planeRed);
   map.add(planeBlue);
 
-  const edgePoints = {
-    A: new THREE.Vector3(-planeX / 2, planeY / 2, -planeZ / 2), // 왼쪽면 좌측 상단
-    B: new THREE.Vector3(-planeX / 2, planeY / 2, planeZ / 2), // 왼쪽면 우측 상단
-    C: new THREE.Vector3(-planeX / 2, -planeY / 2, -planeZ / 2), // 왼쪽면 좌측 하단
-    D: new THREE.Vector3(-planeX / 2, -planeY / 2, planeZ / 2), // 왼쪽면 우측 하단
-    E: new THREE.Vector3(planeX / 2, planeY / 2, planeZ / 2), // 오른쪽면 좌측 상단
-    F: new THREE.Vector3(planeX / 2, planeY / 2, -planeZ / 2), // 오른쪽면 우측 상단
-    G: new THREE.Vector3(planeX / 2, -planeY / 2, -planeZ / 2), // 오른쪽면 우측 하단
-    H: new THREE.Vector3(planeX / 2, -planeY / 2, planeZ / 2), // 오른쪽면 좌측 하단
+  // map frame
+  const frame = new THREE.Group();
+  const thickness = 0.3;
 
-    M1_A: new THREE.Vector3(-planeX / 6, planeY / 2, planeZ / 2),
-    M1_B: new THREE.Vector3(-planeX / 6, -planeY / 2, planeZ / 2),
-    M1_C: new THREE.Vector3(-planeX / 6, planeY / 2, -planeZ / 2),
-    M1_D: new THREE.Vector3(-planeX / 6, -planeY / 2, -planeZ / 2),
+  const frameMaterial = new THREE.MeshBasicMaterial({
+    color: 0x000000,
+  });
+  const boxXGeometry = new THREE.BoxGeometry(planeX, thickness, thickness);
+  const boxYGeometry = new THREE.BoxGeometry(thickness, planeY, thickness);
+  const boxZGeometry = new THREE.BoxGeometry(thickness, thickness, planeZ);
 
-    M2_A: new THREE.Vector3(-planeX / 3, planeY / 2, planeZ / 2),
-    M2_B: new THREE.Vector3(-planeX / 3, -planeY / 2, planeZ / 2),
-    M2_C: new THREE.Vector3(-planeX / 3, planeY / 2, -planeZ / 2),
-    M2_D: new THREE.Vector3(-planeX / 3, -planeY / 2, -planeZ / 2),
+  const boxXPosition = [
+    { y: planeY / 2, z: -planeZ / 2 },
+    { y: planeY / 2, z: planeZ / 2 },
+    { y: -planeY / 2, z: -planeZ / 2 },
+    { y: -planeY / 2, z: planeZ / 2 },
+  ];
+  const boxYPosition = [
+    { x: -planeX / 2, z: -planeZ / 2 },
+    { x: -planeX / 3, z: -planeZ / 2 },
+    { x: -planeX / 6, z: -planeZ / 2 },
+    { x: -planeX / 2, z: planeZ / 2 },
+    { x: -planeX / 3, z: planeZ / 2 },
+    { x: -planeX / 6, z: planeZ / 2 },
+    { x: 0, z: -planeZ / 2 },
+    { x: 0, z: planeZ / 2 },
+    { x: planeX / 2, z: -planeZ / 2 },
+    { x: planeX / 3, z: -planeZ / 2 },
+    { x: planeX / 6, z: -planeZ / 2 },
+    { x: planeX / 2, z: planeZ / 2 },
+    { x: planeX / 3, z: planeZ / 2 },
+    { x: planeX / 6, z: planeZ / 2 },
+  ];
+  const boxZPosition = [
+    { x: -planeX / 2, y: -planeY / 2 },
+    { x: -planeX / 3, y: -planeY / 2 },
+    { x: -planeX / 6, y: -planeY / 2 },
+    { x: -planeX / 2, y: planeY / 2 },
+    { x: -planeX / 3, y: planeY / 2 },
+    { x: -planeX / 6, y: planeY / 2 },
+    { x: 0, y: -planeY / 2 },
+    { x: 0, y: planeY / 2 },
+    { x: planeX / 2, y: -planeY / 2 },
+    { x: planeX / 3, y: -planeY / 2 },
+    { x: planeX / 6, y: -planeY / 2 },
+    { x: planeX / 2, y: planeY / 2 },
+    { x: planeX / 3, y: planeY / 2 },
+    { x: planeX / 6, y: planeY / 2 },
+  ];
 
-    M3_A: new THREE.Vector3(0, planeY / 2, planeZ / 2),
-    M3_B: new THREE.Vector3(0, -planeY / 2, planeZ / 2),
-    M3_C: new THREE.Vector3(0, planeY / 2, -planeZ / 2),
-    M3_D: new THREE.Vector3(0, -planeY / 2, -planeZ / 2),
+  for (let i = 0; i < 4; i += 1) {
+    const box = new THREE.Mesh(boxXGeometry, frameMaterial);
+    box.position.set(0, boxXPosition[i].y, boxXPosition[i].z);
+    frame.add(box);
+  }
+  for (let i = 0; i < 14; i += 1) {
+    const boxY = new THREE.Mesh(boxYGeometry, frameMaterial);
+    const boxZ = new THREE.Mesh(boxZGeometry, frameMaterial);
+    boxY.position.set(boxYPosition[i].x, 0, boxYPosition[i].z);
+    boxZ.position.set(boxZPosition[i].x, boxZPosition[i].y, 0);
+    frame.add(boxY);
+    frame.add(boxZ);
+  }
 
-    M4_A: new THREE.Vector3(planeX / 6, planeY / 2, planeZ / 2),
-    M4_B: new THREE.Vector3(planeX / 6, -planeY / 2, planeZ / 2),
-    M4_C: new THREE.Vector3(planeX / 6, planeY / 2, -planeZ / 2),
-    M4_D: new THREE.Vector3(planeX / 6, -planeY / 2, -planeZ / 2),
+  map.add(frame);
 
-    M5_A: new THREE.Vector3(planeX / 3, planeY / 2, planeZ / 2),
-    M5_B: new THREE.Vector3(planeX / 3, -planeY / 2, planeZ / 2),
-    M5_C: new THREE.Vector3(planeX / 3, planeY / 2, -planeZ / 2),
-    M5_D: new THREE.Vector3(planeX / 3, -planeY / 2, -planeZ / 2),
-  };
+  // map plane
+  const mapPlaneMaterial = new THREE.MeshBasicMaterial({
+    color: 0x1f023c,
+    transparent: true,
+    opacity: 0.7,
+  });
+  const mapPlane = [
+    {
+      h: planeZ,
+      rotation: { x: Math.PI / 2, y: 0, z: 0 },
+      position: { x: 0, y: planeY / 2 + thickness / 2, z: 0 },
+    },
+    {
+      h: planeZ,
+      rotation: { x: -Math.PI / 2, y: 0, z: 0 },
+      position: { x: 0, y: -planeY / 2 - thickness / 2, z: 0 },
+    },
+    {
+      h: planeY,
+      rotation: { x: Math.PI, y: 0, z: 0 },
+      position: { x: 0, y: 0, z: planeZ / 2 + thickness / 2},
+    },
+    {
+      h: planeY,
+      rotation: { x: 0, y: 0, z: 0 },
+      position: { x: 0, y: 0, z: -planeZ / 2 - thickness / 2 },
+    },
+  ];
 
-  // Create the edges of the plane
-  const edgesGeometry = new THREE.BufferGeometry().setFromPoints([
-    // 상
-    edgePoints.A,
-    edgePoints.B,
-    edgePoints.B,
-    edgePoints.E,
-    edgePoints.E,
-    edgePoints.F,
-    edgePoints.F,
-    edgePoints.A,
-    // 하
-    edgePoints.C,
-    edgePoints.D,
-    edgePoints.D,
-    edgePoints.H,
-    edgePoints.H,
-    edgePoints.G,
-    edgePoints.G,
-    edgePoints.C,
-
-    // 앞
-    edgePoints.B,
-    edgePoints.D,
-    edgePoints.D,
-    edgePoints.H,
-    edgePoints.H,
-    edgePoints.E,
-    edgePoints.E,
-    edgePoints.B,
-
-    // 뒤
-    edgePoints.A,
-    edgePoints.C,
-    edgePoints.C,
-    edgePoints.G,
-    edgePoints.G,
-    edgePoints.F,
-    edgePoints.F,
-    edgePoints.A,
-
-    edgePoints.M1_A,
-    edgePoints.M1_B,
-    edgePoints.M1_B,
-    edgePoints.M1_D,
-    edgePoints.M1_D,
-    edgePoints.M1_C,
-    edgePoints.M1_C,
-    edgePoints.M1_A,
-
-    edgePoints.M2_A,
-    edgePoints.M2_B,
-    edgePoints.M2_B,
-    edgePoints.M2_D,
-    edgePoints.M2_D,
-    edgePoints.M2_C,
-    edgePoints.M2_C,
-    edgePoints.M2_A,
-
-    edgePoints.M3_A,
-    edgePoints.M3_B,
-    edgePoints.M3_B,
-    edgePoints.M3_D,
-    edgePoints.M3_D,
-    edgePoints.M3_C,
-    edgePoints.M3_C,
-    edgePoints.M3_A,
-
-    edgePoints.M4_A,
-    edgePoints.M4_B,
-    edgePoints.M4_B,
-    edgePoints.M4_D,
-    edgePoints.M4_D,
-    edgePoints.M4_C,
-    edgePoints.M4_C,
-    edgePoints.M4_A,
-
-    edgePoints.M5_A,
-    edgePoints.M5_B,
-    edgePoints.M5_B,
-    edgePoints.M5_D,
-    edgePoints.M5_D,
-    edgePoints.M5_C,
-    edgePoints.M5_C,
-    edgePoints.M5_A,
-  ]);
-
-  const edgesMaterial = new THREE.LineBasicMaterial({ color: 0x00ff00 });
-  const box = new THREE.LineSegments(edgesGeometry, edgesMaterial);
-
-  map.add(box);
+  mapPlane.forEach((plane) => {
+    const mapPlaneMesh = new THREE.Mesh(new THREE.PlaneGeometry(planeX, plane.h), mapPlaneMaterial);
+    mapPlaneMesh.position.set(
+      plane.position.x,
+      plane.position.y,
+      plane.position.z
+    );
+    mapPlaneMesh.rotation.set(
+      plane.rotation.x,
+      plane.rotation.y,
+      plane.rotation.z
+    );
+    map.add(mapPlaneMesh);
+  });
 
   map.position.set(0, 0, 0);
   map.name = 'map';
