@@ -12,7 +12,7 @@ const GameRoomInfo = ({ title, map, speed, ball }) => {
 <div class="container">
   <div class="d-flex justify-content-center align-items-center carousel">
       <img src="${imgSrc}" class="img-thumbnail w-75 h-75" alt="${mapName}"/>
-      <div class="carousel-caption d-none d-md-block fs-3">
+      <div class="carousel-caption fs-3">
         ${mapName}
       </div>
   </div>
