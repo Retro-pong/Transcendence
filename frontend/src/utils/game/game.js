@@ -24,11 +24,16 @@ function game() {
   const scene = new THREE.Scene();
 
   // 배경 이미지
-  // const loader = new THREE.TextureLoader();
-  // loader.load('/img/map_mountain.jpg', function (texture) {
-  //   scene.background = texture;
-  // });
-  scene.background = new THREE.Color(0x000000);
+  const mapList = {
+    horizon: 'img/map_horizon.jpg',
+    mountain: '/img/map_mountain.jpg',
+    pixel: '/img/map_pixel.jpg',
+  };
+
+  const loader = new THREE.TextureLoader();
+  loader.load('/img/map_mountain.jpg', function (texture) {
+    scene.background = texture;
+  });
 
   {
     const skyColor = 0xb1e1ff; // light blue
@@ -95,7 +100,7 @@ function game() {
   let a = 0.1;
   let b = 0.1;
   let c = 0.1;
-  let v = 1.5;
+  const v = 1.5;
   let start = 1;
 
   function render() {
