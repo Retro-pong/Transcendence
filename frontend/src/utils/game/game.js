@@ -46,10 +46,14 @@ function game() {
   {
     const color = 0xffffff;
     const intensity = 2.5;
-    const light = new THREE.DirectionalLight(color, intensity);
-    light.position.set(5, 10, 2);
-    scene.add(light);
-    scene.add(light.target);
+    const light1 = new THREE.DirectionalLight(color, intensity);
+    const light2 = new THREE.DirectionalLight(color, intensity);
+    light1.position.set(-40, 0, 0);
+    light2.position.set(40, 0, 0);
+    scene.add(light1);
+    scene.add(light2);
+    scene.add(light1.target);
+    scene.add(light2.target);
   }
 
   createMap(scene);
@@ -117,6 +121,11 @@ function game() {
         ball.position.x += a * v;
         ball.position.y += b * v;
         ball.position.z += c * v;
+        ball.rotation.set(
+          ball.rotation.x + 0.1,
+          ball.rotation.y + 0.1,
+          ball.rotation.z + 0.1
+        );
         scene.getObjectByName('ballPlane').position.x = ball.position.x;
         // 패들에 부딪히면 방향 바꾸기
         if (ball.position.x > 19.5 && ball.position.x < 20.5) {
