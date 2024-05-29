@@ -9,6 +9,9 @@ class Room(models.Model):
     current_players = models.IntegerField(default=0)
     ball_color = models.CharField(max_length=50, default='0x000000')
 
+    def __str__(self):
+        return f'{self.room_name}'
+
     @classmethod
     def create_room(cls, room_name, game_mode, game_map, game_speed, game_ball):
         if not room_name:
