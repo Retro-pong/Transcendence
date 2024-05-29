@@ -1,8 +1,7 @@
 import gameUtils from '@/utils/game/gameUtils';
 
-function eventHandler(canvas, scene, camera, renderer, controls) {
+function eventHandler(canvas, scene, camera, controls) {
   const map = scene.getObjectByName('map');
-  const ball = scene.getObjectByName('ball');
   const redPaddle = scene.getObjectByName('redPaddle');
   const bluePaddle = scene.getObjectByName('bluePaddle');
 

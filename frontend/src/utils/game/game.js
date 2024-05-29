@@ -7,7 +7,7 @@ import hitChangeColor from '@/utils/game/hitChangeColor';
 import checkPaddleHit from '@/utils/game/checkPaddleHit';
 
 function game(settings) {
-  const canvas = document.getElementById('gameCanvas');
+  const canvas = document.getElementById('gameCanvasMulti');
   const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
 
   const fov = 45;
@@ -60,7 +60,7 @@ function game(settings) {
 
   createMap(scene);
   createGameObject(scene, settings.ball);
-  eventHandler(canvas, scene, camera, renderer, controls);
+  eventHandler(canvas, scene, camera, controls);
 
   const ball = scene.getObjectByName('ball');
   const ballPlane = scene.getObjectByName('ballPlane');
