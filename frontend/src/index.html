@@ -33,7 +33,7 @@
     <!-- 게임 캔버스 -->
     <div id="gameCanvasContainer" class="position-relative h-100 w-100 d-none">
       <canvas id="gameCanvas" tabindex="0" class="h-100 w-100"></canvas>
-      <div class="position-absolute top-0 px-3 text-white d-flex flex-column align-items-center border border-5 rounded">
+      <div id="scoreContainer" class="position-absolute top-0 px-3 text-white d-flex flex-column align-items-center border border-5 rounded">
         <span class="fs-10">score</span>
         <div class="d-flex w-100 fs-8">
           <span id="player1Score" class="w-50 d-flex justify-content-center text-danger" data-score="0">0</span>
@@ -42,6 +42,7 @@
         <button id="mapTest" class="fs-10">map-TEST</button>
         <button id="colorTest" class="fs-10">color-TEST</button>
         <button id="speedTest" class="fs-10">speed-TEST</button>
+        <button id="gameTypeTest" class="fs-10">gameType-TEST</button>
         <div class="fs-7 d-flex flex-column">
           <span id="mapTestVal" class="">mountain</span>
           <span id="colorTestVal">0x0000ff</span>

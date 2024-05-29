@@ -64,6 +64,15 @@ class PlayGame extends PageComponent {
       document.getElementById('speedTestVal').innerText = this.settings.speed;
       game(this.settings);
     });
+    document.getElementById('gameTypeTest').addEventListener('click', (e) => {
+      if (this.settings.type === 'local') {
+        this.settings.type = 'multi';
+      } else {
+        this.settings.type = 'local';
+      }
+      document.getElementById('gameTypeTestVal').innerText = this.settings.type;
+      game(this.settings);
+    });
   }
 }
 export default PlayGame;
