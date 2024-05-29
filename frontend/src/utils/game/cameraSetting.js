@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-function cameraSetting(type) {
+function cameraSetting(type, side) {
   const fov = type === 'local' ? 60 : 45;
   const aspect = 2; // the canvas default
   const near = 0.1;
@@ -24,7 +24,7 @@ function cameraSetting(type) {
   // TODO: multi 일 때 어느쪽 패들인지 인자 받아서 세팅 필요
   if (type === 'multi') {
     const multiCamera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-    multiCamera.position.set(-33, 0, 0);
+    multiCamera.position.set(side === 'red' ? 33 : -33, 0, 0);
     multiCamera.lookAt(0, 0, 0);
     camera.multi = multiCamera;
   }
