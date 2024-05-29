@@ -1,7 +1,7 @@
 import json
-import asyncio # 비동기 작업 라이브러리
 from channels.generic.websocket import AsyncWebsocketConsumer
 from .models import GameResult
+from .modules import Ball, Player, Game
 
 
 class GameConsumer(AsyncWebsocketConsumer):
@@ -11,15 +11,3 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self):
 
-    async def send_game_data(self, ball, red_paddle, blue_paddle, group):
-        data = {
-
-
-        }
-        await self.channel_layer.group_send(
-            group,
-            {
-                'type': 'game',
-                'data': data,
-            }
-        )
