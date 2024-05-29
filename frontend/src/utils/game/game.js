@@ -11,7 +11,7 @@ import sceneSetting from '@/utils/game/sceneSetting';
 function game(settings) {
   const canvas = document.getElementById('gameCanvas');
   const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
-  const camera = cameraSetting(settings.type);
+  const camera = cameraSetting(settings.type, settings.side);
 
   const scene = new THREE.Scene();
 
@@ -30,7 +30,7 @@ function game(settings) {
   sceneSetting(scene);
   createMap(scene);
   createGameObject(scene, settings.ball);
-  eventHandler(canvas, scene);
+  eventHandler(canvas, scene, settings.type, settings.side);
 
   const ball = scene.getObjectByName('ball');
   const ballPlane = scene.getObjectByName('ballPlane');
