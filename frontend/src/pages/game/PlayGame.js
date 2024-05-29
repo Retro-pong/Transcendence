@@ -16,19 +16,20 @@ class PlayGame extends PageComponent {
   async render() {}
 
   setScoreBox() {
+    const scoreContainer = document.getElementById('scoreContainer');
     if (this.settings.type === 'local') {
-      const scoreContainer = document.getElementById('scoreContainer');
       const width = scoreContainer.offsetWidth;
       const screenWidth = window.innerWidth;
       const screenCenterX = screenWidth / 2;
       const left = screenCenterX - width / 2;
       scoreContainer.style.left = `${left}px`;
+    } else {
+      scoreContainer.style.left = '0';
     }
   }
 
   async afterRender() {
     this.setScoreBox();
-
     game(this.settings);
 
     // test 버튼들
@@ -70,7 +71,7 @@ class PlayGame extends PageComponent {
       } else {
         this.settings.type = 'local';
       }
-      document.getElementById('gameTypeTestVal').innerText = this.settings.type;
+      this.setScoreBox();
       game(this.settings);
     });
   }
