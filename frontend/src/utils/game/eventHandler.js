@@ -17,35 +17,35 @@ function eventHandler(canvas, scene, camera, renderer, controls) {
   // 키보드 컨트롤
   canvas.addEventListener('keydown', (e) => {
     // 시점
-    if (e.key === '1') {
-      camera.position.set(-40, 0, 0);
+    if (e.code === 'Digit1') {
+      camera.position.set(-33, 0, 0);
       controls.update();
     }
-    if (e.key === '2') {
-      camera.position.set(40, 0, 0);
+    if (e.code === 'Digit2') {
+      camera.position.set(33, 0, 0);
       controls.update();
     }
 
     // 방향키
-    if (e.key === 'w') {
+    if (e.code === 'KeyW') {
       keyPressed.w = true;
     }
-    if (e.key === 's') {
+    if (e.code === 'KeyS') {
       keyPressed.s = true;
     }
-    if (e.key === 'a') {
+    if (e.code === 'KeyA') {
       keyPressed.a = true;
     }
-    if (e.key === 'd') {
+    if (e.code === 'KeyD') {
       keyPressed.d = true;
     }
   });
 
   canvas.addEventListener('keyup', (e) => {
-    if (e.key === 'w') keyPressed.w = false;
-    if (e.key === 's') keyPressed.s = false;
-    if (e.key === 'a') keyPressed.a = false;
-    if (e.key === 'd') keyPressed.d = false;
+    if (e.code === 'KeyW') keyPressed.w = false;
+    if (e.code === 'KeyS') keyPressed.s = false;
+    if (e.code === 'KeyA') keyPressed.a = false;
+    if (e.code === 'KeyD') keyPressed.d = false;
   });
 
   const movePaddle = () => {
