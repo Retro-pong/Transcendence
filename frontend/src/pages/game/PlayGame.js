@@ -25,6 +25,7 @@ class PlayGame extends PageComponent {
       } else {
         this.settings.map = 'mountain';
       }
+      document.getElementById('mapTestVal').innerText = this.settings.map;
       game(this.settings);
     });
 
@@ -36,6 +37,7 @@ class PlayGame extends PageComponent {
       } else {
         this.settings.ball = 0x0000ff;
       }
+      document.getElementById('colorTestVal').innerText = this.settings.ball;
       game(this.settings);
     });
     document.getElementById('speedTest').addEventListener('click', (e) => {
@@ -44,6 +46,7 @@ class PlayGame extends PageComponent {
       } else {
         this.settings.speed = 1;
       }
+      document.getElementById('speedTestVal').innerText = this.settings.speed;
       game(this.settings);
     });
   }
