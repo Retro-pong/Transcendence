@@ -3,6 +3,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import createMap from './createMap';
 import createGameObject from '@/utils/game/createGameObject';
 import eventHandler from '@/utils/game/eventHandler';
+import hitChangeColor from "@/utils/game/hitChangeColor";
 
 function game(map) {
   const canvas = document.getElementById('gameCanvas');
@@ -64,12 +65,6 @@ function game(map) {
   const ballPlane = scene.getObjectByName('ballPlane');
   const redPaddle = scene.getObjectByName('redPaddle');
   const bluePaddle = scene.getObjectByName('bluePaddle');
-  const redPaddleBox = scene.getObjectByName('redPaddleBox');
-  const bluePaddleBox = scene.getObjectByName('bluePaddleBox');
-  const topPlane = scene.getObjectByName('topPlane');
-  const bottomPlane = scene.getObjectByName('bottomPlane');
-  const rightPlane = scene.getObjectByName('rightPlane');
-  const leftPlane = scene.getObjectByName('leftPlane');
 
   function checkPaddleHit(type) {
     let py;
@@ -95,80 +90,14 @@ function game(map) {
     return 0;
   }
 
-  let redPaddleHit = 0;
-  let bluePaddleHit = 0;
-  let topWallHit = 0;
-  let bottomWallHit = 0;
-  let rightWallHit = 0;
-  let leftWallHit = 0;
-
-  function paddleHitChangeColor() {
-    if (redPaddleHit === 1) {
-      for (let i = 0; i < redPaddleBox.children.length; i += 1) {
-        redPaddleBox.children[i].material.color.set(0x00ffff);
-      }
-      redPaddleHit = 2;
-    } else if (redPaddleHit >= 2 && redPaddleHit < 10) {
-      redPaddleHit += 1;
-    } else if (redPaddleHit === 10) {
-      for (let i = 0; i < redPaddleBox.children.length; i += 1) {
-        redPaddleBox.children[i].material.color.set(0xff0000);
-      }
-      redPaddleHit = 0;
-    }
-    if (bluePaddleHit === 1) {
-      for (let i = 0; i < bluePaddleBox.children.length; i += 1) {
-        bluePaddleBox.children[i].material.color.set(0x00ffff);
-      }
-      bluePaddleHit = 2;
-    } else if (bluePaddleHit >= 2 && bluePaddleHit < 10) {
-      bluePaddleHit += 1;
-    } else if (bluePaddleHit === 10) {
-      for (let i = 0; i < bluePaddleBox.children.length; i += 1) {
-        bluePaddleBox.children[i].material.color.set(0x0000ff);
-      }
-      bluePaddleHit = 0;
-    }
-  }
-
-  function wallHitChangeColor() {
-    if (topWallHit === 1) {
-      topPlane.material.color.set(0x7986cb);
-      topWallHit = 2;
-    } else if (topWallHit >= 2 && topWallHit < 10) {
-      topWallHit += 1;
-    } else if (topWallHit === 10) {
-      topPlane.material.color.set(0x1f023c);
-      topWallHit = 0;
-    }
-    if (bottomWallHit === 1) {
-      bottomPlane.material.color.set(0x7986cb);
-      bottomWallHit = 2;
-    } else if (bottomWallHit >= 2 && bottomWallHit < 10) {
-      bottomWallHit += 1;
-    } else if (bottomWallHit === 10) {
-      bottomPlane.material.color.set(0x1f023c);
-      bottomWallHit = 0;
-    }
-    if (rightWallHit === 1) {
-      rightPlane.material.color.set(0x7986cb);
-      rightWallHit = 2;
-    } else if (rightWallHit >= 2 && rightWallHit < 10) {
-      rightWallHit += 1;
-    } else if (rightWallHit === 10) {
-      rightPlane.material.color.set(0x1f023c);
-      rightWallHit = 0;
-    }
-    if (leftWallHit === 1) {
-      leftPlane.material.color.set(0x7986cb);
-      leftWallHit = 2;
-    } else if (leftWallHit >= 2 && leftWallHit < 10) {
-      leftWallHit += 1;
-    } else if (leftWallHit === 10) {
-      leftPlane.material.color.set(0x1f023c);
-      leftWallHit = 0;
-    }
-  }
+  const hitStatus = {
+    redPaddleHit: 0,
+    bluePaddleHit: 0,
+    topWallHit: 0,
+    bottomWallHit: 0,
+    rightWallHit: 0,
+    leftWallHit: 0,
+  };
 
   function resizeRendererToDisplaySize(renderer) {
     const canvas = renderer.domElement;
@@ -214,7 +143,7 @@ function game(map) {
             start = 1;
           } else {
             a *= -1;
-            redPaddleHit = 1;
+            hitStatus.redPaddleHit = 1;
           }
         }
         if (ball.position.x < -19.5 && ball.position.x > -20.5) {
@@ -222,29 +151,28 @@ function game(map) {
             start = 1;
           } else {
             a *= -1;
-            bluePaddleHit = 1;
+            hitStatus.bluePaddleHit = 1;
           }
         }
 
         // 벽에 부딪히면 방향 바꾸기
         if (ball.position.z < -7 && ball.position.z > -8) {
           c *= -1;
-          leftWallHit = 1;
+          hitStatus.leftWallHit = 1;
         }
         if (ball.position.z > 7 && ball.position.z < 8) {
           c *= -1;
-          rightWallHit = 1;
+          hitStatus.rightWallHit = 1;
         }
         if (ball.position.y > 4.5 && ball.position.y < 5.5) {
           b *= -1;
-          topWallHit = 1;
+          hitStatus.topWallHit = 1;
         }
         if (ball.position.y < -4.5 && ball.position.y > -5.5) {
           b *= -1;
-          bottomWallHit = 1;
+          hitStatus.bottomWallHit = 1;
         }
-        paddleHitChangeColor();
-        wallHitChangeColor();
+        hitChangeColor(hitStatus, scene);
       }
     }
 
