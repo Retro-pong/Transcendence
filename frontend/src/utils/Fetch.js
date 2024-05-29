@@ -75,7 +75,7 @@ class Fetch {
         throw err;
       });
     }
-    return response.json();
+    return response.json().catch(() => '');
   }
 
   static async patch(url, body = {}, type = '', retry = 1) {
