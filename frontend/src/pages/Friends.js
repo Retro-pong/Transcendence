@@ -26,7 +26,7 @@ class Friends extends PageComponent {
       return [];
     });
     this.totalPage = response.total;
-    return response.friends;
+    return response.friends || [];
   }
 
   async getPageData() {
