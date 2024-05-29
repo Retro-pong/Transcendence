@@ -14,10 +14,12 @@ class Profile extends PageComponent {
   constructor() {
     super();
     this.setTitle('Profile');
+    this.hasError = false;
   }
 
   async getProfile() {
     return Fetch.get('/users/profile/').catch(() => {
+      this.hasError = true;
       ErrorHandler.setToast('Failed to get user info');
       return [];
     });
@@ -183,6 +185,7 @@ class Profile extends PageComponent {
 
   async afterRender() {
     await this.initPageData();
+    if (this.hasError) return;
     this.onEditClick();
     this.onProfileImgClick();
     this.onEditProfileClick();
