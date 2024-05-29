@@ -6,6 +6,7 @@ import hitChangeColor from '@/utils/game/hitChangeColor';
 import checkPaddleHit from '@/utils/game/checkPaddleHit';
 import cameraSetting from '@/utils/game/cameraSetting';
 import rendering from '@/utils/game/rendering';
+import sceneSetting from '@/utils/game/sceneSetting';
 
 function game(settings) {
   const canvas = document.getElementById('gameCanvas');
@@ -26,27 +27,7 @@ function game(settings) {
     scene.background = texture;
   });
 
-  {
-    const skyColor = 0xb1e1ff; // light blue
-    const groundColor = 0xb97a20; // brownish orange
-    const intensity = 2;
-    const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
-    scene.add(light);
-  }
-
-  {
-    const color = 0xffffff;
-    const intensity = 2.5;
-    const light1 = new THREE.DirectionalLight(color, intensity);
-    const light2 = new THREE.DirectionalLight(color, intensity);
-    light1.position.set(-40, 0, 0);
-    light2.position.set(40, 0, 0);
-    scene.add(light1);
-    scene.add(light2);
-    scene.add(light1.target);
-    scene.add(light2.target);
-  }
-
+  sceneSetting(scene);
   createMap(scene);
   createGameObject(scene, settings.ball);
   eventHandler(canvas, scene);
