@@ -15,9 +15,23 @@ class PlayGame extends PageComponent {
 
   async render() {}
 
+  setScoreBox() {
+    if (this.settings.type === 'local') {
+      const scoreContainer = document.getElementById('scoreContainer');
+      const width = scoreContainer.offsetWidth;
+      const screenWidth = window.innerWidth;
+      const screenCenterX = screenWidth / 2;
+      const left = screenCenterX - width / 2;
+      scoreContainer.style.left = `${left}px`;
+    }
+  }
+
   async afterRender() {
+    this.setScoreBox();
+
     game(this.settings);
 
+    // test 버튼들
     document.getElementById('mapTest').addEventListener('click', (e) => {
       if (this.settings.map === 'mountain') {
         this.settings.map = 'pixel';
