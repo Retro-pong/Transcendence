@@ -20,13 +20,15 @@ class Friends extends PageComponent {
 
   async getFriends() {
     const URL = `/friends/friend_list/?limit=${this.limit}&offset=${this.offset}`;
-    const response = await Fetch.get(URL).catch(() => {
+    try {
+      const response = await Fetch.get(URL);
+      this.totalPage = response.total;
+      return response.friends;
+    } catch (err) {
       document.getElementById('pagination').classList.add('d-none');
       ErrorHandler.setToast('Failed to get friends list');
       return [];
-    });
-    this.totalPage = response.total;
-    return response.friends || [];
+    }
   }
 
   async getPageData() {
