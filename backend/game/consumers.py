@@ -11,7 +11,7 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self):
 
-    async def send_game_data(self, match, group):
+    async def send_game_data(self, ball, red_paddle, blue_paddle, group):
         data = {
 
 
