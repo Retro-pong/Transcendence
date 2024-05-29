@@ -52,12 +52,12 @@ function game(settings) {
   let a;
   let b;
   let c;
-  const v = 1.5 + settings.speed * 0.15;
+  const v = 2 + settings.speed * 0.4;
   let start = 'blue';
   let hitStatus;
 
   function startGameSetting() {
-    a = start === 'blue' ? 0.15 : -0.15;
+    a = start === 'blue' ? 0.2 : -0.2;
     b = 0.1;
     c = 0.1;
     hitStatus = {
@@ -108,7 +108,7 @@ function game(settings) {
         );
         ballPlane.position.x = ball.position.x;
         // 패들에 부딪히면 방향 바꾸기
-        if (ball.position.x > 19.8 && ball.position.x < 20.2) {
+        if (ball.position.x > 19.5 && ball.position.x < 20.5) {
           if (!checkPaddleHit('red', scene)) {
             bluePlayerScore.innerText = (
               parseInt(bluePlayerScore.innerText, 10) + 1
@@ -119,7 +119,7 @@ function game(settings) {
             hitStatus.redPaddleHit = 1;
           }
         }
-        if (ball.position.x < -19.8 && ball.position.x > -20.2) {
+        if (ball.position.x < -19.5 && ball.position.x > -20.5) {
           if (!checkPaddleHit('blue', scene)) {
             redPlayerScore.innerText = (
               parseInt(redPlayerScore.innerText, 10) + 1
