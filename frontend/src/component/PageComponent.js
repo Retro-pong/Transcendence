@@ -43,6 +43,10 @@ class PageComponent {
     );
   }
 
+  initEvent() {
+    // Event
+  }
+
   setPaginationStyle() {
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
@@ -73,7 +77,7 @@ class PageComponent {
       this.offset = this.getOffset();
       pageBody.innerHTML = await child.getPageData();
       this.setPaginationStyle();
-      this.initTooltip();
+      child.initEvent();
     });
 
     nextBtn.addEventListener('click', async () => {
@@ -82,7 +86,7 @@ class PageComponent {
       this.offset = this.getOffset();
       pageBody.innerHTML = await child.getPageData();
       this.setPaginationStyle();
-      this.initTooltip();
+      child.initEvent();
     });
   }
 
@@ -92,7 +96,7 @@ class PageComponent {
     this.offset = 0;
     pageBody.innerHTML = await child.getPageData();
     this.setPaginationStyle();
-    this.initTooltip();
+    child.initEvent();
   }
 
   onReloadButtonClick(child) {

@@ -187,6 +187,22 @@ class Friends extends PageComponent {
     );
   }
 
+  onFriendDeleteBtnClick() {
+    document.querySelectorAll('.card .btn-close').forEach((btn) => {
+      btn.addEventListener('click', async (e) => {
+        const friendName = e.target.dataset.nick;
+        Fetch.patch(`/friends/friend_list/`, { friend_name: friendName })
+          .then(() => {
+            ErrorHandler.setToast(`Friend ${friendName} deleted`);
+            this.initPageData(this);
+          })
+          .catch(() => {
+            ErrorHandler.setToast(`Failed to delete friend ${friendName}`);
+          });
+      });
+    });
+  }
+
   async render() {
     const FriendWaitModal = ModalComponent({
       borderColor: 'mint',
@@ -216,6 +232,11 @@ class Friends extends PageComponent {
       </div>
       ${Pagination({ currPage: this.currPage, totalPage: this.totalPage })}
       `;
+  }
+
+  initEvent() {
+    this.initTooltip();
+    this.onFriendDeleteBtnClick();
   }
 
   async afterRender() {
