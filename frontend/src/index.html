@@ -36,12 +36,17 @@
       <div class="position-absolute top-0 px-3 text-white d-flex flex-column align-items-center border border-5 rounded">
         <span class="fs-10">score</span>
         <div class="d-flex w-100 fs-8">
-          <span id="player1Score" class="w-50 d-flex justify-content-center text-danger">1</span>
-          <span id="player2Score" class="w-50 d-flex justify-content-center text-primary">2</span>
+          <span id="player1Score" class="w-50 d-flex justify-content-center text-danger" data-score="0">0</span>
+          <span id="player2Score" class="w-50 d-flex justify-content-center text-primary" data-score="0">0</span>
         </div>
         <button id="mapTest" class="fs-10">map-TEST</button>
         <button id="colorTest" class="fs-10">color-TEST</button>
         <button id="speedTest" class="fs-10">speed-TEST</button>
+        <div class="fs-7 d-flex flex-column">
+          <span id="mapTestVal" class="">mountain</span>
+          <span id="colorTestVal">0x0000ff</span>
+          <span id="speedTestVal">1</span>
+        </div>
       </div>
     </div>
     <!-- menu 버튼 -->
