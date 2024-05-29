@@ -1,7 +1,4 @@
-import gameUtils from '@/utils/game/gameUtils';
-
-function eventHandler(canvas, scene, camera, controls) {
-  const map = scene.getObjectByName('map');
+function eventHandler(canvas, scene) {
   const redPaddle = scene.getObjectByName('redPaddle');
   const bluePaddle = scene.getObjectByName('bluePaddle');
 
@@ -11,20 +8,15 @@ function eventHandler(canvas, scene, camera, controls) {
     s: false,
     a: false,
     d: false,
+    up: false,
+    down: false,
+    left: false,
+    right: false,
   };
 
   // 키보드 컨트롤
   canvas.addEventListener('keydown', (e) => {
-    // 시점
-    if (e.code === 'Digit1') {
-      camera.position.set(-33, 0, 0);
-      controls.update();
-    }
-    if (e.code === 'Digit2') {
-      camera.position.set(33, 0, 0);
-      controls.update();
-    }
-
+    console.log(e.code);
     // 방향키
     if (e.code === 'KeyW') {
       keyPressed.w = true;
@@ -38,6 +30,18 @@ function eventHandler(canvas, scene, camera, controls) {
     if (e.code === 'KeyD') {
       keyPressed.d = true;
     }
+    if (e.code === 'ArrowUp') {
+      keyPressed.up = true;
+    }
+    if (e.code === 'ArrowDown') {
+      keyPressed.down = true;
+    }
+    if (e.code === 'ArrowLeft') {
+      keyPressed.left = true;
+    }
+    if (e.code === 'ArrowRight') {
+      keyPressed.right = true;
+    }
   });
 
   canvas.addEventListener('keyup', (e) => {
@@ -45,6 +49,10 @@ function eventHandler(canvas, scene, camera, controls) {
     if (e.code === 'KeyS') keyPressed.s = false;
     if (e.code === 'KeyA') keyPressed.a = false;
     if (e.code === 'KeyD') keyPressed.d = false;
+    if (e.code === 'ArrowUp') keyPressed.up = false;
+    if (e.code === 'ArrowDown') keyPressed.down = false;
+    if (e.code === 'ArrowLeft') keyPressed.left = false;
+    if (e.code === 'ArrowRight') keyPressed.right = false;
   });
 
   const movePaddle = () => {
@@ -61,26 +69,21 @@ function eventHandler(canvas, scene, camera, controls) {
     if (keyPressed.d) {
       if (redPaddle.position.z > -7.5) redPaddle.position.z -= move;
     }
+    if (keyPressed.up) {
+      if (bluePaddle.position.y < 5) bluePaddle.position.y += move;
+    }
+    if (keyPressed.down) {
+      if (bluePaddle.position.y > -5) bluePaddle.position.y -= move;
+    }
+    if (keyPressed.left) {
+      if (bluePaddle.position.z > -7.5) bluePaddle.position.z -= move;
+    }
+    if (keyPressed.right) {
+      if (bluePaddle.position.z < 7.5) bluePaddle.position.z += move;
+    }
   };
 
   setInterval(movePaddle, 10);
-
-  // 마우스 컨트롤
-  canvas.addEventListener('mousemove', (e) => {
-    const x = e.clientX;
-    const y = e.clientY;
-
-    const mousePosition = gameUtils.getMouseWorldPositionInObject(
-      x,
-      y,
-      camera,
-      map
-    );
-
-    if (!mousePosition) return;
-    bluePaddle.position.y = mousePosition.y;
-    bluePaddle.position.z = mousePosition.z;
-  });
 }
 
 export default eventHandler;
