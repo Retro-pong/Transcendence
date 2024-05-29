@@ -206,7 +206,7 @@ class Friends extends PageComponent {
     return `
       ${FriendWaitModal}
       ${FriendAddModal}
-      <div class="d-flex justify-content-between position-sticky top-0 z-1">
+      <div class="d-md-flex justify-content-between position-sticky top-0 z-1">
         <h1 class="fs-14">Friends</h1>
         <div class="d-flex flex-row pe-5">
           ${FriendPageButtons()}
