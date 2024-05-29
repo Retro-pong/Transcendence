@@ -6,7 +6,7 @@ class PlayGame extends PageComponent {
     super();
     this.setTitle('Play Game');
     this.settings = {
-      type: 'multi',
+      type: 'local',
       ball: 0x0000ff,
       speed: 1,
       map: 'mountain',
@@ -16,14 +16,6 @@ class PlayGame extends PageComponent {
   async render() {}
 
   async afterRender() {
-    if (this.settings.type === 'local') {
-      document.getElementById('gameCanvasLocalOne').classList.remove('d-none');
-      document.getElementById('gameCanvasLocalTwo').classList.remove('d-none');
-    }
-    if (this.settings.type === 'multi') {
-      document.getElementById('gameCanvasMulti').classList.remove('d-none');
-    }
-
     game(this.settings);
 
     document.getElementById('mapTest').addEventListener('click', (e) => {

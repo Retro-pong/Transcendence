@@ -1,27 +1,74 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import createMap from './createMap';
 import createGameObject from '@/utils/game/createGameObject';
 import eventHandler from '@/utils/game/eventHandler';
 import hitChangeColor from '@/utils/game/hitChangeColor';
 import checkPaddleHit from '@/utils/game/checkPaddleHit';
 
-function game(settings) {
-  const canvas = document.getElementById('gameCanvasMulti');
-  const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
-
-  const fov = 45;
+function cameraSetting(type) {
+  const fov = type === 'local' ? 60 : 45;
   const aspect = 2; // the canvas default
   const near = 0.1;
   const far = 1000;
-  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-  camera.position.set(-33, 0, 0);
+  const camera = {
+    multi: null,
+    red: null,
+    blue: null,
+  };
 
-  const controls = new OrbitControls(camera, canvas);
-  controls.update();
-  controls.enableRotate = false;
-  controls.enableZoom = false;
-  controls.enablePan = false;
+  if (type === 'local') {
+    const blueCamera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+    const redCamera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+    blueCamera.position.set(-33, 0, 0);
+    redCamera.position.set(33, 0, 0);
+    blueCamera.lookAt(0, 0, 0);
+    redCamera.lookAt(0, 0, 0);
+    camera.blue = blueCamera;
+    camera.red = redCamera;
+  }
+  // TODO: multi 일 때 어느쪽 패들인지 인자 받아서 세팅 필요
+  if (type === 'multi') {
+    const multiCamera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+    multiCamera.position.set(-33, 0, 0);
+    multiCamera.lookAt(0, 0, 0);
+    camera.multi = multiCamera;
+  }
+  return camera;
+}
+
+function rendering(renderer, scene, camera, type) {
+  if (type === 'multi') {
+    renderer.render(scene, camera.multi);
+  }
+  if (type === 'local') {
+    // 첫번째 뷰 렌더링
+    renderer.setViewport(0, 0, window.innerWidth / 2, window.innerHeight);
+    renderer.setScissor(0, 0, window.innerWidth / 2, window.innerHeight);
+    renderer.setScissorTest(true);
+    renderer.render(scene, camera.red);
+
+    // 두 번째 뷰 렌더링
+    renderer.setViewport(
+      window.innerWidth / 2,
+      0,
+      window.innerWidth / 2,
+      window.innerHeight
+    );
+    renderer.setScissor(
+      window.innerWidth / 2,
+      0,
+      window.innerWidth / 2,
+      window.innerHeight
+    );
+    renderer.setScissorTest(true);
+    renderer.render(scene, camera.blue);
+  }
+}
+
+function game(settings) {
+  const canvas = document.getElementById('gameCanvas');
+  const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
+  const camera = cameraSetting(settings.type);
 
   const scene = new THREE.Scene();
 
@@ -60,7 +107,7 @@ function game(settings) {
 
   createMap(scene);
   createGameObject(scene, settings.ball);
-  eventHandler(canvas, scene, camera, controls);
+  eventHandler(canvas, scene);
 
   const ball = scene.getObjectByName('ball');
   const ballPlane = scene.getObjectByName('ballPlane');
@@ -109,9 +156,18 @@ function game(settings) {
   function render() {
     if (resizeRendererToDisplaySize(renderer)) {
       const canvas = renderer.domElement;
-      camera.aspect = canvas.clientWidth / canvas.clientHeight;
-      camera.updateProjectionMatrix();
+      if (settings.type === 'local') {
+        const aspect = canvas.clientWidth / 2 / canvas.clientHeight;
+        camera.blue.aspect = aspect;
+        camera.blue.updateProjectionMatrix();
+        camera.red.aspect = aspect;
+        camera.red.updateProjectionMatrix();
+      } else {
+        camera.aspect = canvas.clientWidth / canvas.clientHeight;
+        camera.updateProjectionMatrix();
+      }
     }
+
     if (ball) {
       if (start !== 'off') {
         startGameSetting();
@@ -148,7 +204,6 @@ function game(settings) {
             hitStatus.bluePaddleHit = 1;
           }
         }
-
         // 벽에 부딪히면 방향 바꾸기
         if (ball.position.z < -7 && ball.position.z > -8) {
           c *= -1;
@@ -169,11 +224,9 @@ function game(settings) {
         hitStatus = hitChangeColor(hitStatus, scene, settings.speed);
       }
     }
-
-    renderer.render(scene, camera);
+    rendering(renderer, scene, camera, settings.type);
     requestAnimationFrame(render);
   }
-
   requestAnimationFrame(render);
 }
 
