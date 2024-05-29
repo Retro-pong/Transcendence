@@ -79,15 +79,18 @@ function game(settings) {
   function render() {
     if (resizeRendererToDisplaySize(renderer)) {
       const canvas = renderer.domElement;
-      if (settings.type === 'local') {
-        const aspect = canvas.clientWidth / 2 / canvas.clientHeight;
+      let aspect;
+      if (settings.type === 'local' && camera.red && camera.blue) {
+        aspect = canvas.clientWidth / 2 / canvas.clientHeight;
         camera.blue.aspect = aspect;
         camera.blue.updateProjectionMatrix();
         camera.red.aspect = aspect;
         camera.red.updateProjectionMatrix();
-      } else {
-        camera.aspect = canvas.clientWidth / canvas.clientHeight;
-        camera.updateProjectionMatrix();
+      }
+      if (settings.type === 'multi' && camera.multi) {
+        aspect = canvas.clientWidth / canvas.clientHeight;
+        camera.multi.aspect = aspect;
+        camera.multi.updateProjectionMatrix();
       }
     }
 

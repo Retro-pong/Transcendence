@@ -1,13 +1,16 @@
 function rendering(renderer, scene, camera, type) {
   if (type === 'multi') {
-    renderer.render(scene, camera.multi);
+    renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
+    renderer.setScissor(0, 0, window.innerWidth, window.innerHeight);
+    renderer.setScissorTest(true);
+    if (camera.multi) renderer.render(scene, camera.multi);
   }
   if (type === 'local') {
-    // 첫번째 뷰 렌더링
+    //   첫번째 뷰 렌더링
     renderer.setViewport(0, 0, window.innerWidth / 2, window.innerHeight);
     renderer.setScissor(0, 0, window.innerWidth / 2, window.innerHeight);
     renderer.setScissorTest(true);
-    renderer.render(scene, camera.red);
+    if (camera.red) renderer.render(scene, camera.red);
 
     // 두 번째 뷰 렌더링
     renderer.setViewport(
@@ -23,7 +26,7 @@ function rendering(renderer, scene, camera, type) {
       window.innerHeight
     );
     renderer.setScissorTest(true);
-    renderer.render(scene, camera.blue);
+    if (camera.blue) renderer.render(scene, camera.blue);
   }
 }
 
