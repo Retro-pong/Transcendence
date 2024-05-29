@@ -213,6 +213,8 @@ function createGameObject(scene) {
     redPaddleBox.children[i].material = paddleBorderMaterial('red');
   }
 
+  bluePaddleBox.name = 'bluePaddleBox';
+  redPaddleBox.name = 'redPaddleBox';
   bluePaddle.add(bluePaddleBox);
   redPaddle.add(redPaddleBox);
 

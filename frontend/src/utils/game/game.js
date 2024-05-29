@@ -17,9 +17,9 @@ function game(map) {
 
   const controls = new OrbitControls(camera, canvas);
   controls.update();
-  // controls.enableRotate = false;
-  // controls.enableZoom = false;
-  // controls.enablePan = false;
+  controls.enableRotate = false;
+  controls.enableZoom = false;
+  controls.enablePan = false;
 
   const scene = new THREE.Scene();
 
@@ -30,7 +30,6 @@ function game(map) {
     pixel: '/img/map_pixel_rain.jpg',
   };
 
-  console.log(mapList[map]);
   const loader = new THREE.TextureLoader();
   loader.load(mapList[map], function (texture) {
     scene.background = texture;
@@ -62,8 +61,11 @@ function game(map) {
   eventHandler(canvas, scene, camera, renderer, controls);
 
   const ball = scene.getObjectByName('ball');
+  const ballPlane = scene.getObjectByName('ballPlane');
   const redPaddle = scene.getObjectByName('redPaddle');
   const bluePaddle = scene.getObjectByName('bluePaddle');
+  const redPaddleBox = scene.getObjectByName('redPaddleBox');
+  const bluePaddleBox = scene.getObjectByName('bluePaddleBox');
 
   function checkPaddleHit(type) {
     let py;
@@ -84,10 +86,42 @@ function game(map) {
       ((bz - 1 > pz - 1.5 && bz - 1 < pz + 1.5) ||
         (bz + 1 > pz - 1.5 && bz + 1 < pz + 1.5))
     ) {
-      console.log('hit!');
       return 1;
     }
     return 0;
+  }
+
+  let redPaddleHit = 0;
+  let bluePaddleHit = 0;
+  let wallHit = 0;
+
+  function paddleHitChangeColor() {
+    if (redPaddleHit === 1) {
+      for (let i = 0; i < redPaddleBox.children.length; i += 1) {
+        redPaddleBox.children[i].material.color.set(0x00ffff);
+      }
+      redPaddleHit = 2;
+    } else if (redPaddleHit >= 2 && redPaddleHit < 10) {
+      redPaddleHit += 1;
+    } else if (redPaddleHit === 10) {
+      for (let i = 0; i < redPaddleBox.children.length; i += 1) {
+        redPaddleBox.children[i].material.color.set(0xff0000);
+      }
+      redPaddleHit = 0;
+    }
+    if (bluePaddleHit === 1) {
+      for (let i = 0; i < bluePaddleBox.children.length; i += 1) {
+        bluePaddleBox.children[i].material.color.set(0x00ffff);
+      }
+      bluePaddleHit = 2;
+    } else if (bluePaddleHit >= 2 && bluePaddleHit < 10) {
+      bluePaddleHit += 1;
+    } else if (bluePaddleHit === 10) {
+      for (let i = 0; i < bluePaddleBox.children.length; i += 1) {
+        bluePaddleBox.children[i].material.color.set(0x0000ff);
+      }
+      bluePaddleHit = 0;
+    }
   }
 
   function resizeRendererToDisplaySize(renderer) {
@@ -127,13 +161,14 @@ function game(map) {
           ball.rotation.y + 0.1,
           ball.rotation.z + 0.1
         );
-        scene.getObjectByName('ballPlane').position.x = ball.position.x;
+        ballPlane.position.x = ball.position.x;
         // 패들에 부딪히면 방향 바꾸기
         if (ball.position.x > 19.5 && ball.position.x < 20.5) {
           if (!checkPaddleHit('red')) {
             start = 1;
           } else {
             a *= -1;
+            redPaddleHit = 1;
           }
         }
         if (ball.position.x < -19.5 && ball.position.x > -20.5) {
@@ -141,6 +176,7 @@ function game(map) {
             start = 1;
           } else {
             a *= -1;
+            bluePaddleHit = 1;
           }
         }
 
@@ -157,6 +193,7 @@ function game(map) {
         if (ball.position.y < -4.5 && ball.position.y > -5.5) {
           b *= -1;
         }
+        paddleHitChangeColor();
       }
     }
 
