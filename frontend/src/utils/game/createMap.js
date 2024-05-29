@@ -102,21 +102,25 @@ function createMap(scene) {
   });
   const mapPlane = [
     {
+      name: 'topPlane',
       h: planeZ,
       rotation: { x: Math.PI / 2, y: 0, z: 0 },
       position: { x: 0, y: planeY / 2 + thickness / 2, z: 0 },
     },
     {
+      name: 'bottomPlane',
       h: planeZ,
       rotation: { x: -Math.PI / 2, y: 0, z: 0 },
       position: { x: 0, y: -planeY / 2 - thickness / 2, z: 0 },
     },
     {
+      name: 'rightPlane',
       h: planeY,
       rotation: { x: Math.PI, y: 0, z: 0 },
-      position: { x: 0, y: 0, z: planeZ / 2 + thickness / 2},
+      position: { x: 0, y: 0, z: planeZ / 2 + thickness / 2 },
     },
     {
+      name: 'leftPlane',
       h: planeY,
       rotation: { x: 0, y: 0, z: 0 },
       position: { x: 0, y: 0, z: -planeZ / 2 - thickness / 2 },
@@ -124,7 +128,10 @@ function createMap(scene) {
   ];
 
   mapPlane.forEach((plane) => {
-    const mapPlaneMesh = new THREE.Mesh(new THREE.PlaneGeometry(planeX, plane.h), mapPlaneMaterial);
+    const mapPlaneMesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(planeX, plane.h),
+      mapPlaneMaterial.clone()
+    );
     mapPlaneMesh.position.set(
       plane.position.x,
       plane.position.y,
@@ -135,6 +142,7 @@ function createMap(scene) {
       plane.rotation.y,
       plane.rotation.z
     );
+    mapPlaneMesh.name = plane.name;
     map.add(mapPlaneMesh);
   });
 

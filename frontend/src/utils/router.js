@@ -57,7 +57,7 @@ export const router = async () => {
   const app = document.querySelector('#app');
   const background = document.getElementById('background');
   const navBar = document.getElementById('navBar');
-  const gameCanvas = document.getElementById('gameCanvas');
+  const gameCanvas = document.getElementById('gameCanvasContainer');
 
   if (location.pathname === '/game/play') {
     background.classList.add('d-none');
