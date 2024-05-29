@@ -1,4 +1,4 @@
-function eventHandler(canvas, scene, type, side) {
+function eventHandler(canvas, scene, mode, side) {
   const redPaddle = scene.getObjectByName('redPaddle');
   const bluePaddle = scene.getObjectByName('bluePaddle');
 
@@ -19,7 +19,7 @@ function eventHandler(canvas, scene, type, side) {
   // wasd -> 로컬에서만 사용
   canvas.addEventListener('keydown', (e) => {
     // 방향키
-    if (type === 'local') {
+    if (mode === 'local') {
       if (e.code === 'KeyW') {
         keyPressed.w = true;
       }
@@ -59,7 +59,7 @@ function eventHandler(canvas, scene, type, side) {
   });
 
   let paddle;
-  if (type === 'local') {
+  if (mode === 'local') {
     paddle = bluePaddle;
   } else {
     paddle = side === 'red' ? redPaddle : bluePaddle;

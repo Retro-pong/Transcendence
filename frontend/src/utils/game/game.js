@@ -11,7 +11,7 @@ import sceneSetting from '@/utils/game/sceneSetting';
 function game(settings) {
   const canvas = document.getElementById('gameCanvas');
   const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
-  const camera = cameraSetting(settings.type, settings.side);
+  const camera = cameraSetting(settings.mode, settings.side);
 
   const scene = new THREE.Scene();
 
@@ -30,7 +30,7 @@ function game(settings) {
   sceneSetting(scene);
   createMap(scene);
   createGameObject(scene, settings.ball);
-  eventHandler(canvas, scene, settings.type, settings.side);
+  eventHandler(canvas, scene, settings.mode, settings.side);
 
   const ball = scene.getObjectByName('ball');
   const ballPlane = scene.getObjectByName('ballPlane');
@@ -80,14 +80,14 @@ function game(settings) {
     if (resizeRendererToDisplaySize(renderer)) {
       const canvas = renderer.domElement;
       let aspect;
-      if (settings.type === 'local' && camera.red && camera.blue) {
+      if (settings.mode === 'local' && camera.red && camera.blue) {
         aspect = canvas.clientWidth / 2 / canvas.clientHeight;
         camera.blue.aspect = aspect;
         camera.blue.updateProjectionMatrix();
         camera.red.aspect = aspect;
         camera.red.updateProjectionMatrix();
       }
-      if (settings.type === 'multi' && camera.multi) {
+      if (settings.mode === 'multi' && camera.multi) {
         aspect = canvas.clientWidth / canvas.clientHeight;
         camera.multi.aspect = aspect;
         camera.multi.updateProjectionMatrix();
@@ -150,7 +150,7 @@ function game(settings) {
         hitStatus = hitChangeColor(hitStatus, scene, settings.speed);
       }
     }
-    rendering(renderer, scene, camera, settings.type);
+    rendering(renderer, scene, camera, settings.mode);
     requestAnimationFrame(render);
   }
   requestAnimationFrame(render);

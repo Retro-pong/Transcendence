@@ -6,7 +6,7 @@ class PlayGame extends PageComponent {
     super();
     this.setTitle('Play Game');
     this.settings = {
-      type: 'local',
+      mode: 'local',
       side: 'blue',
       ball: 0x0000ff,
       speed: 1,
@@ -18,7 +18,7 @@ class PlayGame extends PageComponent {
 
   setScoreBox() {
     const scoreContainer = document.getElementById('scoreContainer');
-    if (this.settings.type === 'local') {
+    if (this.settings.mode === 'local') {
       const width = scoreContainer.clientWidth;
       const screenWidth = window.innerWidth;
       const screenCenterX = screenWidth / 2;
@@ -76,19 +76,19 @@ class PlayGame extends PageComponent {
       game(this.settings);
     });
     document.getElementById('gameTypeTest').addEventListener('click', (e) => {
-      if (this.settings.type === 'local') {
-        this.settings.type = 'multi';
+      if (this.settings.mode === 'local') {
+        this.settings.mode = 'multi';
         this.settings.side = 'blue';
       } else if (
-        this.settings.type === 'multi' &&
+        this.settings.mode === 'multi' &&
         this.settings.side === 'blue'
       ) {
         this.settings.side = 'red';
       } else if (
-        this.settings.type === 'multi' &&
+        this.settings.mode === 'multi' &&
         this.settings.side === 'red'
       ) {
-        this.settings.type = 'local';
+        this.settings.mode = 'local';
       }
       this.setScoreBox();
       game(this.settings);

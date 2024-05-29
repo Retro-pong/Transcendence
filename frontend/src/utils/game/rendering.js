@@ -1,11 +1,11 @@
-function rendering(renderer, scene, camera, type) {
-  if (type === 'multi') {
+function rendering(renderer, scene, camera, mode) {
+  if (mode === 'multi') {
     renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
     renderer.setScissor(0, 0, window.innerWidth, window.innerHeight);
     renderer.setScissorTest(true);
     if (camera.multi) renderer.render(scene, camera.multi);
   }
-  if (type === 'local') {
+  if (mode === 'local') {
     //   첫번째 뷰 렌더링
     renderer.setViewport(0, 0, window.innerWidth / 2, window.innerHeight);
     renderer.setScissor(0, 0, window.innerWidth / 2, window.innerHeight);
