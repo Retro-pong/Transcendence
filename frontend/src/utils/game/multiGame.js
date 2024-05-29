@@ -6,7 +6,7 @@ import eventHandler from '@/utils/game/eventHandler';
 import hitChangeColor from '@/utils/game/hitChangeColor';
 import checkPaddleHit from '@/utils/game/checkPaddleHit';
 
-function game(settings) {
+function multiGame(settings) {
   const canvas = document.getElementById('gameCanvasMulti');
   const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
 
@@ -177,4 +177,4 @@ function game(settings) {
   requestAnimationFrame(render);
 }
 
-export default game;
+export default multiGame;

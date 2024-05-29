@@ -1,5 +1,5 @@
 import PageComponent from '@component/PageComponent';
-import game from '@/utils/game/game';
+import multiGame from "@/utils/game/multiGame";
 
 class PlayGame extends PageComponent {
   constructor() {
@@ -24,7 +24,7 @@ class PlayGame extends PageComponent {
       document.getElementById('gameCanvasMulti').classList.remove('d-none');
     }
 
-    game(this.settings);
+    multiGame(this.settings);
 
     document.getElementById('mapTest').addEventListener('click', (e) => {
       if (this.settings.map === 'mountain') {
@@ -35,7 +35,7 @@ class PlayGame extends PageComponent {
         this.settings.map = 'mountain';
       }
       document.getElementById('mapTestVal').innerText = this.settings.map;
-      game(this.settings);
+      multiGame(this.settings);
     });
 
     document.getElementById('colorTest').addEventListener('click', (e) => {
@@ -47,7 +47,7 @@ class PlayGame extends PageComponent {
         this.settings.ball = 0x0000ff;
       }
       document.getElementById('colorTestVal').innerText = this.settings.ball;
-      game(this.settings);
+      multiGame(this.settings);
     });
     document.getElementById('speedTest').addEventListener('click', (e) => {
       if (this.settings.speed < 5) {
@@ -56,7 +56,7 @@ class PlayGame extends PageComponent {
         this.settings.speed = 1;
       }
       document.getElementById('speedTestVal').innerText = this.settings.speed;
-      game(this.settings);
+      multiGame(this.settings);
     });
   }
 }
