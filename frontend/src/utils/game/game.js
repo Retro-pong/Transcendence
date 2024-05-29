@@ -52,7 +52,7 @@ function game(settings) {
   let a;
   let b;
   let c;
-  const v = 2 + settings.speed * 0.4;
+  const v = 1.2 + settings.speed * 0.3;
   let start = 'blue';
   let hitStatus;
 
