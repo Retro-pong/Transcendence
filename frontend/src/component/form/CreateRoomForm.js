@@ -29,15 +29,15 @@ const CreateRoomForm = () => {
 					${createRoomFormItem({
             titleId: 'gameMap',
             title: 'MAP',
-            content: `<input type="radio" class="btn-check" name="mapOptions" id="gameMap1" autocomplete="off"/>
+            content: `<input type="radio" class="btn-check" name="mapOptions" id="gameMap1" data-map="Futuristic Horizon" autocomplete="off"/>
 											<label class="btn btn-outline-light mx-2 fs-9" for="gameMap1">
 												<img src="/img/map_futuristic_horizon.jpg" height="100%" width="100%" alt="wow"/>
 											</label>
-											<input type="radio" class="btn-check" name="mapOptions" id="gameMap2" autocomplete="off"/>
+											<input type="radio" class="btn-check" name="mapOptions" id="gameMap2" data-map="Mountain" autocomplete="off"/>
 											<label class="btn btn-outline-light mx-2 fs-9" for="gameMap2">
 												<img src="/img/map_mountain.jpg" height="100%" width="100%" alt="wow"/>
 											</label>
-											<input type="radio" class="btn-check" name="mapOptions" id="gameMap3" autocomplete="off"/>
+											<input type="radio" class="btn-check" name="mapOptions" id="gameMap3" data-map="Pixel Rain" autocomplete="off"/>
 											<label class="btn btn-outline-light mx-2 fs-9" for="gameMap3">
 												<img src="/img/map_pixel_rain.jpg" height="100%" width="100%" alt="wow"/>
 											</label>`,
@@ -46,8 +46,8 @@ const CreateRoomForm = () => {
             titleId: 'gameMode',
             title: 'MODE',
             content: `<span>[</span>
-											<input type="radio" class="btn-check" name="modeOptions" id="rumble" autocomplete="off"/>
-											<label class="btn btn-outline-light mx-3 fs-9" for="rumble">RUMBLE</label>
+											<input type="radio" class="btn-check" name="modeOptions" id="normal" autocomplete="off"/>
+											<label class="btn btn-outline-light mx-3 fs-9" for="normal">NORMAL</label>
 											<span>/</span>
 											<input type="radio" class="btn-check" name="modeOptions" id="tournament" autocomplete="off"/>
 											<label class="btn btn-outline-light mx-3 fs-9" for="tournament">TOURNAMENT</label>
