@@ -115,17 +115,20 @@ function createGameObject(scene) {
 
   const paddleBorder = (type) => {
     return new THREE.BoxGeometry(
-      paddleWidth,
-      type === 'horizontal' ? paddleWidth - paddleWidth / 2 : paddleHeight,
-      type === 'horizontal' ? paddleDepth : paddleWidth - paddleWidth / 2
+      paddleWidth + 0.05,
+      type === 'horizontal'
+        ? paddleWidth - paddleWidth + 0.8 / 2
+        : paddleHeight + 0.05,
+      type === 'horizontal'
+        ? paddleDepth + 0.05
+        : paddleWidth - paddleWidth / 2 + 0.05
     );
   };
-
   const paddleInner = (type) => {
     return new THREE.BoxGeometry(
-      paddleWidth,
-      type === 'horizontal' ? paddleWidth / 2 : paddleHeight / 3,
-      type === 'horizontal' ? paddleDepth / 3 : paddleWidth / 2
+      paddleWidth + 0.05,
+      type === 'horizontal' ? paddleWidth / 2 + 0.05 : paddleHeight / 3 + 0.05,
+      type === 'horizontal' ? paddleDepth / 3 + 0.05 : paddleWidth / 2 + 0.05
     );
   };
 
