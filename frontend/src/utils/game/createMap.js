@@ -114,7 +114,7 @@ function createMap(scene) {
     {
       h: planeY,
       rotation: { x: Math.PI, y: 0, z: 0 },
-      position: { x: 0, y: 0, z: planeZ / 2 + thickness / 2},
+      position: { x: 0, y: 0, z: planeZ / 2 + thickness / 2 },
     },
     {
       h: planeY,
@@ -124,7 +124,10 @@ function createMap(scene) {
   ];
 
   mapPlane.forEach((plane) => {
-    const mapPlaneMesh = new THREE.Mesh(new THREE.PlaneGeometry(planeX, plane.h), mapPlaneMaterial);
+    const mapPlaneMesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(planeX, plane.h),
+      mapPlaneMaterial
+    );
     mapPlaneMesh.position.set(
       plane.position.x,
       plane.position.y,
