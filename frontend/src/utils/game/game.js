@@ -90,15 +90,6 @@ function game(map) {
     return 0;
   }
 
-  const hitStatus = {
-    redPaddleHit: 0,
-    bluePaddleHit: 0,
-    topWallHit: 0,
-    bottomWallHit: 0,
-    rightWallHit: 0,
-    leftWallHit: 0,
-  };
-
   function resizeRendererToDisplaySize(renderer) {
     const canvas = renderer.domElement;
     const width = canvas.clientWidth;
@@ -116,6 +107,14 @@ function game(map) {
   let c = 0.1;
   const v = 1.5;
   let start = 1;
+  let hitStatus = {
+    redPaddleHit: 0,
+    bluePaddleHit: 0,
+    topWallHit: 0,
+    bottomWallHit: 0,
+    rightWallHit: 0,
+    leftWallHit: 0,
+  };
 
   function render() {
     if (resizeRendererToDisplaySize(renderer)) {
@@ -172,7 +171,7 @@ function game(map) {
           b *= -1;
           hitStatus.bottomWallHit = 1;
         }
-        hitChangeColor(hitStatus, scene);
+        hitStatus = hitChangeColor(hitStatus, scene);
       }
     }
 
