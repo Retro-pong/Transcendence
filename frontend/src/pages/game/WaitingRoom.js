@@ -13,7 +13,7 @@ class WaitingRoom extends PageComponent {
 
   async render() {
     const params = new URLSearchParams(document.location.search);
-    const TITLE = params.get('title');
+    const TITLE = params.get('title') || 'Game Room';
     // TODO: 소켓으로 게임 방 정보 받아오기, 참가자가 아니면 홈으로 리다이렉트
     const ROLE = 'host';
     const dummyPlayers = [
