@@ -20,13 +20,15 @@ class Friends extends PageComponent {
 
   async getFriends() {
     const URL = `/friends/friend_list/?limit=${this.limit}&offset=${this.offset}`;
-    const response = await Fetch.get(URL).catch(() => {
+    try {
+      const response = await Fetch.get(URL);
+      this.totalPage = response.total;
+      return response.friends;
+    } catch (err) {
       document.getElementById('pagination').classList.add('d-none');
       ErrorHandler.setToast('Failed to get friends list');
       return [];
-    });
-    this.totalPage = response.total;
-    return response.friends;
+    }
   }
 
   async getPageData() {
@@ -222,7 +224,7 @@ class Friends extends PageComponent {
     return `
       ${FriendWaitModal}
       ${FriendAddModal}
-      <div class="d-flex justify-content-between position-sticky top-0 z-1">
+      <div class="d-md-flex justify-content-between position-sticky top-0 z-1">
         <h1 class="fs-14">Friends</h1>
         <div class="d-flex flex-row pe-5">
           ${FriendPageButtons()}
