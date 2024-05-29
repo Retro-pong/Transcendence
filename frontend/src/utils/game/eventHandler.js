@@ -14,6 +14,7 @@ function eventHandler(canvas, scene) {
     right: false,
   };
 
+  // TODO: 멀티 플레이 시 키보드 컨트롤 방향키만 사용하도록 수정, 패들도 하나 받기
   // 키보드 컨트롤
   canvas.addEventListener('keydown', (e) => {
     console.log(e.code);
