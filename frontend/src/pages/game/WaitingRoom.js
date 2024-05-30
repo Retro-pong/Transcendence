@@ -1,6 +1,5 @@
 import PageComponent from '@component/PageComponent.js';
 import PlayerCard from '@component/card/PlayerCard';
-import BasicButton from '@component/button/BasicButton';
 import OpenModalButton from '@component/button/OpenModalButton';
 import ModalComponent from '@component/modal/ModalComponent';
 import GameManual from '@component/contents/GameManual';
@@ -15,31 +14,38 @@ class WaitingRoom extends PageComponent {
     const params = new URLSearchParams(document.location.search);
     const TITLE = params.get('title') || 'Game Room';
     // TODO: 소켓으로 게임 방 정보 받아오기, 참가자가 아니면 홈으로 리다이렉트
-    const ROLE = 'host';
     const dummyPlayers = [
       {
         id: 1,
         name: 'hyobicho',
-        status: 'ready',
-        role: 'host',
+        profileImg:
+          'https://www.blueconomy.co.kr/news/photo/202402/2399_3001_921.png',
+        win: 5,
+        lose: 0,
       },
       {
         id: 2,
         name: 'hyungjpa',
-        status: 'ready',
-        role: 'guest',
+        profileImg:
+          'https://www.blueconomy.co.kr/news/photo/202402/2399_3001_921.png',
+        win: 3,
+        lose: 2,
       },
       {
         id: 3,
         name: 'wonjilee',
-        status: 'ready',
-        role: 'guest',
+        profileImg:
+          'https://www.blueconomy.co.kr/news/photo/202402/2399_3001_921.png',
+        win: 2,
+        lose: 3,
       },
       {
         id: 4,
         name: 'subinlee',
-        status: 'ready',
-        role: 'guest',
+        profileImg:
+          'https://www.blueconomy.co.kr/news/photo/202402/2399_3001_921.png',
+        win: 0,
+        lose: 5,
       },
     ];
     const PlayerCards = dummyPlayers
@@ -51,16 +57,10 @@ class WaitingRoom extends PageComponent {
         `;
       })
       .join('');
-    const StartButton = BasicButton({
-      id: 'startBtn',
-      text: '<< Start Game! >>',
-      classList: 'btn btn-no-outline-hover fs-10',
-      disabled: ROLE !== 'host',
-    });
     const ManualButton = OpenModalButton({
       text: '> Manual',
       classList:
-        'btn btn-no-outline-hover fs-2 position-absolute top-0 end-0 mt-2 me-2',
+        'btn btn-no-outline-hover fs-2 position-absolute top-0 end-0 mt-2 me-2 d-none d-md-block',
       modalId: '#gameManualModal',
     });
     const GameManualModal = ModalComponent({
@@ -71,19 +71,17 @@ class WaitingRoom extends PageComponent {
       buttonList: [],
     });
     return `
+      ${GameManualModal}
       <div class="container h-100 p-3 game-room-border">
         <div class="d-flex flex-column h-100 position-relative">
-          <h1 class="display-1 text-center">Welcome to<br /> [ ${TITLE} ]</h1>
-          ${ManualButton} ${GameManualModal}
-          <div class="d-flex justify-content-center align-items-center h-75">
+          <h1 class="fs-17 text-center">Welcome to<br />[ ${TITLE} ]</h1>
+          ${ManualButton} 
+          <div class="d-flex justify-content-center align-items-center">
             <div class="container text-center w-100">
               <div class="row row-cols-1 row-cols-md-2 g-3">
                 ${PlayerCards}
               </div>
             </div>
-          </div>
-          <div class="d-flex justify-content-center align-items-center h-25">
-            ${StartButton}
           </div>
         </div>
       </div>
