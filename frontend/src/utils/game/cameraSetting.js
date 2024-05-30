@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 function cameraSetting(mode, side) {
-  const fov = mode === 'local' ? 60 : 45;
+  const fov = mode === 'local' ? 65 : 45;
   const aspect = 2; // the canvas default
   const near = 0.1;
   const far = 1000;
