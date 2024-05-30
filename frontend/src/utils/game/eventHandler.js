@@ -1,6 +1,10 @@
-function eventHandler(canvas, scene, mode, side) {
+import gameUtils from '@/utils/game/gameUtils';
+
+function eventHandler(canvas, scene, camera, mode, side) {
+  const map = scene.getObjectByName('map');
   const redPaddle = scene.getObjectByName('redPaddle');
   const bluePaddle = scene.getObjectByName('bluePaddle');
+  let controler = 'keyboard';
 
   canvas.focus();
   const keyPressed = {
@@ -33,17 +37,28 @@ function eventHandler(canvas, scene, mode, side) {
         keyPressed.d = true;
       }
     }
-    if (e.code === 'ArrowUp') {
-      keyPressed.up = true;
+    if (controler === 'keyboard') {
+      if (e.code === 'ArrowUp') {
+        keyPressed.up = true;
+      }
+      if (e.code === 'ArrowDown') {
+        keyPressed.down = true;
+      }
+      if (e.code === 'ArrowLeft') {
+        keyPressed.left = true;
+      }
+      if (e.code === 'ArrowRight') {
+        keyPressed.right = true;
+      }
     }
-    if (e.code === 'ArrowDown') {
-      keyPressed.down = true;
+
+    // 컨트롤러 스위치
+    console.log(e.code);
+    if (mode === 'multi' && e.code === 'Digit1') {
+      controler = 'keyboard';
     }
-    if (e.code === 'ArrowLeft') {
-      keyPressed.left = true;
-    }
-    if (e.code === 'ArrowRight') {
-      keyPressed.right = true;
+    if (mode === 'multi' && e.code === 'Digit2') {
+      controler = 'mouse';
     }
   });
 
@@ -106,6 +121,23 @@ function eventHandler(canvas, scene, mode, side) {
   };
 
   setInterval(movePaddle, 10);
+
+  // 마우스 컨트롤
+  canvas.addEventListener('mousemove', (e) => {
+    if (controler === 'keyboard') return;
+    const x = e.clientX;
+    const y = e.clientY;
+
+    const mousePosition = gameUtils.getMouseWorldPositionInObject(
+      x,
+      y,
+      camera.multi,
+      map
+    );
+    if (!mousePosition) return;
+    bluePaddle.position.y = mousePosition.y;
+    bluePaddle.position.z = mousePosition.z;
+  });
 }
 
 export default eventHandler;

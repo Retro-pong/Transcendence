@@ -30,7 +30,7 @@ function game(settings) {
   sceneSetting(scene);
   createMap(scene);
   createGameObject(scene, settings.ball);
-  eventHandler(canvas, scene, settings.mode, settings.side);
+  eventHandler(canvas, scene, camera, settings.mode, settings.side);
 
   const ball = scene.getObjectByName('ball');
   const ballPlane = scene.getObjectByName('ballPlane');
