@@ -1,18 +1,18 @@
 import * as THREE from 'three';
 
-function createGameObject(scene) {
+function createGameObject(scene, ballColor) {
   const gameObjs = new THREE.Object3D();
   scene.add(gameObjs);
 
   // ball
   const ballGeometry = new THREE.SphereGeometry(1, 32, 16);
   const colors = [];
-  const color1 = new THREE.Color(0xff0000); // Red
-  const color2 = new THREE.Color(0x0000ff); // Blue
+  const color1 = new THREE.Color(ballColor);
+  const color2 = new THREE.Color(0xffffff);
 
-  for (let i = 0; i < ballGeometry.attributes.position.count; i++) {
+  for (let i = 0; i < ballGeometry.attributes.position.count; i += 1) {
     const y = ballGeometry.attributes.position.getY(i);
-    const alpha = (y + 1) / 2; // Normalize y value to range [0, 1]
+    const alpha = (y + 1) / 6; // Normalize y value to range [0, 1]
 
     const color = new THREE.Color();
     color.lerpColors(color1, color2, alpha);
