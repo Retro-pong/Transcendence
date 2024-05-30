@@ -81,8 +81,9 @@ class Player:
     def __init__(self, type, nick):
         self.y = 0
         self.z = 0
-        self.type = type #Red, Blue
+        self.type = type #red, blue
         self.nick = nick
+        self.status = "none"
         self.score = 0
 
     def set_pos(self, y, z):
@@ -97,15 +98,43 @@ class Player:
 
 
 class Game:
-    def __init__(self, speed, nick1, nick2, time):
-        self.p1 = Player(RED, nick1)
-        self.p2 = Player(BLUE, nick2)
-        self.ball = Ball(speed)
+    def __init__(self):
+        self.p1 = None
+        self.p2 = None
+        self.speed = 0
+        self.ball = Ball(speed=0)
         self.winner = None
-        self.start_time = time
+        self.start_time = None
 
-    def data(self):
+    def set_ready(self, color):
+        if color == "red" and self.p1.status == "none":
+            self.p1.status = "ready"
+        elif color == "blue" and self.p2.status == "none":
+            self.p2.status = "ready"
+        if self.p1.status == "ready" and self.p2.status == "ready":
+            return 1
+        return 0
+
+    def start_data(self, color, game):
         return {
+            'type': "start",
+            'color': color,
+            'map': game.game_map,
+            'ball_color': game.ball_color,
+            'ball': {
+                'x': self.ball.x,
+                'y': self.ball.y,
+                'z': self.ball.z,
+            },
+            'redY': 0,
+            'redZ': 0,
+            'blueY': 0,
+            'blueZ': 0,
+        }
+
+    def game_data(self):
+        return {
+            'type': "move",
             'redY': self.p1.y,
             'redZ': self.p1.z,
             'redScore': self.p1.score,
@@ -118,7 +147,7 @@ class Game:
             'ballHit': self.ball.hit,
         }
 
-    def result(self):
+    def result_data(self):
         GameResult.objects.create(winner=self.winner,
                                   player1=self.p1,
                                   player2=self.p2,
@@ -126,6 +155,7 @@ class Game:
                                   player2_score=self.p2.score,
                                   start_time=self.start_time)
         return {
+            'type': 'result',
             'winner': self.winner,
             'redScore': self.p1.score,
             'blueScore': self.p2.score,

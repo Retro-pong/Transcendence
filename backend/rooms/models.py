@@ -5,9 +5,9 @@ class Room(models.Model):
     room_name = models.CharField(max_length=12, unique=True)
     game_mode = models.CharField(max_length=50)  # normal, tournament
     game_map = models.CharField(max_length=50)
-    game_speed = models.IntegerField()
+    game_speed = models.IntegerField(default=0)
     current_players = models.IntegerField(default=0)
-    ball_color = models.CharField(max_length=50, default='0x000000')
+    ball_color = models.CharField(max_length=50, default='#000000')
 
     def __str__(self):
         return f'{self.room_name}'
