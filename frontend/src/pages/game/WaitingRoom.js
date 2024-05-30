@@ -74,11 +74,11 @@ class WaitingRoom extends PageComponent {
       ${GameManualModal}
       <div class="container h-100 p-3 game-room-border">
         <div class="d-flex flex-column h-100 position-relative">
-          <h1 class="fs-17 text-center">Welcome to<br />[ ${TITLE} ]</h1>
+          <h1 class="fs-15 text-center">Welcome to<br />[ ${TITLE} ]</h1>
           ${ManualButton} 
-          <div class="d-flex justify-content-center align-items-center">
-            <div class="container text-center w-100">
-              <div class="row row-cols-1 row-cols-md-2 g-3">
+          <div class="d-flex justify-content-center align-items-center overflow-auto">
+            <div class="container h-100 px-5 text-center">
+              <div class="row row-cols-1 row-cols-md-2 g-1">
                 ${PlayerCards}
               </div>
             </div>
