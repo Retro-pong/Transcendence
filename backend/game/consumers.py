@@ -73,7 +73,9 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
             match.game_render(player)
             await self.channel_layer.group_send(self.game_id, match.game_data())
             if match.winner:
-                await self.channel_layer.group_send(self.game_id, match.result_data())
+                await self.channel_layer.group_send(
+                    self.game_id, match.result_data(self.game_id)
+                )
                 await self.channel_layer.group_send(
                     self.channel_name,
                     {
@@ -91,6 +93,7 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
                 "type": "close_group",
             },
         )
+        del games[self.game_id]
 
     async def close_group(self, event) -> None:
         await self.channel_layer.group_discard()
