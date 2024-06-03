@@ -183,15 +183,15 @@ class Game:
             "ballHit": self.ball.hit,
         }
 
-    def result_data(self) -> dict:
-        GameResult.objects.create(
-            winner=self.winner,
-            player1=self.p1,
-            player2=self.p2,
-            player_score=self.p1.score,
-            player2_score=self.p2.score,
-            start_time=self.start_time,
-        )
+    def result_data(self, game_id) -> dict:
+        result = GameResult.objects.get(game_id=game_id)
+        result.winner = self.winner
+        result.player1 = self.p1
+        result.player2 = self.p2
+        result.player1_score = self.p1.score
+        result.player2_score = self.p2.score
+        result.start_time = self.start_time
+        result.save()
         return {
             "type": "result",
             "winner": self.winner,
