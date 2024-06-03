@@ -295,6 +295,9 @@ class MyTokenRefreshView(TokenRefreshView):
             response.delete_cookie("refresh_token")
             return response
         access_token = str(new_token.access_token)
+        # 토큰은 유효할 때 유저가 오프라인 상태에서 다시 접속했을 경우 active 활성화
+        if not user.is_active:
+            user.is_active = True
         return Response(
             {
                 "message": "Token refreshed",

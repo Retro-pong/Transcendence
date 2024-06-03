@@ -2,7 +2,9 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from django.urls import reverse
 from users.models import User
+from game.models import GameResult
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.utils import timezone
 import os
 
 
@@ -18,6 +20,10 @@ class ProfileAPITestCase(APITestCase):
         self.user.is_registered = True
         self.user.is_active = True
         self.user.save()
+
+        GameResult.objects.create(winner="testuser", player1="testuser", player2="user1", start_time=timezone.now())
+        GameResult.objects.create(winner="testuser", player1="testuser", player2="user4", start_time=timezone.now())
+        GameResult.objects.create(winner="user3", player1="user3", player2="testuser", start_time=timezone.now())
 
         token = TokenObtainPairSerializer.get_token(self.user)
         refresh_token = str(token)
@@ -36,6 +42,15 @@ class ProfileAPITestCase(APITestCase):
         self.assertEqual(response.data["win"], self.user.win)
         self.assertEqual(response.data["lose"], self.user.lose)
         self.assertEqual(response.data["comment"], self.user.comment)
+
+    def test_battle_history(self):
+        url = reverse("users:profile")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data["history"]), 3)
+        self.assertEqual(response.data["history"][0]["winner"], "testuser")
+        self.assertEqual(response.data["history"][1]["player2"], "user4")
+
 
     def test_edit_profile(self):
         url = reverse("users:profile_edit")  # ProfileEditView URL 설정
