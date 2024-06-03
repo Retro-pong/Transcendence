@@ -122,7 +122,7 @@ class Login extends PageComponent {
           ToastHandler.setToast('Please fill in all fields');
           return;
         }
-        if (Regex.email.test(email) === false) {
+        if (Regex.email.test(email) === false || email.length > 200) {
           ToastHandler.setToast('Invalid Email Address');
           return;
         }
