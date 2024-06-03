@@ -92,6 +92,7 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
         )
 
     async def close_group(self, event) -> None:
+        await self.channel_layer.group_discard()
         await self.close()
 
 
