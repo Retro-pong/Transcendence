@@ -10,7 +10,6 @@ import Fetch from '@/utils/Fetch';
 import Router from '@/utils/Router';
 import TokenManager from '@/utils/TokenManager';
 import ToastHandler from '@/utils/ToastHandler';
-import { navigateTo, router } from '../utils/router';
 
 class Login extends PageComponent {
   constructor() {

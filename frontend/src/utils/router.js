@@ -11,7 +11,7 @@ import TokenManager from '@/utils/TokenManager';
 import ToastHandler from '@/utils/ToastHandler';
 
 class Router {
-  static #routes = {
+  static routes = {
     '/': Home,
     '/login': Login,
     '/profile': Profile,
@@ -24,18 +24,18 @@ class Router {
     '/404': Home, // TODO: NotFound 추가
   };
 
-  // static app = document.getElementById('app');
+  static app = document.getElementById('app');
 
-  // static background = document.getElementById('background');
+  static background = document.getElementById('background');
 
-  // static navBar = document.getElementById('navBar');
+  static navBar = document.getElementById('navBar');
 
-  // static gameCanvas = document.getElementById('gameCanvasContainer');
+  static gameCanvas = document.getElementById('gameCanvasContainer');
 
   static async navigateTo(url) {
     if (url === window.location.href) return;
-    this.pushState(url);
-    await this.render();
+    Router.pushState(url);
+    await Router.render();
   }
 
   static getPathname() {
@@ -58,176 +58,64 @@ class Router {
     sessionStorage.setItem('curPage', path);
   }
 
-  static #getPageToRender() {
-    return new this.#routes[this.getPathname()]();
+  static getPageToRender() {
+    return new Router.routes[Router.getPathname()]();
+  }
+
+  static hideElement(element) {
+    element.classList.add('d-none');
+  }
+
+  static showElement(element) {
+    element.classList.remove('d-none');
   }
 
   static async render() {
-    const currPathname = location.pathname;
+    const currPathname = Router.getPathname();
     const isLoggedIn = TokenManager.getLoginStatus();
+    console.log('isLoggedIn', isLoggedIn);
 
-    if (!(currPathname in this.#routes)) {
-      history.pushState(null, null, '/404');
+    if (!(currPathname in Router.routes)) {
+      Router.pushState('/404');
     } else if (currPathname === '/login' && isLoggedIn) {
       ToastHandler.setToast('You are already logged in!');
-      let beforePage = window.localStorage.getItem('curPage');
+      const beforePage = Router.getCurrentPage();
       if (beforePage === '/login') {
-        beforePage = '/';
+        Router.pushState('/');
+      } else {
+        Router.pushState(beforePage);
       }
-      history.pushState(null, null, beforePage);
     } else if (currPathname !== '/login' && !isLoggedIn) {
-      history.pushState(null, null, '/login');
+      Router.pushState('/login');
     } else {
-      window.localStorage.setItem('curPage', currPathname);
+      Router.setCurrentPage(currPathname);
     }
     // TODO: 게임방 페이지에서 뒤로가기 제한
     // else if (currPathname === '/game') {
     // history.pushState(null, null, location.href);
     //  window.addEventListener('popstate', () => history.go(1));}
 
-    const page = new this.#routes[location.pathname]();
-    const app = document.querySelector('#app');
-    const background = document.getElementById('background');
-    const navBar = document.getElementById('navBar');
-    const gameCanvas = document.getElementById('gameCanvasContainer');
-
-    if (location.pathname === '/game/play') {
-      background.classList.add('d-none');
-      app.classList.add('d-none');
-      navBar.classList.add('d-none');
-      gameCanvas.classList.remove('d-none');
+    const page = Router.getPageToRender();
+    console.log('path', Router.getPathname());
+    if (Router.getPathname() === '/game/play') {
+      Router.hideElement(Router.background);
+      Router.hideElement(Router.app);
+      Router.hideElement(Router.navBar);
+      Router.showElement(Router.gameCanvas);
     } else {
-      background.classList.remove('d-none');
-      app.classList.remove('d-none');
-      gameCanvas.classList.add('d-none');
-      if (location.pathname !== '/login') {
-        navBar.classList.remove('d-none');
+      Router.showElement(Router.background);
+      Router.showElement(Router.app);
+      Router.hideElement(Router.gameCanvas);
+      if (Router.getPathname() !== '/login') {
+        Router.showElement(Router.navBar);
       } else {
-        navBar.classList.add('d-none');
+        Router.hideElement(Router.navBar);
       }
     }
 
-    app.innerHTML = await page.render();
+    Router.app.innerHTML = await page.render();
     await page.afterRender();
-
-    // const currPathname = this.getPathname();
-    // const isLoggedIn = TokenManager.getLoginStatus();
-
-    // if (!(currPathname in this.#routes)) {
-    //   this.pushState('/404');
-    // } else if (currPathname === '/login' && isLoggedIn) {
-    //   ToastHandler.setToast('You are already logged in!');
-    //   let beforePage = this.getCurrentPage();
-    //   if (beforePage === '/login') {
-    //     beforePage = '/';
-    //   }
-    //   this.pushState(beforePage);
-    // } else if (currPathname !== '/login' && !isLoggedIn) {
-    //   this.pushState('/login');
-    // } else {
-    //   this.setCurrentPage(currPathname);
-    // }
-    // // TODO: 게임방 페이지에서 뒤로가기 제한
-    // // else if (currPathname === '/game') {
-    // // history.pushState(null, null, location.href);
-    // //  window.addEventListener('popstate', () => history.go(1));}
-
-    // const page = this.#getPageToRender();
-    // console.log(this.getPathname());
-
-    // const app = document.querySelector('#app');
-    // const background = document.getElementById('background');
-    // const navBar = document.getElementById('navBar');
-    // const gameCanvas = document.getElementById('gameCanvasContainer');
-
-    // if (this.getPathname() === '/game/play') {
-    //   background.classList.add('d-none');
-    //   app.classList.add('d-none');
-    //   navBar.classList.add('d-none');
-    //   gameCanvas.classList.remove('d-none');
-    // } else {
-    //   background.classList.remove('d-none');
-    //   app.classList.remove('d-none');
-    //   gameCanvas.classList.add('d-none');
-    //   if (this.getPathname() !== '/login') {
-    //     navBar.classList.remove('d-none');
-    //   } else {
-    //     navBar.classList.add('d-none');
-    //   }
-    // }
-
-    // app.innerHTML = await page.render();
-    // await page.afterRender();
   }
 }
 
 export default Router;
-
-export const navigateTo = async (url) => {
-  if (url === window.location.href) return;
-  history.pushState(null, null, url);
-  await router();
-};
-
-// 동적라우팅 추가 필요
-export const router = async () => {
-  const routes = {
-    '/': Home,
-    '/login': Login,
-    '/profile': Profile,
-    '/game': Game,
-    '/game/create': CreateRoom,
-    '/game/join': JoinRoom,
-    '/game/waiting': WaitingRoom,
-    '/game/play': PlayGame,
-    '/friends': Friends,
-    '/404': Home, // TODO: NotFound 추가
-  };
-
-  const currPathname = location.pathname;
-  const isLoggedIn = TokenManager.getLoginStatus();
-
-  if (!(currPathname in routes)) {
-    history.pushState(null, null, '/404');
-  } else if (currPathname === '/login' && isLoggedIn) {
-    ToastHandler.setToast('You are already logged in!');
-    let beforePage = window.localStorage.getItem('curPage');
-    if (beforePage === '/login') {
-      beforePage = '/';
-    }
-    history.pushState(null, null, beforePage);
-  } else if (currPathname !== '/login' && !isLoggedIn) {
-    history.pushState(null, null, '/login');
-  } else {
-    window.localStorage.setItem('curPage', currPathname);
-  }
-  // TODO: 게임방 페이지에서 뒤로가기 제한
-  // else if (currPathname === '/game') {
-  // history.pushState(null, null, location.href);
-  //  window.addEventListener('popstate', () => history.go(1));}
-
-  const page = new routes[location.pathname]();
-  const app = document.querySelector('#app');
-  const background = document.getElementById('background');
-  const navBar = document.getElementById('navBar');
-  const gameCanvas = document.getElementById('gameCanvasContainer');
-
-  if (location.pathname === '/game/play') {
-    background.classList.add('d-none');
-    app.classList.add('d-none');
-    navBar.classList.add('d-none');
-    gameCanvas.classList.remove('d-none');
-  } else {
-    background.classList.remove('d-none');
-    app.classList.remove('d-none');
-    gameCanvas.classList.add('d-none');
-    if (location.pathname !== '/login') {
-      navBar.classList.remove('d-none');
-    } else {
-      navBar.classList.add('d-none');
-    }
-  }
-
-  app.innerHTML = await page.render();
-  await page.afterRender();
-};

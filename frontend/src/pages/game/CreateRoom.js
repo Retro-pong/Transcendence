@@ -5,7 +5,6 @@ import Fetch from '@/utils/Fetch';
 import regex from '@/constants/Regex';
 import ToastHandler from '@/utils/ToastHandler';
 import Router from '@/utils/Router';
-// import { navigateTo } from '@/utils/router';
 
 class CreateRoom extends PageComponent {
   constructor() {

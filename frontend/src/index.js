@@ -1,12 +1,11 @@
 import drawBackground from '@/background/background.js';
-// import { navigateTo, router } from '@/utils/router';
 import TokenManager from '@/utils/TokenManager';
 import Fetch from '@/utils/Fetch';
 import Router from '@/utils/Router';
 
 Fetch.init();
 
-window.addEventListener('popstate', Router.render());
+window.addEventListener('popstate', Router.render);
 
 document.addEventListener('DOMContentLoaded', async () => {
   console.log('DOMContentLoaded');
@@ -18,7 +17,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     nav.addEventListener('click', async (e) => {
       e.preventDefault();
       await Router.navigateTo(nav.href);
-      // await navigateTo(nav.href);
     });
   });
 
@@ -26,7 +24,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   logoutBtn.addEventListener('click', async () => {
     await TokenManager.logout();
     await Router.navigateTo('/login');
-    // await navigateTo('/login');
   });
   await Router.render();
 });
