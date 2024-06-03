@@ -9,7 +9,7 @@ import FriendSearch from '@component/contents/FriendSearch';
 import Pagination from '@component/navigation/Pagination';
 import Fetch from '@/utils/Fetch';
 import debounce from '@/utils/debounce';
-import ErrorHandler from '@/utils/ErrorHandler';
+import ToastHandler from '@/utils/ToastHandler';
 import Regex from '@/constants/Regex';
 
 class Friends extends PageComponent {
@@ -26,7 +26,7 @@ class Friends extends PageComponent {
       return response.friends;
     } catch (err) {
       document.getElementById('pagination').classList.add('d-none');
-      ErrorHandler.setToast('Failed to get friends list');
+      ToastHandler.setToast('Failed to get friends list');
       return [];
     }
   }
@@ -71,11 +71,11 @@ class Friends extends PageComponent {
             await this.initPageData(this);
             this.onReloadButtonClick(this);
             this.onPaginationClick(this);
-            ErrorHandler.setToast('Friend accepted');
+            ToastHandler.setToast('Friend accepted');
             document.querySelector(`[data-wait-item="${friendName}"]`).remove();
           })
           .catch(() => {
-            ErrorHandler.setToast('Failed to accept friend');
+            ToastHandler.setToast('Failed to accept friend');
           });
       });
     });
@@ -90,11 +90,11 @@ class Friends extends PageComponent {
           request_patch: '0',
         })
           .then(() => {
-            ErrorHandler.setToast('Friend rejected');
+            ToastHandler.setToast('Friend rejected');
             document.querySelector(`[data-wait-item="${friendName}"]`).remove();
           })
           .catch(() => {
-            ErrorHandler.setToast('Failed to reject friend');
+            ToastHandler.setToast('Failed to reject friend');
           });
       });
     });
@@ -106,10 +106,10 @@ class Friends extends PageComponent {
         const friendName = e.target.dataset.nick;
         await Fetch.patch('/friends/add/', { friend_name: friendName })
           .then(() => {
-            ErrorHandler.setToast(`friend request ${friendName}`);
+            ToastHandler.setToast(`friend request ${friendName}`);
           })
           .catch((error) => {
-            ErrorHandler.setToast(
+            ToastHandler.setToast(
               error.status === 409
                 ? error.message
                 : `failed to friend request ${friendName}`
@@ -141,7 +141,7 @@ class Friends extends PageComponent {
           this.onFriendRejectBtnClick();
         })
         .catch(() => {
-          ErrorHandler.setToast('Failed to get waiting list');
+          ToastHandler.setToast('Failed to get waiting list');
         });
     });
   }
@@ -166,7 +166,7 @@ class Friends extends PageComponent {
       debounce(async (e) => {
         const username = e.target.value;
         if (Regex.nickname.test(username) === false) {
-          ErrorHandler.setToast('Invalid nickname');
+          ToastHandler.setToast('Invalid nickname');
           return;
         }
         await Fetch.get(`/friends/add/?search_name=${username.toLowerCase()}`)
@@ -183,7 +183,7 @@ class Friends extends PageComponent {
             friendSearchList.scrollIntoView({ behavior: 'smooth' });
           })
           .catch(() => {
-            ErrorHandler.setToast('search failed');
+            ToastHandler.setToast('search failed');
           });
       }, 1000)
     );
@@ -195,11 +195,11 @@ class Friends extends PageComponent {
         const friendName = e.target.dataset.nick;
         Fetch.patch(`/friends/friend_list/`, { friend_name: friendName })
           .then(() => {
-            ErrorHandler.setToast(`Friend ${friendName} deleted`);
+            ToastHandler.setToast(`Friend ${friendName} deleted`);
             this.initPageData(this);
           })
           .catch(() => {
-            ErrorHandler.setToast(`Failed to delete friend ${friendName}`);
+            ToastHandler.setToast(`Failed to delete friend ${friendName}`);
           });
       });
     });

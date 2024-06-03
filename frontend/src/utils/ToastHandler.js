@@ -1,6 +1,6 @@
 import { Toast } from 'bootstrap';
 
-class ErrorHandler {
+class ToastHandler {
   static #toast = Toast.getOrCreateInstance('#toast');
 
   static #toastMessage = document.getElementById('toast-message');
@@ -15,4 +15,4 @@ class ErrorHandler {
   }
 }
 
-export default ErrorHandler;
+export default ToastHandler;
