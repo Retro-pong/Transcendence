@@ -1,7 +1,7 @@
 import TokenManager from '@/utils/TokenManager';
 
 class Fetch {
-  static #BASE_URL = 'http://localhost/api/v1';
+  static #BASE_URL = import.meta.env.VITE_BASE_URL;
 
   static #headers = new Headers({ 'Content-Type': 'application/json' });
 
