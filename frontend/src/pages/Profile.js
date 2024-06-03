@@ -6,7 +6,7 @@ import EditProfileForm from '@component/form/EditProfileForm';
 import ProfileItem from '@component/contents/ProfileItem';
 import { Modal } from 'bootstrap';
 import Fetch from '@/utils/Fetch';
-import ErrorHandler from '@/utils/ErrorHandler';
+import ToastHandler from '@/utils/ToastHandler';
 import resizeImage from '@/utils/resizeImage';
 import Regex from '@/constants/Regex';
 
@@ -20,7 +20,7 @@ class Profile extends PageComponent {
   async getProfile() {
     return Fetch.get('/users/profile/').catch(() => {
       this.hasError = true;
-      ErrorHandler.setToast('Failed to get user info');
+      ToastHandler.setToast('Failed to get user info');
       return [];
     });
   }
@@ -115,16 +115,16 @@ class Profile extends PageComponent {
         nick === document.getElementById('profile-username').innerText &&
         comment === document.getElementById('profile-comment').value
       ) {
-        ErrorHandler.setToast('No changes made');
+        ToastHandler.setToast('No changes made');
         return;
       }
 
       if (Regex.nickname.test(nick) === false) {
-        ErrorHandler.setToast('Invalid nickname');
+        ToastHandler.setToast('Invalid nickname');
         return;
       }
       if (Regex.comment.test(comment) === false) {
-        ErrorHandler.setToast('Invalid comment');
+        ToastHandler.setToast('Invalid comment');
         return;
       }
 
@@ -133,11 +133,11 @@ class Profile extends PageComponent {
         comment,
       })
         .then(() => {
-          ErrorHandler.setToast('Profile Update Successful');
+          ToastHandler.setToast('Profile Update Successful');
           editProfileModal.hide();
           this.afterRender();
         })
-        .catch(() => ErrorHandler.setToast('Profile Update Failed'));
+        .catch(() => ToastHandler.setToast('Profile Update Failed'));
     });
   }
 
@@ -149,14 +149,14 @@ class Profile extends PageComponent {
         let resizeImg;
         // 파일 선택 안했을 때
         if (!file) {
-          ErrorHandler.setToast('No file selected');
+          ToastHandler.setToast('No file selected');
           return;
         }
         // 이미지 리사이징
         try {
           resizeImg = await resizeImage(file);
         } catch (error) {
-          ErrorHandler.setToast('Image Upload Failed');
+          ToastHandler.setToast('Image Upload Failed');
           return;
         }
         const formData = new FormData();
@@ -164,10 +164,10 @@ class Profile extends PageComponent {
 
         await Fetch.patch('/users/profile/upload/', formData, 'image')
           .then(() => {
-            ErrorHandler.setToast('Profile Image Update Successful');
+            ToastHandler.setToast('Profile Image Update Successful');
             this.afterRender();
           })
-          .catch(() => ErrorHandler.setToast('Profile Image Update Failed'));
+          .catch(() => ToastHandler.setToast('Profile Image Update Failed'));
       });
   }
 

@@ -4,7 +4,7 @@ import BasicButton from '@component/button/BasicButton';
 import ModalComponent from '@component/modal/ModalComponent';
 import GameRoomInfo from '@component/contents/GameRoomInfo';
 import Fetch from '@/utils/Fetch';
-import ErrorHandler from '@/utils/ErrorHandler';
+import ToastHandler from '@/utils/ToastHandler';
 
 class JoinRoom extends PageComponent {
   constructor() {
@@ -16,7 +16,7 @@ class JoinRoom extends PageComponent {
 
   async getRoomList() {
     return Fetch.get(`/rooms/join/${this.mode}/`).catch(() => {
-      ErrorHandler.setToast('Failed to get room list');
+      ToastHandler.setToast('Failed to get room list');
       return [];
     });
   }
