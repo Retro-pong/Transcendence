@@ -10,15 +10,8 @@ import PlayGame from '@pages/game/PlayGame';
 import TokenManager from '@/utils/TokenManager';
 import ToastHandler from '@/utils/ToastHandler';
 
-export const navigateTo = async (url) => {
-  if (url === window.location.href) return;
-  history.pushState(null, null, url);
-  await router();
-};
-
-// 동적라우팅 추가 필요
-export const router = async () => {
-  const routes = {
+class Router {
+  static #routes = {
     '/': Home,
     '/login': Login,
     '/profile': Profile,
@@ -31,50 +24,93 @@ export const router = async () => {
     '/404': Home, // TODO: NotFound 추가
   };
 
-  const currPathname = location.pathname;
-  const isLoggedIn = TokenManager.getLoginStatus();
+  static app = document.getElementById('app');
 
-  if (!(currPathname in routes)) {
-    history.pushState(null, null, '/404');
-  } else if (currPathname === '/login' && isLoggedIn) {
-    ToastHandler.setToast('You are already logged in!');
-    let beforePage = window.localStorage.getItem('curPage');
-    if (beforePage === '/login') {
-      beforePage = '/';
-    }
-    history.pushState(null, null, beforePage);
-  } else if (currPathname !== '/login' && !isLoggedIn) {
-    history.pushState(null, null, '/login');
-  } else {
-    window.localStorage.setItem('curPage', currPathname);
+  static background = document.getElementById('background');
+
+  static navBar = document.getElementById('navBar');
+
+  static gameCanvas = document.getElementById('gameCanvasContainer');
+
+  static async navigateTo(url) {
+    if (url === window.location.href) return;
+    history.pushState(null, null, url);
+    await this.render();
   }
-  // TODO: 게임방 페이지에서 뒤로가기 제한
-  // else if (currPathname === '/game') {
-  // history.pushState(null, null, location.href);
-  //  window.addEventListener('popstate', () => history.go(1));}
 
-  const page = new routes[location.pathname]();
-  const app = document.querySelector('#app');
-  const background = document.getElementById('background');
-  const navBar = document.getElementById('navBar');
-  const gameCanvas = document.getElementById('gameCanvasContainer');
+  static getPathname() {
+    return location.pathname;
+  }
 
-  if (location.pathname === '/game/play') {
-    background.classList.add('d-none');
-    app.classList.add('d-none');
-    navBar.classList.add('d-none');
-    gameCanvas.classList.remove('d-none');
-  } else {
-    background.classList.remove('d-none');
-    app.classList.remove('d-none');
-    gameCanvas.classList.add('d-none');
-    if (location.pathname !== '/login') {
-      navBar.classList.remove('d-none');
+  static pushState(url) {
+    history.pushState(null, null, url);
+  }
+
+  static replaceState(url) {
+    history.replaceState(null, null, url);
+  }
+
+  static getCurrentPage() {
+    return sessionStorage.getItem('curPage');
+  }
+
+  static setCurrentPage(path) {
+    sessionStorage.setItem('curPage', path);
+  }
+
+  static #getPageToRender() {
+    return new this.#routes[this.getPathname()]();
+  }
+
+  static async render() {
+    const currPathname = this.getPathname();
+    const isLoggedIn = TokenManager.getLoginStatus();
+
+    if (!(currPathname in this.#routes)) {
+      this.pushState('/404');
+    } else if (currPathname === '/login' && isLoggedIn) {
+      ToastHandler.setToast('You are already logged in!');
+      let beforePage = this.getCurrentPage();
+      if (beforePage === '/login') {
+        beforePage = '/';
+      }
+      this.pushState(beforePage);
+    } else if (currPathname !== '/login' && !isLoggedIn) {
+      this.pushState('/login');
     } else {
-      navBar.classList.add('d-none');
+      window.localStorage.setItem('curPage', currPathname);
     }
-  }
+    // TODO: 게임방 페이지에서 뒤로가기 제한
+    // else if (currPathname === '/game') {
+    // history.pushState(null, null, location.href);
+    //  window.addEventListener('popstate', () => history.go(1));}
 
-  app.innerHTML = await page.render();
-  await page.afterRender();
-};
+    const page = this.#getPageToRender();
+
+    // const app = document.querySelector('#app');
+    // const background = document.getElementById('background');
+    // const navBar = document.getElementById('navBar');
+    // const gameCanvas = document.getElementById('gameCanvasContainer');
+
+    if (this.getPathname() === '/game/play') {
+      this.background.classList.add('d-none');
+      this.app.classList.add('d-none');
+      this.navBar.classList.add('d-none');
+      this.gameCanvas.classList.remove('d-none');
+    } else {
+      this.background.classList.remove('d-none');
+      this.app.classList.remove('d-none');
+      this.gameCanvas.classList.add('d-none');
+      if (this.getPathname() !== '/login') {
+        this.navBar.classList.remove('d-none');
+      } else {
+        this.navBar.classList.add('d-none');
+      }
+    }
+
+    this.app.innerHTML = await page.render();
+    await page.afterRender();
+  }
+}
+
+export default Router;
