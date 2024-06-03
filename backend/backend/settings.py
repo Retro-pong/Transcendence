@@ -52,11 +52,11 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     "channels",
-    "login",
-    "users",
-    "friends",
-    "rooms",
-    "game",
+    "login.apps.LoginConfig",
+    "users.apps.UsersConfig",
+    "friends.apps.FriendsConfig",
+    "rooms.apps.RoomsConfig",
+    "game.apps.GameConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -66,10 +66,12 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",  # JWT
     "rest_framework_swagger",  # Swagger
-    "drf_yasg",  # Swagger generator
-    "dj_rest_auth",  # permission
     "rest_framework.authtoken",  # permission
+    "dj_rest_auth",  # permission
+    "drf_yasg",  # Swagger generator
 ]
+
+ASGI_APPLICATION = "backend.asgi.application"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
