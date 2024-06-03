@@ -1,27 +1,26 @@
 import Fetch from '@/utils/Fetch';
-import ErrorHandler from '@/utils/ErrorHandler';
-import { navigateTo } from '@/utils/router';
+import ToastHandler from '@/utils/ToastHandler';
+import Router from '@/utils/Router';
 
 class TokenManager {
   static #accessToken = null;
 
   static setAccessToken(accessToken) {
     this.#accessToken = accessToken;
-    // localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('login', true);
   }
 
   static getAccessToken() {
     return this.#accessToken;
-    // return localStorage.getItem('accessToken');
   }
 
   static deleteAccessToken() {
     this.#accessToken = null;
-    // localStorage.removeItem('accessToken');
+    localStorage.removeItem('login');
   }
 
   static getLoginStatus() {
-    return !!this.getAccessToken();
+    return !!localStorage.getItem('login');
   }
 
   static storeToken(accessToken) {
@@ -41,10 +40,10 @@ class TokenManager {
       })
       .catch((err) => {
         if (err.error !== 'No refresh token.') {
-          ErrorHandler.setToast('You need to login');
+          ToastHandler.setToast('You need to login');
         }
         this.clearToken();
-        navigateTo('/login');
+        Router.navigateTo('/login');
       });
   }
 

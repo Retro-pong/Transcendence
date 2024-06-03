@@ -1,5 +1,5 @@
 import { Tooltip } from 'bootstrap';
-import { navigateTo } from '@/utils/router';
+import Router from '@/utils/Router';
 
 class PageComponent {
   constructor() {
@@ -43,6 +43,10 @@ class PageComponent {
     );
   }
 
+  initEvent() {
+    // Event
+  }
+
   setPaginationStyle() {
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
@@ -73,7 +77,7 @@ class PageComponent {
       this.offset = this.getOffset();
       pageBody.innerHTML = await child.getPageData();
       this.setPaginationStyle();
-      this.initTooltip();
+      child.initEvent();
     });
 
     nextBtn.addEventListener('click', async () => {
@@ -82,7 +86,7 @@ class PageComponent {
       this.offset = this.getOffset();
       pageBody.innerHTML = await child.getPageData();
       this.setPaginationStyle();
-      this.initTooltip();
+      child.initEvent();
     });
   }
 
@@ -92,7 +96,7 @@ class PageComponent {
     this.offset = 0;
     pageBody.innerHTML = await child.getPageData();
     this.setPaginationStyle();
-    this.initTooltip();
+    child.initEvent();
   }
 
   onReloadButtonClick(child) {
@@ -108,7 +112,7 @@ class PageComponent {
     navigations.forEach((nav) => {
       nav.addEventListener('click', async (e) => {
         e.preventDefault();
-        await navigateTo(nav.href);
+        await Router.navigateTo(nav.href);
       });
     });
   }

@@ -18,8 +18,11 @@ const FriendInfoCard = ({
       };
   const commentMessage = comment || '...';
   return `
-  <div class="col d-flex justify-content-center align-self-center">
-    <div id="friend${id}" class="card text-bg-dark border-5 border-light justify-content-center rounded-5 p-3 my-1" style="width: 33rem; min-width: 33rem;">
+  <div id="friend${id}" class="col d-flex justify-content-center align-self-center">
+    <div class="card text-bg-dark border-5 border-light justify-content-center rounded-5 p-3 pt-0 my-1 position-relative" style="width: 33rem; min-width: 33rem;">
+      <div class="row g-0 align-self-end">
+        <button class="btn-close fs-4 pt-1" data-nick="${name}" data-id="friend${id}">x</button>
+      </div>
       <div class="row g-0">
         <div class="col-md-8 align-self-center">
           <div class="card-body fs-4 text-break">
@@ -39,7 +42,7 @@ const FriendInfoCard = ({
         </div>
         <div class="col-md-4 align-content-center">
           <div class="ratio ratio-1x1">
-            <img src=${profileImg} class="rounded-3" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-comment" data-bs-title="${commentMessage}" alt="profile" style="object-fit: cover;" />
+            <img src=${profileImg} onerror="this.src='/img/profile_fallback.jpg';" class="rounded-3" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-comment" data-bs-title="${commentMessage}" alt="profile" style="object-fit: cover;" />
           </div>
         </div>
       </div>

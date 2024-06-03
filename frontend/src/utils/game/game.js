@@ -1,81 +1,41 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import createMap from './createMap';
 import createGameObject from '@/utils/game/createGameObject';
 import eventHandler from '@/utils/game/eventHandler';
+import hitChangeColor from '@/utils/game/hitChangeColor';
+import checkPaddleHit from '@/utils/game/checkPaddleHit';
+import cameraSetting from '@/utils/game/cameraSetting';
+import rendering from '@/utils/game/rendering';
+import sceneSetting from '@/utils/game/sceneSetting';
 
-function game() {
+function game(settings) {
   const canvas = document.getElementById('gameCanvas');
   const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
-
-  const fov = 45;
-  const aspect = 2; // the canvas default
-  const near = 0.1;
-  const far = 1000;
-  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-  camera.position.set(-40, 0, 0);
-
-  const controls = new OrbitControls(camera, canvas);
-  controls.update();
+  const camera = cameraSetting(settings.mode, settings.side);
 
   const scene = new THREE.Scene();
 
   // 배경 이미지
-  // const loader = new THREE.TextureLoader();
-  // loader.load('/img/map_pixel_rain.jpg', function (texture) {
-  //   scene.background = texture;
-  // });
-  scene.background = new THREE.Color(0x000000);
+  const mapList = {
+    horizon: '/img/map_futuristic_horizon.jpg',
+    mountain: '/img/map_mountain.jpg',
+    pixel: '/img/map_pixel_rain.jpg',
+  };
 
-  {
-    const skyColor = 0xb1e1ff; // light blue
-    const groundColor = 0xb97a20; // brownish orange
-    const intensity = 2;
-    const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
-    scene.add(light);
-  }
+  const loader = new THREE.TextureLoader();
+  loader.load(mapList[settings.map], function (texture) {
+    scene.background = texture;
+  });
 
-  {
-    const color = 0xffffff;
-    const intensity = 2.5;
-    const light = new THREE.DirectionalLight(color, intensity);
-    light.position.set(5, 10, 2);
-    scene.add(light);
-    scene.add(light.target);
-  }
-
-  createMap(scene, controls);
-  createGameObject(scene);
-  eventHandler(canvas, scene, camera, renderer, controls);
+  sceneSetting(scene);
+  createMap(scene);
+  createGameObject(scene, settings.ball);
+  eventHandler(canvas, scene, camera, settings.mode, settings.side);
 
   const ball = scene.getObjectByName('ball');
-  const redPaddle = scene.getObjectByName('redPaddle');
-  const bluePaddle = scene.getObjectByName('bluePaddle');
-
-  function checkPaddleHit(type) {
-    let py;
-    let pz;
-    if (type === 'red') {
-      py = redPaddle.position.y;
-      pz = redPaddle.position.z;
-    } else {
-      py = bluePaddle.position.y;
-      pz = bluePaddle.position.z;
-    }
-    const by = ball.position.y;
-    const bz = ball.position.z;
-    // 범위 안에 들어왔는지 체크
-    if (
-      ((by - 1 > py - 1.5 && by - 1 < py + 1.5) ||
-        (by + 1 > py - 1.5 && by + 1 < py + 1.5)) &&
-      ((bz - 1 > pz - 1.5 && bz - 1 < pz + 1.5) ||
-        (bz + 1 > pz - 1.5 && bz + 1 < pz + 1.5))
-    ) {
-      console.log('hit!');
-      return 1;
-    }
-    return 0;
-  }
+  const ballPlane = scene.getObjectByName('ballPlane');
+  const redPlayerScore = document.getElementById('player1Score');
+  const bluePlayerScore = document.getElementById('player2Score');
 
   function resizeRendererToDisplaySize(renderer) {
     const canvas = renderer.domElement;
@@ -89,63 +49,110 @@ function game() {
     return needResize;
   }
 
-  let a = 0.1;
-  let b = 0.1;
-  let c = 0.1;
-  let v = 1.2;
-  let start = 1;
+  let a;
+  let b;
+  let c;
+  const v = 1.2 + settings.speed * 0.3;
+  let start = 'blue';
+  let hitStatus;
+
+  function startGameSetting() {
+    a = start === 'blue' ? 0.2 : -0.2;
+    b = 0.1;
+    c = 0.1;
+    hitStatus = {
+      redPaddleHit: 10,
+      bluePaddleHit: 10,
+      topWallHit: 10,
+      bottomWallHit: 10,
+      rightWallHit: 10,
+      leftWallHit: 10,
+    };
+    ball.position.set(
+      start === 'blue' ? -18 : 18,
+      Math.random() * 8 - 4,
+      Math.random() * 12 - 6
+    );
+    start = 'off';
+  }
 
   function render() {
     if (resizeRendererToDisplaySize(renderer)) {
       const canvas = renderer.domElement;
-      camera.aspect = canvas.clientWidth / canvas.clientHeight;
-      camera.updateProjectionMatrix();
+      let aspect;
+      if (settings.mode === 'local' && camera.red && camera.blue) {
+        aspect = canvas.clientWidth / 2 / canvas.clientHeight;
+        camera.blue.aspect = aspect;
+        camera.blue.updateProjectionMatrix();
+        camera.red.aspect = aspect;
+        camera.red.updateProjectionMatrix();
+      }
+      if (settings.mode === 'multi' && camera.multi) {
+        aspect = canvas.clientWidth / canvas.clientHeight;
+        camera.multi.aspect = aspect;
+        camera.multi.updateProjectionMatrix();
+      }
     }
+
     if (ball) {
-      if (start === 1) {
-        ball.position.set(0, Math.random() * 8 - 4, Math.random() * 12 - 6);
-        start = 0;
+      if (start !== 'off') {
+        startGameSetting();
       } else {
         ball.position.x += a * v;
         ball.position.y += b * v;
         ball.position.z += c * v;
-        scene.getObjectByName('ballPlane').position.x = ball.position.x;
+        ball.rotation.set(
+          ball.rotation.x + 0.1,
+          ball.rotation.y + 0.1,
+          ball.rotation.z + 0.1
+        );
+        ballPlane.position.x = ball.position.x;
         // 패들에 부딪히면 방향 바꾸기
-        if (ball.position.x > 23.5 && ball.position.x < 24.5) {
-          if (!checkPaddleHit('red')) {
-            start = 1;
+        if (ball.position.x > 19.5 && ball.position.x < 20.5) {
+          if (!checkPaddleHit('red', scene)) {
+            bluePlayerScore.innerText = (
+              parseInt(bluePlayerScore.innerText, 10) + 1
+            ).toString();
+            start = 'blue';
           } else {
             a *= -1;
+            hitStatus.redPaddleHit = 1;
           }
         }
-        if (ball.position.x < -23.5 && ball.position.x > -24.5) {
-          if (!checkPaddleHit('blue')) {
-            start = 1;
+        if (ball.position.x < -19.5 && ball.position.x > -20.5) {
+          if (!checkPaddleHit('blue', scene)) {
+            redPlayerScore.innerText = (
+              parseInt(redPlayerScore.innerText, 10) + 1
+            ).toString();
+            start = 'red';
           } else {
             a *= -1;
+            hitStatus.bluePaddleHit = 1;
           }
         }
-
         // 벽에 부딪히면 방향 바꾸기
         if (ball.position.z < -7 && ball.position.z > -8) {
           c *= -1;
+          hitStatus.leftWallHit = 1;
         }
         if (ball.position.z > 7 && ball.position.z < 8) {
           c *= -1;
+          hitStatus.rightWallHit = 1;
         }
         if (ball.position.y > 4.5 && ball.position.y < 5.5) {
           b *= -1;
+          hitStatus.topWallHit = 1;
         }
         if (ball.position.y < -4.5 && ball.position.y > -5.5) {
           b *= -1;
+          hitStatus.bottomWallHit = 1;
         }
+        hitStatus = hitChangeColor(hitStatus, scene, settings.speed);
       }
     }
-
-    renderer.render(scene, camera);
+    rendering(renderer, scene, camera, settings.mode);
     requestAnimationFrame(render);
   }
-
   requestAnimationFrame(render);
 }
 
