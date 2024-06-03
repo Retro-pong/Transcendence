@@ -80,6 +80,7 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
                         "type": "close_group",
                     },
                 )
+                break
 
     # TODO: 소켓 끊기면 게임 터트릴 건지 논의 필요
     async def disconnect(self) -> None:
