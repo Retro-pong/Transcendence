@@ -7,7 +7,7 @@ import LoginForm from '@component/form/LoginForm';
 import { Modal } from 'bootstrap';
 import Regex from '@/constants/Regex';
 import Fetch from '@/utils/Fetch';
-import { navigateTo } from '@/utils/router';
+import Router from '@/utils/Router';
 import TokenManager from '@/utils/TokenManager';
 import ToastHandler from '@/utils/ToastHandler';
 
@@ -87,7 +87,7 @@ class Login extends PageComponent {
       .then((data) => {
         TokenManager.storeToken(data.access_token);
         loginModal.hide();
-        navigateTo('/');
+        Router.navigateTo('/');
       })
       .catch((err) => {
         ToastHandler.setToast(err.error || 'Verification Failed');
@@ -198,12 +198,12 @@ class Login extends PageComponent {
     await Fetch.get(`/login/intra/callback/?code=${this.code}`)
       .then((data) => {
         TokenManager.storeToken(data.access_token);
-        navigateTo('/');
+        Router.navigateTo('/');
       })
       .catch(() => {
         ToastHandler.setToast('42 Login Failed');
         TokenManager.clearToken();
-        navigateTo('/login');
+        Router.navigateTo('/login');
       });
   }
 
