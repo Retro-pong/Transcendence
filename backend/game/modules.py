@@ -71,6 +71,8 @@ class Ball:
         return 0
 
     def check_hit_paddle(self, paddle, type) -> int:
+        if not type:
+            return 0
         hit_bottom_y = paddle.y + 1.5 > self.y - 1 > paddle.y - 1.5
         hit_top_y = paddle.y + 1.5 > self.y + 1 > paddle.y - 1.5
         hit_bottom_z = paddle.z + 1.5 > self.z - 1 > paddle.z - 1.5
@@ -81,8 +83,11 @@ class Ball:
                     self.hit = RED
                 if type == BLUE:
                     self.hit = BLUE
-                return 1
-        return 0
+                self.dir[X] *= -1
+                return 0
+        if type == RED:
+            return BLUE
+        return RED
 
 
 class Player:
@@ -98,32 +103,55 @@ class Player:
         self.y = y
         self.z = z
 
-    def add_score(self) -> int:
-        self.score += 1
-        if self.score == 10:
-            return 1
-        return 0
-
 
 class Game:
     def __init__(self):
         self.p1 = None
         self.p2 = None
-        self.speed = 0
+        self.speed = 1
         self.ball = Ball(speed=0)
         self.winner = None
         self.start_time = None
 
-    def set_ready(self, color) -> int:
-        if color == "red" and self.p1.status == "none":
-            self.p1.status = "ready"
-        elif color == "blue" and self.p2.status == "none":
-            self.p2.status = "ready"
+        self.players = {
+            "red": self.p1,
+            "blue": self.p2,
+        }
+
+    def set_ready(self, player) -> int:
+        if player.status == "none":
+            player.status = "ready"
         if self.p1.status == "ready" and self.p2.status == "ready":
             return 1
         return 0
 
-    def start_data(self, color, game) -> dict:
+    def add_score(self, type):
+        if type == 0:
+            return 0
+        if type == RED:
+            self.p1.score += 1
+        elif type == BLUE:
+            self.p2.score += 1
+        if self.p1.score >= 10 or self.p2.score >= 10:
+            return type
+        return 0
+
+    def game_render(self, player):
+        self.ball.move()  # 공을 1프레임 움직임
+        self.ball.hit_wall()  # 벽에 닿았는 지 확인
+        check_score = self.ball.check_hit_paddle(
+            paddle=player, type=self.ball.hit_paddle()
+        )  # 공이 패들에 안 맞으면 점수 추가
+        winner = self.add_score(check_score)
+        if not winner:  # 10점이하 일 경우 재시작
+            self.ball.restart(self.speed)
+        # 승자 설정
+        if winner == RED:
+            self.winner = self.p1.nick
+        elif winner == BLUE:
+            self.winner = self.p2.nick
+
+    def start_data(self, color, game):
         return {
             "type": "start",
             "color": color,
