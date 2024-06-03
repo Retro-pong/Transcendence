@@ -4,7 +4,8 @@ import createRoomForm from '@component/form/CreateRoomForm';
 import Fetch from '@/utils/Fetch';
 import regex from '@/constants/Regex';
 import ToastHandler from '@/utils/ToastHandler';
-import { navigateTo } from '@/utils/router';
+import Router from '@/utils/Router';
+// import { navigateTo } from '@/utils/router';
 
 class CreateRoom extends PageComponent {
   constructor() {
@@ -67,7 +68,7 @@ class CreateRoom extends PageComponent {
       .then(() => {
         document.getElementById('createRoomForm').reset();
         ToastHandler.setToast('Room created successfully');
-        navigateTo(`/game/waiting?title=${gameTitle}`);
+        Router.navigateTo(`/game/waiting?title=${gameTitle}`);
       })
       .catch((err) => {
         if (err.error === 'UNIQUE constraint failed: room.room_name') {

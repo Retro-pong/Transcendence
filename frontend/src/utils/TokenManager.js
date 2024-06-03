@@ -1,6 +1,7 @@
 import Fetch from '@/utils/Fetch';
 import ToastHandler from '@/utils/ToastHandler';
-import { navigateTo } from '@/utils/router';
+// import { navigateTo } from '@/utils/router';
+import Router from '@/utils/Router';
 
 class TokenManager {
   static #accessToken = null;
@@ -44,7 +45,8 @@ class TokenManager {
           ToastHandler.setToast('You need to login');
         }
         this.clearToken();
-        navigateTo('/login');
+        Router.navigateTo('/login');
+        // navigateTo('/login');
       });
   }
 

@@ -7,9 +7,10 @@ import LoginForm from '@component/form/LoginForm';
 import { Modal } from 'bootstrap';
 import Regex from '@/constants/Regex';
 import Fetch from '@/utils/Fetch';
-import { navigateTo } from '@/utils/router';
+import Router from '@/utils/Router';
 import TokenManager from '@/utils/TokenManager';
 import ToastHandler from '@/utils/ToastHandler';
+import { navigateTo, router } from '../utils/router';
 
 class Login extends PageComponent {
   constructor() {
@@ -87,7 +88,7 @@ class Login extends PageComponent {
       .then((data) => {
         TokenManager.storeToken(data.access_token);
         loginModal.hide();
-        navigateTo('/');
+        Router.navigateTo('/');
       })
       .catch((err) => {
         ToastHandler.setToast(err.error || 'Verification Failed');
@@ -198,18 +199,19 @@ class Login extends PageComponent {
     await Fetch.get(`/login/intra/callback/?code=${this.code}`)
       .then((data) => {
         TokenManager.storeToken(data.access_token);
-        navigateTo('/');
+        Router.navigateTo('/');
       })
       .catch(() => {
         ToastHandler.setToast('42 Login Failed');
         TokenManager.clearToken();
-        navigateTo('/login');
+        Router.navigateTo('/login');
       });
   }
 
   async afterRender() {
     // 42 로그인
     if (this.code) {
+      console.log('42 login code:', this.code);
       await this.handle42Login();
       return;
     }

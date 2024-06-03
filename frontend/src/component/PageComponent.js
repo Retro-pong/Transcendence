@@ -1,5 +1,6 @@
 import { Tooltip } from 'bootstrap';
-import { navigateTo } from '@/utils/router';
+// import { navigateTo } from '@/utils/router';
+import Router from '@/utils/Router';
 
 class PageComponent {
   constructor() {
@@ -112,7 +113,8 @@ class PageComponent {
     navigations.forEach((nav) => {
       nav.addEventListener('click', async (e) => {
         e.preventDefault();
-        await navigateTo(nav.href);
+        await Router.navigateTo(nav.href);
+        // await navigateTo(nav.href);
       });
     });
   }
