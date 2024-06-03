@@ -59,21 +59,27 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
     @database_sync_to_async
     async def receive_json(self, content) -> None:
         match = games[self.game_id]
+        player = match.players[self.color]
         if content["type"] == "ready":
-            if match.set_ready(self.color):
-                self.loop = asyncio.create_task(self.game_loop(match))
+            if match.set_ready(player):
+                self.loop = asyncio.create_task(self.game_loop(match, player))
         elif content["type"] == "move":
-            if self.color == "red":
-                match.p1.set_pos(content["y"], content["z"])
-            elif self.color == "blue":
-                match.p2.set_pos(content["y"], content["z"])
-        # elif content['type'] == 'end':
+            player.set_pos(content["y"], content["z"])
 
     #
-    async def game_loop(self, match) -> None:
-        while match.winner is None:
+    async def game_loop(self, match, player) -> None:
+        while True:
             await asyncio.sleep(0.03)
-            self.channel_layer.group_send(self.game_id, match.game_data())
+            match.game_render(player)
+            await self.channel_layer.group_send(self.game_id, match.game_data())
+            if match.winner:
+                await self.channel_layer.group_send(self.game_id, match.result_data())
+                await self.channel_layer.group_send(
+                    self.channel_name,
+                    {
+                        "type": "close_group",
+                    },
+                )
 
     # TODO: 소켓 끊기면 게임 터트릴 건지 논의 필요
     async def disconnect(self) -> None:
