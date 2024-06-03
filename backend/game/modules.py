@@ -18,12 +18,16 @@ class Ball:
         self.x = 0
         self.y = random.random() * 8 - 4
         self.z = random.random() * 12 - 6
-        self.dir = [random.choice([1, -1]) * 0.1, random.choice([1, -1]) * 0.1, random.choice([1, -1]) * 0.1]
+        self.dir = [
+            random.choice([1, -1]) * 0.1,
+            random.choice([1, -1]) * 0.1,
+            random.choice([1, -1]) * 0.1,
+        ]
         self.speed = [1.2 * speed, 1.2 * speed, 1.2 * speed]
         self.hit = NONE
         self.hit_status = 0
 
-    def move(self):
+    def move(self) -> None:
         self.x += self.dir[X] * self.speed[X]
         self.y += self.dir[Y] * self.speed[Y]
         self.z += self.dir[Z] * self.speed[Z]
@@ -33,15 +37,19 @@ class Ball:
             self.hit_status = 0
             self.hit = NONE
 
-    def restart(self, speed):
+    def restart(self, speed) -> None:
         self.x = 0
         self.y = random.random() * 8 - 4
         self.z = random.random() * 12 - 6
-        self.dir = [random.choice([1, -1]) * 0.1, random.choice([1, -1]) * 0.1, random.choice([1, -1]) * 0.1]
+        self.dir = [
+            random.choice([1, -1]) * 0.1,
+            random.choice([1, -1]) * 0.1,
+            random.choice([1, -1]) * 0.1,
+        ]
         self.speed = [1.2 * speed, 1.2 * speed, 1.2 * speed]
         self.hit = NONE
 
-    def hit_wall(self):
+    def hit_wall(self) -> None:
         if -8 < self.z < -7:
             self.hit = LEFT
             self.dir[Z] *= -1
@@ -55,14 +63,14 @@ class Ball:
             self.hit = BOT
             self.dir[Y] *= -1
 
-    def hit_paddle(self):
+    def hit_paddle(self) -> int:
         if 23.5 < self.x < 24.5:
             return RED
         if -23.5 < self.x < -24.5:
             return BLUE
         return 0
 
-    def check_hit_paddle(self, paddle, type):
+    def check_hit_paddle(self, paddle, type) -> int:
         hit_bottom_y = paddle.y + 1.5 > self.y - 1 > paddle.y - 1.5
         hit_top_y = paddle.y + 1.5 > self.y + 1 > paddle.y - 1.5
         hit_bottom_z = paddle.z + 1.5 > self.z - 1 > paddle.z - 1.5
@@ -81,16 +89,16 @@ class Player:
     def __init__(self, type, nick):
         self.y = 0
         self.z = 0
-        self.type = type #red, blue
+        self.type = type  # red, blue
         self.nick = nick
         self.status = "none"
         self.score = 0
 
-    def set_pos(self, y, z):
+    def set_pos(self, y, z) -> None:
         self.y = y
         self.z = z
 
-    def add_score(self):
+    def add_score(self) -> int:
         self.score += 1
         if self.score == 10:
             return 1
@@ -106,7 +114,7 @@ class Game:
         self.winner = None
         self.start_time = None
 
-    def set_ready(self, color):
+    def set_ready(self, color) -> int:
         if color == "red" and self.p1.status == "none":
             self.p1.status = "ready"
         elif color == "blue" and self.p2.status == "none":
@@ -115,48 +123,50 @@ class Game:
             return 1
         return 0
 
-    def start_data(self, color, game):
+    def start_data(self, color, game) -> dict:
         return {
-            'type': "start",
-            'color': color,
-            'map': game.game_map,
-            'ball_color': game.ball_color,
-            'ball': {
-                'x': self.ball.x,
-                'y': self.ball.y,
-                'z': self.ball.z,
+            "type": "start",
+            "color": color,
+            "map": game.game_map,
+            "ball_color": game.ball_color,
+            "ball": {
+                "x": self.ball.x,
+                "y": self.ball.y,
+                "z": self.ball.z,
             },
-            'redY': 0,
-            'redZ': 0,
-            'blueY': 0,
-            'blueZ': 0,
+            "redY": 0,
+            "redZ": 0,
+            "blueY": 0,
+            "blueZ": 0,
         }
 
-    def game_data(self):
+    def game_data(self) -> dict:
         return {
-            'type': "move",
-            'redY': self.p1.y,
-            'redZ': self.p1.z,
-            'redScore': self.p1.score,
-            'blueY': self.p2.y,
-            'blueZ': self.p2.z,
-            'blueScore': self.p2.score,
-            'ballX': self.ball.x,
-            'ballY': self.ball.y,
-            'ballZ': self.ball.z,
-            'ballHit': self.ball.hit,
+            "type": "move",
+            "redY": self.p1.y,
+            "redZ": self.p1.z,
+            "redScore": self.p1.score,
+            "blueY": self.p2.y,
+            "blueZ": self.p2.z,
+            "blueScore": self.p2.score,
+            "ballX": self.ball.x,
+            "ballY": self.ball.y,
+            "ballZ": self.ball.z,
+            "ballHit": self.ball.hit,
         }
 
-    def result_data(self):
-        GameResult.objects.create(winner=self.winner,
-                                  player1=self.p1,
-                                  player2=self.p2,
-                                  player_score=self.p1.score,
-                                  player2_score=self.p2.score,
-                                  start_time=self.start_time)
+    def result_data(self) -> dict:
+        GameResult.objects.create(
+            winner=self.winner,
+            player1=self.p1,
+            player2=self.p2,
+            player_score=self.p1.score,
+            player2_score=self.p2.score,
+            start_time=self.start_time,
+        )
         return {
-            'type': 'result',
-            'winner': self.winner,
-            'redScore': self.p1.score,
-            'blueScore': self.p2.score,
+            "type": "result",
+            "winner": self.winner,
+            "redScore": self.p1.score,
+            "blueScore": self.p2.score,
         }
