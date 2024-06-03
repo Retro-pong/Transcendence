@@ -1,6 +1,7 @@
 const PlayerCard = ({ id, name, profileImg, win, lose }) => {
   return `
-    <div class="justify-content-center px-3 game-player-card-border" style="width: 85%; min-width: 400px;">
+  <div class="col d-flex align-items-center justify-content-center mb-2" >
+    <div class="justify-content-center px-3 game-player-card-border w-95" style="min-width: 400px;">
       <div class="row">
         <div class="col-md-8 align-self-center text-start fs-7">
           <div class="text-break">
@@ -22,6 +23,7 @@ const PlayerCard = ({ id, name, profileImg, win, lose }) => {
         </div>
       </div>
     </div>
+  </div>
   `;
 };
 

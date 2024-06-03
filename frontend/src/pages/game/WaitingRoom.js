@@ -8,12 +8,15 @@ class WaitingRoom extends PageComponent {
   constructor() {
     super();
     this.setTitle('Waiting Room');
+    // 게임방 id로 연결
+    // this.webSocket = new WebSocket('url');
   }
 
   async render() {
     const params = new URLSearchParams(document.location.search);
     const TITLE = params.get('title') || 'Game Room';
     // TODO: 소켓으로 게임 방 정보 받아오기, 참가자가 아니면 홈으로 리다이렉트
+
     const dummyPlayers = [
       {
         id: 1,
@@ -49,13 +52,7 @@ class WaitingRoom extends PageComponent {
       },
     ];
     const PlayerCards = dummyPlayers
-      .map((player) => {
-        return `
-          <div class="col d-flex align-items-center justify-content-center mb-2" >
-            ${PlayerCard(player)}
-          </div> 
-        `;
-      })
+      .map((player) => PlayerCard(player))
       .join('');
     const ManualButton = OpenModalButton({
       text: '> Manual',
@@ -78,7 +75,7 @@ class WaitingRoom extends PageComponent {
           ${ManualButton} 
           <div class="d-flex justify-content-center align-items-center overflow-auto">
             <div class="container h-100 px-5 text-center">
-              <div class="row row-cols-1 row-cols-md-2 g-1">
+              <div id="player-container" class="row row-cols-1 row-cols-md-2 g-1">
                 ${PlayerCards}
               </div>
             </div>
@@ -86,6 +83,31 @@ class WaitingRoom extends PageComponent {
         </div>
       </div>
       `;
+  }
+
+  addPlayers(players) {
+    const playerContainer = document.getElementById('player-container');
+    playerContainer.innerHTML += players
+      .map((player) => PlayerCard(player))
+      .join('');
+  }
+
+  async afterRender() {
+    // this.webSocket.onopen = () => {
+    //   console.log('WebSocket Client Connected');
+    // };
+    // player 정보 받아와서 플레이어 컨테이너에 추가
+    // this.webSocket.onmessage((message) => {
+    //   console.log(message);
+    //   const players = JSON.parse(message.data);
+    //   this.addPlayers(players);
+    // });
+    // this.webSocket.onclose = () => {
+    //   console.log('WebSocket Closed');
+    // };
+    // this.webSocket.onerror = (error) => {
+    //   console.log('Connection Error: ', error);
+    // };
   }
 }
 
