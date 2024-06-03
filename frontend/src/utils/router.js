@@ -73,7 +73,6 @@ class Router {
   static async render() {
     const currPathname = Router.getPathname();
     const isLoggedIn = TokenManager.getLoginStatus();
-    console.log('isLoggedIn', isLoggedIn);
 
     if (!(currPathname in Router.routes)) {
       Router.pushState('/404');
@@ -96,7 +95,6 @@ class Router {
     //  window.addEventListener('popstate', () => history.go(1));}
 
     const page = Router.getPageToRender();
-    console.log('path', Router.getPathname());
     if (Router.getPathname() === '/game/play') {
       Router.hideElement(Router.background);
       Router.hideElement(Router.app);

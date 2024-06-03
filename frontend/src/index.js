@@ -8,8 +8,7 @@ Fetch.init();
 window.addEventListener('popstate', Router.render);
 
 document.addEventListener('DOMContentLoaded', async () => {
-  console.log('DOMContentLoaded');
-  if (!TokenManager.getAccessToken() && location.pathname !== '/login') {
+  if (!TokenManager.getAccessToken() && TokenManager.getLoginStatus()) {
     await TokenManager.reissueAccessToken();
   }
   const navigations = document.getElementsByTagName('a');

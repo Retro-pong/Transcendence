@@ -210,7 +210,6 @@ class Login extends PageComponent {
   async afterRender() {
     // 42 로그인
     if (this.code) {
-      console.log('42 login code:', this.code);
       await this.handle42Login();
       return;
     }
