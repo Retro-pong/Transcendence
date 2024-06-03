@@ -1,5 +1,5 @@
 import Fetch from '@/utils/Fetch';
-import ErrorHandler from '@/utils/ErrorHandler';
+import ToastHandler from '@/utils/ToastHandler';
 import { navigateTo } from '@/utils/router';
 
 class TokenManager {
@@ -41,7 +41,7 @@ class TokenManager {
       })
       .catch((err) => {
         if (err.error !== 'No refresh token.') {
-          ErrorHandler.setToast('You need to login');
+          ToastHandler.setToast('You need to login');
         }
         this.clearToken();
         navigateTo('/login');
