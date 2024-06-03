@@ -3,7 +3,7 @@ import BasicButton from '@component/button/BasicButton';
 import createRoomForm from '@component/form/CreateRoomForm';
 import Fetch from '@/utils/Fetch';
 import regex from '@/constants/Regex';
-import ErrorHandler from '@/utils/ErrorHandler';
+import ToastHandler from '@/utils/ToastHandler';
 import { navigateTo } from '@/utils/router';
 
 class CreateRoom extends PageComponent {
@@ -66,19 +66,19 @@ class CreateRoom extends PageComponent {
     })
       .then(() => {
         document.getElementById('createRoomForm').reset();
-        ErrorHandler.setToast('Room created successfully');
+        ToastHandler.setToast('Room created successfully');
         navigateTo(`/game/waiting?title=${gameTitle}`);
       })
       .catch((err) => {
         if (err.error === 'UNIQUE constraint failed: room.room_name') {
-          ErrorHandler.setToast('Room name already exists');
+          ToastHandler.setToast('Room name already exists');
           this.titleState = false;
           this.progressBar();
           const gameTitle = document.getElementById('gameTitle');
           gameTitle.focus();
           gameTitle.select();
         } else {
-          ErrorHandler.setToast('Failed to create room');
+          ToastHandler.setToast('Failed to create room');
         }
         console.error(err);
       });

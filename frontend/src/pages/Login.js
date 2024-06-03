@@ -9,7 +9,7 @@ import Regex from '@/constants/Regex';
 import Fetch from '@/utils/Fetch';
 import { navigateTo } from '@/utils/router';
 import TokenManager from '@/utils/TokenManager';
-import ErrorHandler from '@/utils/ErrorHandler';
+import ToastHandler from '@/utils/ToastHandler';
 
 class Login extends PageComponent {
   constructor() {
@@ -54,11 +54,11 @@ class Login extends PageComponent {
     const password = document.getElementById('password-login').value;
 
     if (!email || !password) {
-      ErrorHandler.setToast('Please enter your email and password');
+      ToastHandler.setToast('Please enter your email and password');
       return;
     }
     if (Regex.email.test(email) === false) {
-      ErrorHandler.setToast('Invalid Email Address');
+      ToastHandler.setToast('Invalid Email Address');
       return;
     }
     await Fetch.post('/login/email/login/', { email, password })
@@ -66,7 +66,7 @@ class Login extends PageComponent {
         loginModal.show();
       })
       .catch((err) => {
-        ErrorHandler.setToast(err.error || 'Login Failed');
+        ToastHandler.setToast(err.error || 'Login Failed');
       });
   }
 
@@ -75,11 +75,11 @@ class Login extends PageComponent {
     const passcode = document.getElementById('passcode').value;
 
     if (!passcode) {
-      ErrorHandler.setToast('Please enter your passcode');
+      ToastHandler.setToast('Please enter your passcode');
       return;
     }
     if (Regex.passcode.test(passcode) === false) {
-      ErrorHandler.setToast('Invalid Passcode');
+      ToastHandler.setToast('Invalid Passcode');
       return;
     }
 
@@ -90,7 +90,7 @@ class Login extends PageComponent {
         navigateTo('/');
       })
       .catch((err) => {
-        ErrorHandler.setToast(err.error || 'Verification Failed');
+        ToastHandler.setToast(err.error || 'Verification Failed');
       });
   }
 
@@ -119,33 +119,33 @@ class Login extends PageComponent {
         const password = form.password.value;
         const passwordRe = form.passwordRe.value;
         if (!email || !username || !password || !passwordRe) {
-          ErrorHandler.setToast('Please fill in all fields');
+          ToastHandler.setToast('Please fill in all fields');
           return;
         }
         if (Regex.email.test(email) === false || email.length > 200) {
-          ErrorHandler.setToast('Invalid Email Address');
+          ToastHandler.setToast('Invalid Email Address');
           return;
         }
         if (Regex.nickname.test(username) === false) {
-          ErrorHandler.setToast('Nickname must be 2-10 characters');
+          ToastHandler.setToast('Nickname must be 2-10 characters');
           return;
         }
 
         if (password.length < 8) {
-          ErrorHandler.setToast('Password must be at least 8 characters');
+          ToastHandler.setToast('Password must be at least 8 characters');
           return;
         }
         if (password.search(/[a-zA-Z]/) === -1) {
-          ErrorHandler.setToast('Password must contain at least one letter');
+          ToastHandler.setToast('Password must contain at least one letter');
           return;
         }
         if (password.search(/[0-9]/) === -1) {
-          ErrorHandler.setToast('Password must contain at least one number');
+          ToastHandler.setToast('Password must contain at least one number');
           return;
         }
 
         if (password !== passwordRe) {
-          ErrorHandler.setToast('Password does not match');
+          ToastHandler.setToast('Password does not match');
           return;
         }
 
@@ -159,14 +159,14 @@ class Login extends PageComponent {
         })
           .then(() => {
             this.email = email;
-            ErrorHandler.setToast('Registration Successful');
+            ToastHandler.setToast('Registration Successful');
             document.getElementById('registerForm').reset();
             registerModal.hide();
             verifyModal.show();
           })
           .catch((err) => {
             this.email = '';
-            ErrorHandler.setToast(err.error || 'Registration Failed');
+            ToastHandler.setToast(err.error || 'Registration Failed');
           });
       });
   }
@@ -182,13 +182,13 @@ class Login extends PageComponent {
         const verifyModal = Modal.getOrCreateInstance('#emailVerifyModal');
         await Fetch.post('/login/email/register/verify/', { email, code })
           .then(() => {
-            ErrorHandler.setToast('Email Verification Successful');
+            ToastHandler.setToast('Email Verification Successful');
             document.getElementById('emailVerifyForm').reset();
             verifyModal.hide();
             this.email = '';
           })
           .catch((err) => {
-            ErrorHandler.setToast(err.error || 'Verification Failed');
+            ToastHandler.setToast(err.error || 'Verification Failed');
           });
       });
   }
@@ -201,7 +201,7 @@ class Login extends PageComponent {
         navigateTo('/');
       })
       .catch(() => {
-        ErrorHandler.setToast('42 Login Failed');
+        ToastHandler.setToast('42 Login Failed');
         TokenManager.clearToken();
         navigateTo('/login');
       });
