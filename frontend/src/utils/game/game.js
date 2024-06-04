@@ -52,7 +52,7 @@ function game(settings) {
   let a;
   let b;
   let c;
-  const v = 1.2 + settings.speed * 0.3;
+  let v = 1.2 + settings.speed * 0.3;
   let start = 'blue';
   let hitStatus;
 
@@ -108,7 +108,7 @@ function game(settings) {
         );
         ballPlane.position.x = ball.position.x;
         // 패들에 부딪히면 방향 바꾸기
-        if (ball.position.x > 19.5 && ball.position.x < 20.5) {
+        if (ball.position.x > 19.7 && ball.position.x < 20.3) {
           if (!checkPaddleHit('red', scene)) {
             bluePlayerScore.innerText = (
               parseInt(bluePlayerScore.innerText, 10) + 1
@@ -119,7 +119,7 @@ function game(settings) {
             hitStatus.redPaddleHit = 1;
           }
         }
-        if (ball.position.x < -19.5 && ball.position.x > -20.5) {
+        if (ball.position.x < -19.7 && ball.position.x > -20.3) {
           if (!checkPaddleHit('blue', scene)) {
             redPlayerScore.innerText = (
               parseInt(redPlayerScore.innerText, 10) + 1
@@ -130,6 +130,13 @@ function game(settings) {
             hitStatus.bluePaddleHit = 1;
           }
         }
+        if (hitStatus.redPaddleHit || hitStatus.bluePaddleHit) {
+          v = 3;
+        }
+        if (!hitStatus.redPaddleHit && !hitStatus.bluePaddleHit) {
+          v = 1.2 + settings.speed * 0.3;
+        }
+
         // 벽에 부딪히면 방향 바꾸기
         if (ball.position.z < -7 && ball.position.z > -8) {
           c *= -1;
