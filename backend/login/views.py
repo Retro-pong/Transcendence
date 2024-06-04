@@ -258,7 +258,7 @@ class MyTokenRefreshView(TokenRefreshView):
             type=openapi.TYPE_OBJECT,
             properties={},
         ),
-        responses={200: "OK", 401: "UNAUTHORIZED"},
+        responses={200: "OK", 401: "UNAUTHORIZED", 403: "FORBIDDEN", 502: "BAD_GATEWAY"},
     )
     def post(self, request, *args, **kwargs) -> Response:
         # Get refresh token from cookie
@@ -278,7 +278,7 @@ class MyTokenRefreshView(TokenRefreshView):
         except:
             response = Response(
                 {"error": "Failed to refresh token."},
-                status=status.HTTP_401_UNAUTHORIZED,
+                status=status.HTTP_502_BAD_GATEWAY,
             )
             response.delete_cookie("refresh_token")
             return response
@@ -290,7 +290,7 @@ class MyTokenRefreshView(TokenRefreshView):
         except User.DoesNotExist:
             response = Response(
                 {"error": "User does not exist."},
-                status=status.HTTP_401_UNAUTHORIZED,
+                status=status.HTTP_403_FORBIDDEN,
             )
             response.delete_cookie("refresh_token")
             return response
