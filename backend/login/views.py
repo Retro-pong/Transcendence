@@ -120,7 +120,7 @@ class EmailLoginView(APIView):
                 ),
             },
         ),
-        responses={200: "OK", 401: "UNAUTHORIZED", 500: "INTERNAL_SERVER_ERROR"},
+        responses={200: "OK", 400: "BAD REQUEST", 500: "INTERNAL_SERVER_ERROR"},
     )
     def post(self, request):
         try:
@@ -144,7 +144,7 @@ class EmailLoginView(APIView):
             pass
         return Response(
             {"error": "Invalid email or password."},
-            status=status.HTTP_401_UNAUTHORIZED,
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
 
@@ -182,7 +182,7 @@ class EmailRegisterView(APIView):
         tags=["login"],
         operation_description="email 회원가입",
         request_body=RegisterSerializer,
-        responses={201: "CREATED", 400: "BAD_REQUEST"},
+        responses={201: "CREATED", 400: "BAD_REQUEST", 500: "INTERNAL_SERVER_ERROR"},
     )
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
@@ -225,7 +225,7 @@ class EmailRegisterVerifyView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED,
             )
         User.objects.filter(email=email).update(is_registered=True)
-        return Response("Email verification successful.", status=status.HTTP_200_OK)
+        return Response({"message": "Registration successful."}, status=status.HTTP_200_OK)
 
 
 class LogoutView(APIView):
@@ -241,7 +241,7 @@ class LogoutView(APIView):
         user = request.user
         user.is_active = False
         user.save()
-        response = Response("Logout successful.", status=status.HTTP_200_OK)
+        response = Response({"message": "Logout successful."}, status=status.HTTP_200_OK)
         response.delete_cookie("refresh_token")
         return response
 
