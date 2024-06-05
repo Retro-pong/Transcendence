@@ -2,7 +2,6 @@ from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
 # 동기식 데이터베이스 작업을 비동기식 코드에서 호출
 from channels.db import database_sync_to_async
-from channels import channel_layer
 from .models import GameResult
 from .modules import Ball, Player, Game
 import asyncio
@@ -17,7 +16,6 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
         await self.accept()  # 소켓 연결 수락
         await self.set_game_info()
 
-    @database_sync_to_async
     async def check_connect_data(self) -> None:
         """
         url data 유효성 확인
@@ -56,7 +54,6 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
         # start data 전송
         self.send_json(match.start_data(color=self.color, game=self.result))
 
-    @database_sync_to_async
     async def receive_json(self, content) -> None:
         match = games[self.game_id]
         player = match.players[self.color]
