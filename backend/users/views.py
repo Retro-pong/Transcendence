@@ -15,7 +15,7 @@ class ProfileView(APIView):
     @swagger_auto_schema(
         tags=["users"],  # Api 이름
         operation_description="사용자 프로필 api",  # 기능 설명
-        responses={200: "OK", 400: "BAD_REQUEST"},  # 할당된 요청
+        responses={200: "OK", 401: "UNAUTHORIZED", 403: "FORBIDDEN"},  # 할당된 요청
         manual_parameters=[
             openapi.Parameter(
                 "Authorization",
@@ -28,9 +28,9 @@ class ProfileView(APIView):
     def get(self, request):
         try:
             user = request.user
-            serializer = ProfileSerializer(user)
-        except Exception as e:
-            return Response({"error" + str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response({"error": "User not found."}, status=status.HTTP_403_FORBIDDEN)
+        serializer = ProfileSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -48,17 +48,20 @@ class ProfileEditView(APIView):
                 "comment": openapi.Schema(type=openapi.TYPE_STRING),
             },
         ),
-        responses={200: "OK", 400: "BAD_REQUEST"},  # 할당된 요청
+        responses={200: "OK", 400: "BAD_REQUEST", 401: "UNAUTHORIZED", 403: "FORBIDDEN"},  # 할당된 요청
     )
     def patch(self, request):
-        user = request.user
+        try:
+            user = request.user
+        except:
+            return Response({"error": "User not found."}, status=status.HTTP_403_FORBIDDEN)
         try:
             user.username = request.data["username"]
             user.comment = request.data["comment"]
             user.save()
         except Exception as e:
-            return Response("error:" + str(e), status=status.HTTP_400_BAD_REQUEST)
-        return Response("user profile edit")
+            return Response({"error": "Base user info is required."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message": "Profile edited."}, status=status.HTTP_200_OK)
 
 
 class ProfileUploadView(APIView):
@@ -76,18 +79,18 @@ class ProfileUploadView(APIView):
                 )
             },
         ),
-        responses={200: "OK", 400: "BAD_REQUEST"},  # 할당된 요청
+        responses={200: "OK", 400: "BAD_REQUEST", 401: "UNAUTHORIZED", 403: "FORBIDDEN"},  # 할당된 요청
     )
     def patch(self, request):
-        user = request.user
+        try:
+            user = request.user
+        except:
+            return Response({"error": "User not found."}, status=status.HTTP_403_FORBIDDEN)
         image_file = request.data.get("image")
         if not image_file:
             return Response(
-                "Image file is required", status=status.HTTP_400_BAD_REQUEST
+                {"error": "Image file is required."}, status=status.HTTP_400_BAD_REQUEST
             )
-        try:
-            user.image = image_file
-            user.save()
-        except Exception as e:
-            return Response("error:" + str(e), status=status.HTTP_400_BAD_REQUEST)
-        return Response("User profile updated")
+        user.image = image_file
+        user.save()
+        return Response({"message": "Profile image updated."}, status=status.HTTP_200_OK)
