@@ -20,6 +20,10 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings")
 application = ProtocolTypeRouter(
     {
         "http": get_asgi_application(),
-        "websocket": AllowedHostsOriginValidator(JWTAuthMiddleware(URLRouter(game.websocket_urlpatterns + rooms.websocket_urlpatterns)))
+        "websocket": AllowedHostsOriginValidator(
+            JWTAuthMiddleware(
+                URLRouter(game.websocket_urlpatterns + rooms.websocket_urlpatterns)
+            )
+        ),
     }
 )
