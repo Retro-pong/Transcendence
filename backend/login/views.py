@@ -43,7 +43,7 @@ class IntraCallbackView(APIView):
             intra_token = self.get_intra_token(code)
             intra_userinfo = self.get_intra_userinfo(intra_token)
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": str(e)}, status=status.HTTP_502_BAD_GATEWAY)
 
         # Get user info from 42 intra and authenticate
         try:
@@ -53,7 +53,7 @@ class IntraCallbackView(APIView):
         except KeyError:
             return Response(
                 {"error": "Failed to get user info from 42 intra."},
-                status=status.HTTP_400_BAD_REQUEST,
+                status=status.HTTP_502_BAD_GATEWAY,
             )
         # 회원가입
         except User.DoesNotExist:
@@ -86,13 +86,9 @@ class IntraCallbackView(APIView):
         try:
             response = requests.post(settings.INTRA_TOKEN_API_URL, data=data)
             response_data = response.json()
+            token = response_data["access_token"]
         except:
             raise Exception("Failed to get access token from 42 intra.")
-        try:
-            response_data["access_token"]
-        except KeyError:
-            raise Exception(response_data.get("error_description"))
-
         return response_data
 
     def get_intra_userinfo(self, intra_token) -> dict:
@@ -107,7 +103,7 @@ class IntraCallbackView(APIView):
             response = requests.get(settings.INTRA_USERINFO_API_URL, headers=headers)
             intra_userinfo = response.json()
         except:
-            raise Exception("Failed to get userinfo from 42 intra.")
+            raise Exception("Failed to get user info from 42 intra.")
         return intra_userinfo
 
 
