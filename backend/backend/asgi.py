@@ -22,7 +22,10 @@ application = ProtocolTypeRouter(
         "http": get_asgi_application(),
         "websocket": AllowedHostsOriginValidator(
             JWTAuthMiddleware(
-                URLRouter(game.websocket_urlpatterns + rooms.websocket_urlpatterns)
+                URLRouter(
+                    game.routing.websocket_urlpatterns
+                    + rooms.routing.websocket_urlpatterns,
+                )
             )
         ),
     }
