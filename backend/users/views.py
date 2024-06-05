@@ -28,7 +28,7 @@ class ProfileView(APIView):
     def get(self, request):
         try:
             user = request.user
-        except:
+        except AttributeError:
             return Response({"error": "User not found."}, status=status.HTTP_403_FORBIDDEN)
         serializer = ProfileSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -53,13 +53,12 @@ class ProfileEditView(APIView):
     def patch(self, request):
         try:
             user = request.user
-        except:
-            return Response({"error": "User not found."}, status=status.HTTP_403_FORBIDDEN)
-        try:
             user.username = request.data["username"]
             user.comment = request.data["comment"]
             user.save()
-        except Exception as e:
+        except AttributeError:
+            return Response({"error": "User not found."}, status=status.HTTP_403_FORBIDDEN)
+        except KeyError:
             return Response({"error": "Base user info is required."}, status=status.HTTP_400_BAD_REQUEST)
         return Response({"message": "Profile edited."}, status=status.HTTP_200_OK)
 
@@ -84,7 +83,7 @@ class ProfileUploadView(APIView):
     def patch(self, request):
         try:
             user = request.user
-        except:
+        except AttributeError:
             return Response({"error": "User not found."}, status=status.HTTP_403_FORBIDDEN)
         image_file = request.data.get("image")
         if not image_file:
