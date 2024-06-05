@@ -1,5 +1,3 @@
-import uuid
-
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -10,7 +8,6 @@ from .consumers import RoomConsumer
 from channels.testing import WebsocketCommunicator
 from django.test import TransactionTestCase
 from backend.asgi import application
-import asyncio
 
 
 class JoinRoomAPIViewTest(APITestCase):
@@ -105,9 +102,6 @@ class CreateRoomAPIViewTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertFalse(Room.objects.filter(room_name="IncompleteRoom").exists())
-
-
-from django.urls import resolve
 
 
 class RoomConsumerTest(TransactionTestCase):
