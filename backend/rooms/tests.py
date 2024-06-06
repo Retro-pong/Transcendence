@@ -7,7 +7,8 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .consumers import RoomConsumer
 from channels.testing import WebsocketCommunicator
 from django.test import TransactionTestCase
-from backend.asgi import application
+from .routing import websocket_urlpatterns
+from channels.routing import URLRouter
 from channels.db import database_sync_to_async
 
 
@@ -117,6 +118,7 @@ class RoomConsumerTest(TransactionTestCase):
         )
         token = TokenObtainPairSerializer.get_token(user)
         access_token = str(token.access_token)
+        application = URLRouter(websocket_urlpatterns)
         communicator = WebsocketCommunicator(
             application,
             "/ws/normal_room/1/",
@@ -144,7 +146,7 @@ class RoomConsumerTest(TransactionTestCase):
         )
         token = TokenObtainPairSerializer.get_token(user3)
         access_token3 = str(token.access_token)
-
+        application = URLRouter(websocket_urlpatterns)
         # Connect the first client
         communicator1 = WebsocketCommunicator(
             application,
@@ -183,6 +185,7 @@ class RoomConsumerTest(TransactionTestCase):
         )
         token = TokenObtainPairSerializer.get_token(user)
         access_token = str(token.access_token)
+        application = URLRouter(websocket_urlpatterns)
         communicator = WebsocketCommunicator(
             application,
             "/ws/normal_room/1/",
