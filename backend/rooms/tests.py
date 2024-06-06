@@ -164,7 +164,6 @@ class RoomConsumerTest(TransactionTestCase):
         )
         connected2, subprotocol2 = await communicator2.connect()
         self.assertTrue(connected2)
-
         # Try to connect the third client, which should fail
         communicator3 = WebsocketCommunicator(
             application,
@@ -173,7 +172,6 @@ class RoomConsumerTest(TransactionTestCase):
         )
         connected3, subprotocol3 = await communicator3.connect()
         self.assertFalse(connected3)
-
         # Clean up
         await communicator1.disconnect()
         await communicator2.disconnect()
@@ -194,7 +192,6 @@ class RoomConsumerTest(TransactionTestCase):
         connected, subprotocol = await communicator.connect()
 
         self.assertTrue(connected)
-
         await communicator.disconnect()
 
         # Verify the room is empty after disconnect

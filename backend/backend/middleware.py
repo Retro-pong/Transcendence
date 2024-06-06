@@ -1,8 +1,6 @@
 from channels.db import database_sync_to_async
 import jwt
 from django.conf import settings
-
-# from users.models import User
 from django.apps import apps
 from channels.middleware import BaseMiddleware
 
@@ -17,7 +15,7 @@ class JWTAuthMiddleware(BaseMiddleware):
             scope["user"] = user
         except:
             scope["user"] = None
-        # can not use annoymous user
+        # TODO: can not use annoymous user 뭐로 바꾸지...?
         return await super().__call__(scope, receive, send)
 
     async def get_token(self, scope) -> str:

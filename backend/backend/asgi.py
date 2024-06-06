@@ -15,7 +15,6 @@ import rooms.routing
 import game.routing
 import os
 import django
-from channels.auth import AuthMiddlewareStack
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings")
 django.setup()
