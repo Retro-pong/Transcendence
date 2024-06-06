@@ -8,6 +8,7 @@ from .consumers import RoomConsumer
 from channels.testing import WebsocketCommunicator
 from django.test import TransactionTestCase
 from backend.asgi import application
+from channels.db import database_sync_to_async
 
 
 class JoinRoomAPIViewTest(APITestCase):
@@ -63,6 +64,7 @@ class JoinRoomAPIViewTest(APITestCase):
 
 
 class CreateRoomAPIViewTest(APITestCase):
+
     def setUp(self):
         self.user = User.objects.create_user(
             username="testuser", email="test@example.com", password="testpassword"
@@ -105,19 +107,20 @@ class CreateRoomAPIViewTest(APITestCase):
 
 
 class RoomConsumerTest(TransactionTestCase):
-    def setUp(self):
-        self.user = User.objects.create_user(
-            username="testuser", email="test@example.com", password="1234"
-        )
-        token = TokenObtainPairSerializer.get_token(self.user)
-        refresh_token = str(token)
-        self.access_token = str(token.access_token)
+    @database_sync_to_async
+    def create_test_user(self, username, email, password):
+        return User.objects.create_user(username, email, password)
 
     async def test_room_connect(self):
+        user = await self.create_test_user(
+            username="testuser", email="test@test.com", password="1234"
+        )
+        token = TokenObtainPairSerializer.get_token(user)
+        access_token = str(token.access_token)
         communicator = WebsocketCommunicator(
             application,
             "/ws/normal_room/1/",
-            headers=[(b"cookie", f"access_token={self.access_token}")],
+            headers=[(b"cookie", f"access_token={access_token}")],
         )
         connected, subprotocol = await communicator.connect()
         self.assertTrue(connected)
@@ -126,11 +129,27 @@ class RoomConsumerTest(TransactionTestCase):
         await communicator.disconnect()
 
     async def test_room_connect_full(self):
+        user1 = await self.create_test_user(
+            username="testuser1", email="test1@example.com", password="1234"
+        )
+        token = TokenObtainPairSerializer.get_token(user1)
+        access_token1 = str(token.access_token)
+        user2 = await self.create_test_user(
+            username="testuser2", email="test2@example.com", password="1234"
+        )
+        token = TokenObtainPairSerializer.get_token(user2)
+        access_token2 = str(token.access_token)
+        user3 = await self.create_test_user(
+            username="testuser3", email="test3@example.com", password="1234"
+        )
+        token = TokenObtainPairSerializer.get_token(user3)
+        access_token3 = str(token.access_token)
+
         # Connect the first client
         communicator1 = WebsocketCommunicator(
             application,
             "/ws/normal_room/1/",
-            headers=[(b"cookie", f"access_token={self.access_token}".encode())],
+            headers=[(b"cookie", f"access_token={access_token1}".encode())],
         )
         connected1, subprotocol1 = await communicator1.connect()
         self.assertTrue(connected1)
@@ -139,7 +158,7 @@ class RoomConsumerTest(TransactionTestCase):
         communicator2 = WebsocketCommunicator(
             application,
             "/ws/normal_room/1/",
-            headers=[(b"cookie", f"access_token={self.access_token}".encode())],
+            headers=[(b"cookie", f"access_token={access_token2}".encode())],
         )
         connected2, subprotocol2 = await communicator2.connect()
         self.assertTrue(connected2)
@@ -148,7 +167,7 @@ class RoomConsumerTest(TransactionTestCase):
         communicator3 = WebsocketCommunicator(
             application,
             "/ws/normal_room/1/",
-            headers=[(b"cookie", f"access_token={self.access_token}".encode())],
+            headers=[(b"cookie", f"access_token={access_token3}".encode())],
         )
         connected3, subprotocol3 = await communicator3.connect()
         self.assertFalse(connected3)
@@ -159,10 +178,15 @@ class RoomConsumerTest(TransactionTestCase):
         await communicator3.disconnect()
 
     async def test_room_disconnect(self):
+        user = await self.create_test_user(
+            username="testuser", email="test@example.com", password="1234"
+        )
+        token = TokenObtainPairSerializer.get_token(user)
+        access_token = str(token.access_token)
         communicator = WebsocketCommunicator(
             application,
             "/ws/normal_room/1/",
-            headers=[(b"cookie", f"access_token={self.access_token}".encode())],
+            headers=[(b"cookie", f"access_token={access_token}".encode())],
         )
         connected, subprotocol = await communicator.connect()
 

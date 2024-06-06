@@ -1,7 +1,5 @@
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from channels.layers import get_channel_layer
-from .models import Room
-from game.models import GameResult
 import asyncio
 
 
@@ -10,6 +8,7 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
     rooms_lock = asyncio.Lock()
 
     async def connect(self):
+        print("connect called")
         self.room_id = self.scope["url_route"]["kwargs"]["room_id"]
         self.channel_layer = get_channel_layer()
         # Join room group

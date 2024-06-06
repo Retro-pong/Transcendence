@@ -14,8 +14,10 @@ from .middleware import JWTAuthMiddleware
 import rooms.routing
 import game.routing
 import os
+import django
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings")
+django.setup()
 
 application = ProtocolTypeRouter(
     {
@@ -23,8 +25,8 @@ application = ProtocolTypeRouter(
         "websocket": AllowedHostsOriginValidator(
             JWTAuthMiddleware(
                 URLRouter(
-                    game.routing.websocket_urlpatterns
-                    + rooms.routing.websocket_urlpatterns,
+                    # game.routing.websocket_urlpatterns
+                    rooms.routing.websocket_urlpatterns,
                 )
             )
         ),

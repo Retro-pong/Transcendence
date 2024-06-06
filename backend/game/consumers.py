@@ -2,7 +2,7 @@ from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
 # 동기식 데이터베이스 작업을 비동기식 코드에서 호출
 from channels.db import database_sync_to_async
-from .models import GameResult
+from django.apps import apps
 from .modules import Ball, Player, Game
 import asyncio
 
@@ -23,6 +23,7 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
         self.user = self.scope["user"]
         self.game_id = self.scope["url_route"]["kwargs"]["game_id"]
         try:
+            GameResult = apps.get_model("game", "GameResult")
             self.result = GameResult.objects.get(game_id=self.game_id)
         except GameResult.DoesNotExist:
             await self.close()  # 해당하는 game_id가 없을 경우 연결 해제
