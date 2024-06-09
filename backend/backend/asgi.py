@@ -14,10 +14,11 @@ from .middleware import JWTAuthMiddleware
 import rooms.routing
 import game.routing
 import os
-import django
+
+# import django TODO: delete ?
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings")
-django.setup()
+# django.setup() TODO: delete ?
 
 application = ProtocolTypeRouter(
     {
