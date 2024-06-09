@@ -13,12 +13,10 @@ from channels.security.websocket import AllowedHostsOriginValidator
 from .middleware import JWTAuthMiddleware
 import rooms.routing
 import game.routing
+import login.routing
 import os
 
-# import django TODO: delete ?
-
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings")
-# django.setup() TODO: delete ?
 
 application = ProtocolTypeRouter(
     {
@@ -27,7 +25,8 @@ application = ProtocolTypeRouter(
             JWTAuthMiddleware(
                 URLRouter(
                     game.routing.websocket_urlpatterns
-                    + rooms.routing.websocket_urlpatterns,
+                    + rooms.routing.websocket_urlpatterns
+                    + login.routing.websocket_urlpatterns,
                 )
             )
         ),

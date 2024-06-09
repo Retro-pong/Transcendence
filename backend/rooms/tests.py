@@ -9,6 +9,7 @@ from channels.testing import WebsocketCommunicator
 from django.test import TransactionTestCase
 from .routing import websocket_urlpatterns
 from channels.routing import URLRouter
+from backend.middleware import JWTAuthMiddleware
 from channels.db import database_sync_to_async
 
 
@@ -118,7 +119,7 @@ class RoomConsumerTest(TransactionTestCase):
         )
         token = TokenObtainPairSerializer.get_token(user)
         access_token = str(token.access_token)
-        application = URLRouter(websocket_urlpatterns)
+        application = JWTAuthMiddleware(URLRouter(websocket_urlpatterns))
         communicator = WebsocketCommunicator(
             application,
             "/ws/normal_room/1/",
@@ -134,19 +135,19 @@ class RoomConsumerTest(TransactionTestCase):
         user1 = await self.create_test_user(
             username="testuser1", email="test1@example.com", password="1234"
         )
-        token = TokenObtainPairSerializer.get_token(user1)
-        access_token1 = str(token.access_token)
+        token1 = TokenObtainPairSerializer.get_token(user1)
+        access_token1 = str(token1.access_token)
         user2 = await self.create_test_user(
             username="testuser2", email="test2@example.com", password="1234"
         )
-        token = TokenObtainPairSerializer.get_token(user2)
-        access_token2 = str(token.access_token)
+        token2 = TokenObtainPairSerializer.get_token(user2)
+        access_token2 = str(token2.access_token)
         user3 = await self.create_test_user(
             username="testuser3", email="test3@example.com", password="1234"
         )
-        token = TokenObtainPairSerializer.get_token(user3)
-        access_token3 = str(token.access_token)
-        application = URLRouter(websocket_urlpatterns)
+        token3 = TokenObtainPairSerializer.get_token(user3)
+        access_token3 = str(token3.access_token)
+        application = JWTAuthMiddleware(URLRouter(websocket_urlpatterns))
         # Connect the first client
         communicator1 = WebsocketCommunicator(
             application,
@@ -172,6 +173,12 @@ class RoomConsumerTest(TransactionTestCase):
         )
         connected3, subprotocol3 = await communicator3.connect()
         self.assertFalse(connected3)
+        response1 = await communicator1.receive_json_from()
+        assert response1["user0"] == "testuser1"
+        response2 = await communicator2.receive_json_from()
+        assert response2["user1"] == "testuser2"
+        response2 = await communicator2.receive_json_from()
+        assert response2["room_id"] == "1"
         # Clean up
         await communicator1.disconnect()
         await communicator2.disconnect()
@@ -179,14 +186,14 @@ class RoomConsumerTest(TransactionTestCase):
 
     async def test_room_disconnect(self):
         user = await self.create_test_user(
-            username="testuser", email="test@example.com", password="1234"
+            username="testuser4", email="test4@example.com", password="1234"
         )
         token = TokenObtainPairSerializer.get_token(user)
         access_token = str(token.access_token)
-        application = URLRouter(websocket_urlpatterns)
+        application = JWTAuthMiddleware(URLRouter(websocket_urlpatterns))
         communicator = WebsocketCommunicator(
             application,
-            "/ws/normal_room/1/",
+            "/ws/normal_room/2/",
             headers=[(b"cookie", f"access_token={access_token}".encode())],
         )
         connected, subprotocol = await communicator.connect()
@@ -195,4 +202,4 @@ class RoomConsumerTest(TransactionTestCase):
         await communicator.disconnect()
 
         # Verify the room is empty after disconnect
-        self.assertNotIn("/ws/normal_room/1/", RoomConsumer.rooms)
+        self.assertNotIn("/ws/normal_room/2/", RoomConsumer.rooms)

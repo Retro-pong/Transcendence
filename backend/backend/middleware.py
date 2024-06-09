@@ -3,6 +3,7 @@ import jwt
 from django.conf import settings
 from django.apps import apps
 from channels.middleware import BaseMiddleware
+from asgiref.sync import sync_to_async
 
 
 class JWTAuthMiddleware(BaseMiddleware):
@@ -13,7 +14,7 @@ class JWTAuthMiddleware(BaseMiddleware):
             scope["user"] = user
         except:
             user = apps.get_model("users", "User")
-            anonymous = user.objects.create(
+            anonymous = await sync_to_async(user.objects.create)(
                 username="Anonymous",
                 is_anonymous=True,
                 is_authenticated=False,
@@ -39,7 +40,7 @@ class JWTAuthMiddleware(BaseMiddleware):
         secret_key = settings.SECRET_KEY
         algorithm = "HS256"
         decoded_token = jwt.decode(jwt_token, secret_key, algorithms=[algorithm])
-        user_email = decoded_token.get("user_email")
+        user_email = decoded_token.get("email")
         user_model = apps.get_model("users", "User")
         user = user_model.objects.get(email=user_email)
         return user
