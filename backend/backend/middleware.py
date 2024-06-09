@@ -4,8 +4,6 @@ from django.conf import settings
 from django.apps import apps
 from channels.middleware import BaseMiddleware
 
-# from django.contrib.auth.models import AnonymousUser
-
 
 class JWTAuthMiddleware(BaseMiddleware):
     async def __call__(self, scope, receive, send) -> None:
@@ -14,8 +12,13 @@ class JWTAuthMiddleware(BaseMiddleware):
             user = await self.get_user(token)
             scope["user"] = user
         except:
-            scope["user"] = None
-        # TODO: can not use annoymous user 뭐로 바꾸지...?
+            user = apps.get_model("users", "User")
+            anonymous = user.objects.create(
+                username="Anonymous",
+                is_anonymous=True,
+                is_authenticated=False,
+            )
+            scope["user"] = anonymous
         return await super().__call__(scope, receive, send)
 
     async def get_token(self, scope) -> str:

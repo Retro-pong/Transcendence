@@ -10,6 +10,7 @@ backend/myvenv/
 backend/**/migrations/*.py
 !backend/**/migrations/__init__.py
 **/.DS_Store
+backend/dump.rdb
 
 # CMake
 cmake-build-*/
