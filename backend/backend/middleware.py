@@ -1,9 +1,8 @@
 from channels.db import database_sync_to_async
 import jwt
 from django.conf import settings
-from users.models import User
+from django.apps import apps
 from channels.middleware import BaseMiddleware
-from django.contrib.auth.models import AnonymousUser
 
 
 class JWTAuthMiddleware(BaseMiddleware):
@@ -13,7 +12,13 @@ class JWTAuthMiddleware(BaseMiddleware):
             user = await self.get_user(token)
             scope["user"] = user
         except:
-            scope["user"] = AnonymousUser()
+            user = apps.get_model("users", "User")
+            anonymous = user.objects.create(
+                username="Anonymous",
+                is_anonymous=True,
+                is_authenticated=False,
+            )
+            scope["user"] = anonymous
         return await super().__call__(scope, receive, send)
 
     async def get_token(self, scope) -> str:
@@ -30,10 +35,11 @@ class JWTAuthMiddleware(BaseMiddleware):
         return token
 
     @database_sync_to_async
-    def get_user(self, jwt_token: str) -> User:
+    def get_user(self, jwt_token: str):
         secret_key = settings.SECRET_KEY
         algorithm = "HS256"
         decoded_token = jwt.decode(jwt_token, secret_key, algorithms=[algorithm])
         user_email = decoded_token.get("user_email")
-        user = User.objects.get(email=user_email)
+        user_model = apps.get_model("users", "User")
+        user = user_model.objects.get(email=user_email)
         return user

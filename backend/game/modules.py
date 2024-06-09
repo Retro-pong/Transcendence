@@ -1,5 +1,6 @@
 import random
-from .models import GameResult
+from django.apps import apps
+
 
 X = 0
 Y = 1
@@ -184,6 +185,7 @@ class Game:
         }
 
     def result_data(self, game_id) -> dict:
+        GameResult = apps.get_model("game", "GameResult")
         result = GameResult.objects.get(game_id=game_id)
         result.winner = self.winner
         result.player1 = self.p1

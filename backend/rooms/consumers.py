@@ -1,7 +1,5 @@
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from channels.layers import get_channel_layer
-from .models import Room
-from game.models import GameResult
 import asyncio
 
 
@@ -19,16 +17,20 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
             if self.room_id not in RoomConsumer.rooms:
                 RoomConsumer.rooms[self.room_id] = []
             RoomConsumer.rooms[self.room_id].append(self.channel_name)
-            if len(RoomConsumer.rooms[self.room_id]) >= 2:
-                self.close(code=4003)  # 임시 오류 코드
+            if len(RoomConsumer.rooms[self.room_id]) >= 3:
+                await self.channel_layer.group_discard(self.room_id, self.channel_name)
+                RoomConsumer.rooms[self.room_id].remove(self.channel_name)
+                await self.close(code=4003)  # 임시 오류 코드
                 return
         await self.accept()
 
     async def disconnect(self, close_code):
         async with RoomConsumer.rooms_lock:
             if self.room_id in RoomConsumer.rooms:
-                RoomConsumer.rooms[self.room_id].remove(self.channel_name)
-                if not RoomConsumer.rooms[self.room_id]:
-                    del RoomConsumer.rooms[self.room_id]
+                if self.channel_name in RoomConsumer.rooms[self.room_id]:
+                    RoomConsumer.rooms[self.room_id].remove(self.channel_name)
+                    # 방에 더 이상 참여자가 없으면 방을 삭제
+                    if not RoomConsumer.rooms[self.room_id]:
+                        del RoomConsumer.rooms[self.room_id]
         # Leave room group
         await self.channel_layer.group_discard(self.room_id, self.channel_name)

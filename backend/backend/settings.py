@@ -51,17 +51,19 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    "channels",
-    "login.apps.LoginConfig",
-    "users.apps.UsersConfig",
-    "friends.apps.FriendsConfig",
-    "rooms.apps.RoomsConfig",
-    "game.apps.GameConfig",
-    "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    # installed app error
+    "daphne",
+    "channels",
+    "users.apps.UsersConfig",
+    "login.apps.LoginConfig",
+    "friends.apps.FriendsConfig",
+    "rooms.apps.RoomsConfig",
+    "game.apps.GameConfig",
+    "django.contrib.admin",
     "django.contrib.staticfiles",
     "rest_framework",
     "rest_framework_simplejwt",  # JWT
