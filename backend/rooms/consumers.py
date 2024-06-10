@@ -98,7 +98,7 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
             if self.room_id in NormalRoomConsumer.rooms:
                 if self.user in NormalRoomConsumer.rooms[self.room_id]:
                     NormalRoomConsumer.rooms[self.room_id].remove(self.user)
-                    # 방에 더 이상 참여자가 없으면 방을 삭제
+                    # 아무도 없으면 방 삭제
                     if not NormalRoomConsumer.rooms[self.room_id]:
                         del NormalRoomConsumer.rooms[self.room_id]
         # Leave room group
