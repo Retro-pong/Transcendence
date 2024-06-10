@@ -62,11 +62,12 @@ class Login extends PageComponent {
       return;
     }
     await Fetch.post('/login/email/login/', { email, password })
-      .then(() => {
+      .then((res) => {
         loginModal.show();
+        ToastHandler.setToast(res.message || 'Verification code Sent');
       })
       .catch((err) => {
-        ToastHandler.setToast(err.error || 'Login Failed');
+        ToastHandler.setToast(`${err.message || 'Login Failed'} [${err.code}]`);
       });
   }
 
@@ -88,9 +89,12 @@ class Login extends PageComponent {
         TokenManager.storeToken(data.access_token);
         loginModal.hide();
         Router.navigateTo('/');
+        ToastHandler.setToast(data.message || 'Login Successful');
       })
       .catch((err) => {
-        ToastHandler.setToast(err.error || 'Verification Failed');
+        ToastHandler.setToast(
+          `${err.message || 'Verification Failed'} [${err.code}]`
+        );
       });
   }
 
@@ -166,7 +170,9 @@ class Login extends PageComponent {
           })
           .catch((err) => {
             this.email = '';
-            ToastHandler.setToast(err.error || 'Registration Failed');
+            ToastHandler.setToast(
+              `${err.message || 'Registration Failed'} [${err.code}]`
+            );
           });
       });
   }
@@ -181,14 +187,16 @@ class Login extends PageComponent {
 
         const verifyModal = Modal.getOrCreateInstance('#emailVerifyModal');
         await Fetch.post('/login/email/register/verify/', { email, code })
-          .then(() => {
-            ToastHandler.setToast('Email Verification Successful');
+          .then((res) => {
+            ToastHandler.setToast(res.message || 'Email Verification Successful');
             document.getElementById('emailVerifyForm').reset();
             verifyModal.hide();
             this.email = '';
           })
           .catch((err) => {
-            ToastHandler.setToast(err.error || 'Verification Failed');
+            ToastHandler.setToast(
+              `${err.message || 'Verification Failed'} [${err.code}]`
+            );
           });
       });
   }
@@ -199,11 +207,15 @@ class Login extends PageComponent {
       .then((data) => {
         TokenManager.storeToken(data.access_token);
         Router.navigateTo('/');
+        ToastHandler.setToast(data.message || '42 Login Successful');
       })
-      .catch(() => {
+      .catch((err) => {
         ToastHandler.setToast('42 Login Failed');
         TokenManager.clearToken();
         Router.navigateTo('/login');
+        ToastHandler.setToast(
+          `${err.message || '42 Login Failed'} [${err.code}]`
+        );
       });
   }
 
