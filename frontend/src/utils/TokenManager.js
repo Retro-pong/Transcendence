@@ -1,6 +1,7 @@
 import Fetch from '@/utils/Fetch';
 import ToastHandler from '@/utils/ToastHandler';
 import Router from '@/utils/Router';
+import SocketManager from '@/utils/SocketManager';
 
 class TokenManager {
   static #accessToken = null;
