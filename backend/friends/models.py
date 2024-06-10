@@ -59,10 +59,11 @@ class FriendRequest(models.Model):
 
     @classmethod
     def delete_request(cls, user, friend_name):
-        request = cls.objects.get(user=user, friend_name=friend_name)
-        if request.DoesNotExist:
+        try:
+            request = cls.objects.get(user=user, friend_name=friend_name)
+            request.delete()
+        except cls.DoesNotExist:
             raise ValueError("Request not found.")
-        request.delete()
 
     class Meta:
         db_table = "friends_request"
