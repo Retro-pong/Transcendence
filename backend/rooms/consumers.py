@@ -11,9 +11,7 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
         self.room_id = self.scope["url_route"]["kwargs"]["room_id"]
         self.channel_layer = get_channel_layer()
-        # Join room group
         await self.channel_layer.group_add(self.room_id, self.channel_name)
-        # 연결 수락
         await self.accept()
 
     async def receive_json(self, content):
@@ -40,9 +38,9 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
                     NormalRoomConsumer.rooms[self.room_id].remove(self.user)
                     await self.send_json({"access": "Room is full."})
                     return
-            # 연결 성공 시 방 참여 인원에게 방 인원 정보 전송
+            # 연결 성공 시 방 참여 인원 모두에게 방 인원 정보 전송
             await self.send_user_info()
-            # 방 인원이 정원일 경우 3초뒤 소켓 연결 해제
+            # 방 인원이 정원일 경우 3초 뒤 소켓 연결 해제
             async with NormalRoomConsumer.rooms_lock:
                 if len(NormalRoomConsumer.rooms[self.room_id]) == 2:
                     await self.channel_layer.group_send(
@@ -109,5 +107,95 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
 
 
 class TournamentRoomConsumer(AsyncJsonWebsocketConsumer):
-    rooms = {}
-    rooms_lock = asyncio.Lock()
+    rooms = []
+    matches = []
+
+    async def connect(self):
+        self.room_id = self.scope["url_route"]["kwargs"]["room_id"]
+        self.channel_layer = get_channel_layer()
+        await self.channel_layer.group_add(self.room_id, self.channel_name)
+        await self.accept()
+
+    async def receive_json(self, content):
+        if content["type"] == "access":
+            token = content["token"]
+            try:
+                self.user = await JWTAuthMiddleware.get_user(token)
+            except Exception as e:
+                await self.send_json({"access": "User invalid or expired."})
+                return
+            if not self.user.is_authenticated:
+                await self.send_json({"access": "User not authenticated."})
+            else:
+                await self.send_json({"access": "Access successful."})
+
+            # Add the player to the waiting room
+            self.rooms.append(self)
+            if len(self.rooms) >= 4:
+                await self.start_initial_matches()
+
+        elif content["type"] == "match_result":
+            winner = content["winner"]
+            await self.handle_match_result(winner)
+
+    async def start_initial_matches(self):
+        players = self.rooms[:4]
+        self.rooms = self.rooms[4:]
+
+        match_1 = players[:2]
+        match_2 = players[2:]
+
+        self.matches.extend([match_1, match_2])
+
+        for player in match_1:
+            await player.send_json({"type": "start_match", "opponent": match_1})
+
+        for player in match_2:
+            await player.send_json({"type": "start_match", "opponent": match_2})
+
+        # Allow other players to watch the matches
+        for watcher in self.rooms:
+            await watcher.send_json(
+                {"type": "watch_match", "match_1": match_1, "match_2": match_2}
+            )
+
+    async def handle_match_result(self, winner):
+        # Find the match and remove it from the matches
+        match = next((m for m in self.matches if winner in m), None)
+        if match:
+            self.matches.remove(match)
+
+        # Add the winner to the waiting room for the final match
+        self.rooms.append(winner)
+
+        # If both initial matches are finished, start the final match
+        if len(self.matches) == 0 and len(self.rooms) == 2:
+            await self.start_final_match()
+
+    async def start_final_match(self):
+        final_match = self.rooms[:2]
+        self.rooms = self.rooms[2:]
+
+        for player in final_match:
+            await player.send_json(
+                {"type": "start_final_match", "opponent": final_match}
+            )
+
+        # Allow other players to watch the final match
+        for watcher in self.rooms:
+            await watcher.send_json(
+                {"type": "watch_final_match", "final_match": final_match}
+            )
+
+    async def disconnect(self, close_code):
+        # Remove the player from the waiting room
+        if self in self.rooms:
+            self.rooms.remove(self)
+        # Remove the player from any ongoing matches
+        for match in self.matches:
+            if self in match:
+                match.remove(self)
+                break
+        # Leave room group
+        await self.channel_layer.group_discard(self.room_id, self.channel_name)
+        await self.close()
