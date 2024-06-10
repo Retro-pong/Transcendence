@@ -1,6 +1,7 @@
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from channels.layers import get_channel_layer
 import asyncio
+from backend.middleware import JWTAuthMiddleware
 
 
 class RoomConsumer(AsyncJsonWebsocketConsumer):
@@ -9,34 +10,48 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
 
     async def connect(self):
         self.room_id = self.scope["url_route"]["kwargs"]["room_id"]
-        self.user = self.scope["user"]
         self.channel_layer = get_channel_layer()
         # Join room group
         await self.channel_layer.group_add(self.room_id, self.channel_name)
-        # 방이 다 차있을 경우 에러 (code=4003)
-        async with RoomConsumer.rooms_lock:
-            if self.room_id not in RoomConsumer.rooms:
-                RoomConsumer.rooms[self.room_id] = []
-            RoomConsumer.rooms[self.room_id].append(self.user)
-            if len(RoomConsumer.rooms[self.room_id]) >= 3:
-                await self.channel_layer.group_discard(self.room_id, self.channel_name)
-                RoomConsumer.rooms[self.room_id].remove(self.user)
-                await self.close(code=4003)  # 임시 오류 코드
-                return
         # 연결 수락
         await self.accept()
-        # 연결 수락 시 방 참여 인원에게 방 인원 정보 전송
-        await self.send_user_info()
-        # 방 인원이 정원일 경우 3초뒤 소켓 연결 해제
-        async with RoomConsumer.rooms_lock:
-            if len(RoomConsumer.rooms[self.room_id]) == 2:
-                await self.channel_layer.group_send(
-                    self.room_id,
-                    {
-                        "type": "send_disconnect",
-                        "room_id": self.room_id,
-                    },
-                )
+
+    async def receive_json(self, content):
+        if content["type"] == "access":
+            token = content["token"]
+            try:
+                self.user = await JWTAuthMiddleware.get_user(token)
+            except Exception as e:
+                await self.send_json({"access": "User invalid or expired."})
+                return
+            if not self.user.is_authenticated:
+                await self.send_json({"access": "User not authenticated."})
+            else:
+                await self.send_json({"access": "Access successful."})
+            # 방이 다 차있을 경우 에러 (code=4003)
+            async with RoomConsumer.rooms_lock:
+                if self.room_id not in RoomConsumer.rooms:
+                    RoomConsumer.rooms[self.room_id] = []
+                RoomConsumer.rooms[self.room_id].append(self.user)
+                if len(RoomConsumer.rooms[self.room_id]) >= 3:
+                    await self.channel_layer.group_discard(
+                        self.room_id, self.channel_name
+                    )
+                    RoomConsumer.rooms[self.room_id].remove(self.user)
+                    await self.send_json({"access": "Room is full."})
+                    return
+            # 연결 성공 시 방 참여 인원에게 방 인원 정보 전송
+            await self.send_user_info()
+            # 방 인원이 정원일 경우 3초뒤 소켓 연결 해제
+            async with RoomConsumer.rooms_lock:
+                if len(RoomConsumer.rooms[self.room_id]) == 2:
+                    await self.channel_layer.group_send(
+                        self.room_id,
+                        {
+                            "type": "send_disconnect",
+                            "room_id": self.room_id,
+                        },
+                    )
 
     async def send_user_info(self):
         # 해당 방의 모든 사용자 정보를 수집하여 전송
@@ -57,6 +72,10 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
         userimage_list = event["userimage"]
         user_data = {
             "type": "users",
+            "user1": "",
+            "user1_image": "",
+            "user2": "",
+            "user2_image": "",
         }
         for idx, username in enumerate(username_list, start=0):
             user_data[f"user{idx}"] = username
