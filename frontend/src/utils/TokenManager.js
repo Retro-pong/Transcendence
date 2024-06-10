@@ -7,7 +7,7 @@ class TokenManager {
 
   static setAccessToken(accessToken) {
     this.#accessToken = accessToken;
-    localStorage.setItem('login', true);
+    localStorage.setItem('login', 'true');
   }
 
   static getAccessToken() {
@@ -25,11 +25,13 @@ class TokenManager {
 
   static storeToken(accessToken) {
     this.setAccessToken(accessToken);
+    SocketManager.setOnline();
     Fetch.init();
   }
 
   static clearToken() {
     this.deleteAccessToken();
+    SocketManager.setOffline();
     Fetch.init();
   }
 
