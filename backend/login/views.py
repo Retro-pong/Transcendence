@@ -34,7 +34,7 @@ class IntraCallbackView(APIView):
     @swagger_auto_schema(
         tags=["login"],
         operation_description="intra 콜백",
-        responses={200: "OK", 400: "BAD_REQUEST", 500: "INTERNAL_SERVER_ERROR"},
+        responses={200: "OK", 400: "BAD_REQUEST", 502: "BAD_GATEWAY"},
     )
     def get(self, request):
         # 42 intra authorizes the user
@@ -225,7 +225,9 @@ class EmailRegisterVerifyView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED,
             )
         User.objects.filter(email=email).update(is_registered=True)
-        return Response({"message": "Registration successful."}, status=status.HTTP_200_OK)
+        return Response(
+            {"message": "Registration successful."}, status=status.HTTP_200_OK
+        )
 
 
 class LogoutView(APIView):
@@ -241,7 +243,9 @@ class LogoutView(APIView):
         user = request.user
         user.is_active = False
         user.save()
-        response = Response({"message": "Logout successful."}, status=status.HTTP_200_OK)
+        response = Response(
+            {"message": "Logout successful."}, status=status.HTTP_200_OK
+        )
         response.delete_cookie("refresh_token")
         return response
 
@@ -254,7 +258,12 @@ class MyTokenRefreshView(TokenRefreshView):
             type=openapi.TYPE_OBJECT,
             properties={},
         ),
-        responses={200: "OK", 401: "UNAUTHORIZED", 403: "FORBIDDEN", 502: "BAD_GATEWAY"},
+        responses={
+            200: "OK",
+            401: "UNAUTHORIZED",
+            403: "FORBIDDEN",
+            502: "BAD_GATEWAY",
+        },
     )
     def post(self, request, *args, **kwargs) -> Response:
         # Get refresh token from cookie
