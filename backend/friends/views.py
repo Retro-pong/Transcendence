@@ -481,21 +481,21 @@ class AddListAPIView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # 친구 목록과 친구 신청 목록 확인
-        friend = Friend.objects.filter(user=user, friend_user=send_user)
-        if friend.exists():
+        try:
+            # 대상과 이미 친구인지 확인
+            Friend.objects.get(user=user, friend_user=send_user)
             return Response(
                 {"error": "The user is already your friend."},
                 status=status.HTTP_200_OK,
             )
-        friend_request = FriendRequest.objects.filter(
-            user=send_user, friend_name=user.username
-        )
-        if friend_request.exists():
-            return Response(
-                {"error": "Friend request already sent."}, status=status.HTTP_200_OK
-            )
-
-        # 친구 신청 생성
-        FriendRequest.create_request(user=send_user, friend_name=user.username)
-        return Response(status=status.HTTP_201_CREATED)
+        except Friend.DoesNotExist:
+            try:
+                FriendRequest.objects.get(user=send_user, friend_name=user.username)
+                # 이미 친구 신청을 보낸 대상인지 확인
+                return Response(
+                    {"error": "Friend request already sent."}, status=status.HTTP_200_OK
+                )
+            # 친구 신청 성공
+            except FriendRequest.DoesNotExist:
+                FriendRequest.create_request(user=send_user, friend_name=user.username)
+                return Response(status=status.HTTP_201_CREATED)
