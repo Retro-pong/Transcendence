@@ -4,7 +4,7 @@ import asyncio
 from backend.middleware import JWTAuthMiddleware
 
 
-class RoomConsumer(AsyncJsonWebsocketConsumer):
+class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
     rooms = {}
     rooms_lock = asyncio.Lock()
 
@@ -29,22 +29,22 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
             else:
                 await self.send_json({"access": "Access successful."})
             # 방이 다 차있을 경우 에러 (code=4003)
-            async with RoomConsumer.rooms_lock:
-                if self.room_id not in RoomConsumer.rooms:
-                    RoomConsumer.rooms[self.room_id] = []
-                RoomConsumer.rooms[self.room_id].append(self.user)
-                if len(RoomConsumer.rooms[self.room_id]) >= 3:
+            async with NormalRoomConsumer.rooms_lock:
+                if self.room_id not in NormalRoomConsumer.rooms:
+                    NormalRoomConsumer.rooms[self.room_id] = []
+                NormalRoomConsumer.rooms[self.room_id].append(self.user)
+                if len(NormalRoomConsumer.rooms[self.room_id]) >= 3:
                     await self.channel_layer.group_discard(
                         self.room_id, self.channel_name
                     )
-                    RoomConsumer.rooms[self.room_id].remove(self.user)
+                    NormalRoomConsumer.rooms[self.room_id].remove(self.user)
                     await self.send_json({"access": "Room is full."})
                     return
             # 연결 성공 시 방 참여 인원에게 방 인원 정보 전송
             await self.send_user_info()
             # 방 인원이 정원일 경우 3초뒤 소켓 연결 해제
-            async with RoomConsumer.rooms_lock:
-                if len(RoomConsumer.rooms[self.room_id]) == 2:
+            async with NormalRoomConsumer.rooms_lock:
+                if len(NormalRoomConsumer.rooms[self.room_id]) == 2:
                     await self.channel_layer.group_send(
                         self.room_id,
                         {
@@ -55,8 +55,12 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
 
     async def send_user_info(self):
         # 해당 방의 모든 사용자 정보를 수집하여 전송
-        username_list = [user.username for user in RoomConsumer.rooms[self.room_id]]
-        userimage_list = [str(user.image) for user in RoomConsumer.rooms[self.room_id]]
+        username_list = [
+            user.username for user in NormalRoomConsumer.rooms[self.room_id]
+        ]
+        userimage_list = [
+            str(user.image) for user in NormalRoomConsumer.rooms[self.room_id]
+        ]
         await self.channel_layer.group_send(
             self.room_id,
             {
@@ -92,13 +96,18 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
         await self.send_json(data)
 
     async def disconnect(self, close_code):
-        async with RoomConsumer.rooms_lock:
-            if self.room_id in RoomConsumer.rooms:
-                if self.user in RoomConsumer.rooms[self.room_id]:
-                    RoomConsumer.rooms[self.room_id].remove(self.user)
+        async with NormalRoomConsumer.rooms_lock:
+            if self.room_id in NormalRoomConsumer.rooms:
+                if self.user in NormalRoomConsumer.rooms[self.room_id]:
+                    NormalRoomConsumer.rooms[self.room_id].remove(self.user)
                     # 방에 더 이상 참여자가 없으면 방을 삭제
-                    if not RoomConsumer.rooms[self.room_id]:
-                        del RoomConsumer.rooms[self.room_id]
+                    if not NormalRoomConsumer.rooms[self.room_id]:
+                        del NormalRoomConsumer.rooms[self.room_id]
         # Leave room group
         await self.channel_layer.group_discard(self.room_id, self.channel_name)
         await self.close()
+
+
+class TournamentRoomConsumer(AsyncJsonWebsocketConsumer):
+    rooms = {}
+    rooms_lock = asyncio.Lock()
