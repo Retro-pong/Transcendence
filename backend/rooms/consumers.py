@@ -19,7 +19,7 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
             token = content["token"]
             try:
                 self.user = await JWTAuthMiddleware.get_user(token)
-            except Exception as e:
+            except:
                 await self.send_json({"access": "User invalid or expired."})
                 return
             if not self.user.is_authenticated:
@@ -31,7 +31,7 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
                 if self.room_id not in NormalRoomConsumer.rooms:
                     NormalRoomConsumer.rooms[self.room_id] = []
                 NormalRoomConsumer.rooms[self.room_id].append(self.user)
-                if len(NormalRoomConsumer.rooms[self.room_id]) >= 3:
+                if len(NormalRoomConsumer.rooms[self.room_id]) > 2:
                     await self.channel_layer.group_discard(
                         self.room_id, self.channel_name
                     )
@@ -52,7 +52,7 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
                     )
 
     async def send_user_info(self):
-        # 해당 방의 모든 사용자 정보를 수집하여 전송
+        # 해당 방의 모든 유저 정보를 수집하여 전송
         username_list = [
             user.username for user in NormalRoomConsumer.rooms[self.room_id]
         ]
@@ -69,7 +69,7 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
         )
 
     async def broadcast_users(self, event):
-        # 모든 사용자에게 방에 있는 사용자 정보 전송
+        # 모든 유저에게 방에 있는 유저 정보 전송
         username_list = event["username"]
         userimage_list = event["userimage"]
         user_data = {
@@ -107,8 +107,9 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
 
 
 class TournamentRoomConsumer(AsyncJsonWebsocketConsumer):
-    rooms = []
-    matches = []
+    rooms = {}
+    matches = {}
+    rooms_lock = asyncio.Lock()
 
     async def connect(self):
         self.room_id = self.scope["url_route"]["kwargs"]["room_id"]
@@ -121,7 +122,7 @@ class TournamentRoomConsumer(AsyncJsonWebsocketConsumer):
             token = content["token"]
             try:
                 self.user = await JWTAuthMiddleware.get_user(token)
-            except Exception as e:
+            except:
                 await self.send_json({"access": "User invalid or expired."})
                 return
             if not self.user.is_authenticated:
@@ -129,73 +130,130 @@ class TournamentRoomConsumer(AsyncJsonWebsocketConsumer):
             else:
                 await self.send_json({"access": "Access successful."})
 
-            # Add the player to the waiting room
-            self.rooms.append(self)
-            if len(self.rooms) >= 4:
-                await self.start_initial_matches()
+            # 방이 다 차있을 경우 에러 (code=4003)
+            async with TournamentRoomConsumer.rooms_lock:
+                if self.room_id not in TournamentRoomConsumer.rooms:
+                    TournamentRoomConsumer.rooms[self.room_id] = []
+                TournamentRoomConsumer.rooms[self.room_id].append(self.user)
+                if len(TournamentRoomConsumer.rooms[self.room_id]) > 4:
+                    await self.channel_layer.group_discard(
+                        self.room_id, self.channel_name
+                    )
+                    TournamentRoomConsumer.rooms[self.room_id].remove(self.user)
+                    await self.send_json({"access": "Room is full."})
+                    return
+            # 대기실 참여 성공
+            await self.send_user_info()
+            async with TournamentRoomConsumer.rooms_lock:
+                if len(TournamentRoomConsumer.rooms[self.room_id]) == 4:
+                    await self.start_initial_matches()
 
         elif content["type"] == "match_result":
             winner = content["winner"]
             await self.handle_match_result(winner)
 
+    async def send_user_info(self):
+        # 해당 방의 모든 유저 정보를 수집하여 전송
+        username_list = [
+            user.username for user in TournamentRoomConsumer.rooms[self.room_id]
+        ]
+        userimage_list = [
+            str(user.image) for user in TournamentRoomConsumer.rooms[self.room_id]
+        ]
+        await self.channel_layer.group_send(
+            self.room_id,
+            {
+                "type": "broadcast_users",
+                "username": username_list,
+                "userimage": userimage_list,
+            },
+        )
+
+    async def broadcast_users(self, event):
+        # 모든 유저에게 방에 있는 유저 정보 전송
+        username_list = event["username"]
+        userimage_list = event["userimage"]
+        user_data = {
+            "type": "users",
+            "user1": "",
+            "user1_image": "",
+            "user2": "",
+            "user2_image": "",
+            "user3": "",
+            "user3_image": "",
+            "user4": "",
+            "user4_image": "",
+        }
+        for idx, username in enumerate(username_list, start=0):
+            user_data[f"user{idx}"] = username
+            user_data[f"user{idx}_image"] = userimage_list[idx]
+
+        await self.send_json(user_data)
+
     async def start_initial_matches(self):
-        players = self.rooms[:4]
-        self.rooms = self.rooms[4:]
+        players = TournamentRoomConsumer.rooms[self.room_id]
+        self.rooms[self.room_id] = []
 
         match_1 = players[:2]
         match_2 = players[2:]
-
-        self.matches.extend([match_1, match_2])
+        self.matches[self.room_id] = [match_1, match_2]
 
         for player in match_1:
-            await player.send_json({"type": "start_match", "opponent": match_1})
-
-        for player in match_2:
-            await player.send_json({"type": "start_match", "opponent": match_2})
-
-        # Allow other players to watch the matches
-        for watcher in self.rooms:
-            await watcher.send_json(
-                {"type": "watch_match", "match_1": match_1, "match_2": match_2}
+            await player.send_json(
+                {
+                    "type": "start_match",
+                    "opponent": [p.user.username for p in match_1 if p != player],
+                }
             )
 
-    async def handle_match_result(self, winner):
-        # Find the match and remove it from the matches
-        match = next((m for m in self.matches if winner in m), None)
+        for player in match_2:
+            await player.send_json(
+                {
+                    "type": "start_match",
+                    "opponent": [p.user.username for p in match_2 if p != player],
+                }
+            )
+
+    async def handle_match_result(self, winner, player):
+        match = next((m for m in self.matches[self.room_id] if player in m), None)
         if match:
-            self.matches.remove(match)
+            self.matches[self.room_id].remove(match)
 
-        # Add the winner to the waiting room for the final match
-        self.rooms.append(winner)
+        self.rooms[self.room_id].append(winner)
 
-        # If both initial matches are finished, start the final match
-        if len(self.matches) == 0 and len(self.rooms) == 2:
-            await self.start_final_match()
+        if len(self.matches[self.room_id]) == 0:
+            if len(self.rooms[self.room_id]) == 2:
+                await self.start_final_match()
+            else:
+                # Notify spectators
+                spectators = [p for p in self.rooms[self.room_id] if p != winner]
+                for spectator in spectators:
+                    await spectator.send_json(
+                        {"type": "match_ended", "winner": winner.user.username}
+                    )
 
     async def start_final_match(self):
-        final_match = self.rooms[:2]
-        self.rooms = self.rooms[2:]
+        final_match = list(self.rooms[self.room_id][:2])
+        self.rooms[self.room_id] = []
+
+        self.matches[self.room_id] = final_match
 
         for player in final_match:
             await player.send_json(
-                {"type": "start_final_match", "opponent": final_match}
-            )
-
-        # Allow other players to watch the final match
-        for watcher in self.rooms:
-            await watcher.send_json(
-                {"type": "watch_final_match", "final_match": final_match}
+                {
+                    "type": "start_final_match",
+                    "opponent": [p.user.username for p in final_match if p != player],
+                }
             )
 
     async def disconnect(self, close_code):
-        # Remove the player from the waiting room
-        if self in self.rooms:
-            self.rooms.remove(self)
-        # Remove the player from any ongoing matches
-        for match in self.matches:
-            if self in match:
-                match.remove(self)
-                break
-        # Leave room group
+        async with TournamentRoomConsumer.rooms_lock:
+            if self in self.rooms[self.room_id]:
+                self.rooms[self.room_id].remove(self)
+            for match in self.matches.get(self.room_id, []):
+                if self in match:
+                    match.remove(self)
+                    if not match:
+                        del self.matches[self.room_id]
         await self.channel_layer.group_discard(self.room_id, self.channel_name)
         await self.close()
