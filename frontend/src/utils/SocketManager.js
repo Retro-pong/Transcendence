@@ -8,6 +8,9 @@ class SocketManager {
   static gameSocket = null;
 
   static setOffline() {
+    if (!SocketManager.onlineSocket) {
+      return;
+    }
     SocketManager.onlineSocket.close();
     SocketManager.onlineSocket = null;
   }
@@ -26,6 +29,7 @@ class SocketManager {
     };
     this.onlineSocket.onerror = (error) => {
       console.error('Online Socket Error:', error);
+      this.onlineSocket = null;
     };
   }
 }
