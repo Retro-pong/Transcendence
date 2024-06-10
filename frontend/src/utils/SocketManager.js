@@ -1,3 +1,5 @@
+import TokenManager from '@/utils/TokenManager';
+
 class SocketManager {
   static #BASE_URL = 'ws://localhost/ws';
 
@@ -16,11 +18,23 @@ class SocketManager {
   }
 
   static setOnline() {
-    if (!this.onlineSocket) {
+    if (
+      !this.onlineSocket ||
+      this.onlineSocket.readyState === WebSocket.CLOSED
+    ) {
       this.onlineSocket = new WebSocket(`${this.#BASE_URL}/login/`);
     }
     this.onlineSocket.onopen = () => {
+      const message = {
+        type: 'access',
+        token: TokenManager.getAccessToken(),
+      };
+      this.onlineSocket.send(JSON.stringify(message));
       console.log('Online Socket Connected');
+    };
+    this.onlineSocket.onmessage = (e) => {
+      const data = JSON.parse(e.data);
+      console.log(data);
     };
     this.onlineSocket.onclose = (e) => {
       console.log('Online Socket Disconnected');
@@ -29,7 +43,6 @@ class SocketManager {
     };
     this.onlineSocket.onerror = (error) => {
       console.error('Online Socket Error:', error);
-      this.onlineSocket = null;
     };
   }
 }
