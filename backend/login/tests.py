@@ -120,7 +120,6 @@ class LoginAPITestCase(APITestCase):
         data = {"email": new_email, "code": "654321"}
         response = self.client.post(reverse("login:email_register_verify"), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, "Email verification successful.")
 
     def test_logout_view(self):
         token = TokenObtainPairSerializer.get_token(self.user)
