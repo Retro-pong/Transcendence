@@ -1,16 +1,26 @@
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from channels.db import database_sync_to_async
 from django.apps import apps
+from backend.middleware import JWTAuthMiddleware
 
 
 class LoginConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
-        self.user = self.scope["user"]
-        if self.user.is_authenticated:
-            await self.accept()
-            await self.change_status(True)
-        else:
-            await self.close()
+        await self.accept()
+
+    async def receive_json(self, content):
+        if content["type"] == "access":
+            token = content["token"]
+            try:
+                self.user = await JWTAuthMiddleware.get_user(token)
+            except Exception as e:
+                await self.send_json({"access": "User invalid or expired."})
+                return
+            if not self.user.is_authenticated:
+                await self.send_json({"access": "User not authenticated."})
+            else:
+                await self.send_json({"access": "Access successful."})
+                await self.change_status(True)
 
     async def disconnect(self, code):
         await self.change_status(False)

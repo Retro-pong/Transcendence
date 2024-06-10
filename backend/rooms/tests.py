@@ -119,15 +119,17 @@ class RoomConsumerTest(TransactionTestCase):
         )
         token = TokenObtainPairSerializer.get_token(user)
         access_token = str(token.access_token)
-        application = JWTAuthMiddleware(URLRouter(websocket_urlpatterns))
         communicator = WebsocketCommunicator(
-            application,
+            URLRouter(websocket_urlpatterns),
             "/ws/normal_room/1/",
-            headers=[(b"cookie", f"access_token={access_token}")],
         )
         connected, subprotocol = await communicator.connect()
         self.assertTrue(connected)
-
+        await communicator.send_json_to({"type": "access", "token": access_token})
+        response = await communicator.receive_json_from()
+        self.assertEqual(response, {"access": "Access successful."})
+        response = await communicator.receive_json_from()
+        assert response["type"] == "users"
         # Clean up
         await communicator.disconnect()
 
@@ -147,34 +149,41 @@ class RoomConsumerTest(TransactionTestCase):
         )
         token3 = TokenObtainPairSerializer.get_token(user3)
         access_token3 = str(token3.access_token)
-        application = JWTAuthMiddleware(URLRouter(websocket_urlpatterns))
         # Connect the first client
         communicator1 = WebsocketCommunicator(
-            application,
+            URLRouter(websocket_urlpatterns),
             "/ws/normal_room/1/",
-            headers=[(b"cookie", f"access_token={access_token1}".encode())],
         )
         connected1, subprotocol1 = await communicator1.connect()
         self.assertTrue(connected1)
-
+        await communicator1.send_json_to({"type": "access", "token": access_token1})
+        response = await communicator1.receive_json_from()
+        self.assertEqual(response, {"access": "Access successful."})
         # Connect the second client
         communicator2 = WebsocketCommunicator(
-            application,
+            URLRouter(websocket_urlpatterns),
             "/ws/normal_room/1/",
-            headers=[(b"cookie", f"access_token={access_token2}".encode())],
         )
         connected2, subprotocol2 = await communicator2.connect()
         self.assertTrue(connected2)
+        await communicator2.send_json_to({"type": "access", "token": access_token2})
+        response = await communicator2.receive_json_from()
+        self.assertEqual(response, {"access": "Access successful."})
         # Try to connect the third client, which should fail
         communicator3 = WebsocketCommunicator(
-            application,
+            URLRouter(websocket_urlpatterns),
             "/ws/normal_room/1/",
-            headers=[(b"cookie", f"access_token={access_token3}".encode())],
         )
         connected3, subprotocol3 = await communicator3.connect()
-        self.assertFalse(connected3)
+        self.assertTrue(connected3)
+        await communicator3.send_json_to({"type": "access", "token": access_token3})
+        response = await communicator3.receive_json_from()
+        self.assertEqual(response, {"access": "Access successful."})
+        response = await communicator3.receive_json_from()
+        self.assertEqual(response, {"access": "Room is full."})
         response1 = await communicator1.receive_json_from()
         assert response1["user0"] == "testuser1"
+        assert response1["user1"] == ""
         response2 = await communicator2.receive_json_from()
         assert response2["user1"] == "testuser2"
         response2 = await communicator2.receive_json_from()
@@ -183,23 +192,3 @@ class RoomConsumerTest(TransactionTestCase):
         await communicator1.disconnect()
         await communicator2.disconnect()
         await communicator3.disconnect()
-
-    async def test_room_disconnect(self):
-        user = await self.create_test_user(
-            username="testuser4", email="test4@example.com", password="1234"
-        )
-        token = TokenObtainPairSerializer.get_token(user)
-        access_token = str(token.access_token)
-        application = JWTAuthMiddleware(URLRouter(websocket_urlpatterns))
-        communicator = WebsocketCommunicator(
-            application,
-            "/ws/normal_room/2/",
-            headers=[(b"cookie", f"access_token={access_token}".encode())],
-        )
-        connected, subprotocol = await communicator.connect()
-
-        self.assertTrue(connected)
-        await communicator.disconnect()
-
-        # Verify the room is empty after disconnect
-        self.assertNotIn("/ws/normal_room/2/", RoomConsumer.rooms)

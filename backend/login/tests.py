@@ -155,15 +155,40 @@ class LoginConsumerTestCase(TransactionTestCase):
         )
         token = TokenObtainPairSerializer.get_token(user)
         access_token = str(token.access_token)
-        application = JWTAuthMiddleware(URLRouter(websocket_urlpatterns))
         communicator = WebsocketCommunicator(
-            application,
+            URLRouter(websocket_urlpatterns),
             "/ws/login/",
-            headers=[(b"cookie", f"access_token={access_token}".encode())],
         )
         connected, subprotocol = await communicator.connect()
         self.assertTrue(connected)
+        await communicator.send_json_to(
+            {
+                "type": "access",
+                "token": access_token,
+            }
+        )
+        response = await communicator.receive_json_from()
+        self.assertEqual(response, {"access": "Access successful."})
         user_status = await self.get_user(user.username)
         self.assertTrue(user_status.is_active)
         await communicator.disconnect()
         self.assertFalse(user.is_active)
+
+    async def test_not_authenticated(self):
+        user = await self.create_test_user(
+            username="testuser", email="test@example.com", password="1234"
+        )
+        communicator = WebsocketCommunicator(
+            URLRouter(websocket_urlpatterns),
+            "/ws/login/",
+        )
+        connected, subprotocol = await communicator.connect()
+        self.assertTrue(connected)
+        await communicator.send_json_to(
+            {
+                "type": "access",
+                "token": "unvalid token",
+            }
+        )
+        response = await communicator.receive_json_from()
+        self.assertEqual(response, {"access": "User invalid or expired."})

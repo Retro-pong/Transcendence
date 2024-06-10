@@ -12,7 +12,7 @@ ENV PYTHONUNBUFFERED=1
 
 ENV DJANGO_SETTINGS_MODULE=backend.settings
 
-RUN apt-get update && apt-get install -y dumb-init
+RUN apt-get update && apt-get install -y dumb-init redis-server
 
 WORKDIR /app
 
