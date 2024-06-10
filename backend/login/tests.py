@@ -169,7 +169,7 @@ class LoginConsumerTestCase(TransactionTestCase):
             }
         )
         response = await communicator.receive_json_from()
-        self.assertEqual(response, {"login": "Login successful"})
+        self.assertEqual(response, {"login": "Login successful."})
         user_status = await self.get_user(user.username)
         self.assertTrue(user_status.is_active)
         await communicator.disconnect()
@@ -192,4 +192,4 @@ class LoginConsumerTestCase(TransactionTestCase):
             }
         )
         response = await communicator.receive_json_from()
-        self.assertEqual(response, {"login": "User invalid or expired"})
+        self.assertEqual(response, {"login": "User invalid or expired."})
