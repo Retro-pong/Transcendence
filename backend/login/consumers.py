@@ -14,12 +14,12 @@ class LoginConsumer(AsyncJsonWebsocketConsumer):
             try:
                 self.user = await JWTAuthMiddleware.get_user(token)
             except Exception as e:
-                await self.send_json({"login": "User invalid or expired."})
+                await self.send_json({"access": "User invalid or expired."})
                 return
             if not self.user.is_authenticated:
-                await self.send_json({"login": "User not authenticated."})
+                await self.send_json({"access": "User not authenticated."})
             else:
-                await self.send_json({"login": "Login successful."})
+                await self.send_json({"access": "Access successful."})
                 await self.change_status(True)
 
     async def disconnect(self, code):
