@@ -9,6 +9,14 @@ from .utils import send_verification_code, verify_email, obtain_jwt_token
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
+# Conumser test
+from django.test import TransactionTestCase
+from channels.db import database_sync_to_async
+from .routing import websocket_urlpatterns
+from channels.routing import URLRouter
+from backend.middleware import JWTAuthMiddleware
+from channels.testing import WebsocketCommunicator
+
 
 class LoginAPITestCase(APITestCase):
 
@@ -131,3 +139,32 @@ class LoginAPITestCase(APITestCase):
         response = self.client.post(reverse("login:token_refresh"))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("access_token", response.data)
+
+
+class LoginConsumerTestCase(TransactionTestCase):
+    @database_sync_to_async
+    def create_test_user(self, username, email, password):
+        return User.objects.create_user(username, email, password)
+
+    @database_sync_to_async
+    def get_user(self, username):
+        return User.objects.get(username=username)
+
+    async def test_login(self):
+        user = await self.create_test_user(
+            username="testuser", email="test@example.com", password="1234"
+        )
+        token = TokenObtainPairSerializer.get_token(user)
+        access_token = str(token.access_token)
+        application = JWTAuthMiddleware(URLRouter(websocket_urlpatterns))
+        communicator = WebsocketCommunicator(
+            application,
+            "/ws/login/",
+            headers=[(b"cookie", f"access_token={access_token}".encode())],
+        )
+        connected, subprotocol = await communicator.connect()
+        self.assertTrue(connected)
+        user_status = await self.get_user(user.username)
+        self.assertTrue(user_status.is_active)
+        await communicator.disconnect()
+        self.assertFalse(user.is_active)

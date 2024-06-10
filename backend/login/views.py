@@ -43,7 +43,7 @@ class IntraCallbackView(APIView):
             intra_token = self.get_intra_token(code)
             intra_userinfo = self.get_intra_userinfo(intra_token)
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": str(e)}, status=status.HTTP_502_BAD_GATEWAY)
 
         # Get user info from 42 intra and authenticate
         try:
@@ -53,7 +53,7 @@ class IntraCallbackView(APIView):
         except KeyError:
             return Response(
                 {"error": "Failed to get user info from 42 intra."},
-                status=status.HTTP_400_BAD_REQUEST,
+                status=status.HTTP_502_BAD_GATEWAY,
             )
         # 회원가입
         except User.DoesNotExist:
@@ -86,13 +86,9 @@ class IntraCallbackView(APIView):
         try:
             response = requests.post(settings.INTRA_TOKEN_API_URL, data=data)
             response_data = response.json()
+            token = response_data["access_token"]
         except:
             raise Exception("Failed to get access token from 42 intra.")
-        try:
-            response_data["access_token"]
-        except KeyError:
-            raise Exception(response_data.get("error_description"))
-
         return response_data
 
     def get_intra_userinfo(self, intra_token) -> dict:
@@ -107,7 +103,7 @@ class IntraCallbackView(APIView):
             response = requests.get(settings.INTRA_USERINFO_API_URL, headers=headers)
             intra_userinfo = response.json()
         except:
-            raise Exception("Failed to get userinfo from 42 intra.")
+            raise Exception("Failed to get user info from 42 intra.")
         return intra_userinfo
 
 
@@ -124,7 +120,7 @@ class EmailLoginView(APIView):
                 ),
             },
         ),
-        responses={200: "OK", 401: "UNAUTHORIZED", 500: "INTERNAL_SERVER_ERROR"},
+        responses={200: "OK", 400: "BAD REQUEST", 500: "INTERNAL_SERVER_ERROR"},
     )
     def post(self, request):
         try:
@@ -148,7 +144,7 @@ class EmailLoginView(APIView):
             pass
         return Response(
             {"error": "Invalid email or password."},
-            status=status.HTTP_401_UNAUTHORIZED,
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
 
@@ -186,7 +182,7 @@ class EmailRegisterView(APIView):
         tags=["login"],
         operation_description="email 회원가입",
         request_body=RegisterSerializer,
-        responses={201: "CREATED", 400: "BAD_REQUEST"},
+        responses={201: "CREATED", 400: "BAD_REQUEST", 500: "INTERNAL_SERVER_ERROR"},
     )
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
@@ -229,7 +225,7 @@ class EmailRegisterVerifyView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED,
             )
         User.objects.filter(email=email).update(is_registered=True)
-        return Response("Email verification successful.", status=status.HTTP_200_OK)
+        return Response({"message": "Registration successful."}, status=status.HTTP_200_OK)
 
 
 class LogoutView(APIView):
@@ -245,7 +241,7 @@ class LogoutView(APIView):
         user = request.user
         user.is_active = False
         user.save()
-        response = Response("Logout successful.", status=status.HTTP_200_OK)
+        response = Response({"message": "Logout successful."}, status=status.HTTP_200_OK)
         response.delete_cookie("refresh_token")
         return response
 
@@ -258,7 +254,7 @@ class MyTokenRefreshView(TokenRefreshView):
             type=openapi.TYPE_OBJECT,
             properties={},
         ),
-        responses={200: "OK", 401: "UNAUTHORIZED"},
+        responses={200: "OK", 401: "UNAUTHORIZED", 403: "FORBIDDEN", 502: "BAD_GATEWAY"},
     )
     def post(self, request, *args, **kwargs) -> Response:
         # Get refresh token from cookie
@@ -278,7 +274,7 @@ class MyTokenRefreshView(TokenRefreshView):
         except:
             response = Response(
                 {"error": "Failed to refresh token."},
-                status=status.HTTP_401_UNAUTHORIZED,
+                status=status.HTTP_502_BAD_GATEWAY,
             )
             response.delete_cookie("refresh_token")
             return response
@@ -290,11 +286,14 @@ class MyTokenRefreshView(TokenRefreshView):
         except User.DoesNotExist:
             response = Response(
                 {"error": "User does not exist."},
-                status=status.HTTP_401_UNAUTHORIZED,
+                status=status.HTTP_403_FORBIDDEN,
             )
             response.delete_cookie("refresh_token")
             return response
         access_token = str(new_token.access_token)
+        # 토큰은 유효할 때 유저가 오프라인 상태에서 다시 접속했을 경우 active 활성화
+        if not user.is_active:
+            user.is_active = True
         return Response(
             {
                 "message": "Token refreshed",

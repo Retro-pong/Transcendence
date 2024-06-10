@@ -10,6 +10,8 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # https://stackoverflow.com/questions/59812009/what-is-the-use-of-pythonunbuffered-in-docker-file
 ENV PYTHONUNBUFFERED=1
 
+ENV DJANGO_SETTINGS_MODULE=backend.settings
+
 RUN apt-get update && apt-get install -y dumb-init
 
 WORKDIR /app
