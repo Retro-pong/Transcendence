@@ -33,6 +33,7 @@ class JoinRoom extends PageComponent {
 
     const setRoomModalButton = (room) => {
       this.roomMap.set(`room${room.id}`, {
+        id: room.id.toString(),
         title: room.room_name,
         map: room.game_map,
         speed: room.game_speed,
@@ -61,7 +62,7 @@ class JoinRoom extends PageComponent {
       );
       modalFooter.innerHTML = NavLink({
         text: '>> ENTER <<',
-        path: `/game/waiting?title=${roomInfo.title}`,
+        path: `/game/waiting?title=${roomInfo.title}&room_id=${roomInfo.id}`,
         classList: 'btn btn-outline-light w-100 fs-12',
       }).outerHTML;
       modalBody.innerHTML = GameRoomInfo(roomInfo);
