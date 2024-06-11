@@ -8,13 +8,15 @@ class WaitingRoom extends PageComponent {
   constructor() {
     super();
     this.setTitle('Waiting Room');
+    const params = new URLSearchParams(document.location.search);
+    this.roomTitle = params.get('title') || 'Let\'s Play Pong!';
+    this.roomId = params.get('id');
     // 게임방 id로 연결
     // this.webSocket = new WebSocket('url');
   }
 
   async render() {
     const params = new URLSearchParams(document.location.search);
-    const TITLE = params.get('title') || 'Game Room';
     // TODO: 소켓으로 게임 방 정보 받아오기, 참가자가 아니면 홈으로 리다이렉트
 
     const dummyPlayers = [
@@ -71,7 +73,7 @@ class WaitingRoom extends PageComponent {
       ${GameManualModal}
       <div class="container h-100 p-3 game-room-border">
         <div class="d-flex flex-column h-100 position-relative">
-          <h1 class="fs-15 text-center">Welcome to<br />[ ${TITLE} ]</h1>
+          <h1 class="fs-15 text-center">Welcome to<br />[ ${this.roomTitle} ]</h1>
           ${ManualButton} 
           <div class="d-md-flex justify-content-center align-items-center overflow-auto h-100">
             <div id="player-container" class="row row-cols-1 row-cols-md-2 g-1 w-95">

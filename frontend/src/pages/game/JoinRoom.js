@@ -62,7 +62,7 @@ class JoinRoom extends PageComponent {
       );
       modalFooter.innerHTML = NavLink({
         text: '>> ENTER <<',
-        path: `/game/waiting?title=${roomInfo.title}&room_id=${roomInfo.id}`,
+        path: `/game/waiting?title=${roomInfo.title}&id=${roomInfo.id}`,
         classList: 'btn btn-outline-light w-100 fs-12',
       }).outerHTML;
       modalBody.innerHTML = GameRoomInfo(roomInfo);
