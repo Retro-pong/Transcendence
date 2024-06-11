@@ -73,11 +73,9 @@ class WaitingRoom extends PageComponent {
         <div class="d-flex flex-column h-100 position-relative">
           <h1 class="fs-15 text-center">Welcome to<br />[ ${TITLE} ]</h1>
           ${ManualButton} 
-          <div class="d-flex justify-content-center align-items-center overflow-auto">
-            <div class="container h-100 px-5 text-center">
-              <div id="player-container" class="row row-cols-1 row-cols-md-2 g-1">
-                ${PlayerCards}
-              </div>
+          <div class="d-flex justify-content-center align-items-center overflow-auto h-100">
+            <div id="player-container" class="row row-cols-1 row-cols-md-2 g-1 w-95">
+              ${PlayerCards}
             </div>
           </div>
         </div>
