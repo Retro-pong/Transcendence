@@ -31,6 +31,7 @@ class User(AbstractUser):
     is_registered = models.BooleanField(default=False)
     is_authenticated = models.BooleanField(default=True)
     is_active = models.BooleanField(default=False)
+    is_anonymous = models.BooleanField(default=False)
     win = models.IntegerField(default=0)
     lose = models.IntegerField(default=0)
     comment = models.CharField(max_length=20, default="hello!", blank=True)

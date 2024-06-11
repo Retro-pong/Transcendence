@@ -1,13 +1,14 @@
 import Fetch from '@/utils/Fetch';
 import ToastHandler from '@/utils/ToastHandler';
 import Router from '@/utils/Router';
+import SocketManager from '@/utils/SocketManager';
 
 class TokenManager {
   static #accessToken = null;
 
   static setAccessToken(accessToken) {
     this.#accessToken = accessToken;
-    localStorage.setItem('login', true);
+    localStorage.setItem('login', 'true');
   }
 
   static getAccessToken() {
@@ -25,11 +26,13 @@ class TokenManager {
 
   static storeToken(accessToken) {
     this.setAccessToken(accessToken);
+    SocketManager.setOnline();
     Fetch.init();
   }
 
   static clearToken() {
     this.deleteAccessToken();
+    SocketManager.setOffline();
     Fetch.init();
   }
 

@@ -102,26 +102,40 @@ class FriendsListAPIView(APIView):
                     },
                 ),
             ),
-            400: openapi.Response(
-                description="Bad request",
-                examples={"application/json": {"error": "Error message"}},
+            401: openapi.Response(
+                description="Unauthorized",
+                examples={
+                    "application/json": {
+                        "detail": "Authentication credentials were not provided."
+                    }
+                },
+            ),
+            403: openapi.Response(
+                description="Forbidden",
+                examples={"application/json": {"error": "User not found."}},
             ),
         },
     )
-    def get(self, request):  # 친구 리스트 불러오기
+    def get(self, request):
+        """
+        Get the list of friends with pagination
+        """
         try:
             user = request.user
-            friends = Friend.objects.filter(user=user)
-            limit = int(request.query_params.get("limit", 10))  # default value: 10
-            total = friends.count()
-            total = math.ceil(total / limit)
-            paginator = self.pagination_class()
-            paginated_friends = paginator.paginate_queryset(friends, request, view=self)
-            serializer = FriendSerializer(paginated_friends, many=True)
-            response_data = {"total": total, "friends": serializer.data}
-            return Response(response_data, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except AttributeError:
+            return Response(
+                {"error": "User not found."}, status=status.HTTP_403_FORBIDDEN
+            )
+        friends = Friend.objects.filter(user=user)
+        friends_num = friends.count()
+        limit = int(request.query_params.get("limit", 10))  # default value: 10
+        total = math.ceil(friends_num / limit)
+
+        paginator = self.pagination_class()
+        paginated_friends = paginator.paginate_queryset(friends, request, view=self)
+        serializer = FriendSerializer(paginated_friends, many=True)
+        response_data = {"total": total, "friends": serializer.data}
+        return Response(response_data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
         operation_description="Delete a friend",
@@ -144,20 +158,54 @@ class FriendsListAPIView(APIView):
         ),
         responses={
             200: openapi.Response(
-                description="Friend successfully deleted",
+                description="Friend deletion successful.",
             ),
             400: openapi.Response(
                 description="Bad request",
+                examples={"application/json": {"error": "Friend name is required."}},
+            ),
+            401: openapi.Response(
+                description="Unauthorized",
+                examples={
+                    "application/json": {
+                        "detail": "Authentication credentials were not provided."
+                    }
+                },
+            ),
+            403: openapi.Response(
+                description="Forbidden",
+                examples={"application/json": {"error": "User not found."}},
+            ),
+            409: openapi.Response(
+                description="Conflict",
+                examples={
+                    "application/json": {"error": "The user is not your friend."}
+                },
             ),
         },
     )
-    def patch(self, request):  # 친구 삭제
+    def patch(self, request):
+        """
+        Delete a friend
+        """
         try:
             user = request.user
-            Friend.delete_friend(user, request.data["friend_name"])
-            return Response(status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            friend_name = request.data["friend_name"]
+            Friend.delete_friend(user, friend_name)
+        except AttributeError:
+            return Response(
+                {"error": "User not found."}, status=status.HTTP_403_FORBIDDEN
+            )
+        except KeyError:
+            return Response(
+                {"error": "Friend name is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except ValueError as e:
+            return Response({"error": str(e)}, status=status.HTTP_409_CONFLICT)
+        return Response(
+            {"message": "Friend deletion successful."}, status=status.HTTP_200_OK
+        )
 
 
 class WaitingListAPIView(APIView):
@@ -189,20 +237,33 @@ class WaitingListAPIView(APIView):
                     ),
                 ),
             ),
-            400: openapi.Response(
-                description="Bad request",
-                examples={"application/json": {"error": "Error message"}},
+            401: openapi.Response(
+                description="Unauthorized",
+                examples={
+                    "application/json": {
+                        "detail": "Authentication credentials were not provided."
+                    }
+                },
+            ),
+            403: openapi.Response(
+                description="Forbidden",
+                examples={"application/json": {"error": "User not found."}},
             ),
         },
     )
     def get(self, request):
+        """
+        Get the list of friend requests
+        """
         try:
             user = request.user
-            friend_requests = FriendRequest.objects.filter(user=user)
-            serializer = FriendRequestSerializer(friend_requests, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except AttributeError:
+            return Response(
+                {"error": "User not found."}, status=status.HTTP_403_FORBIDDEN
+            )
+        friend_requests = FriendRequest.objects.filter(user=user)
+        serializer = FriendRequestSerializer(friend_requests, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
         operation_description="Process a friend request",
@@ -232,22 +293,55 @@ class WaitingListAPIView(APIView):
             400: openapi.Response(
                 description="Bad request",
             ),
+            401: openapi.Response(
+                description="Unauthorized",
+                examples={
+                    "application/json": {
+                        "detail": "Authentication credentials were not provided."
+                    }
+                },
+            ),
+            403: openapi.Response(
+                description="Forbidden",
+                examples={"application/json": {"error": "User not found."}},
+            ),
+            404: openapi.Response(
+                description="Not found",
+                examples={"application/json": {"error": "Friend request not found."}},
+            ),
+            409: openapi.Response(
+                description="Conflict",
+                examples={
+                    "application/json": {"error": "The user is already your friend."}
+                },
+            ),
         },
     )
     def patch(self, request):
-        user = request.user
+        """
+        Process a friend request
+        """
         try:
+            user = request.user
             friend_name = request.data["friend_name"]
-            request_patch = int(
-                request.data["request_patch"]
-            )  # 친구 수락 1, 친구 거부 0
-            FriendRequest.objects.get(user=user, friend_name=friend_name)
+            request_accepted = int(request.data["request_patch"])  # 1 수락, 0 거절
             FriendRequest.delete_request(user=user, friend_name=friend_name)
-            if request_patch:
-                Friend.create_friend(user, friend_name)
-            return Response(status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except AttributeError:
+            return Response(
+                {"error": "User not found."}, status=status.HTTP_403_FORBIDDEN
+            )
+        except KeyError:
+            return Response(
+                {"error": "Friend name and request patch are required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except ValueError as e:
+            return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
+
+        if request_accepted:  # 친구 요청 수락 처리
+            Friend.create_friend(user, friend_name)
+            return Response(status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_200_OK)  # 친구 요청 거절 처리
 
 
 class AddListAPIView(APIView):
@@ -289,16 +383,28 @@ class AddListAPIView(APIView):
                 description="Bad request",
                 examples={"application/json": {"error": "Error message"}},
             ),
+            401: openapi.Response(
+                description="Unauthorized",
+                examples={
+                    "application/json": {
+                        "detail": "Authentication credentials were not provided."
+                    }
+                },
+            ),
         },
     )
-    def get(self, request):  # search_name을 포함하는 모든 user 반환
-        try:
-            search_name = request.query_params.get("search_name")
-            users = User.objects.filter(username__icontains=search_name)
-            serializer = UsernameSerializer(users, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    def get(self, request):
+        """
+        Get users whose username contains the search_name
+        """
+        search_name = request.query_params.get("search_name")
+        if not search_name:
+            return Response(
+                {"error": "Name is required."}, status=status.HTTP_400_BAD_REQUEST
+            )
+        users = User.objects.filter(username__icontains=search_name)
+        serializer = UsernameSerializer(users, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
         operation_description="Send a friend request",
@@ -321,37 +427,75 @@ class AddListAPIView(APIView):
             required=["friend_name"],
         ),
         responses={
-            200: openapi.Response(description="Friend request sent successfully"),
+            200: openapi.Response(description="OK"),
+            201: openapi.Response(description="Friend request sent successfully"),
             400: openapi.Response(
                 description="Bad request",
             ),
-            409: openapi.Response(
-                description="Friend request already sent",
+            401: openapi.Response(
+                description="Unauthorized",
+                examples={
+                    "application/json": {
+                        "detail": "Authentication credentials were not provided."
+                    }
+                },
+            ),
+            403: openapi.Response(
+                description="Forbidden",
+                examples={"application/json": {"error": "User not found."}},
+            ),
+            404: openapi.Response(
+                description="Not found",
+                examples={"application/json": {"error": "Friend not found."}},
             ),
         },
     )
     def patch(self, request):
-        user = request.user
-        friend_name = request.data["friend_name"]
-        if not friend_name:
-            return Response(
-                {"error": "Invalid data"}, status=status.HTTP_400_BAD_REQUEST
-            )
+        """
+        Send a friend request
+        """
+        # 신청을 보내는 유저 유효성 검사
         try:
-            send_user = User.objects.get(username=friend_name)
-            if not send_user:
+            user = request.user
+            friend_name = request.data["friend_name"]
+        except AttributeError:
+            return Response(
+                {"error": "User not found."}, status=status.HTTP_403_FORBIDDEN
+            )
+        except KeyError:
+            return Response(
+                {"error": "Friend name is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # 신청을 받는 유저 유효성 검사
+        send_user = User.objects.get(username=friend_name)
+        if not send_user:
+            return Response(
+                {"error": "Friend not found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        if send_user == request.user:
+            return Response(
+                {"error": "You can't be a friend with yourself."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            # 대상과 이미 친구인지 확인
+            Friend.objects.get(user=user, friend_user=send_user)
+            return Response(
+                {"error": "The user is already your friend."},
+                status=status.HTTP_200_OK,
+            )
+        except Friend.DoesNotExist:
+            try:
+                FriendRequest.objects.get(user=send_user, friend_name=user.username)
+                # 이미 친구 신청을 보낸 대상인지 확인
                 return Response(
-                    {"error": "User with friend name does not exist"},
-                    status=status.HTTP_400_BAD_REQUEST,
+                    {"error": "Friend request already sent."}, status=status.HTTP_200_OK
                 )
-            if send_user == request.user:
-                return Response(
-                    {"error": "You can't be friends yourself"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-            FriendRequest.create_request(user=send_user, friend_name=user.username)
-            return Response(status=status.HTTP_200_OK)
-        except ValueError as e:
-            return Response({"error": str(e)}, status=status.HTTP_409_CONFLICT)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            # 친구 신청 성공
+            except FriendRequest.DoesNotExist:
+                FriendRequest.create_request(user=send_user, friend_name=user.username)
+                return Response(status=status.HTTP_201_CREATED)

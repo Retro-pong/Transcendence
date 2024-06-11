@@ -51,24 +51,29 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    "channels",
-    "login",
-    "users",
-    "friends",
-    "rooms",
-    "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    # installed app error
+    "daphne",
+    "channels",
+    "users.apps.UsersConfig",
+    "login.apps.LoginConfig",
+    "friends.apps.FriendsConfig",
+    "rooms.apps.RoomsConfig",
+    "game.apps.GameConfig",
+    "django.contrib.admin",
     "django.contrib.staticfiles",
     "rest_framework",
     "rest_framework_simplejwt",  # JWT
     "rest_framework_swagger",  # Swagger
-    "drf_yasg",  # Swagger generator
-    "dj_rest_auth",  # permission
     "rest_framework.authtoken",  # permission
+    "dj_rest_auth",  # permission
+    "drf_yasg",  # Swagger generator
 ]
+
+ASGI_APPLICATION = "backend.asgi.application"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -192,4 +197,13 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
     "SLIDING_TOKEN_LIFETIME": timedelta(minutes=5),
     "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
+}
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
 }

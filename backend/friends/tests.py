@@ -105,7 +105,7 @@ class FriendsListAPIViewTestCase(APITestCase):
         data = {"friend_name": "friend4", "request_patch": 1}
         response = self.client.patch(url, data)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertFalse(FriendRequest.objects.filter(id=friend_request.id).exists())
 
 
@@ -141,7 +141,7 @@ class AddListAPIViewTest(APITestCase):
         data = {"friend_name": "user2"}
         response = self.client.patch(url, data)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         send_user = User.objects.get(username="user2")
         self.assertTrue(
             FriendRequest.objects.filter(
@@ -152,18 +152,18 @@ class AddListAPIViewTest(APITestCase):
     def test_send_friend_request_again(self):
         url = reverse("friends:add_list")
         data = {"friend_name": "user1"}
+        FriendRequest.create_request(user=self.user1, friend_name=self.user.username)
         response = self.client.patch(url, data)
-        response = self.client.patch(url, data)
-        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_send_friend_request_already_exists(self):
         url = reverse("friends:add_list")
         data = {"friend_name": "user1"}
-        Friend.objects.create(
-            user=User.objects.get(username="user1"), friend_user=self.user
+        Friend.create_friend(
+            user=User.objects.get(username="user1"), friend_name=self.user
         )
         response = self.client.patch(url, data)
-        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_send_myself(self):
         url = reverse("friends:add_list")
