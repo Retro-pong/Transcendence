@@ -26,11 +26,9 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
                 await self.send_json({"access": "User not authenticated."})
             else:
                 await self.send_json({"access": "Access successful."})
-            # 방이 다 차있을 경우 에러 (code=4003)
+
             async with NormalRoomConsumer.rooms_lock:
-                if self.room_id not in NormalRoomConsumer.rooms:
-                    NormalRoomConsumer.rooms[self.room_id] = []
-                NormalRoomConsumer.rooms[self.room_id].append(self.user)
+                # 방이 다 차있을 경우 에러 (code=4003)
                 if len(NormalRoomConsumer.rooms[self.room_id]) > 2:
                     await self.channel_layer.group_discard(
                         self.room_id, self.channel_name
@@ -38,6 +36,10 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
                     NormalRoomConsumer.rooms[self.room_id].remove(self.user)
                     await self.send_json({"access": "Room is full."})
                     return
+                if self.room_id not in NormalRoomConsumer.rooms:
+                    NormalRoomConsumer.rooms[self.room_id] = []
+                NormalRoomConsumer.rooms[self.room_id].append(self.user)
+
             # 연결 성공 시 방 참여 인원 모두에게 방 인원 정보 전송
             await self.send_user_info()
             # 방 인원이 정원일 경우 3초 뒤 소켓 연결 해제
@@ -130,11 +132,8 @@ class TournamentRoomConsumer(AsyncJsonWebsocketConsumer):
             else:
                 await self.send_json({"access": "Access successful."})
 
-            # 방이 다 차있을 경우 에러 (code=4003)
             async with TournamentRoomConsumer.rooms_lock:
-                if self.room_id not in TournamentRoomConsumer.rooms:
-                    TournamentRoomConsumer.rooms[self.room_id] = []
-                TournamentRoomConsumer.rooms[self.room_id].append(self.user)
+                # 방이 다 차있을 경우 에러 (code=4003)
                 if len(TournamentRoomConsumer.rooms[self.room_id]) > 4:
                     await self.channel_layer.group_discard(
                         self.room_id, self.channel_name
@@ -142,6 +141,10 @@ class TournamentRoomConsumer(AsyncJsonWebsocketConsumer):
                     TournamentRoomConsumer.rooms[self.room_id].remove(self.user)
                     await self.send_json({"access": "Room is full."})
                     return
+                if self.room_id not in TournamentRoomConsumer.rooms:
+                    TournamentRoomConsumer.rooms[self.room_id] = []
+                TournamentRoomConsumer.rooms[self.room_id].append(self.user)
+
             # 대기실 참여 성공
             await self.send_user_info()
             async with TournamentRoomConsumer.rooms_lock:
