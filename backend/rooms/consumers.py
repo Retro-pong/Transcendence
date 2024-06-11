@@ -24,8 +24,8 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
                 return
             if not self.user.is_authenticated:
                 await self.send_json({"access": "User not authenticated."})
-            else:
-                await self.send_json({"access": "Access successful."})
+                return
+            await self.send_json({"access": "Access successful."})
 
             async with NormalRoomConsumer.rooms_lock:
                 # 방이 다 차있을 경우 에러 (code=4003)
@@ -129,8 +129,8 @@ class TournamentRoomConsumer(AsyncJsonWebsocketConsumer):
                 return
             if not self.user.is_authenticated:
                 await self.send_json({"access": "User not authenticated."})
-            else:
-                await self.send_json({"access": "Access successful."})
+                return
+            await self.send_json({"access": "Access successful."})
 
             async with TournamentRoomConsumer.rooms_lock:
                 # 방이 다 차있을 경우 에러 (code=4003)
