@@ -132,12 +132,16 @@ class Profile extends PageComponent {
         username: nick.toLowerCase(),
         comment,
       })
-        .then(() => {
-          ToastHandler.setToast('Profile Update Successful');
+        .then((res) => {
+          ToastHandler.setToast(res.message || 'Profile Update Successful');
           editProfileModal.hide();
           this.afterRender();
         })
-        .catch(() => ToastHandler.setToast('Profile Update Failed'));
+        .catch((err) =>
+          ToastHandler.setToast(
+            `${err.message || 'Profile Update Failed'} [${err.code}]`
+          )
+        );
     });
   }
 
@@ -163,11 +167,17 @@ class Profile extends PageComponent {
         formData.append('image', resizeImg);
 
         await Fetch.patch('/users/profile/upload/', formData, 'image')
-          .then(() => {
-            ToastHandler.setToast('Profile Image Update Successful');
+          .then((res) => {
+            ToastHandler.setToast(
+              res.message || 'Profile Image Update Successful'
+            );
             this.afterRender();
           })
-          .catch(() => ToastHandler.setToast('Profile Image Update Failed'));
+          .catch((err) =>
+            ToastHandler.setToast(
+              `${err.message || 'Profile Image Update Failed'} [${err.code}]`
+            )
+          );
       });
   }
 

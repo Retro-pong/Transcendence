@@ -67,15 +67,21 @@ class Friends extends PageComponent {
           friend_name: friendName,
           request_patch: '1',
         })
-          .then(async () => {
-            await this.initPageData(this);
-            this.onReloadButtonClick(this);
-            this.onPaginationClick(this);
-            ToastHandler.setToast('Friend accepted');
-            document.querySelector(`[data-wait-item="${friendName}"]`).remove();
+          .then(async (res) => {
+            if (res.status === 201) {
+              await this.initPageData(this);
+              this.onReloadButtonClick(this);
+              this.onPaginationClick(this);
+              ToastHandler.setToast('Friend accepted');
+              document
+                .querySelector(`[data-wait-item="${friendName}"]`)
+                .remove();
+            }
           })
-          .catch(() => {
-            ToastHandler.setToast('Failed to accept friend');
+          .catch((err) => {
+            ToastHandler.setToast(
+              `${err.message || 'Failed to accept friend'} [${err.code}]`
+            );
           });
       });
     });
@@ -89,12 +95,18 @@ class Friends extends PageComponent {
           friend_name: friendName,
           request_patch: '0',
         })
-          .then(() => {
-            ToastHandler.setToast('Friend rejected');
-            document.querySelector(`[data-wait-item="${friendName}"]`).remove();
+          .then((res) => {
+            if (res.status === 200) {
+              ToastHandler.setToast('Friend rejected');
+              document
+                .querySelector(`[data-wait-item="${friendName}"]`)
+                .remove();
+            }
           })
-          .catch(() => {
-            ToastHandler.setToast('Failed to reject friend');
+          .catch((err) => {
+            ToastHandler.setToast(
+              `${err.message || 'Failed to reject friend'} [${err.code}]`
+            );
           });
       });
     });
@@ -105,14 +117,17 @@ class Friends extends PageComponent {
       btn.addEventListener('click', async (e) => {
         const friendName = e.target.dataset.nick;
         await Fetch.patch('/friends/add/', { friend_name: friendName })
-          .then(() => {
-            ToastHandler.setToast(`friend request ${friendName}`);
+          .then((res) => {
+            if (res.status === 200) {
+              ToastHandler.setToast(`${res.error} ${friendName}`);
+            }
+            if (res.status === 201) {
+              ToastHandler.setToast(`friend request ${friendName}`);
+            }
           })
-          .catch((error) => {
+          .catch((err) => {
             ToastHandler.setToast(
-              error.status === 409
-                ? error.message
-                : `failed to friend request ${friendName}`
+              `${err.message || 'Failed to send friend request'} [${err.code}]`
             );
           });
       });
@@ -182,8 +197,10 @@ class Friends extends PageComponent {
             this.onFriendRequestBtnClick();
             friendSearchList.scrollIntoView({ behavior: 'smooth' });
           })
-          .catch(() => {
-            ToastHandler.setToast('search failed');
+          .catch((err) => {
+            ToastHandler.setToast(
+              `${err.message || 'Search Failed'} [${err.code}]`
+            );
           });
       }, 1000)
     );
@@ -194,12 +211,16 @@ class Friends extends PageComponent {
       btn.addEventListener('click', async (e) => {
         const friendName = e.target.dataset.nick;
         Fetch.patch(`/friends/friend_list/`, { friend_name: friendName })
-          .then(() => {
-            ToastHandler.setToast(`Friend ${friendName} deleted`);
+          .then((res) => {
+            ToastHandler.setToast(
+              res.message || `Friend ${friendName} deleted`
+            );
             this.initPageData(this);
           })
-          .catch(() => {
-            ToastHandler.setToast(`Failed to delete friend ${friendName}`);
+          .catch((err) => {
+            ToastHandler.setToast(
+              `${err.message || 'Failed to delete friend'} [${err.code}]`
+            );
           });
       });
     });
