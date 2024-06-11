@@ -58,9 +58,6 @@ class TokenManager {
       })
       .catch((err) => {
         this.clearToken();
-        ToastHandler.setToast(
-          `${err.message || 'Logout Failed'} [${err.code}]`
-        );
       });
   }
 }
