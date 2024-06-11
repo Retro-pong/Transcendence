@@ -9,6 +9,10 @@ class SocketManager {
 
   static gameSocket = null;
 
+  static createSocket(url) {
+    return new WebSocket(`${this.#BASE_URL}${url}`);
+  }
+
   static setOffline() {
     if (!SocketManager.onlineSocket) {
       return;
@@ -22,7 +26,7 @@ class SocketManager {
       !this.onlineSocket ||
       this.onlineSocket.readyState === WebSocket.CLOSED
     ) {
-      this.onlineSocket = new WebSocket(`${this.#BASE_URL}/login/`);
+      this.onlineSocket = this.createSocket('/login/');
     }
     this.onlineSocket.onopen = () => {
       const message = {
