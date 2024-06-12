@@ -184,7 +184,7 @@ class RoomConsumerTest(TransactionTestCase):
         response = await communicator3.receive_json_from()
         self.assertEqual(response, {"access": "Access successful."})
         response = await communicator3.receive_json_from()
-        self.assertEqual(response, {"access": "Room is full."})
+        self.assertEqual(response, {"full": "Room is full."})
         response1 = await communicator1.receive_json_from()
         assert response1["user0"] == "testuser1"
         assert response1["user1"] == ""

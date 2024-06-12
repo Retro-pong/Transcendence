@@ -41,7 +41,7 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
                         self.room_id, self.channel_name
                     )
                     RoomConsumer.rooms[self.room_id].remove(self.user)
-                    await self.send_json({"access": "Room is full."})
+                    await self.send_json({"full": "Room is full."})
                     return
             # 연결 성공 시 방 참여 인원에게 방 인원 정보 전송
             current_player = await self.update_current_player(
@@ -64,30 +64,42 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
     async def send_user_info(self):
         # 해당 방의 모든 사용자 정보를 수집하여 전송
         username_list = [user.username for user in RoomConsumer.rooms[self.room_id]]
-        userimage_list = [str(user.image) for user in RoomConsumer.rooms[self.room_id]]
+        user_image_list = [str(user.image) for user in RoomConsumer.rooms[self.room_id]]
+        user_win_list = [user.win for user in RoomConsumer.rooms[self.room_id]]
+        user_lose_list = [user.lose for user in RoomConsumer.rooms[self.room_id]]
         await self.channel_layer.group_send(
             self.room_id,
             {
                 "type": "broadcast_users",
                 "username": username_list,
-                "userimage": userimage_list,
+                "user_image": user_image_list,
+                "user_win": user_win_list,
+                "user_lose": user_lose_list,
             },
         )
 
     async def broadcast_users(self, event):
         # 모든 사용자에게 방에 있는 사용자 정보 전송
         username_list = event["username"]
-        userimage_list = event["userimage"]
+        user_image_list = event["user_image"]
+        user_win_list = event["user_win"]
+        user_lose_list = event["user_lose"]
         user_data = {
             "type": "users",
             "user1": "",
             "user1_image": "",
+            "user1_win": "",
+            "user1_lose": "",
             "user2": "",
             "user2_image": "",
+            "user2_win": "",
+            "user2_lose": "",
         }
         for idx, username in enumerate(username_list, start=0):
             user_data[f"user{idx}"] = username
-            user_data[f"user{idx}_image"] = userimage_list[idx]
+            user_data[f"user{idx}_image"] = user_image_list[idx]
+            user_data[f"user{idx}_win"] = user_win_list[idx]
+            user_data[f"user{idx}_lose"] = user_lose_list[idx]
 
         await self.send_json(user_data)
 
