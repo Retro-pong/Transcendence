@@ -4,12 +4,10 @@ from rest_framework.test import APITestCase
 from .models import Room
 from users.models import User
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from .consumers import RoomConsumer
 from channels.testing import WebsocketCommunicator
 from django.test import TransactionTestCase
 from .routing import websocket_urlpatterns
 from channels.routing import URLRouter
-from backend.middleware import JWTAuthMiddleware
 from channels.db import database_sync_to_async
 
 
@@ -113,7 +111,12 @@ class RoomConsumerTest(TransactionTestCase):
     def create_test_user(self, username, email, password):
         return User.objects.create_user(username, email, password)
 
+    @database_sync_to_async
+    def create_room(self, room_name, game_mode, game_map, game_speed, game_ball):
+        return Room.create_room(room_name, game_mode, game_map, game_speed, game_ball)
+
     async def test_room_connect(self):
+        room = await self.create_room("123", "normal", "map1", 2, "#000000")
         user = await self.create_test_user(
             username="testuser", email="test@test.com", password="1234"
         )
@@ -121,7 +124,7 @@ class RoomConsumerTest(TransactionTestCase):
         access_token = str(token.access_token)
         communicator = WebsocketCommunicator(
             URLRouter(websocket_urlpatterns),
-            "/ws/normal_room/1/",
+            f"/ws/normal_room/{room.id}/",
         )
         connected, subprotocol = await communicator.connect()
         self.assertTrue(connected)
@@ -134,6 +137,7 @@ class RoomConsumerTest(TransactionTestCase):
         await communicator.disconnect()
 
     async def test_room_connect_full(self):
+        room = await self.create_room("1234", "normal", "map1", 2, "#000000")
         user1 = await self.create_test_user(
             username="testuser1", email="test1@example.com", password="1234"
         )
@@ -152,7 +156,7 @@ class RoomConsumerTest(TransactionTestCase):
         # Connect the first client
         communicator1 = WebsocketCommunicator(
             URLRouter(websocket_urlpatterns),
-            "/ws/normal_room/1/",
+            f"/ws/normal_room/{room.id}/",
         )
         connected1, subprotocol1 = await communicator1.connect()
         self.assertTrue(connected1)
@@ -162,7 +166,7 @@ class RoomConsumerTest(TransactionTestCase):
         # Connect the second client
         communicator2 = WebsocketCommunicator(
             URLRouter(websocket_urlpatterns),
-            "/ws/normal_room/1/",
+            f"/ws/normal_room/{room.id}/",
         )
         connected2, subprotocol2 = await communicator2.connect()
         self.assertTrue(connected2)
@@ -172,7 +176,7 @@ class RoomConsumerTest(TransactionTestCase):
         # Try to connect the third client, which should fail
         communicator3 = WebsocketCommunicator(
             URLRouter(websocket_urlpatterns),
-            "/ws/normal_room/1/",
+            f"/ws/normal_room/{room.id}/",
         )
         connected3, subprotocol3 = await communicator3.connect()
         self.assertTrue(connected3)
@@ -187,7 +191,7 @@ class RoomConsumerTest(TransactionTestCase):
         response2 = await communicator2.receive_json_from()
         assert response2["user1"] == "testuser2"
         response2 = await communicator2.receive_json_from()
-        assert response2["room_id"] == "1"
+        assert response2["room_id"] == str(room.id)
         # Clean up
         await communicator1.disconnect()
         await communicator2.disconnect()

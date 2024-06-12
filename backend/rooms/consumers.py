@@ -2,6 +2,9 @@ from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from channels.layers import get_channel_layer
 import asyncio
 from backend.middleware import JWTAuthMiddleware
+from channels.db import database_sync_to_async
+from django.apps import apps
+from django.utils import timezone
 
 
 class RoomConsumer(AsyncJsonWebsocketConsumer):
@@ -41,10 +44,15 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
                     await self.send_json({"access": "Room is full."})
                     return
             # 연결 성공 시 방 참여 인원에게 방 인원 정보 전송
+            current_player = await self.update_current_player(
+                len(RoomConsumer.rooms[self.room_id])
+            )
             await self.send_user_info()
-            # 방 인원이 정원일 경우 3초뒤 소켓 연결 해제
+            # 방 인원이 정원일 경우 연결 해제 요청
             async with RoomConsumer.rooms_lock:
-                if len(RoomConsumer.rooms[self.room_id]) == 2:
+                if current_player == 2:
+                    await self.create_game_result()
+                    await self.delete_room()
                     await self.channel_layer.group_send(
                         self.room_id,
                         {
@@ -99,6 +107,37 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
                     # 방에 더 이상 참여자가 없으면 방을 삭제
                     if not RoomConsumer.rooms[self.room_id]:
                         del RoomConsumer.rooms[self.room_id]
+                        await self.delete_room()
         # Leave room group
         await self.channel_layer.group_discard(self.room_id, self.channel_name)
         await self.close()
+
+    @database_sync_to_async
+    def create_game_result(self):
+        room_model = apps.get_model("rooms", "Room")
+        game_model = apps.get_model("game", "GameResult")
+        room = room_model.objects.get(id=self.room_id)
+        game_model.objects.create(
+            id=self.room_id,
+            game_map=room.game_map,
+            game_speed=room.game_speed,
+            ball_color=room.ball_color,
+            start_time=timezone.now(),
+        )
+
+    @database_sync_to_async
+    def update_current_player(self, player):
+        room_model = apps.get_model("rooms", "Room")
+        room = room_model.objects.get(id=self.room_id)
+        room.current_player = player
+        room.save()
+        return player
+
+    @database_sync_to_async
+    def delete_room(self):
+        room_model = apps.get_model("rooms", "Room")
+        try:
+            room = room_model.objects.get(id=self.room_id)
+            room.delete()
+        except room_model.DoesNotExist:
+            return
