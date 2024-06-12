@@ -59,7 +59,7 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
                     self.game_id,
                     {
                         "type": "broadcast_users",
-                        "data": match.result_data(self.game_id),
+                        "data": match.result_data(),
                         "data_type": "result",
                     },
                 )
@@ -80,7 +80,7 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
         )
 
     async def close_group(self, event) -> None:
-        await self.send_json({"error": "user_exit"})
+        await self.send_json({"error": "user exit"})
         await self.channel_layer.group_discard()
         # await self.close()
 
