@@ -15,11 +15,6 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
         url data 유효성 확인
         """
         self.game_id = self.scope["url_route"]["kwargs"]["game_id"]
-        try:
-            GameResult = apps.get_model("game", "GameResult")
-            self.result = GameResult.objects.get(game_id=self.game_id)
-        except GameResult.DoesNotExist:
-            await self.close()  # 해당하는 game_id가 없을 경우 연결 해제
         await self.accept()  # 소켓 연결 수락
         await self.channel_layer.group_add(
             self.game_id,  # 게임 DB id
@@ -28,10 +23,14 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
 
     async def receive_json(self, content) -> None:
         if content["type"] == "access":
+            try:
+                self.result = await self.get_game_result()
+            except Exception as e:
+                await self.send_json({"error": str(e)})
             await self.user_access(content)
         else:
             match = GameConsumer.games[self.game_id]
-            player = match.players[self.color]
+            player = match.get_players()[self.color]
             if content["type"] == "ready":
                 if match.set_ready(player):
                     self.loop = asyncio.create_task(self.game_loop(player))
@@ -42,17 +41,36 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
         while True:
             match = GameConsumer.games[self.game_id]
             if not match:
+                await self.send_json({"error": "Game not found"})
                 return
             await asyncio.sleep(0.03)
             match.game_render(player)
-            await self.channel_layer.group_send(self.game_id, match.game_data())
+            await self.channel_layer.group_send(
+                self.game_id,
+                {
+                    "type": "broadcast_users",
+                    "data": match.game_data(),
+                    "data_type": "render",
+                },
+            )
             if match.winner:
+                await self.save_game_result(match)
                 await self.channel_layer.group_send(
-                    self.game_id, match.result_data(self.game_id)
+                    self.game_id,
+                    {
+                        "type": "broadcast_users",
+                        "data": match.result_data(self.game_id),
+                        "data_type": "result",
+                    },
                 )
                 break
 
-    async def disconnect(self) -> None:
+    async def broadcast_users(self, event):
+        data = event["data"]
+        data["type"] = event["data_type"]
+        await self.send_json(data)
+
+    async def disconnect(self, close_code) -> None:
         del GameConsumer.games[self.game_id]
         await self.channel_layer.group_send(
             self.game_id,
@@ -80,7 +98,7 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
             await self.send_json({"access": "Access successful."})
         # Game 객체 생성
         if self.game_id not in GameConsumer.games:
-            GameConsumer.games[self.game_id] = Game()
+            GameConsumer.games[self.game_id] = Game(self.result.game_speed)
         match = GameConsumer.games[self.game_id]
         # 들어온 순서대로 red, blue 배정
         if match.p1 is None:
@@ -93,7 +111,23 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
             await self.send_json({"error": "Game is full."})
             return
         # start data 전송
-        self.send_json(match.start_data(color=self.color, game=self.result))
+        await self.send_json(match.start_data(color=self.color, game=self.result))
+
+    @database_sync_to_async
+    def get_game_result(self):
+        GameResult = apps.get_model("game", "GameResult")
+        return GameResult.objects.get(id=self.game_id)
+
+    @database_sync_to_async
+    def save_game_result(self, match):
+        GameResult = apps.get_model("game", "GameResult")
+        result = GameResult.objects.get(id=self.game_id)
+        result.winner = match.winner
+        result.player1 = match.p1
+        result.player2 = match.p2
+        result.player1_score = match.p1.score
+        result.player2_score = match.p2.score
+        result.save()
 
 
 # class GameTournamentConsumer(AsyncJsonWebsocketConsumer):

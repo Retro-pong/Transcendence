@@ -20,9 +20,12 @@ class Ball:
         self.y = random.random() * 8 - 4
         self.z = random.random() * 12 - 6
         self.dir = [
-            random.choice([1, -1]) * 0.1,
-            random.choice([1, -1]) * 0.1,
-            random.choice([1, -1]) * 0.1,
+            # random.choice([1, -1]) * 0.1,
+            # random.choice([1, -1]) * 0.1,
+            # random.choice([1, -1]) * 0.1,
+            0.1,
+            0.1,
+            0.1,
         ]
         self.speed = [1.2 * speed, 1.2 * speed, 1.2 * speed]
         self.hit = NONE
@@ -43,9 +46,12 @@ class Ball:
         self.y = random.random() * 8 - 4
         self.z = random.random() * 12 - 6
         self.dir = [
-            random.choice([1, -1]) * 0.1,
-            random.choice([1, -1]) * 0.1,
-            random.choice([1, -1]) * 0.1,
+            # random.choice([1, -1]) * 0.1,
+            # random.choice([1, -1]) * 0.1,
+            # random.choice([1, -1]) * 0.1,
+            0.1,
+            0.1,
+            0.1,
         ]
         self.speed = [1.2 * speed, 1.2 * speed, 1.2 * speed]
         self.hit = NONE
@@ -64,7 +70,7 @@ class Ball:
             self.hit = BOT
             self.dir[Y] *= -1
 
-    def hit_paddle(self) -> int:
+    def check_ball_xpos(self) -> int:
         if 23.5 < self.x < 24.5:
             return RED
         if -23.5 < self.x < -24.5:
@@ -97,7 +103,7 @@ class Player:
         self.z = 0
         self.type = type  # red, blue
         self.nick = nick
-        self.status = "none"
+        self.status = "wait"
         self.score = 0
 
     def set_pos(self, y, z) -> None:
@@ -106,21 +112,22 @@ class Player:
 
 
 class Game:
-    def __init__(self):
+    def __init__(self, speed):
         self.p1 = None
         self.p2 = None
-        self.speed = 1
-        self.ball = Ball(speed=0)
+        self.speed = speed
+        self.ball = Ball(speed=speed)
         self.winner = None
         self.start_time = None
 
-        self.players = {
+    def get_players(self):
+        return {
             "red": self.p1,
             "blue": self.p2,
         }
 
     def set_ready(self, player) -> int:
-        if player.status == "none":
+        if player.status == "wait":
             player.status = "ready"
         if self.p1.status == "ready" and self.p2.status == "ready":
             return 1
@@ -133,24 +140,25 @@ class Game:
             self.p1.score += 1
         elif type == BLUE:
             self.p2.score += 1
-        if self.p1.score >= 10 or self.p2.score >= 10:
+        if self.p1.score >= 2 or self.p2.score >= 2:
             return type
         return 0
 
     def game_render(self, player):
         self.ball.move()  # 공을 1프레임 움직임
         self.ball.hit_wall()  # 벽에 닿았는 지 확인
-        check_score = self.ball.check_hit_paddle(
-            paddle=player, type=self.ball.hit_paddle()
+        player_get_score = self.ball.check_hit_paddle(
+            paddle=player, type=self.ball.check_ball_xpos()
         )  # 공이 패들에 안 맞으면 점수 추가
-        winner = self.add_score(check_score)
-        if not winner:  # 10점이하 일 경우 재시작
-            self.ball.restart(self.speed)
-        # 승자 설정
-        if winner == RED:
-            self.winner = self.p1.nick
-        elif winner == BLUE:
-            self.winner = self.p2.nick
+        if player_get_score:
+            winner = self.add_score(player_get_score)
+            if not winner:  # 승자 결정이 안될 경우 재시작
+                self.ball.restart(self.speed)
+            # 승자 설정
+            if winner == RED:
+                self.winner = self.p1.nick
+            elif winner == BLUE:
+                self.winner = self.p2.nick
 
     def start_data(self, color, game):
         return {
@@ -171,7 +179,6 @@ class Game:
 
     def game_data(self) -> dict:
         return {
-            "type": "move",
             "redY": self.p1.y,
             "redZ": self.p1.z,
             "redScore": self.p1.score,
@@ -185,17 +192,7 @@ class Game:
         }
 
     def result_data(self, game_id) -> dict:
-        GameResult = apps.get_model("game", "GameResult")
-        result = GameResult.objects.get(game_id=game_id)
-        result.winner = self.winner
-        result.player1 = self.p1
-        result.player2 = self.p2
-        result.player1_score = self.p1.score
-        result.player2_score = self.p2.score
-        result.start_time = self.start_time
-        result.save()
         return {
-            "type": "result",
             "winner": self.winner,
             "redScore": self.p1.score,
             "blueScore": self.p2.score,
