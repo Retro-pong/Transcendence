@@ -96,12 +96,12 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
             "user2_win": "",
             "user2_lose": "",
         }
-        for idx, username in enumerate(username_list, start=0):
+        for idx, username in enumerate(username_list, start=1):
             user_data[f"user{idx}"] = username
             user_data[f"user{idx}_image"] = user_image_list[idx]
             user_data[f"user{idx}_win"] = user_win_list[idx]
             user_data[f"user{idx}_lose"] = user_lose_list[idx]
-
+        user_data["room_name"] = await self.get_room_name()
         await self.send_json(user_data)
 
     async def send_disconnect(self, event):
@@ -123,6 +123,7 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
                         await self.delete_room()
         # Leave room group
         await self.channel_layer.group_discard(self.room_id, self.channel_name)
+        await self.send_user_info()
         await self.close()
 
     @database_sync_to_async
@@ -154,3 +155,9 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
             room.delete()
         except room_model.DoesNotExist:
             return
+
+    @database_sync_to_async
+    def get_room_name(self):
+        room_model = apps.get_model("rooms", "Room")
+        room_name = room_model.objects.get(id=self.room_id).room_name
+        return room_name
