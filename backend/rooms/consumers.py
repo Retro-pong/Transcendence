@@ -172,15 +172,7 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
         return room_name
 
 
-class TournamentRoomConsumer(AsyncJsonWebsocketConsumer):
-    rooms = {}
-    rooms_lock = asyncio.Lock()
-
-    async def connect(self):
-        self.room_id = self.scope["url_route"]["kwargs"]["room_id"]
-        self.channel_layer = get_channel_layer()
-        await self.channel_layer.group_add(self.room_id, self.channel_name)
-        await self.accept()  # WebSocket 연결 수락
+class TournamentRoomConsumer(NormalRoomConsumer):
 
     async def receive_json(self, content: dict) -> None:
         if content["type"] == "access":
@@ -278,12 +270,12 @@ class TournamentRoomConsumer(AsyncJsonWebsocketConsumer):
             "user4_win": "",
             "user4_lose": "",
         }
-        for idx, username in enumerate(username_list, start=0):
+        for idx, username in enumerate(username_list, start=1):
             user_data[f"user{idx}"] = username
             user_data[f"user{idx}_image"] = user_image_list[idx]
             user_data[f"user{idx}_win"] = user_win_list[idx]
             user_data[f"user{idx}_lose"] = user_lose_list[idx]
-
+        user_data["room_name"] = await self.get_room_name()
         await self.send_json(user_data)
 
     async def send_disconnect(self, event: dict) -> None:
@@ -318,33 +310,3 @@ class TournamentRoomConsumer(AsyncJsonWebsocketConsumer):
                         del TournamentRoomConsumer.rooms[self.room_id]
         await self.channel_layer.group_discard(self.room_id, self.channel_name)
         await self.close()
-
-    @database_sync_to_async
-    def create_game_result(self) -> None:
-        room_model = apps.get_model("rooms", "Room")
-        game_model = apps.get_model("game", "GameResult")
-        room = room_model.objects.get(id=self.room_id)
-        game_model.objects.create(
-            id=self.room_id,
-            game_map=room.game_map,
-            game_speed=room.game_speed,
-            ball_color=room.ball_color,
-            start_time=timezone.now(),
-        )
-
-    @database_sync_to_async
-    def update_current_player(self, player: int) -> int:
-        room_model = apps.get_model("rooms", "Room")
-        room = room_model.objects.get(id=self.room_id)
-        room.current_player = player
-        room.save()
-        return player
-
-    @database_sync_to_async
-    def delete_room(self) -> None:
-        room_model = apps.get_model("rooms", "Room")
-        try:
-            room = room_model.objects.get(id=self.room_id)
-            room.delete()
-        except room_model.DoesNotExist:
-            return
