@@ -22,43 +22,6 @@ class WaitingRoom extends PageComponent {
   }
 
   async render() {
-    const dummyPlayers = [
-      {
-        id: 1,
-        name: 'hyobicho',
-        profileImg:
-          'https://www.blueconomy.co.kr/news/photo/202402/2399_3001_921.png',
-        win: 5,
-        lose: 0,
-      },
-      {
-        id: 2,
-        name: 'hyungjpa',
-        profileImg:
-          'https://www.blueconomy.co.kr/news/photo/202402/2399_3001_921.png',
-        win: 3,
-        lose: 2,
-      },
-      {
-        id: 3,
-        name: 'wonjilee',
-        profileImg:
-          'https://www.blueconomy.co.kr/news/photo/202402/2399_3001_921.png',
-        win: 2,
-        lose: 3,
-      },
-      {
-        id: 4,
-        name: 'subinlee',
-        profileImg:
-          'https://www.blueconomy.co.kr/news/photo/202402/2399_3001_921.png',
-        win: 0,
-        lose: 5,
-      },
-    ];
-    const PlayerCards = dummyPlayers
-      .map((player) => PlayerCard(player))
-      .join('');
     const ManualButton = OpenModalButton({
       text: '> Manual',
       classList:
@@ -80,7 +43,6 @@ class WaitingRoom extends PageComponent {
           ${ManualButton} 
           <div class="d-md-flex justify-content-center align-items-center overflow-auto h-100">
             <div id="player-container" class="row row-cols-1 row-cols-md-2 g-1 w-95">
-              ${PlayerCards}
             </div>
           </div>
         </div>
@@ -88,9 +50,10 @@ class WaitingRoom extends PageComponent {
       `;
   }
 
-  addPlayers(players) {
+  addPlayers() {
     const playerContainer = document.getElementById('player-container');
-    playerContainer.innerHTML += players
+    console.log(this.players);
+    playerContainer.innerHTML = this.players
       .map((player) => PlayerCard(player))
       .join('');
   }
@@ -98,6 +61,10 @@ class WaitingRoom extends PageComponent {
   connectSocket() {}
 
   async afterRender() {
+    onbeforeunload = () => {
+      return 'Are you sure you want to leave?';
+    };
+
     // TODO: 소켓으로 게임 방 정보 받아오기, 참가자가 아니면 홈으로 리다이렉트
     this.roomSocket.onopen = () => {
       const message = {
@@ -113,13 +80,45 @@ class WaitingRoom extends PageComponent {
       switch (data.type) {
         case 'users':
           console.log(data);
-          // this.addPlayers(data.players);
+          this.players = [
+            {
+              id: '1',
+              name: data.user0,
+              profileImg: data.user0_image,
+              win: data.user0_win,
+              lose: data.user0_lose,
+            },
+            {
+              id: '2',
+              name: data.user1,
+              profileImg: data.user1_image,
+              win: data.user1_win,
+              lose: data.user1_lose,
+            },
+            {
+              id: '3',
+              name: data.user2,
+              profileImg: data.user2_image,
+              win: data.user2_win,
+              lose: data.user2_lose,
+            },
+            {
+              id: '4',
+              name: data.user3,
+              profileImg: data.user3_image,
+              win: data.user3_win,
+              lose: data.user3_lose,
+            },
+          ];
+          this.addPlayers();
           break;
         case 'start_game':
           console.log(data);
           // navigate to game page
           this.roomSocket.close();
-          Router.navigateTo(`/game/play?id=${this.roomId}`);
+          Router.navigateTo(
+            `/game/play?id=${this.roomId}&mode=${this.roomMode}`
+          );
           break;
         case 'full':
           // navigate to join room page
