@@ -1,6 +1,7 @@
 import PageComponent from '@component/PageComponent';
 import game from '@/utils/game/game';
 import socketManager from '@/utils/SocketManager';
+import TokenManager from "@/utils/TokenManager";
 
 class PlayGame extends PageComponent {
   constructor() {
@@ -12,7 +13,7 @@ class PlayGame extends PageComponent {
       mode: 'local',
       side: 'blue',
       ball: 0x0000ff,
-      speed: 1,
+      speed: 3,
       map: 'mountain',
     };
     this.gameSocket = socketManager.createSocket(`/norma_game/${this.roomId}/`);
@@ -35,6 +36,34 @@ class PlayGame extends PageComponent {
 
   async afterRender() {
     this.setScoreBox();
+
+    this.gameSocket.onopen(() => {
+      const message = {
+        type: 'access',
+        token: TokenManager.getAccessToken(),
+      };
+      this.gameSocket.send(JSON.stringify(message));
+      console.log('game socket connected');
+    });
+
+    this.gameSocket.onmessage((e) => {
+      const data = JSON.parse(e.data);
+      if (e.type === 'start') {
+        this.settings.mode = 'multi';
+        this.settings.side = data.color;
+        this.settings.ball = data.ball_color;
+        this.settings.speed = data.speed;
+        this.settings.map = data.map;
+      }
+      game(this.settings, data);
+    });
+    this.gameSocket.onclose((e) => {
+      console.log(e);
+    });
+    this.gameSocket.onerror((e) => {
+      console.log(e);
+    });
+
     game(this.settings);
   }
 }

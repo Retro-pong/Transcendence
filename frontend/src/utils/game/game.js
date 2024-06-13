@@ -8,7 +8,7 @@ import cameraSetting from '@/utils/game/cameraSetting';
 import rendering from '@/utils/game/rendering';
 import sceneSetting from '@/utils/game/sceneSetting';
 
-function game(settings) {
+function game(settings, data) {
   const canvas = document.getElementById('gameCanvas');
   const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
   const camera = cameraSetting(settings.mode, settings.side);
@@ -36,6 +36,8 @@ function game(settings) {
   const ballPlane = scene.getObjectByName('ballPlane');
   const redPlayerScore = document.getElementById('player1Score');
   const bluePlayerScore = document.getElementById('player2Score');
+  const redPaddle = scene.getObjectByName('redPaddle');
+  const bluePaddle = scene.getObjectByName('bluePaddle');
 
   function resizeRendererToDisplaySize(renderer) {
     const canvas = renderer.domElement;
@@ -95,64 +97,95 @@ function game(settings) {
     }
 
     if (ball) {
-      if (start !== 'off') {
-        startGameSetting();
-      } else {
-        ball.position.x += a * v;
-        ball.position.y += b * v;
-        ball.position.z += c * v;
-        ball.rotation.set(
-          ball.rotation.x + 0.1,
-          ball.rotation.y + 0.1,
-          ball.rotation.z + 0.1
-        );
-        ballPlane.position.x = ball.position.x;
-        // 패들에 부딪히면 방향 바꾸기
-        if (ball.position.x > 19.7 && ball.position.x < 20.3) {
-          if (!checkPaddleHit('red', scene)) {
-            bluePlayerScore.innerText = (
-              parseInt(bluePlayerScore.innerText, 10) + 1
-            ).toString();
-            start = 'blue';
-          } else {
-            a *= -1;
-            hitStatus.redPaddleHit = 1;
+      if (settings.mode === 'local') {
+        if (start !== 'off') {
+          startGameSetting();
+        } else {
+          ball.position.x += a * v;
+          ball.position.y += b * v;
+          ball.position.z += c * v;
+          ball.rotation.set(
+            ball.rotation.x + 0.1,
+            ball.rotation.y + 0.1,
+            ball.rotation.z + 0.1
+          );
+          ballPlane.position.x = ball.position.x;
+          // 패들에 부딪히면 방향 바꾸기
+          if (ball.position.x > 19.7 && ball.position.x < 20.3) {
+            if (!checkPaddleHit('red', scene)) {
+              bluePlayerScore.innerText = (
+                parseInt(bluePlayerScore.innerText, 10) + 1
+              ).toString();
+              start = 'blue';
+            } else {
+              a *= -1;
+              hitStatus.redPaddleHit = 1;
+            }
           }
-        }
-        if (ball.position.x < -19.7 && ball.position.x > -20.3) {
-          if (!checkPaddleHit('blue', scene)) {
-            redPlayerScore.innerText = (
-              parseInt(redPlayerScore.innerText, 10) + 1
-            ).toString();
-            start = 'red';
-          } else {
-            a *= -1;
-            hitStatus.bluePaddleHit = 1;
+          if (ball.position.x < -19.7 && ball.position.x > -20.3) {
+            if (!checkPaddleHit('blue', scene)) {
+              redPlayerScore.innerText = (
+                parseInt(redPlayerScore.innerText, 10) + 1
+              ).toString();
+              start = 'red';
+            } else {
+              a *= -1;
+              hitStatus.bluePaddleHit = 1;
+            }
           }
-        }
-        if (hitStatus.redPaddleHit || hitStatus.bluePaddleHit) {
-          v = 3;
-        }
-        if (!hitStatus.redPaddleHit && !hitStatus.bluePaddleHit) {
-          v = 1.2 + settings.speed * 0.3;
-        }
+          if (hitStatus.redPaddleHit || hitStatus.bluePaddleHit) {
+            v = 3;
+          }
+          if (!hitStatus.redPaddleHit && !hitStatus.bluePaddleHit) {
+            v = 1.2 + settings.speed * 0.3;
+          }
 
-        // 벽에 부딪히면 방향 바꾸기
-        if (ball.position.z < -7 && ball.position.z > -8) {
-          c *= -1;
-          hitStatus.leftWallHit = 1;
+          // 벽에 부딪히면 방향 바꾸기
+          if (ball.position.z < -7 && ball.position.z > -8) {
+            c *= -1;
+            hitStatus.leftWallHit = 1;
+          }
+          if (ball.position.z > 7 && ball.position.z < 8) {
+            c *= -1;
+            hitStatus.rightWallHit = 1;
+          }
+          if (ball.position.y > 4.5 && ball.position.y < 5.5) {
+            b *= -1;
+            hitStatus.topWallHit = 1;
+          }
+          if (ball.position.y < -4.5 && ball.position.y > -5.5) {
+            b *= -1;
+            hitStatus.bottomWallHit = 1;
+          }
+          hitStatus = hitChangeColor(hitStatus, scene, settings.speed);
         }
-        if (ball.position.z > 7 && ball.position.z < 8) {
-          c *= -1;
-          hitStatus.rightWallHit = 1;
-        }
-        if (ball.position.y > 4.5 && ball.position.y < 5.5) {
-          b *= -1;
-          hitStatus.topWallHit = 1;
-        }
-        if (ball.position.y < -4.5 && ball.position.y > -5.5) {
-          b *= -1;
-          hitStatus.bottomWallHit = 1;
+      } else {
+        redPaddle.position.set(-20, data.redY, data.redZ);
+        bluePaddle.position.set(20, data.blueY, data.blueZ);
+        ball.position.set(data.ballX, data.ballY, data.ballZ);
+        switch (parseInt(data.ballHit, 10)) {
+          case 0:
+            break;
+          case 1:
+            hitStatus.redPaddleHit = 1;
+            break;
+          case 2:
+            hitStatus.bluePaddleHit = 1;
+            break;
+          case 3:
+            hitStatus.leftWallHit = 1;
+            break;
+          case 4:
+            hitStatus.rightWallHit = 1;
+            break;
+          case 5:
+            hitStatus.topWallHit = 1;
+            break;
+          case 6:
+            hitStatus.bottomWallHit = 1;
+            break;
+          default:
+            break;
         }
         hitStatus = hitChangeColor(hitStatus, scene, settings.speed);
       }
