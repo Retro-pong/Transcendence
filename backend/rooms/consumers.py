@@ -32,9 +32,9 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
 
             async with NormalRoomConsumer.rooms_lock:
                 # 방이 없는 경우 새로 생성
-                if self.room_id not in TournamentRoomConsumer.rooms:
-                    TournamentRoomConsumer.rooms[self.room_id] = []
-                TournamentRoomConsumer.rooms[self.room_id].append(self.user)
+                if self.room_id not in NormalRoomConsumer.rooms:
+                    NormalRoomConsumer.rooms[self.room_id] = []
+                NormalRoomConsumer.rooms[self.room_id].append(self.user)
                 # 정원에 도달한 방에 입장을 시도하는 경우 에러 (code=4003)
                 if len(NormalRoomConsumer.rooms[self.room_id]) > 2:
                     await self.channel_layer.group_discard(
@@ -105,12 +105,12 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
             "user2_win": "",
             "user2_lose": "",
         }
-        for idx, username in enumerate(username_list, start=0):
+        for idx, username in enumerate(username_list, start=1):
             user_data[f"user{idx}"] = username
             user_data[f"user{idx}_image"] = user_image_list[idx]
             user_data[f"user{idx}_win"] = user_win_list[idx]
             user_data[f"user{idx}_lose"] = user_lose_list[idx]
-
+        user_data["room_name"] = await self.get_room_name()
         await self.send_json(user_data)
 
     async def send_disconnect(self, event: dict) -> None:
@@ -129,8 +129,10 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
                     # 더 이상 참여자가 없으면 방 삭제
                     if not NormalRoomConsumer.rooms[self.room_id]:
                         del NormalRoomConsumer.rooms[self.room_id]
+                        await self.delete_room()
         # Leave room group
         await self.channel_layer.group_discard(self.room_id, self.channel_name)
+        await self.send_user_info()
         await self.close()
 
     @database_sync_to_async
@@ -162,6 +164,12 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
             room.delete()
         except room_model.DoesNotExist:
             return
+
+    @database_sync_to_async
+    def get_room_name(self):
+        room_model = apps.get_model("rooms", "Room")
+        room_name = room_model.objects.get(id=self.room_id).room_name
+        return room_name
 
 
 class TournamentRoomConsumer(AsyncJsonWebsocketConsumer):
