@@ -43,7 +43,7 @@ class WaitingRoom extends PageComponent {
           <h1 id="room-title" class="fs-15 text-center">Welcome to<br />[ ${this.roomTitle} ]</h1>
           ${ManualButton} 
           <div class="d-md-flex justify-content-center align-items-center overflow-auto h-100">
-            <div id="player-container" class="row row-cols-1 row-cols-md-2 g-1 w-95 h-100">
+            <div id="player-container" class="row row-cols-1 row-cols-md-2 g-1 w-95">
             </div>
           </div>
         </div>
@@ -58,7 +58,6 @@ class WaitingRoom extends PageComponent {
 
   addPlayers() {
     const playerContainer = document.getElementById('player-container');
-    console.log(this.players);
     playerContainer.innerHTML = this.players
       .map((player) => PlayerCard(player))
       .join('');
@@ -99,12 +98,10 @@ class WaitingRoom extends PageComponent {
       this.addRoomTitle();
       switch (data.type) {
         case 'users':
-          console.log(data);
           this.makePlayerList(data);
           this.addPlayers();
           break;
         case 'start_game':
-          console.log(data);
           // navigate to game page
           this.roomSocket.close();
           Router.navigateTo(
