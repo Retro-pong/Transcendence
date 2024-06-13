@@ -2,6 +2,9 @@ from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from channels.layers import get_channel_layer
 import asyncio
 from backend.middleware import JWTAuthMiddleware
+from channels.db import database_sync_to_async
+from django.apps import apps
+from django.utils import timezone
 
 
 class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
@@ -28,23 +31,30 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
             await self.send_json({"access": "Access successful."})
 
             async with NormalRoomConsumer.rooms_lock:
-                # 방이 다 차있을 경우 에러 (code=4003)
+                # 방이 없으면 생성 후 유저 추가
+                if self.room_id not in NormalRoomConsumer.rooms:
+                    NormalRoomConsumer.rooms[self.room_id] = []
+                NormalRoomConsumer.rooms[self.room_id].append(self.user)
+                # 인원이 다 찬 방에 입장을 시도하는 경우 에러 (code=4003)
                 if len(NormalRoomConsumer.rooms[self.room_id]) > 2:
                     await self.channel_layer.group_discard(
                         self.room_id, self.channel_name
                     )
                     NormalRoomConsumer.rooms[self.room_id].remove(self.user)
-                    await self.send_json({"access": "Room is full."})
+                    await self.send_json({"type": "full"})
                     return
-                if self.room_id not in NormalRoomConsumer.rooms:
-                    NormalRoomConsumer.rooms[self.room_id] = []
-                NormalRoomConsumer.rooms[self.room_id].append(self.user)
 
             # 연결 성공 시 방 참여 인원 모두에게 방 인원 정보 전송
+            current_player = await self.update_current_player(
+                len(NormalRoomConsumer.rooms[self.room_id])
+            )
             await self.send_user_info()
-            # 방 인원이 정원일 경우 3초 뒤 소켓 연결 해제
+
+            # 방 인원이 정원일 경우 연결 해제 요청
             async with NormalRoomConsumer.rooms_lock:
-                if len(NormalRoomConsumer.rooms[self.room_id]) == 2:
+                if current_player == 2:
+                    await self.create_game_result()
+                    await self.delete_room()
                     await self.channel_layer.group_send(
                         self.room_id,
                         {
@@ -54,36 +64,52 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
                     )
 
     async def send_user_info(self):
-        # 해당 방의 모든 유저 정보를 수집하여 전송
+        """
+        해당 방의 모든 유저 정보를 수집하여 전송
+        """
         username_list = [
             user.username for user in NormalRoomConsumer.rooms[self.room_id]
         ]
-        userimage_list = [
+        user_image_list = [
             str(user.image) for user in NormalRoomConsumer.rooms[self.room_id]
         ]
+        user_win_list = [user.win for user in NormalRoomConsumer.rooms[self.room_id]]
+        user_lose_list = [user.lose for user in NormalRoomConsumer.rooms[self.room_id]]
         await self.channel_layer.group_send(
             self.room_id,
             {
                 "type": "broadcast_users",
                 "username": username_list,
-                "userimage": userimage_list,
+                "user_image": user_image_list,
+                "user_win": user_win_list,
+                "user_lose": user_lose_list,
             },
         )
 
     async def broadcast_users(self, event):
-        # 모든 유저에게 방에 있는 유저 정보 전송
+        """
+        방에 있는 유저 정보를 모두에게 전송
+        """
         username_list = event["username"]
-        userimage_list = event["userimage"]
+        user_image_list = event["user_image"]
+        user_win_list = event["user_win"]
+        user_lose_list = event["user_lose"]
         user_data = {
             "type": "users",
             "user1": "",
             "user1_image": "",
+            "user1_win": "",
+            "user1_lose": "",
             "user2": "",
             "user2_image": "",
+            "user2_win": "",
+            "user2_lose": "",
         }
         for idx, username in enumerate(username_list, start=0):
             user_data[f"user{idx}"] = username
-            user_data[f"user{idx}_image"] = userimage_list[idx]
+            user_data[f"user{idx}_image"] = user_image_list[idx]
+            user_data[f"user{idx}_win"] = user_win_list[idx]
+            user_data[f"user{idx}_lose"] = user_lose_list[idx]
 
         await self.send_json(user_data)
 
@@ -100,17 +126,46 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
             if self.room_id in NormalRoomConsumer.rooms:
                 if self.user in NormalRoomConsumer.rooms[self.room_id]:
                     NormalRoomConsumer.rooms[self.room_id].remove(self.user)
-                    # 아무도 없으면 방 삭제
+                    # 더 이상 참여자가 없으면 방 삭제
                     if not NormalRoomConsumer.rooms[self.room_id]:
                         del NormalRoomConsumer.rooms[self.room_id]
         # Leave room group
         await self.channel_layer.group_discard(self.room_id, self.channel_name)
         await self.close()
 
+    @database_sync_to_async
+    def create_game_result(self) -> None:
+        room_model = apps.get_model("rooms", "Room")
+        game_model = apps.get_model("game", "GameResult")
+        room = room_model.objects.get(id=self.room_id)
+        game_model.objects.create(
+            id=self.room_id,
+            game_map=room.game_map,
+            game_speed=room.game_speed,
+            ball_color=room.ball_color,
+            start_time=timezone.now(),
+        )
+
+    @database_sync_to_async
+    def update_current_player(self, player: int) -> int:
+        room_model = apps.get_model("rooms", "Room")
+        room = room_model.objects.get(id=self.room_id)
+        room.current_player = player
+        room.save()
+        return player
+
+    @database_sync_to_async
+    def delete_room(self) -> None:
+        room_model = apps.get_model("rooms", "Room")
+        try:
+            room = room_model.objects.get(id=self.room_id)
+            room.delete()
+        except room_model.DoesNotExist:
+            return
+
 
 class TournamentRoomConsumer(AsyncJsonWebsocketConsumer):
     rooms = {}
-    matches = {}
     rooms_lock = asyncio.Lock()
 
     async def connect(self):
@@ -133,130 +188,137 @@ class TournamentRoomConsumer(AsyncJsonWebsocketConsumer):
             await self.send_json({"access": "Access successful."})
 
             async with TournamentRoomConsumer.rooms_lock:
-                # 방이 다 차있을 경우 에러 (code=4003)
+                if self.room_id not in TournamentRoomConsumer.rooms:
+                    TournamentRoomConsumer.rooms[self.room_id] = []
+                TournamentRoomConsumer.rooms[self.room_id].append(self.user)
                 if len(TournamentRoomConsumer.rooms[self.room_id]) > 4:
                     await self.channel_layer.group_discard(
                         self.room_id, self.channel_name
                     )
                     TournamentRoomConsumer.rooms[self.room_id].remove(self.user)
-                    await self.send_json({"access": "Room is full."})
+                    await self.send_json({"type": "full"})
                     return
-                if self.room_id not in TournamentRoomConsumer.rooms:
-                    TournamentRoomConsumer.rooms[self.room_id] = []
-                TournamentRoomConsumer.rooms[self.room_id].append(self.user)
 
             # 대기실 참여 성공
+            current_player = await self.update_current_player(
+                len(TournamentRoomConsumer.rooms[self.room_id])
+            )
             await self.send_user_info()
-            async with TournamentRoomConsumer.rooms_lock:
-                if len(TournamentRoomConsumer.rooms[self.room_id]) == 4:
-                    await self.start_initial_matches()
 
-        elif content["type"] == "match_result":
-            winner = content["winner"]
-            await self.handle_match_result(winner)
+            # 방 인원이 정원일 경우 연결 해제 요청
+            async with NormalRoomConsumer.rooms_lock:
+                if current_player == 4:
+                    await self.create_game_result()
+                    await self.channel_layer.group_send(
+                        self.room_id,
+                        {
+                            "type": "start_tournament",
+                            "room_id": self.room_id,
+                        },
+                    )
 
     async def send_user_info(self):
-        # 해당 방의 모든 유저 정보를 수집하여 전송
+        """
+        해당 방의 모든 유저 정보를 수집하여 전송
+        """
         username_list = [
-            user.username for user in TournamentRoomConsumer.rooms[self.room_id]
+            user.username for user in NormalRoomConsumer.rooms[self.room_id]
         ]
-        userimage_list = [
-            str(user.image) for user in TournamentRoomConsumer.rooms[self.room_id]
+        user_image_list = [
+            str(user.image) for user in NormalRoomConsumer.rooms[self.room_id]
         ]
+        user_win_list = [user.win for user in NormalRoomConsumer.rooms[self.room_id]]
+        user_lose_list = [user.lose for user in NormalRoomConsumer.rooms[self.room_id]]
         await self.channel_layer.group_send(
             self.room_id,
             {
                 "type": "broadcast_users",
                 "username": username_list,
-                "userimage": userimage_list,
+                "user_image": user_image_list,
+                "user_win": user_win_list,
+                "user_lose": user_lose_list,
             },
         )
 
     async def broadcast_users(self, event):
-        # 모든 유저에게 방에 있는 유저 정보 전송
+        """
+        방에 있는 유저 정보를 모두에게 전송
+        """
         username_list = event["username"]
-        userimage_list = event["userimage"]
+        user_image_list = event["user_image"]
+        user_win_list = event["user_win"]
+        user_lose_list = event["user_lose"]
         user_data = {
             "type": "users",
             "user1": "",
             "user1_image": "",
+            "user1_win": "",
+            "user1_lose": "",
             "user2": "",
             "user2_image": "",
+            "user2_win": "",
+            "user2_lose": "",
             "user3": "",
             "user3_image": "",
+            "user3_win": "",
+            "user3_lose": "",
             "user4": "",
             "user4_image": "",
+            "user4_win": "",
+            "user4_lose": "",
         }
         for idx, username in enumerate(username_list, start=0):
             user_data[f"user{idx}"] = username
-            user_data[f"user{idx}_image"] = userimage_list[idx]
+            user_data[f"user{idx}_image"] = user_image_list[idx]
+            user_data[f"user{idx}_win"] = user_win_list[idx]
+            user_data[f"user{idx}_lose"] = user_lose_list[idx]
 
         await self.send_json(user_data)
 
-    async def start_initial_matches(self):
-        players = TournamentRoomConsumer.rooms[self.room_id]
-        self.rooms[self.room_id] = []
-
-        match_1 = players[:2]
-        match_2 = players[2:]
-        self.matches[self.room_id] = [match_1, match_2]
-
-        for player in match_1:
-            await player.send_json(
-                {
-                    "type": "start_match",
-                    "opponent": [p.user.username for p in match_1 if p != player],
-                }
-            )
-
-        for player in match_2:
-            await player.send_json(
-                {
-                    "type": "start_match",
-                    "opponent": [p.user.username for p in match_2 if p != player],
-                }
-            )
-
-    async def handle_match_result(self, winner, player):
-        match = next((m for m in self.matches[self.room_id] if player in m), None)
-        if match:
-            self.matches[self.room_id].remove(match)
-
-        self.rooms[self.room_id].append(winner)
-
-        if len(self.matches[self.room_id]) == 0:
-            if len(self.rooms[self.room_id]) == 2:
-                await self.start_final_match()
-            else:
-                # Notify spectators
-                spectators = [p for p in self.rooms[self.room_id] if p != winner]
-                for spectator in spectators:
-                    await spectator.send_json(
-                        {"type": "match_ended", "winner": winner.user.username}
-                    )
-
-    async def start_final_match(self):
-        final_match = list(self.rooms[self.room_id][:2])
-        self.rooms[self.room_id] = []
-
-        self.matches[self.room_id] = final_match
-
-        for player in final_match:
-            await player.send_json(
-                {
-                    "type": "start_final_match",
-                    "opponent": [p.user.username for p in final_match if p != player],
-                }
-            )
+    async def start_tournament(self, event):
+        room_id = event["room_id"]
+        data = {
+            "type": "start_game",
+            "room_id": room_id,
+        }
+        await self.send_json(data)
 
     async def disconnect(self, close_code):
         async with TournamentRoomConsumer.rooms_lock:
-            if self in self.rooms[self.room_id]:
-                self.rooms[self.room_id].remove(self)
-            for match in self.matches.get(self.room_id, []):
-                if self in match:
-                    match.remove(self)
-                    if not match:
-                        del self.matches[self.room_id]
+            if self.room_id in TournamentRoomConsumer.rooms:
+                if self.user in TournamentRoomConsumer.rooms[self.room_id]:
+                    TournamentRoomConsumer.rooms[self.room_id].remove(self.user)
+                    if not TournamentRoomConsumer.rooms[self.room_id]:
+                        del TournamentRoomConsumer.rooms[self.room_id]
         await self.channel_layer.group_discard(self.room_id, self.channel_name)
         await self.close()
+
+    @database_sync_to_async
+    def create_game_result(self) -> None:
+        room_model = apps.get_model("rooms", "Room")
+        game_model = apps.get_model("game", "GameResult")
+        room = room_model.objects.get(id=self.room_id)
+        game_model.objects.create(
+            id=self.room_id,
+            game_map=room.game_map,
+            game_speed=room.game_speed,
+            ball_color=room.ball_color,
+            start_time=timezone.now(),
+        )
+
+    @database_sync_to_async
+    def update_current_player(self, player: int) -> int:
+        room_model = apps.get_model("rooms", "Room")
+        room = room_model.objects.get(id=self.room_id)
+        room.current_player = player
+        room.save()
+        return player
+
+    @database_sync_to_async
+    def delete_room(self) -> None:
+        room_model = apps.get_model("rooms", "Room")
+        try:
+            room = room_model.objects.get(id=self.room_id)
+            room.delete()
+        except room_model.DoesNotExist:
+            return
