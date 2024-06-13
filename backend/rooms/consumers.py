@@ -108,7 +108,7 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
         user_data["room_name"] = self.room.room_name
         for idx, username in enumerate(username_list, start=0):
             user_data[f"user{idx}"] = username
-            user_data[f"user{idx}_image"] = user_image_list[idx]
+            user_data[f"user{idx}_image"] = "/media/" + user_image_list[idx]
             user_data[f"user{idx}_win"] = user_win_list[idx]
             user_data[f"user{idx}_lose"] = user_lose_list[idx]
         await self.send_json(user_data)
@@ -281,7 +281,7 @@ class TournamentRoomConsumer(NormalRoomConsumer):
         }
         for idx, username in enumerate(username_list, start=0):
             user_data[f"user{idx}"] = username
-            user_data[f"user{idx}_image"] = user_image_list[idx]
+            user_data[f"user{idx}_image"] = "/media/" + user_image_list[idx]
             user_data[f"user{idx}_win"] = user_win_list[idx]
             user_data[f"user{idx}_lose"] = user_lose_list[idx]
         user_data["room_name"] = self.room.room_name
