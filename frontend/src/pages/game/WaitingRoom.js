@@ -139,8 +139,7 @@ class WaitingRoom extends PageComponent {
     };
 
     this.roomSocket.onclose = (e) => {
-      console.log('Room Socket Disconnected');
-      console.log(e.code);
+      console.log(`Room Socket Disconnected (${e.code})`);
     };
 
     this.roomSocket.onerror = (error) => {
