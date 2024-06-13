@@ -94,7 +94,7 @@ class WaitingRoom extends PageComponent {
 
     this.roomSocket.onmessage = (e) => {
       const data = JSON.parse(e.data);
-      this.roomTitle = data.room_name;
+      this.roomTitle = data.room_name || '';
       this.addRoomTitle();
       switch (data.type) {
         case 'users':
@@ -125,7 +125,6 @@ class WaitingRoom extends PageComponent {
     };
 
     this.roomSocket.onerror = (error) => {
-      // navigate to join room page
       Router.navigateTo('/game/join');
       console.error('Room Socket Error:', error);
     };
