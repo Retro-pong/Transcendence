@@ -14,12 +14,15 @@ class WaitingRoom extends PageComponent {
     this.setTitle('Waiting Room');
     const params = new URLSearchParams(document.location.search);
     this.roomTitle = '';
-    this.roomId = params.get('id');
-    this.roomMode = params.get('mode') || 'normal';
+    this.roomId = params.get('id') || '';
+    this.roomMode = params.get('mode') || '';
     this.roomSocket = SocketManager.createSocket(
       `/${this.roomMode}_room/${this.roomId}/`
     );
-    this.players = [];
+    this.players =
+      this.roomMode === 'normal'
+        ? [{ id: 1 }, { id: 2 }]
+        : [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }];
   }
 
   async render() {
@@ -41,9 +44,10 @@ class WaitingRoom extends PageComponent {
       <div class="container h-100 p-3 game-room-border">
         <div class="d-flex flex-column h-100 position-relative">
           <h1 id="room-title" class="fs-15 text-center">Welcome to<br />[ ${this.roomTitle} ]</h1>
-          ${ManualButton} 
-          <div class="d-md-flex justify-content-center align-items-center overflow-auto h-100">
-            <div id="player-container" class="row row-cols-1 row-cols-md-2 g-1 w-95">
+          ${ManualButton}
+          <div class="container overflow-auto h-100">
+            <div id="player-container" class="row row-cols-1 row-cols-md-2 g-1">
+              ${this.players.map((player) => PlayerCard(player)).join('')}
             </div>
           </div>
         </div>
@@ -57,17 +61,28 @@ class WaitingRoom extends PageComponent {
   }
 
   addPlayers() {
-    const playerContainer = document.getElementById('player-container');
-    playerContainer.innerHTML = this.players
-      .map((player) => PlayerCard(player))
-      .join('');
+    this.players.forEach((player) => {
+      const playerId = document.getElementById(`player${player.id}-id`);
+      const playerName = document.getElementById(`player${player.id}-name`);
+      const playerScore = document.getElementById(`player${player.id}-score`);
+      const playerImg = document.getElementById(`player${player.id}-img`);
+      playerId.innerHTML = `Player ${player.id}`;
+      playerName.innerHTML = player.name || 'waiting...';
+      playerScore.innerHTML = player.name
+        ? `${player.win}W/${player.lose}L`
+        : '...';
+      playerImg.innerHTML = player.profileImg
+        ? `<img src="${player.profileImg}" onerror="this.src='/img/profile_fallback.jpg';" class="img-fluid" alt="profile" style="object-fit: cover;" />`
+        : '';
+    });
   }
 
   makePlayerList(data) {
     const playerCount = this.roomMode === 'normal' ? 2 : 4;
+    const players = [];
     // eslint-disable-next-line no-plusplus
     for (let i = 0; i < playerCount; i++) {
-      this.players.push({
+      players.push({
         id: i + 1,
         name: data[`user${i}`],
         profileImg: data[`user${i}_image`],
@@ -75,6 +90,7 @@ class WaitingRoom extends PageComponent {
         lose: data[`user${i}_lose`],
       });
     }
+    this.players = players;
   }
 
   async afterRender() {
