@@ -102,20 +102,18 @@ class WaitingRoom extends PageComponent {
           this.addPlayers();
           break;
         case 'start_game':
-          // navigate to game page
           this.roomSocket.close();
           Router.navigateTo(
-            `/game/play?id=${this.roomId}&mode=${this.roomMode}`
+            `/game/play?id=${data.room_id}&mode=${this.roomMode}`
           );
           break;
         case 'full':
-          // navigate to join room page
           ToastHandler.setToast('Room is full');
           this.roomSocket.close();
           Router.navigateTo('/game/join');
           break;
         default:
-          // this.roomSocket.close();
+          this.roomSocket.close();
           break;
       }
       console.log(data);
