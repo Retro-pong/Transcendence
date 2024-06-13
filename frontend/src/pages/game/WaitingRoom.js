@@ -113,7 +113,6 @@ class WaitingRoom extends PageComponent {
           Router.navigateTo('/game/join');
           break;
         default:
-          this.roomSocket.close();
           break;
       }
       console.log(data);
