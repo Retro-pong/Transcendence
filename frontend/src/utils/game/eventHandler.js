@@ -1,6 +1,6 @@
 import gameUtils from '@/utils/game/gameUtils';
 
-function eventHandler(canvas, scene, camera, mode, side) {
+function eventHandler(canvas, scene, camera, settings, socket) {
   const map = scene.getObjectByName('map');
   const redPaddle = scene.getObjectByName('redPaddle');
   const bluePaddle = scene.getObjectByName('bluePaddle');
@@ -18,12 +18,11 @@ function eventHandler(canvas, scene, camera, mode, side) {
     right: false,
   };
 
-  // TODO: 멀티 플레이 시 키보드 컨트롤 방향키만 사용하도록 수정, 패들도 하나 받기
   // 키보드 컨트롤
   // wasd -> 로컬에서만 사용
   canvas.addEventListener('keydown', (e) => {
     // 방향키
-    if (mode === 'local') {
+    if (settings.mode === 'local') {
       if (e.code === 'KeyW') {
         keyPressed.w = true;
       }
@@ -54,10 +53,10 @@ function eventHandler(canvas, scene, camera, mode, side) {
 
     // 컨트롤러 스위치
     console.log(e.code);
-    if (mode === 'multi' && e.code === 'Digit1') {
+    if (settings.mode === 'multi' && e.code === 'Digit1') {
       controler = 'keyboard';
     }
-    if (mode === 'multi' && e.code === 'Digit2') {
+    if (settings.mode === 'multi' && e.code === 'Digit2') {
       controler = 'mouse';
     }
   });
@@ -74,10 +73,10 @@ function eventHandler(canvas, scene, camera, mode, side) {
   });
 
   let paddle;
-  if (mode === 'local') {
+  if (settings.mode === 'local') {
     paddle = bluePaddle;
   } else {
-    paddle = side === 'red' ? redPaddle : bluePaddle;
+    paddle = settings.side === 'red' ? redPaddle : bluePaddle;
   }
   const movePaddle = () => {
     const move = 0.2;
@@ -118,6 +117,14 @@ function eventHandler(canvas, scene, camera, mode, side) {
       if (paddle === redPaddle && redPaddle.position.z > -7.5)
         redPaddle.position.z -= move;
     }
+    if (settings.mode === 'multi') {
+      const message = {
+        type: 'move',
+        y: Math.floor(paddle.position.y),
+        z: Math.floor(paddle.position.z),
+      };
+      socket.send(JSON.stringify(message));
+    }
   };
 
   setInterval(movePaddle, 10);
@@ -135,8 +142,15 @@ function eventHandler(canvas, scene, camera, mode, side) {
       map
     );
     if (!mousePosition) return;
-    bluePaddle.position.y = mousePosition.y;
-    bluePaddle.position.z = mousePosition.z;
+    paddle.position.y = mousePosition.y;
+    paddle.position.z = mousePosition.z;
+
+    const message = {
+      type: 'move',
+      y: Math.floor(mousePosition.y),
+      z: Math.floor(mousePosition.z),
+    };
+    socket.send(JSON.stringify(message));
   });
 }
 
