@@ -196,7 +196,7 @@ class TournamentRoomConsumer(NormalRoomConsumer):
                 if self.room_id not in TournamentRoomConsumer.rooms:
                     TournamentRoomConsumer.rooms[self.room_id] = []
                 TournamentRoomConsumer.rooms[self.room_id].append(self.user)
-                self.channel_layer(get_channel_layer())
+                self.channel_layer = get_channel_layer()
                 await self.channel_layer.group_add(self.room_id, self.channel_name)
                 # 정원에 도달한 방에 입장을 시도하는 경우 에러 (code=4003)
                 if len(TournamentRoomConsumer.rooms[self.room_id]) > 4:
@@ -206,12 +206,11 @@ class TournamentRoomConsumer(NormalRoomConsumer):
                     TournamentRoomConsumer.rooms[self.room_id].remove(self.user)
                     await self.send_json({"type": "full"})
                     return
-
-            # 대기실 참여 성공
-            current_player = await self.update_current_player(
-                len(TournamentRoomConsumer.rooms[self.room_id])
-            )
-            await self.send_user_info()
+                # 대기실 참여 성공
+                current_player = await self.update_current_player(
+                    len(TournamentRoomConsumer.rooms[self.room_id])
+                )
+                await self.send_user_info()
 
             # 방 인원이 정원인 경우 연결 해제 요청
             async with TournamentRoomConsumer.rooms_lock:
@@ -285,31 +284,8 @@ class TournamentRoomConsumer(NormalRoomConsumer):
             user_data[f"user{idx}_image"] = user_image_list[idx]
             user_data[f"user{idx}_win"] = user_win_list[idx]
             user_data[f"user{idx}_lose"] = user_lose_list[idx]
-        user_data["room_name"] = await self.get_room_name()
+        user_data["room_name"] = self.room.room_name
         await self.send_json(user_data)
-
-    async def send_disconnect(self, event: dict) -> None:
-        players = TournamentRoomConsumer.rooms[self.room_id]
-        match_1 = players[:2]
-        match_2 = players[2:]
-        room_id = event["room_id"]
-
-        for player in match_1:
-            await player.send_json(
-                {
-                    "type": "start_game",
-                    "room_id": room_id,
-                    "opponent": [p.user.username for p in match_1 if p != player],
-                }
-            )
-        for player in match_2:
-            await player.send_json(
-                {
-                    "type": "start_game",
-                    "room_id": room_id,
-                    "opponent": [p.user.username for p in match_2 if p != player],
-                }
-            )
 
     async def disconnect(self, close_code: int) -> None:
         async with TournamentRoomConsumer.rooms_lock:
