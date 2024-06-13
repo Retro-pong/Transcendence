@@ -16,16 +16,13 @@ BOT = 6
 
 class Ball:
     def __init__(self, speed):
-        self.x = 0
+        self.x = 0.0
         self.y = random.random() * 8 - 4
         self.z = random.random() * 12 - 6
         self.dir = [
-            # random.choice([1, -1]) * 0.1,
-            # random.choice([1, -1]) * 0.1,
-            # random.choice([1, -1]) * 0.1,
-            0.1,
-            0.1,
-            0.1,
+            random.choice([1, -1]) * 0.1,
+            random.choice([1, -1]) * 0.1,
+            random.choice([1, -1]) * 0.1,
         ]
         self.speed = [1.2 * speed, 1.2 * speed, 1.2 * speed]
         self.hit = NONE
@@ -46,15 +43,13 @@ class Ball:
         self.y = random.random() * 8 - 4
         self.z = random.random() * 12 - 6
         self.dir = [
-            # random.choice([1, -1]) * 0.1,
-            # random.choice([1, -1]) * 0.1,
-            # random.choice([1, -1]) * 0.1,
-            0.1,
-            0.1,
-            0.1,
+            random.choice([1, -1]) * 0.1,
+            random.choice([1, -1]) * 0.1,
+            random.choice([1, -1]) * 0.1,
         ]
         self.speed = [1.2 * speed, 1.2 * speed, 1.2 * speed]
         self.hit = NONE
+        self.hit_status = 0
 
     def hit_wall(self) -> None:
         if -8 < self.z < -7:
@@ -73,7 +68,7 @@ class Ball:
     def check_ball_xpos(self) -> int:
         if 23.5 < self.x < 24.5:
             return RED
-        if -23.5 < self.x < -24.5:
+        if -23.5 > self.x > -24.5:
             return BLUE
         return 0
 
@@ -99,8 +94,8 @@ class Ball:
 
 class Player:
     def __init__(self, type, nick):
-        self.y = 0
-        self.z = 0
+        self.y = 0.0
+        self.z = 0.0
         self.type = type  # red, blue
         self.nick = nick
         self.status = "wait"
