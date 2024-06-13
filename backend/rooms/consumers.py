@@ -11,13 +11,13 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
     rooms = {}
     rooms_lock = asyncio.Lock()
 
-    async def connect(self):
+    async def connect(self) -> None:
         self.room_id = self.scope["url_route"]["kwargs"]["room_id"]
         self.channel_layer = get_channel_layer()
         await self.channel_layer.group_add(self.room_id, self.channel_name)
         await self.accept()
 
-    async def receive_json(self, content):
+    async def receive_json(self, content: dict) -> None:
         if content["type"] == "access":
             token = content["token"]
             try:
@@ -31,11 +31,11 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
             await self.send_json({"access": "Access successful."})
 
             async with NormalRoomConsumer.rooms_lock:
-                # 방이 없으면 생성 후 유저 추가
-                if self.room_id not in NormalRoomConsumer.rooms:
-                    NormalRoomConsumer.rooms[self.room_id] = []
-                NormalRoomConsumer.rooms[self.room_id].append(self.user)
-                # 인원이 다 찬 방에 입장을 시도하는 경우 에러 (code=4003)
+                # 방이 없는 경우 새로 생성
+                if self.room_id not in TournamentRoomConsumer.rooms:
+                    TournamentRoomConsumer.rooms[self.room_id] = []
+                TournamentRoomConsumer.rooms[self.room_id].append(self.user)
+                # 정원에 도달한 방에 입장을 시도하는 경우 에러 (code=4003)
                 if len(NormalRoomConsumer.rooms[self.room_id]) > 2:
                     await self.channel_layer.group_discard(
                         self.room_id, self.channel_name
@@ -50,7 +50,7 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
             )
             await self.send_user_info()
 
-            # 방 인원이 정원일 경우 연결 해제 요청
+            # 방 인원이 정원인 경우 연결 해제 요청
             async with NormalRoomConsumer.rooms_lock:
                 if current_player == 2:
                     await self.create_game_result()
@@ -63,7 +63,7 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
                         },
                     )
 
-    async def send_user_info(self):
+    async def send_user_info(self) -> None:
         """
         해당 방의 모든 유저 정보를 수집하여 전송
         """
@@ -86,7 +86,7 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
             },
         )
 
-    async def broadcast_users(self, event):
+    async def broadcast_users(self, event: dict) -> None:
         """
         방에 있는 유저 정보를 모두에게 전송
         """
@@ -113,7 +113,7 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
 
         await self.send_json(user_data)
 
-    async def send_disconnect(self, event):
+    async def send_disconnect(self, event: dict) -> None:
         room_id = event["room_id"]
         data = {
             "type": "start_game",
@@ -121,7 +121,7 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
         }
         await self.send_json(data)
 
-    async def disconnect(self, close_code):
+    async def disconnect(self, close_code: int) -> None:
         async with NormalRoomConsumer.rooms_lock:
             if self.room_id in NormalRoomConsumer.rooms:
                 if self.user in NormalRoomConsumer.rooms[self.room_id]:
@@ -174,7 +174,7 @@ class TournamentRoomConsumer(AsyncJsonWebsocketConsumer):
         await self.channel_layer.group_add(self.room_id, self.channel_name)
         await self.accept()
 
-    async def receive_json(self, content):
+    async def receive_json(self, content: dict) -> None:
         if content["type"] == "access":
             token = content["token"]
             try:
@@ -188,9 +188,11 @@ class TournamentRoomConsumer(AsyncJsonWebsocketConsumer):
             await self.send_json({"access": "Access successful."})
 
             async with TournamentRoomConsumer.rooms_lock:
+                # 방이 없는 경우 새로 생성
                 if self.room_id not in TournamentRoomConsumer.rooms:
                     TournamentRoomConsumer.rooms[self.room_id] = []
                 TournamentRoomConsumer.rooms[self.room_id].append(self.user)
+                # 정원에 도달한 방에 입장을 시도하는 경우 에러 (code=4003)
                 if len(TournamentRoomConsumer.rooms[self.room_id]) > 4:
                     await self.channel_layer.group_discard(
                         self.room_id, self.channel_name
@@ -205,19 +207,20 @@ class TournamentRoomConsumer(AsyncJsonWebsocketConsumer):
             )
             await self.send_user_info()
 
-            # 방 인원이 정원일 경우 연결 해제 요청
+            # 방 인원이 정원인 경우 연결 해제 요청
             async with NormalRoomConsumer.rooms_lock:
                 if current_player == 4:
                     await self.create_game_result()
+                    await self.delete_room()
                     await self.channel_layer.group_send(
                         self.room_id,
                         {
-                            "type": "start_tournament",
+                            "type": "send_disconnect",
                             "room_id": self.room_id,
                         },
                     )
 
-    async def send_user_info(self):
+    async def send_user_info(self) -> None:
         """
         해당 방의 모든 유저 정보를 수집하여 전송
         """
@@ -240,7 +243,7 @@ class TournamentRoomConsumer(AsyncJsonWebsocketConsumer):
             },
         )
 
-    async def broadcast_users(self, event):
+    async def broadcast_users(self, event: dict) -> None:
         """
         방에 있는 유저 정보를 모두에게 전송
         """
@@ -275,15 +278,30 @@ class TournamentRoomConsumer(AsyncJsonWebsocketConsumer):
 
         await self.send_json(user_data)
 
-    async def start_tournament(self, event):
+    async def send_disconnect(self, event: dict) -> None:
+        players = TournamentRoomConsumer.rooms[self.room_id]
+        match_1 = players[:2]
+        match_2 = players[2:]
         room_id = event["room_id"]
-        data = {
-            "type": "start_game",
-            "room_id": room_id,
-        }
-        await self.send_json(data)
 
-    async def disconnect(self, close_code):
+        for player in match_1:
+            await player.send_json(
+                {
+                    "type": "start_game",
+                    "room_id": room_id,
+                    "opponent": [p.user.username for p in match_1 if p != player],
+                }
+            )
+        for player in match_2:
+            await player.send_json(
+                {
+                    "type": "start_game",
+                    "room_id": room_id,
+                    "opponent": [p.user.username for p in match_2 if p != player],
+                }
+            )
+
+    async def disconnect(self, close_code: int) -> None:
         async with TournamentRoomConsumer.rooms_lock:
             if self.room_id in TournamentRoomConsumer.rooms:
                 if self.user in TournamentRoomConsumer.rooms[self.room_id]:

@@ -175,7 +175,9 @@ class CreateRoomAPIView(APIView):
             game_speed = request.data["game_speed"]
             game_map = request.data["game_map"]
             game_ball = request.data["game_ball"]
-            Room.create_room(room_name, game_mode, game_map, game_speed, game_ball)
+            room = Room.create_room(
+                room_name, game_mode, game_map, game_speed, game_ball
+            )
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        return Response(status=status.HTTP_200_OK)
+        return Response({"id": room.id}, status=status.HTTP_200_OK)
