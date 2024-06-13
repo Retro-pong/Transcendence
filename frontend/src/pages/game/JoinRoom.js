@@ -5,6 +5,7 @@ import ModalComponent from '@component/modal/ModalComponent';
 import GameRoomInfo from '@component/contents/GameRoomInfo';
 import Fetch from '@/utils/Fetch';
 import ToastHandler from '@/utils/ToastHandler';
+import Router from '@/utils/Router';
 
 class JoinRoom extends PageComponent {
   constructor() {
@@ -33,6 +34,7 @@ class JoinRoom extends PageComponent {
 
     const setRoomModalButton = (room) => {
       this.roomMap.set(`room${room.id}`, {
+        id: room.id.toString(),
         title: room.room_name,
         map: room.game_map,
         speed: room.game_speed,
@@ -50,6 +52,7 @@ class JoinRoom extends PageComponent {
     return roomList.map(setRoomModalButton).join('');
   }
 
+  // TODO: a 태그 spa 안됨
   onModalOpen() {
     const roomInfoModal = document.getElementById('roomInfoModal');
     roomInfoModal.addEventListener('show.bs.modal', (e) => {
@@ -61,9 +64,15 @@ class JoinRoom extends PageComponent {
       );
       modalFooter.innerHTML = NavLink({
         text: '>> ENTER <<',
-        path: `/game/waiting?title=${roomInfo.title}`,
+        path: `/game/waiting?title=${roomInfo.title}&id=${roomInfo.id}&mode=${this.mode}`,
         classList: 'btn btn-outline-light w-100 fs-12',
       }).outerHTML;
+      const navBtn = document.querySelector('#roomInfoModal .modal-footer a');
+      navBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        roomInfoModal.hide();
+        await Router.navigateTo(navBtn.href);
+      });
       modalBody.innerHTML = GameRoomInfo(roomInfo);
     });
   }
@@ -80,7 +89,7 @@ class JoinRoom extends PageComponent {
       title: 'Room Info',
       modalId: 'roomInfoModal',
       content: '',
-      buttonList: [],
+      buttonList: ['joinRoomBtn'],
     });
 
     return `
@@ -128,7 +137,6 @@ class JoinRoom extends PageComponent {
     await this.initPageData();
     this.onTabClick();
     this.onReloadButtonClick();
-    this.onNavButtonClick();
     this.onModalOpen();
   }
 }
