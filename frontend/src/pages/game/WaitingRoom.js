@@ -82,7 +82,6 @@ class WaitingRoom extends PageComponent {
       return 'Are you sure you want to leave?';
     };
 
-    // TODO: 소켓으로 게임 방 정보 받아오기, 참가자가 아니면 홈으로 리다이렉트
     this.roomSocket.onopen = () => {
       const message = {
         type: 'access',
