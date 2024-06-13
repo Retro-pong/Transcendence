@@ -13,8 +13,6 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
 
     async def connect(self) -> None:
         self.room_id = self.scope["url_route"]["kwargs"]["room_id"]
-        self.channel_layer = get_channel_layer()
-        await self.channel_layer.group_add(self.room_id, self.channel_name)
         await self.accept()  # WebSocket 연결 수락
 
     async def receive_json(self, content: dict) -> None:
@@ -29,13 +27,16 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
                 await self.send_json({"access": "User not authenticated."})
                 return
             await self.send_json({"access": "Access successful."})
-
+            self.room = await self.get_room()
             async with NormalRoomConsumer.rooms_lock:
                 # 방이 없는 경우 새로 생성
                 if self.room_id not in NormalRoomConsumer.rooms:
                     NormalRoomConsumer.rooms[self.room_id] = []
                 NormalRoomConsumer.rooms[self.room_id].append(self.user)
-                # 정원에 도달한 방에 입장을 시도하는 경우 에러 (code=4003)
+                self.channel_layer = (
+                    get_channel_layer()
+                )  # TODO: CHANNEL LAYER APPEND랑 같이 실행
+                await self.channel_layer.group_add(self.room_id, self.channel_name)
                 if len(NormalRoomConsumer.rooms[self.room_id]) > 2:
                     await self.channel_layer.group_discard(
                         self.room_id, self.channel_name
@@ -43,12 +44,11 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
                     NormalRoomConsumer.rooms[self.room_id].remove(self.user)
                     await self.send_json({"type": "full"})
                     return
-
-            # 연결 성공 시 방 참여 인원 모두에게 방 인원 정보 전송
-            current_player = await self.update_current_player(
-                len(NormalRoomConsumer.rooms[self.room_id])
-            )
-            await self.send_user_info()
+                # 연결 성공 시 방 참여 인원 모두에게 방 인원 정보 전송 #TODO : send user info 뮤택스 내부에 배치
+                current_player = await self.update_current_player(
+                    len(NormalRoomConsumer.rooms[self.room_id])
+                )
+                await self.send_user_info()
 
             # 방 인원이 정원인 경우 연결 해제 요청
             async with NormalRoomConsumer.rooms_lock:
@@ -105,12 +105,12 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
             "user1_win": "",
             "user1_lose": "",
         }
+        user_data["room_name"] = self.room.room_name
         for idx, username in enumerate(username_list, start=0):
             user_data[f"user{idx}"] = username
             user_data[f"user{idx}_image"] = user_image_list[idx]
             user_data[f"user{idx}_win"] = user_win_list[idx]
             user_data[f"user{idx}_lose"] = user_lose_list[idx]
-        user_data["room_name"] = await self.get_room_name()
         await self.send_json(user_data)
 
     async def send_disconnect(self, event: dict) -> None:
@@ -167,10 +167,10 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
             return
 
     @database_sync_to_async
-    def get_room_name(self):
+    def get_room(self):  # TODO: room name 대신 room 객체로 변경
         room_model = apps.get_model("rooms", "Room")
-        room_name = room_model.objects.get(id=self.room_id).room_name
-        return room_name
+        room = room_model.objects.get(id=self.room_id)
+        return room
 
 
 class TournamentRoomConsumer(NormalRoomConsumer):
