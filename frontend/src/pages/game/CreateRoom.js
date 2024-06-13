@@ -64,11 +64,13 @@ class CreateRoom extends PageComponent {
       game_map: gameMap,
       game_mode: gameMode,
     })
-      .then(() => {
+      .then((res) => {
+        const roomId = res.id.toString();
         document.getElementById('createRoomForm').reset();
         ToastHandler.setToast('Room created successfully');
-        //         path: `/game/waiting?title=${roomInfo.title}&id=${roomInfo.id}&mode=${this.mode}`,
-        Router.navigateTo(`/game/waiting?title=${gameTitle}`);
+        Router.navigateTo(
+          `/game/waiting?title=${gameTitle}&id=${roomId}&mode=${gameMode}`
+        );
       })
       .catch((err) => {
         if (err.error === 'UNIQUE constraint failed: room.room_name') {
