@@ -15,7 +15,7 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
         self.room_id = self.scope["url_route"]["kwargs"]["room_id"]
         self.channel_layer = get_channel_layer()
         await self.channel_layer.group_add(self.room_id, self.channel_name)
-        await self.accept()
+        await self.accept()  # WebSocket 연결 수락
 
     async def receive_json(self, content: dict) -> None:
         if content["type"] == "access":
@@ -172,7 +172,7 @@ class TournamentRoomConsumer(AsyncJsonWebsocketConsumer):
         self.room_id = self.scope["url_route"]["kwargs"]["room_id"]
         self.channel_layer = get_channel_layer()
         await self.channel_layer.group_add(self.room_id, self.channel_name)
-        await self.accept()
+        await self.accept()  # WebSocket 연결 수락
 
     async def receive_json(self, content: dict) -> None:
         if content["type"] == "access":
