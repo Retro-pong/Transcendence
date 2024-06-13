@@ -71,6 +71,8 @@ class GameConsumerTest(TransactionTestCase):
         await communicator2.send_json_to({"type": "ready"})
         while True:
             response = await communicator2.receive_json_from()
+            if response["type"] == "render":
+                print(response)
             if response["type"] == "result":
                 print(response)
                 break
