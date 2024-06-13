@@ -24,6 +24,7 @@ env.read_env(os.path.join(BASE_DIR, ".env"))  # Read .env file
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SMTP env
+ALGORITHM = os.environ.get("ALGORITHM")
 EMAIL_HOST = os.environ.get("EMAIL_HOST")
 EMAIL_PORT = os.environ.get("EMAIL_PORT")
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
@@ -178,8 +179,8 @@ SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": False,
-    "ALGORITHM": os.environ.get("ALGORITHM"),
-    "SIGNING_KEY": os.environ.get("SECRET_KEY"),
+    "ALGORITHM": ALGORITHM,
+    "SIGNING_KEY": SECRET_KEY,
     "VERIFYING_KEY": None,
     "AUDIENCE": None,
     "ISSUER": None,
