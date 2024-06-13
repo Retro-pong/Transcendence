@@ -202,7 +202,7 @@ class TournamentRoomConsumer(NormalRoomConsumer):
                     await self.send_json({"type": "already_in_room"})
                     return
                 # 이미 정원에 도달한 대기실에 입장을 시도하는 경우 에러 (code=4003)
-                if len(TournamentRoomConsumer.rooms[self.room_id]) >= 2:
+                if len(TournamentRoomConsumer.rooms[self.room_id]) >= 4:
                     await self.channel_layer.group_discard(
                         self.room_id, self.channel_name
                     )
