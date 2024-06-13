@@ -6,13 +6,14 @@ import GameManual from '@component/contents/GameManual';
 import SocketManager from '@/utils/SocketManager';
 import Router from '@/utils/Router';
 import TokenManager from '@/utils/TokenManager';
+import ToastHandler from '@/utils/ToastHandler';
 
 class WaitingRoom extends PageComponent {
   constructor() {
     super();
     this.setTitle('Waiting Room');
     const params = new URLSearchParams(document.location.search);
-    this.roomTitle = params.get('title') || "Let's Play Pong!";
+    this.roomTitle = '';
     this.roomId = params.get('id');
     this.roomMode = params.get('mode') || 'normal';
     this.roomSocket = SocketManager.createSocket(
@@ -38,8 +39,8 @@ class WaitingRoom extends PageComponent {
     return `
       ${GameManualModal}
       <div class="container h-100 p-3 game-room-border">
-        <div id="room-title" class="d-flex flex-column h-100 position-relative">
-          <h1 class="fs-15 text-center">Welcome to<br />[ ${this.roomTitle} ]</h1>
+        <div class="d-flex flex-column h-100 position-relative">
+          <h1 id="room-title" class="fs-15 text-center">Welcome to<br />[ ${this.roomTitle} ]</h1>
           ${ManualButton} 
           <div class="d-md-flex justify-content-center align-items-center overflow-auto h-100">
             <div id="player-container" class="row row-cols-1 row-cols-md-2 g-1 w-95 h-100">
@@ -50,6 +51,11 @@ class WaitingRoom extends PageComponent {
       `;
   }
 
+  addRoomTitle() {
+    const roomTitle = document.getElementById('room-title');
+    roomTitle.innerHTML = `Welcome to<br />[ ${this.roomTitle} ]`;
+  }
+
   addPlayers() {
     const playerContainer = document.getElementById('player-container');
     console.log(this.players);
@@ -58,7 +64,19 @@ class WaitingRoom extends PageComponent {
       .join('');
   }
 
-  connectSocket() {}
+  makePlayerList(data) {
+    const playerCount = this.roomMode === 'normal' ? 2 : 4;
+    // eslint-disable-next-line no-plusplus
+    for (let i = 0; i < playerCount; i++) {
+      this.players.push({
+        id: i + 1,
+        name: data[`user${i}`],
+        profileImg: data[`user${i}_image`],
+        win: data[`user${i}_win`],
+        lose: data[`user${i}_lose`],
+      });
+    }
+  }
 
   async afterRender() {
     onbeforeunload = () => {
@@ -77,39 +95,12 @@ class WaitingRoom extends PageComponent {
 
     this.roomSocket.onmessage = (e) => {
       const data = JSON.parse(e.data);
+      this.roomTitle = data.room_name;
+      this.addRoomTitle();
       switch (data.type) {
         case 'users':
           console.log(data);
-          this.players = [
-            {
-              id: '1',
-              name: data.user0,
-              profileImg: data.user0_image,
-              win: data.user0_win,
-              lose: data.user0_lose,
-            },
-            {
-              id: '2',
-              name: data.user1,
-              profileImg: data.user1_image,
-              win: data.user1_win,
-              lose: data.user1_lose,
-            },
-            {
-              id: '3',
-              name: data.user2,
-              profileImg: data.user2_image,
-              win: data.user2_win,
-              lose: data.user2_lose,
-            },
-            {
-              id: '4',
-              name: data.user3,
-              profileImg: data.user3_image,
-              win: data.user3_win,
-              lose: data.user3_lose,
-            },
-          ];
+          this.makePlayerList(data);
           this.addPlayers();
           break;
         case 'start_game':
@@ -122,6 +113,7 @@ class WaitingRoom extends PageComponent {
           break;
         case 'full':
           // navigate to join room page
+          ToastHandler.setToast('Room is full');
           this.roomSocket.close();
           Router.navigateTo('/game/join');
           break;
