@@ -1,7 +1,7 @@
 import PageComponent from '@component/PageComponent';
 import game from '@/utils/game/game';
 import socketManager from '@/utils/SocketManager';
-import TokenManager from "@/utils/TokenManager";
+import TokenManager from '@/utils/TokenManager';
 
 class PlayGame extends PageComponent {
   constructor() {
@@ -55,7 +55,7 @@ class PlayGame extends PageComponent {
         this.settings.speed = data.speed;
         this.settings.map = data.map;
       }
-      game(this.settings, data);
+      game(this.settings, data, this.gameSocket);
     });
     this.gameSocket.onclose((e) => {
       console.log(e);
