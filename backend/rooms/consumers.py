@@ -30,27 +30,31 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
 
             self.room = await self.get_room()
             async with NormalRoomConsumer.rooms_lock:
-                # 방이 없는 경우 새로 생성
+                # 대기실이 없는 경우 새로 생성
                 if self.room_id not in NormalRoomConsumer.rooms:
                     NormalRoomConsumer.rooms[self.room_id] = []
-                NormalRoomConsumer.rooms[self.room_id].append(self.user)
-                self.channel_layer = get_channel_layer()
-                await self.channel_layer.group_add(self.room_id, self.channel_name)
-                # 정원에 도달한 방에 입장을 시도하는 경우 에러 (code=4003)
-                if len(NormalRoomConsumer.rooms[self.room_id]) > 2:
+                # 이미 대기실에 참여한 경우 에러 (code=4002)
+                # if self.user in NormalRoomConsumer.rooms[self.room_id]:
+                #     await self.send_json({"type": "already_in_room"})
+                #     return
+                # 이미 정원에 도달한 대기실에 입장을 시도하는 경우 에러 (code=4003)
+                if len(NormalRoomConsumer.rooms[self.room_id]) >= 2:
                     await self.channel_layer.group_discard(
                         self.room_id, self.channel_name
                     )
-                    NormalRoomConsumer.rooms[self.room_id].remove(self.user)
                     await self.send_json({"type": "full"})
                     return
-                # 연결 성공 시 방 참여 인원 모두에게 방 인원 정보 전송
+                # 대기실 입장
+                NormalRoomConsumer.rooms[self.room_id].append(self.user)
+                self.channel_layer = get_channel_layer()
+                await self.channel_layer.group_add(self.room_id, self.channel_name)
+                # 연결 성공 시 대기실 참여 인원 모두에게 대기실 인원 정보 전송
                 current_player = await self.update_current_player(
                     len(NormalRoomConsumer.rooms[self.room_id])
                 )
                 await self.send_user_info()
 
-            # 방 인원이 정원인 경우 연결 해제 요청
+            # 대기실 인원이 정원인 경우 연결 해제 요청
             async with NormalRoomConsumer.rooms_lock:
                 if current_player == 2:
                     await self.create_game_result()
@@ -65,7 +69,7 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
 
     async def send_user_info(self) -> None:
         """
-        해당 방의 모든 유저 정보를 수집하여 전송
+        해당 대기실의 모든 유저 정보를 수집하여 전송
         """
         username_list = [
             user.username for user in NormalRoomConsumer.rooms[self.room_id]
@@ -88,7 +92,7 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
 
     async def broadcast_users(self, event: dict) -> None:
         """
-        방에 있는 유저 정보를 모두에게 전송
+        대기실에 있는 유저 정보를 모두에게 전송
         """
         username_list = event["username"]
         user_image_list = event["user_image"]
@@ -126,7 +130,7 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
             if self.room_id in NormalRoomConsumer.rooms:
                 if self.user in NormalRoomConsumer.rooms[self.room_id]:
                     NormalRoomConsumer.rooms[self.room_id].remove(self.user)
-                    # 더 이상 참여자가 없으면 방 삭제
+                    # 더 이상 참여자가 없으면 대기실 삭제
                     if not NormalRoomConsumer.rooms[self.room_id]:
                         del NormalRoomConsumer.rooms[self.room_id]
                         await self.delete_room()
@@ -192,27 +196,31 @@ class TournamentRoomConsumer(NormalRoomConsumer):
 
             self.room = await self.get_room()
             async with TournamentRoomConsumer.rooms_lock:
-                # 방이 없는 경우 새로 생성
+                # 대기실이 없는 경우 새로 생성
                 if self.room_id not in TournamentRoomConsumer.rooms:
                     TournamentRoomConsumer.rooms[self.room_id] = []
-                TournamentRoomConsumer.rooms[self.room_id].append(self.user)
-                self.channel_layer = get_channel_layer()
-                await self.channel_layer.group_add(self.room_id, self.channel_name)
-                # 정원에 도달한 방에 입장을 시도하는 경우 에러 (code=4003)
-                if len(TournamentRoomConsumer.rooms[self.room_id]) > 4:
+                # 이미 대기실에 참여한 경우 에러 (code=4002)
+                # if self.user in TournamentRoomConsumer.rooms[self.room_id]:
+                #     await self.send_json({"type": "already_in_room"})
+                #     return
+                # 이미 정원에 도달한 대기실에 입장을 시도하는 경우 에러 (code=4003)
+                if len(TournamentRoomConsumer.rooms[self.room_id]) >= 4:
                     await self.channel_layer.group_discard(
                         self.room_id, self.channel_name
                     )
-                    TournamentRoomConsumer.rooms[self.room_id].remove(self.user)
                     await self.send_json({"type": "full"})
                     return
-                # 대기실 참여 성공
+                # 대기실 입장
+                TournamentRoomConsumer.rooms[self.room_id].append(self.user)
+                self.channel_layer = get_channel_layer()
+                await self.channel_layer.group_add(self.room_id, self.channel_name)
+                # 연결 성공 시 대기실 참여 인원 모두에게 대기실 인원 정보 전송
                 current_player = await self.update_current_player(
                     len(TournamentRoomConsumer.rooms[self.room_id])
                 )
                 await self.send_user_info()
 
-            # 방 인원이 정원인 경우 연결 해제 요청
+            # 대기실 인원이 정원인 경우 연결 해제 요청
             async with TournamentRoomConsumer.rooms_lock:
                 if current_player == 4:
                     await self.create_game_result()
@@ -227,7 +235,7 @@ class TournamentRoomConsumer(NormalRoomConsumer):
 
     async def send_user_info(self) -> None:
         """
-        해당 방의 모든 유저 정보를 수집하여 전송
+        해당 대기실의 모든 유저 정보를 수집하여 전송
         """
         username_list = [
             user.username for user in TournamentRoomConsumer.rooms[self.room_id]
@@ -254,7 +262,7 @@ class TournamentRoomConsumer(NormalRoomConsumer):
 
     async def broadcast_users(self, event: dict) -> None:
         """
-        방에 있는 유저 정보를 모두에게 전송
+        대기실에 있는 유저 정보를 모두에게 전송
         """
         username_list = event["username"]
         user_image_list = event["user_image"]
