@@ -96,16 +96,16 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
         user_lose_list = event["user_lose"]
         user_data = {
             "type": "users",
+            "user0": "",
+            "user0_image": "",
+            "user0_win": "",
+            "user0_lose": "",
             "user1": "",
             "user1_image": "",
             "user1_win": "",
             "user1_lose": "",
-            "user2": "",
-            "user2_image": "",
-            "user2_win": "",
-            "user2_lose": "",
         }
-        for idx, username in enumerate(username_list, start=1):
+        for idx, username in enumerate(username_list, start=0):
             user_data[f"user{idx}"] = username
             user_data[f"user{idx}_image"] = user_image_list[idx]
             user_data[f"user{idx}_win"] = user_win_list[idx]
@@ -132,7 +132,8 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
                         await self.delete_room()
         # Leave room group
         await self.channel_layer.group_discard(self.room_id, self.channel_name)
-        await self.send_user_info()
+        if NormalRoomConsumer.rooms.get(self.room_id):
+            await self.send_user_info()
         await self.close()
 
     @database_sync_to_async
@@ -173,6 +174,8 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
 
 
 class TournamentRoomConsumer(NormalRoomConsumer):
+    rooms = {}
+    rooms_lock = asyncio.Lock()
 
     async def receive_json(self, content: dict) -> None:
         if content["type"] == "access":
@@ -208,7 +211,7 @@ class TournamentRoomConsumer(NormalRoomConsumer):
             await self.send_user_info()
 
             # 방 인원이 정원인 경우 연결 해제 요청
-            async with NormalRoomConsumer.rooms_lock:
+            async with TournamentRoomConsumer.rooms_lock:
                 if current_player == 4:
                     await self.create_game_result()
                     await self.delete_room()
@@ -225,13 +228,17 @@ class TournamentRoomConsumer(NormalRoomConsumer):
         해당 방의 모든 유저 정보를 수집하여 전송
         """
         username_list = [
-            user.username for user in NormalRoomConsumer.rooms[self.room_id]
+            user.username for user in TournamentRoomConsumer.rooms[self.room_id]
         ]
         user_image_list = [
-            str(user.image) for user in NormalRoomConsumer.rooms[self.room_id]
+            str(user.image) for user in TournamentRoomConsumer.rooms[self.room_id]
         ]
-        user_win_list = [user.win for user in NormalRoomConsumer.rooms[self.room_id]]
-        user_lose_list = [user.lose for user in NormalRoomConsumer.rooms[self.room_id]]
+        user_win_list = [
+            user.win for user in TournamentRoomConsumer.rooms[self.room_id]
+        ]
+        user_lose_list = [
+            user.lose for user in TournamentRoomConsumer.rooms[self.room_id]
+        ]
         await self.channel_layer.group_send(
             self.room_id,
             {
@@ -253,6 +260,10 @@ class TournamentRoomConsumer(NormalRoomConsumer):
         user_lose_list = event["user_lose"]
         user_data = {
             "type": "users",
+            "user0": "",
+            "user0_image": "",
+            "user0_win": "",
+            "user0_lose": "",
             "user1": "",
             "user1_image": "",
             "user1_win": "",
@@ -265,12 +276,8 @@ class TournamentRoomConsumer(NormalRoomConsumer):
             "user3_image": "",
             "user3_win": "",
             "user3_lose": "",
-            "user4": "",
-            "user4_image": "",
-            "user4_win": "",
-            "user4_lose": "",
         }
-        for idx, username in enumerate(username_list, start=1):
+        for idx, username in enumerate(username_list, start=0):
             user_data[f"user{idx}"] = username
             user_data[f"user{idx}_image"] = user_image_list[idx]
             user_data[f"user{idx}_win"] = user_win_list[idx]
@@ -309,4 +316,6 @@ class TournamentRoomConsumer(NormalRoomConsumer):
                     if not TournamentRoomConsumer.rooms[self.room_id]:
                         del TournamentRoomConsumer.rooms[self.room_id]
         await self.channel_layer.group_discard(self.room_id, self.channel_name)
+        if TournamentRoomConsumer.rooms.get(self.room_id):
+            await self.send_user_info()
         await self.close()
