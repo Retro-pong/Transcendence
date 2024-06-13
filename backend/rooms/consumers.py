@@ -29,6 +29,7 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
                 return
             if not self.user.is_authenticated:
                 await self.send_json({"access": "User not authenticated."})
+                return
             else:
                 await self.send_json({"access": "Access successful."})
             # 방이 다 차있을 경우 에러 (code=4003)
@@ -41,7 +42,7 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
                         self.room_id, self.channel_name
                     )
                     RoomConsumer.rooms[self.room_id].remove(self.user)
-                    await self.send_json({"full": "Room is full."})
+                    await self.send_json({"type": "full"})
                     return
             # 연결 성공 시 방 참여 인원에게 방 인원 정보 전송
             current_player = await self.update_current_player(
