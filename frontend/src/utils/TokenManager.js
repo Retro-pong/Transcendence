@@ -42,9 +42,9 @@ class TokenManager {
         this.storeToken(res.access_token);
       })
       .catch((err) => {
-        if (err.error !== 'No refresh token.') {
-          ToastHandler.setToast('You need to login');
-        }
+        ToastHandler.setToast(
+          `${err.message || 'You need to login'} [${err.code}]`
+        );
         this.clearToken();
         Router.navigateTo('/login');
       });
@@ -52,10 +52,11 @@ class TokenManager {
 
   static async logout() {
     await Fetch.post('/login/logout/')
-      .then(() => {
+      .then((res) => {
+        ToastHandler.setToast(res.message || 'Logout Successful');
         this.clearToken();
       })
-      .catch(() => {
+      .catch((err) => {
         this.clearToken();
       });
   }
