@@ -70,6 +70,7 @@ class JoinRoom extends PageComponent {
       const navBtn = document.querySelector('#roomInfoModal .modal-footer a');
       navBtn.addEventListener('click', async (e) => {
         e.preventDefault();
+        roomInfoModal.hide();
         await Router.navigateTo(navBtn.href);
       });
       modalBody.innerHTML = GameRoomInfo(roomInfo);

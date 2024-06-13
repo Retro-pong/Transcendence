@@ -112,15 +112,22 @@ class WaitingRoom extends PageComponent {
       const data = JSON.parse(e.data);
       switch (data.type) {
         case 'users':
-          this.addPlayers(data.players);
+          console.log(data);
+          // this.addPlayers(data.players);
           break;
         case 'start_game':
+          console.log(data);
           // navigate to game page
           this.roomSocket.close();
           Router.navigateTo(`/game/play?id=${this.roomId}`);
           break;
-        default:
+        case 'full':
+          // navigate to join room page
           this.roomSocket.close();
+          Router.navigateTo('/game/join');
+          break;
+        default:
+          // this.roomSocket.close();
           break;
       }
       console.log(data);
