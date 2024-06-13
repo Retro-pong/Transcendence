@@ -98,6 +98,11 @@ class WaitingRoom extends PageComponent {
       return 'Are you sure you want to leave?';
     };
 
+    onpopstate = () => {
+      ToastHandler.setToast('You left the room');
+      this.roomSocket.close();
+    };
+
     this.roomSocket.onopen = () => {
       const message = {
         type: 'access',
@@ -139,6 +144,7 @@ class WaitingRoom extends PageComponent {
     };
 
     this.roomSocket.onerror = (error) => {
+      ToastHandler.setToast('Cannot join the room');
       Router.navigateTo('/game/join');
       console.error('Room Socket Error:', error);
     };
