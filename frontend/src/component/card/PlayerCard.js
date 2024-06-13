@@ -18,7 +18,7 @@ const PlayerCard = ({ id, name, profileImg, win, lose }) => {
         </div>
         <div class="col-md-4 align-content-center">
           <div class="ratio ratio-1x1">
-            <img src="${profileImg}" class="img-fluid" alt="profile" style="object-fit: cover;" />
+            <img src="${profileImg}" onerror="this.src='/img/profile_fallback.jpg';" class="img-fluid" alt="profile" style="object-fit: cover;" />
           </div>
         </div>
       </div>
