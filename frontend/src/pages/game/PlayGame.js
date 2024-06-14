@@ -1,8 +1,11 @@
 import PageComponent from '@component/PageComponent';
+import ModalComponent from '@component/modal/ModalComponent';
+import { Modal } from 'bootstrap';
 import socketManager from '@/utils/SocketManager';
 import TokenManager from '@/utils/TokenManager';
 import GameManager from '@/utils/game/GameManager';
 import Router from '@/utils/Router';
+import ToastHandler from '@/utils/ToastHandler';
 
 class PlayGame extends PageComponent {
   constructor() {
@@ -15,11 +18,42 @@ class PlayGame extends PageComponent {
       ? socketManager.createSocket(`/${this.gameMode}_game/${this.gameId}/`)
       : null;
     this.gameManger = null;
+    this.side = '';
+    this.blueScore = '';
+    this.redScore = '';
   }
 
-  async render() {}
+  async render() {
+    const gameResultModal = ModalComponent({
+      borderColor: 'pink',
+      title: 'Game Result',
+      modalId: 'gameResultModal',
+      content: `
+        <div class="d-flex flex-column justify-content-center align-items-center h-50">
+          <div id="gameResult" class="fs-15"></div>
+          <div class="w-75 d-flex justify-content-around align-items-center fs-12">
+            <div id="redScore" class="text-danger"></div>
+            <div id="blueScore" class="text-primary"></div>
+          </div>
+        </div>
+      `,
+      buttonList: ['gameResultBtn'],
+    });
+    return `${gameResultModal}`;
+  }
 
   async afterRender() {
+    const gameResultModal = Modal.getOrCreateInstance('#gameResultModal');
+    const modalCloseBtn = document.querySelector('#gameResultBtn');
+    const gameResult = document.querySelector('#gameResult');
+    const redScore = document.querySelector('#redScore');
+    const blueScore = document.querySelector('#blueScore');
+
+    modalCloseBtn.addEventListener('click', async () => {
+      gameResultModal.hide();
+      await Router.navigateTo('/game');
+    });
+
     this.gameManger = new GameManager();
     // local game
     if (!this.gameMode) {
@@ -40,6 +74,7 @@ class PlayGame extends PageComponent {
         console.log('multi', data);
         switch (data.type) {
           case 'start':
+            this.side = data.color;
             this.gameManger.multiGameSetting(data);
             this.gameManger.multiGameStart();
             setTimeout(() => {
@@ -47,24 +82,30 @@ class PlayGame extends PageComponent {
             }, 3000);
             break;
           case 'render':
+            this.redScore = data.redScore;
+            this.blueScore = data.blueScore;
             this.gameManger.multiGameUpdateObjects(data);
             break;
           case 'result':
-            socketManager.gameSocket.close(1000, 'game end');
-            // Router.navigateTo('/game/');
+            socketManager.gameSocket.close(1000, 'Game End');
             break;
           default:
-            // Router.navigateTo('/game/');
             break;
         }
       };
-      socketManager.gameSocket.onclose = (e) => {
-        // Router.navigateTo('/game/');
-        console.log(e);
+      socketManager.gameSocket.onclose = () => {
+        redScore.innerText = `${this.redScore}`;
+        blueScore.innerText = `${this.blueScore}`;
+        const winner = this.redScore > this.blueScore ? 'red' : 'blue';
+        gameResult.innerText = this.side === winner ? 'You Win!' : 'You Lose!';
+        gameResult.classList.add(
+          this.side === 'red' ? 'text-danger' : 'text-primary'
+        );
+        gameResultModal.show();
       };
-      socketManager.gameSocket.onerror = (e) => {
-        // Router.navigateTo('/game/');
-        console.log(e);
+      socketManager.gameSocket.onerror = async () => {
+        ToastHandler.setToast('Game Error! Please try again later');
+        await Router.navigateTo('/game');
       };
     }
   }
