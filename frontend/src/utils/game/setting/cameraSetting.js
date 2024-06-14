@@ -21,7 +21,6 @@ function cameraSetting(mode, side) {
     camera.blue = blueCamera;
     camera.red = redCamera;
   }
-  // TODO: multi 일 때 어느쪽 패들인지 인자 받아서 세팅 필요
   if (mode === 'multi') {
     const multiCamera = new THREE.PerspectiveCamera(fov, aspect, near, far);
     multiCamera.position.set(side === 'red' ? 33 : -33, 0, 0);
