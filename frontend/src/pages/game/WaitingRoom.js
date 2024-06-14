@@ -100,6 +100,7 @@ class WaitingRoom extends PageComponent {
     onpopstate = () => {
       ToastHandler.setToast('You left the room');
       this.roomSocket.close();
+      Router.navigateTo('/game/join');
     };
 
     this.roomSocket.onopen = () => {
