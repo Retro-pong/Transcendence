@@ -14,7 +14,10 @@ class GameManager {
   constructor() {
     this.scene = new THREE.Scene();
     this.canvas = document.getElementById('gameCanvas');
-    this.renderer = new THREE.WebGLRenderer({ antialias: true });
+    this.renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      canvas: this.canvas,
+    });
     this.camera = null;
 
     this.mapList = {
@@ -24,13 +27,13 @@ class GameManager {
     };
 
     this.loader = new THREE.TextureLoader();
-    this.loader.load(this.mapList.horizon, function (texture) {
+    this.loader.load(this.mapList.horizon, (texture) => {
       this.scene.background = texture;
     });
 
     sceneSetting(this.scene);
     createMap(this.scene);
-    createGameObject(this.scene, '0x0000ff');
+    createGameObject(this.scene, 0x0000ff);
 
     this.objects = {
       ball: this.scene.getObjectByName('ball'),
@@ -66,9 +69,9 @@ class GameManager {
   }
 
   multiGameSetting(data) {
-    this.camera = cameraSetting('multi', data.side);
+    this.camera = cameraSetting('multi', data.color);
     multiEventHandler(this.canvas, this.scene, this.camera);
-    this.loader.load(this.mapList[data.map], function (texture) {
+    this.loader.load(this.mapList[data.map], (texture) => {
       this.scene.background = texture;
     });
     this.objects.ball.material.color.set(data.ball_color);
@@ -86,7 +89,7 @@ class GameManager {
   }
 
   localGameStart() {
-    function render() {
+    const render = () => {
       if (resizeRendererToDisplaySize(this.renderer)) {
         const canvas = this.renderer.domElement;
         let aspect;
@@ -105,12 +108,12 @@ class GameManager {
       );
       rendering(this.renderer, this.scene, this.camera, 'local');
       requestAnimationFrame(render);
-    }
+    };
     requestAnimationFrame(render);
   }
 
   multiGameStart() {
-    function render() {
+    const render = () => {
       if (resizeRendererToDisplaySize(this.renderer)) {
         const canvas = this.renderer.domElement;
         let aspect;
@@ -122,7 +125,7 @@ class GameManager {
       }
       rendering(this.renderer, this.scene, this.camera, 'multi');
       requestAnimationFrame(render);
-    }
+    };
     requestAnimationFrame(render);
   }
 
@@ -146,8 +149,8 @@ class GameManager {
       ).toString();
     }
 
-    this.objects.redPaddle.position.set(-20, data.redY, data.redZ);
-    this.objects.bluePaddle.position.set(20, data.blueY, data.blueZ);
+    this.objects.redPaddle.position.set(20, data.redY, data.redZ);
+    this.objects.bluePaddle.position.set(-20, data.blueY, data.blueZ);
     this.objects.ball.position.set(data.ballX, data.ballY, data.ballZ);
 
     switch (parseInt(data.ballHit, 10)) {
