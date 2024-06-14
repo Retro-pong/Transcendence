@@ -20,12 +20,19 @@ class Game extends PageComponent {
       classList: 'btn btn-no-outline-hover fs-15 btn-arrow',
     }).outerHTML;
 
+    const LocalPlayButton = NavLink({
+      text: 'Local Play',
+      path: '/game/play',
+      classList: 'btn btn-no-outline-hover fs-15 btn-arrow',
+    }).outerHTML;
+
     return `
     <div class="d-flex flex-column justify-content-around align-items-center h-90">
       <h1 class="text-center fs-18">Get ready for the next battle!</h1>
       <div class="d-flex flex-column">
         ${CreateRoomButton}
         ${JoinRoomButton}
+        ${LocalPlayButton}
       </div>
     </div>
     `;

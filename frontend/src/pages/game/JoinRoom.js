@@ -3,6 +3,7 @@ import NavLink from '@component/navigation/NavLink';
 import BasicButton from '@component/button/BasicButton';
 import ModalComponent from '@component/modal/ModalComponent';
 import GameRoomInfo from '@component/contents/GameRoomInfo';
+import { Modal } from 'bootstrap';
 import Fetch from '@/utils/Fetch';
 import ToastHandler from '@/utils/ToastHandler';
 import Router from '@/utils/Router';
@@ -64,13 +65,13 @@ class JoinRoom extends PageComponent {
       );
       modalFooter.innerHTML = NavLink({
         text: '>> ENTER <<',
-        path: `/game/waiting?title=${roomInfo.title}&id=${roomInfo.id}&mode=${this.mode}`,
+        path: `/game/waiting?id=${roomInfo.id}&mode=${this.mode}`,
         classList: 'btn btn-outline-light w-100 fs-12',
       }).outerHTML;
       const navBtn = document.querySelector('#roomInfoModal .modal-footer a');
       navBtn.addEventListener('click', async (e) => {
         e.preventDefault();
-        roomInfoModal.hide();
+        Modal.getInstance(roomInfoModal).hide();
         await Router.navigateTo(navBtn.href);
       });
       modalBody.innerHTML = GameRoomInfo(roomInfo);
