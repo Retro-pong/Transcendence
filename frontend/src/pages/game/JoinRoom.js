@@ -53,7 +53,6 @@ class JoinRoom extends PageComponent {
     return roomList.map(setRoomModalButton).join('');
   }
 
-  // TODO: a 태그 spa 안됨
   onModalOpen() {
     const roomInfoModal = document.getElementById('roomInfoModal');
     roomInfoModal.addEventListener('show.bs.modal', (e) => {

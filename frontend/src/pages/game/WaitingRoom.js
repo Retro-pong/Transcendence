@@ -80,8 +80,7 @@ class WaitingRoom extends PageComponent {
   makePlayerList(data) {
     const playerCount = this.roomMode === 'normal' ? 2 : 4;
     const players = [];
-    // eslint-disable-next-line no-plusplus
-    for (let i = 0; i < playerCount; i++) {
+    for (let i = 0; i < playerCount; i += 1) {
       players.push({
         id: i + 1,
         name: data[`user${i}`],
@@ -101,6 +100,7 @@ class WaitingRoom extends PageComponent {
     onpopstate = () => {
       ToastHandler.setToast('You left the room');
       this.roomSocket.close();
+      Router.navigateTo('/game/join');
     };
 
     this.roomSocket.onopen = () => {
