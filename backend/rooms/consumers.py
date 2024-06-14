@@ -30,21 +30,21 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
 
             self.room = await self.get_room()
             async with NormalRoomConsumer.rooms_lock:
-                # 대기실이 없는 경우 새로 생성
-                if self.room_id not in NormalRoomConsumer.rooms:
-                    NormalRoomConsumer.rooms[self.room_id] = []
-                # 이미 대기실에 참여한 경우 에러 (code=4002)
-                # if self.user in NormalRoomConsumer.rooms[self.room_id]:
-                #     await self.send_json({"type": "already_in_room"})
-                #     return
-                # 이미 정원에 도달한 대기실에 입장을 시도하는 경우 에러 (code=4003)
-                if len(NormalRoomConsumer.rooms[self.room_id]) >= 2:
-                    await self.channel_layer.group_discard(
-                        self.room_id, self.channel_name
-                    )
-                    await self.send_json({"type": "full"})
-                    return
+                if self.room_id in NormalRoomConsumer.rooms:
+                    # 이미 해당 대기실에 들어가 있는 경우 에러 (code=4002)
+                    # if self.user in NormalRoomConsumer.rooms[self.room_id]:
+                    #     await self.send_json({"type": "already_in_room"})
+                    #     return
+                    # 이미 정원에 도달한 대기실에 입장을 시도하는 경우 에러 (code=4003)
+                    if len(NormalRoomConsumer.rooms[self.room_id]) >= 2:
+                        await self.channel_layer.group_discard(
+                            self.room_id, self.channel_name
+                        )
+                        await self.send_json({"type": "full"})
+                        return
                 # 대기실 입장
+                else:
+                    NormalRoomConsumer.rooms[self.room_id] = []
                 NormalRoomConsumer.rooms[self.room_id].append(self.user)
                 self.channel_layer = get_channel_layer()
                 await self.channel_layer.group_add(self.room_id, self.channel_name)
@@ -126,18 +126,18 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
         await self.send_json(data)
 
     async def disconnect(self, close_code: int) -> None:
-        async with NormalRoomConsumer.rooms_lock:
-            if self.room_id in NormalRoomConsumer.rooms:
+        if hasattr(self, "room_id") and self.room_id in NormalRoomConsumer.rooms:
+            async with NormalRoomConsumer.rooms_lock:
                 if self.user in NormalRoomConsumer.rooms[self.room_id]:
                     NormalRoomConsumer.rooms[self.room_id].remove(self.user)
                     # 더 이상 참여자가 없으면 대기실 삭제
                     if not NormalRoomConsumer.rooms[self.room_id]:
                         del NormalRoomConsumer.rooms[self.room_id]
                         await self.delete_room()
-        # Leave room group
-        await self.channel_layer.group_discard(self.room_id, self.channel_name)
-        if NormalRoomConsumer.rooms.get(self.room_id):
-            await self.send_user_info()
+            # Leave room group
+            await self.channel_layer.group_discard(self.room_id, self.channel_name)
+            if NormalRoomConsumer.rooms.get(self.room_id):
+                await self.send_user_info()
         await self.close()
 
     @database_sync_to_async
@@ -196,21 +196,21 @@ class TournamentRoomConsumer(NormalRoomConsumer):
 
             self.room = await self.get_room()
             async with TournamentRoomConsumer.rooms_lock:
-                # 대기실이 없는 경우 새로 생성
-                if self.room_id not in TournamentRoomConsumer.rooms:
-                    TournamentRoomConsumer.rooms[self.room_id] = []
-                # 이미 대기실에 참여한 경우 에러 (code=4002)
-                # if self.user in TournamentRoomConsumer.rooms[self.room_id]:
-                #     await self.send_json({"type": "already_in_room"})
-                #     return
-                # 이미 정원에 도달한 대기실에 입장을 시도하는 경우 에러 (code=4003)
-                if len(TournamentRoomConsumer.rooms[self.room_id]) >= 4:
-                    await self.channel_layer.group_discard(
-                        self.room_id, self.channel_name
-                    )
-                    await self.send_json({"type": "full"})
-                    return
+                if self.room_id in TournamentRoomConsumer.rooms:
+                    # 이미 해당 대기실에 들어가 있는 경우 에러 (code=4002)
+                    # if self.user in TournamentRoomConsumer.rooms[self.room_id]:
+                    #     await self.send_json({"type": "already_in_room"})
+                    #     return
+                    # 이미 정원에 도달한 대기실에 입장을 시도하는 경우 에러 (code=4003)
+                    if len(TournamentRoomConsumer.rooms[self.room_id]) >= 4:
+                        await self.channel_layer.group_discard(
+                            self.room_id, self.channel_name
+                        )
+                        await self.send_json({"type": "full"})
+                        return
                 # 대기실 입장
+                else:
+                    TournamentRoomConsumer.rooms[self.room_id] = []
                 TournamentRoomConsumer.rooms[self.room_id].append(self.user)
                 self.channel_layer = get_channel_layer()
                 await self.channel_layer.group_add(self.room_id, self.channel_name)
@@ -296,13 +296,16 @@ class TournamentRoomConsumer(NormalRoomConsumer):
         await self.send_json(user_data)
 
     async def disconnect(self, close_code: int) -> None:
-        async with TournamentRoomConsumer.rooms_lock:
-            if self.room_id in TournamentRoomConsumer.rooms:
+        if hasattr(self, "room_id") and self.room_id in TournamentRoomConsumer.rooms:
+            async with TournamentRoomConsumer.rooms_lock:
                 if self.user in TournamentRoomConsumer.rooms[self.room_id]:
                     TournamentRoomConsumer.rooms[self.room_id].remove(self.user)
+                    # 더 이상 참여자가 없으면 대기실 삭제
                     if not TournamentRoomConsumer.rooms[self.room_id]:
                         del TournamentRoomConsumer.rooms[self.room_id]
-        await self.channel_layer.group_discard(self.room_id, self.channel_name)
-        if TournamentRoomConsumer.rooms.get(self.room_id):
-            await self.send_user_info()
+                        await self.delete_room()
+            # Leave room group
+            await self.channel_layer.group_discard(self.room_id, self.channel_name)
+            if TournamentRoomConsumer.rooms.get(self.room_id):
+                await self.send_user_info()
         await self.close()
