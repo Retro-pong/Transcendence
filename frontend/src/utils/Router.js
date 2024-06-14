@@ -99,11 +99,11 @@ class Router {
       Router.hideElement(Router.background);
       Router.hideElement(Router.app);
       Router.hideElement(Router.navBar);
-      // Router.showElement(Router.gameCanvas);
+      Router.showElement(Router.gameCanvas);
     } else {
       Router.showElement(Router.background);
       Router.showElement(Router.app);
-      // Router.hideElement(Router.gameCanvas);
+      Router.hideElement(Router.gameCanvas);
       if (Router.getPathname() !== '/login') {
         Router.showElement(Router.navBar);
       } else {
