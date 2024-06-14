@@ -152,6 +152,7 @@ class GameManager {
     this.objects.redPaddle.position.set(20, data.redY, data.redZ);
     this.objects.bluePaddle.position.set(-20, data.blueY, data.blueZ);
     this.objects.ball.position.set(data.ballX, data.ballY, data.ballZ);
+    this.objects.ballPlane.position.set(data.ballX, this.objects.ballPlane.position.y, this.objects.ballPlane.position.z);
 
     switch (parseInt(data.ballHit, 10)) {
       case 1:
