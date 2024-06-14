@@ -11,27 +11,13 @@ class PlayGame extends PageComponent {
     const params = new URLSearchParams(document.location.search);
     this.gameId = params.get('id');
     this.gameMode = params.get('mode');
-    socketManager.gameSocket = socketManager.createSocket(
-      `/${this.gameMode}_game/${this.gameId}/`
-    );
+    socketManager.gameSocket = this.gameMode
+      ? socketManager.createSocket(`/${this.gameMode}_game/${this.gameId}/`)
+      : null;
     this.gameManger = null;
   }
 
-  async render() {
-    return `    
-      <div id="gameCanvasContainer" class="position-relative h-100 w-100 d-none">
-        <canvas id="gameCanvas" tabindex="0" class="h-100 w-100"></canvas>
-      </div>
-      <div id="scoreContainer"
-           class="position-absolute top-0 start-50 translate-middle-x w-40 px-3 text-white d-flex flex-column align-items-center border border-5 rounded">
-        <span class="fs-10">score</span>
-        <div class="d-flex w-100 fs-8">
-          <span id="player1Score" class="w-50 d-flex justify-content-center text-danger" data-score="0">0</span>
-          <span id="player2Score" class="w-50 d-flex justify-content-center text-primary" data-score="0">0</span>
-        </div>
-      </div>
-    `;
-  }
+  async render() {}
 
   async afterRender() {
     this.gameManger = new GameManager();
@@ -51,6 +37,7 @@ class PlayGame extends PageComponent {
       };
       socketManager.gameSocket.onmessage = (e) => {
         const data = JSON.parse(e.data);
+        console.log('multi', data);
         switch (data.type) {
           case 'start':
             this.gameManger.multiGameSetting(data);
@@ -63,11 +50,11 @@ class PlayGame extends PageComponent {
             this.gameManger.multiGameUpdateObjects(data);
             break;
           case 'result':
-            socketManager.gameSocket.close({ code: 1000, reason: 'game end' });
-            Router.navigateTo('/game/');
+            socketManager.gameSocket.close(1000, 'game end');
+            // Router.navigateTo('/game/');
             break;
           default:
-            Router.navigateTo('/game/');
+            // Router.navigateTo('/game/');
             break;
         }
       };
