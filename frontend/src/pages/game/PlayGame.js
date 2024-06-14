@@ -21,6 +21,8 @@ class PlayGame extends PageComponent {
     this.side = '';
     this.blueScore = '';
     this.redScore = '';
+    this.gameStart = false;
+    document.getElementById('gameStartBtn').innerText = 'Click Start !';
   }
 
   async render() {
@@ -44,14 +46,25 @@ class PlayGame extends PageComponent {
 
   async afterRender() {
     const gameResultModal = Modal.getOrCreateInstance('#gameResultModal');
+    const gameResultModalElement = document.querySelector('#gameResultModal');
     const modalCloseBtn = document.querySelector('#gameResultBtn');
     const gameResult = document.querySelector('#gameResult');
     const redScore = document.querySelector('#redScore');
     const blueScore = document.querySelector('#blueScore');
+    const gameStartBtn = document.querySelector('#gameStartBtn');
 
     modalCloseBtn.addEventListener('click', async () => {
       gameResultModal.hide();
+    });
+
+    gameResultModalElement.addEventListener('hidden.bs.modal', async () => {
       await Router.navigateTo('/game');
+    });
+
+    gameStartBtn.addEventListener('click', () => {
+      gameStartBtn.innerText = 'Waiting for opponent...';
+      gameStartBtn.disabled = true;
+      socketManager.gameSocket.send(JSON.stringify({ type: 'ready' }));
     });
 
     this.gameManger = new GameManager();
@@ -71,17 +84,21 @@ class PlayGame extends PageComponent {
       };
       socketManager.gameSocket.onmessage = (e) => {
         const data = JSON.parse(e.data);
-        console.log('multi', data);
         switch (data.type) {
           case 'start':
             this.side = data.color;
             this.gameManger.multiGameSetting(data);
             this.gameManger.multiGameStart();
-            setTimeout(() => {
-              socketManager.gameSocket.send(JSON.stringify({ type: 'ready' }));
-            }, 3000);
+            gameStartBtn.classList.remove('d-none');
+            gameStartBtn.disabled = false;
+            this.gameStart = false;
             break;
           case 'render':
+            if (this.gameStart === false) {
+              this.gameStart = true;
+              gameStartBtn.classList.add('d-none');
+              gameStartBtn.disabled = false;
+            }
             this.redScore = data.redScore;
             this.blueScore = data.blueScore;
             this.gameManger.multiGameUpdateObjects(data);
