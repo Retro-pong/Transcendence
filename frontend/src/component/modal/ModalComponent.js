@@ -1,5 +1,3 @@
-import { Modal } from 'bootstrap';
-
 const ModalComponent = ({
   borderColor,
   title,
@@ -16,6 +14,8 @@ const ModalComponent = ({
       '<button id="emailVerifyBtn" type="submit" class="btn btn-outline-light w-100 fs-12" form="emailVerifyForm"> >> VERIFY << </button>',
     profileEditBtn:
       '<button id="profileEditBtn" type="submit" class="btn btn-outline-light w-100 fs-12" form="editProfileForm"> >> EDIT << </button>',
+    gameResultBtn:
+      '<button id="gameResultBtn" type="button" class="btn btn-outline-light w-100 fs-12" data-bs-dismiss="modal"> >> CLOSE << </button>',
   };
 
   return `
