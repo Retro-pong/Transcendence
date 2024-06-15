@@ -28,13 +28,15 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
             except Exception as e:
                 await self.send_json({"error": str(e)})
             await self.user_access(content)
+        # Game이 존재할 때만 명령처리
         else:
             match = GameConsumer.games[self.game_id]
             player = match.get_players()[self.color]
-            if content["type"] == "ready":
-                if match.set_ready(player):
-                    self.loop = asyncio.create_task(self.game_loop(player))
-            elif content["type"] == "move":
+            async with GameConsumer.games_lock:
+                if content["type"] == "ready":
+                    if match.set_ready(player):
+                        self.loop = asyncio.create_task(self.game_loop(player))
+            if content["type"] == "move":
                 player.set_pos(content["y"], content["z"])
 
     async def game_loop(self, player) -> None:
@@ -63,6 +65,7 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
                         "data_type": "result",
                     },
                 )
+                del GameConsumer.games[self.game_id]
                 break
 
     async def broadcast_users(self, event):
@@ -71,7 +74,6 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
         await self.send_json(data)
 
     async def disconnect(self, close_code) -> None:
-        del GameConsumer.games[self.game_id]
         await self.channel_layer.group_send(
             self.game_id,
             {
@@ -80,9 +82,8 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
         )
 
     async def close_group(self, event) -> None:
-        await self.send_json({"error": "user exit"})
-        await self.channel_layer.group_discard()
-        # await self.close()
+        await self.send_json({"type": "exit"})
+        await self.channel_layer.group_discard(self.game_id, self.channel_name)
 
     async def user_access(self, content) -> None:
         token = content["token"]

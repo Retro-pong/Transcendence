@@ -12,6 +12,7 @@ LEFT = 3
 RIGHT = 4
 TOP = 5
 BOT = 6
+START = 7
 
 
 class Ball:
@@ -24,15 +25,17 @@ class Ball:
             random.choice([1, -1]) * 0.1,
             random.choice([1, -1]) * 0.1,
         ]
-        self.speed = [1.2 * speed, 1.2 * speed, 1.2 * speed]
+        self.speed = [speed, speed, speed]
         self.hit = NONE
         self.hit_status = 0
 
     def move(self) -> None:
-        self.x += self.dir[X] * self.speed[X]
-        self.y += self.dir[Y] * self.speed[Y]
-        self.z += self.dir[Z] * self.speed[Z]
-        if self.hit < 10:
+        # 시작 직전에는 5프레임 멈춤
+        if not self.hit == START:
+            self.x += self.dir[X] * self.speed[X]
+            self.y += self.dir[Y] * self.speed[Y]
+            self.z += self.dir[Z] * self.speed[Z]
+        if self.hit_status < 10 and self.hit != NONE:
             self.hit_status += 1
         else:
             self.hit_status = 0
@@ -47,28 +50,32 @@ class Ball:
             random.choice([1, -1]) * 0.1,
             random.choice([1, -1]) * 0.1,
         ]
-        self.speed = [1.2 * speed, 1.2 * speed, 1.2 * speed]
-        self.hit = NONE
+        self.speed = [speed, speed, speed]
+        self.hit = START
         self.hit_status = 0
 
     def hit_wall(self) -> None:
         if -8 < self.z < -7:
             self.hit = LEFT
+            self.hit_status = 0
             self.dir[Z] *= -1
-        if 8 < self.z < 7:
+        if 8 > self.z > 7:
             self.hit = RIGHT
+            self.hit_status = 0
             self.dir[Z] *= -1
         if 4.5 < self.y < 5.5:
             self.hit = TOP
+            self.hit_status = 0
             self.dir[Y] *= -1
         if -4.5 > self.y > -5.5:
             self.hit = BOT
+            self.hit_status = 0
             self.dir[Y] *= -1
 
     def check_ball_xpos(self) -> int:
-        if 23.5 < self.x < 24.5:
+        if 19.7 < self.x < 20.3:
             return RED
-        if -23.5 > self.x > -24.5:
+        if -19.7 > self.x > -20.3:
             return BLUE
         return 0
 
@@ -83,8 +90,10 @@ class Ball:
             if hit_bottom_z or hit_top_z:
                 if type == RED:
                     self.hit = RED
+                    self.hit_status = 5
                 if type == BLUE:
                     self.hit = BLUE
+                    self.hit_status = 5
                 self.dir[X] *= -1
                 return 0
         if type == RED:
@@ -110,8 +119,8 @@ class Game:
     def __init__(self, speed):
         self.p1 = None
         self.p2 = None
-        self.speed = speed
-        self.ball = Ball(speed=speed)
+        self.speed = 1.0 + speed * 0.4
+        self.ball = Ball(speed=1.0 + speed * 0.4)
         self.winner = None
         self.start_time = None
 
@@ -142,8 +151,13 @@ class Game:
     def game_render(self, player):
         self.ball.move()  # 공을 1프레임 움직임
         self.ball.hit_wall()  # 벽에 닿았는 지 확인
+        ball_pos = self.ball.check_ball_xpos()
+        if ball_pos == RED:
+            paddle = self.p1
+        else:
+            paddle = self.p2
         player_get_score = self.ball.check_hit_paddle(
-            paddle=player, type=self.ball.check_ball_xpos()
+            paddle, ball_pos
         )  # 공이 패들에 안 맞으면 점수 추가
         if player_get_score:
             winner = self.add_score(player_get_score)
