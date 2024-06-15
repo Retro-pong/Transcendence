@@ -16,7 +16,7 @@ START = 7
 
 
 class Ball:
-    def __init__(self, speed):
+    def __init__(self, speed: float) -> None:
         self.x = 0.0
         self.y = random.random() * 8 - 4
         self.z = random.random() * 12 - 6
@@ -41,7 +41,7 @@ class Ball:
             self.hit_status = 0
             self.hit = NONE
 
-    def restart(self, speed) -> None:
+    def restart(self, speed: float) -> None:
         self.x = 0
         self.y = random.random() * 8 - 4
         self.z = random.random() * 12 - 6
@@ -79,7 +79,7 @@ class Ball:
             return BLUE
         return 0
 
-    def check_hit_paddle(self, paddle, type) -> int:
+    def check_hit_paddle(self, paddle: "Player", type: int) -> int:
         if not type:
             return 0
         hit_bottom_y = paddle.y + 1.5 > self.y - 1 > paddle.y - 1.5
@@ -102,7 +102,7 @@ class Ball:
 
 
 class Player:
-    def __init__(self, type, nick):
+    def __init__(self, type: int, nick: str) -> None:
         self.y = 0.0
         self.z = 0.0
         self.type = type  # red, blue
@@ -110,13 +110,13 @@ class Player:
         self.status = "wait"
         self.score = 0
 
-    def set_pos(self, y, z) -> None:
+    def set_pos(self, y: float, z: float) -> None:
         self.y = y
         self.z = z
 
 
 class Game:
-    def __init__(self, speed):
+    def __init__(self, speed: float) -> None:
         self.p1 = None
         self.p2 = None
         self.speed = 1.0 + speed * 0.4
@@ -124,20 +124,20 @@ class Game:
         self.winner = None
         self.start_time = None
 
-    def get_players(self):
+    def get_players(self) -> dict:
         return {
             "red": self.p1,
             "blue": self.p2,
         }
 
-    def set_ready(self, player) -> int:
+    def set_ready(self, player: "Player") -> int:
         if player.status == "wait":
             player.status = "ready"
         if self.p1.status == "ready" and self.p2.status == "ready":
             return 1
         return 0
 
-    def add_score(self, type):
+    def add_score(self, type: int) -> int:
         if type == 0:
             return 0
         if type == RED:
@@ -148,7 +148,7 @@ class Game:
             return type
         return 0
 
-    def game_render(self, player):
+    def game_render(self, player: "Player") -> None:
         self.ball.move()  # 공을 1프레임 움직임
         self.ball.hit_wall()  # 벽에 닿았는 지 확인
         ball_pos = self.ball.check_ball_xpos()
@@ -169,7 +169,7 @@ class Game:
             elif winner == BLUE:
                 self.winner = self.p2.nick
 
-    def start_data(self, color, game):
+    def start_data(self, color: str, game: "Game") -> dict:
         return {
             "type": "start",
             "color": color,

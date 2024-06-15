@@ -8,7 +8,7 @@ from django.utils import timezone
 
 
 class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
-    rooms = {}
+    rooms: dict[str, list] = {}
     rooms_lock = asyncio.Lock()
 
     async def connect(self) -> None:
@@ -178,7 +178,7 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
 
 
 class TournamentRoomConsumer(NormalRoomConsumer):
-    rooms = {}
+    rooms: dict[str, list] = {}
     rooms_lock = asyncio.Lock()
 
     async def receive_json(self, content: dict) -> None:
@@ -229,7 +229,7 @@ class TournamentRoomConsumer(NormalRoomConsumer):
                         self.room_id,
                         {
                             "type": "send_disconnect",
-                            "room_id": self.room_id,
+                            "game_id": self.game_id,
                         },
                     )
 
