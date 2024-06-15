@@ -5,7 +5,6 @@ from backend.middleware import JWTAuthMiddleware
 from channels.db import database_sync_to_async
 from django.apps import apps
 from django.utils import timezone
-from django.contrib.auth.models import AnonymousUser
 
 
 class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
@@ -19,8 +18,9 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
     async def receive_json(self, content: dict) -> None:
         if content["type"] == "access":
             token = content["token"]
-            self.user = await JWTAuthMiddleware.get_user(token)
-            if self.user is AnonymousUser:
+            try:
+                self.user = await JWTAuthMiddleware.get_user(token)
+            except:
                 await self.send_json({"access": "User invalid or expired."})
                 return
             if not self.user.is_authenticated:
