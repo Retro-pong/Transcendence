@@ -30,14 +30,14 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
             await self.user_access(content)
         # Game이 존재할 때만 명령처리
         else:
+            match = GameConsumer.games[self.game_id]
+            player = match.get_players()[self.color]
             async with GameConsumer.games_lock:
-                match = GameConsumer.games[self.game_id]
-                player = match.get_players()[self.color]
                 if content["type"] == "ready":
                     if match.set_ready(player):
                         self.loop = asyncio.create_task(self.game_loop(player))
-                elif content["type"] == "move":
-                    player.set_pos(content["y"], content["z"])
+            if content["type"] == "move":
+                player.set_pos(content["y"], content["z"])
 
     async def game_loop(self, player) -> None:
         while True:
