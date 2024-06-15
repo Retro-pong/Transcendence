@@ -33,23 +33,13 @@
     <!-- 게임 캔버스 -->
     <div id="gameCanvasContainer" class="position-relative h-100 w-100 d-none">
       <canvas id="gameCanvas" tabindex="0" class="h-100 w-100"></canvas>
-      <div id="scoreContainer" class="position-absolute top-0 start-50 translate-middle-x w-40 px-3 text-white d-flex flex-column align-items-center border border-5 rounded">
+      <button id="gameStartBtn" class="btn btn-outline-light position-absolute w-50 h-25 top-50 start-50 translate-middle fs-15 d-none rounded"></button>
+      <div id="scoreContainer"
+           class="position-absolute top-0 start-50 translate-middle-x w-40 px-3 text-white d-flex flex-column align-items-center border border-5 rounded">
         <span class="fs-10">score</span>
         <div class="d-flex w-100 fs-8">
           <span id="player1Score" class="w-50 d-flex justify-content-center text-danger" data-score="0">0</span>
           <span id="player2Score" class="w-50 d-flex justify-content-center text-primary" data-score="0">0</span>
-        </div>
-        <button id="openTest">TEST</button>
-        <div id="testButtons" class="d-flex flex-column align-items-center d-none text-success">
-          <button id="mapTest" class="fs-10">map-TEST</button>
-          <button id="colorTest" class="fs-10">color-TEST</button>
-          <button id="speedTest" class="fs-10">speed-TEST</button>
-          <button id="gameTypeTest" class="fs-10">gameType-TEST</button>
-          <div class="fs-7 d-flex flex-column">
-            <span id="mapTestVal" class="">mountain</span>
-            <span id="colorTestVal">0x0000ff</span>
-            <span id="speedTestVal">1</span>
-          </div>
         </div>
       </div>
     </div>
