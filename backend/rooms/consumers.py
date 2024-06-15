@@ -229,7 +229,7 @@ class TournamentRoomConsumer(NormalRoomConsumer):
                         self.room_id,
                         {
                             "type": "send_disconnect",
-                            "room_id": self.room_id,
+                            "game_id": self.game_id,
                         },
                     )
 
