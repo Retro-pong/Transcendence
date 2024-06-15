@@ -58,6 +58,8 @@ class PlayGame extends PageComponent {
     });
 
     gameResultModalElement.addEventListener('hidden.bs.modal', async () => {
+      redScore.innerText = '';
+      blueScore.innerText = '';
       await Router.navigateTo('/game');
     });
 
