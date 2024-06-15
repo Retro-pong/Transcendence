@@ -96,8 +96,6 @@ class Ball:
                     self.hit_status = 5
                 self.dir[X] *= -1
                 return 0
-        print(self.x, self.y, self.z)
-        print(paddle.y, paddle.z)
         if type == RED:
             return BLUE
         return RED
@@ -121,8 +119,8 @@ class Game:
     def __init__(self, speed):
         self.p1 = None
         self.p2 = None
-        self.speed = 1.0 + speed * 0.2
-        self.ball = Ball(speed=1.0 + speed * 0.2)
+        self.speed = 1.0 + speed * 0.4
+        self.ball = Ball(speed=1.0 + speed * 0.4)
         self.winner = None
         self.start_time = None
 

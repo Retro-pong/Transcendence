@@ -63,7 +63,7 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
                         self.room_id,
                         {
                             "type": "send_disconnect",
-                            "room_id": self.room_id,
+                            "game_id": self.game_id,
                         },
                     )
 
@@ -118,10 +118,10 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
         await self.send_json(user_data)
 
     async def send_disconnect(self, event: dict) -> None:
-        room_id = event["room_id"]
+        game_id = event["game_id"]
         data = {
             "type": "start_game",
-            "room_id": room_id,
+            "room_id": game_id,
         }
         await self.send_json(data)
 
@@ -145,13 +145,13 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
         room_model = apps.get_model("rooms", "Room")
         game_model = apps.get_model("game", "GameResult")
         room = room_model.objects.get(id=self.room_id)
-        game_model.objects.create(
-            id=self.room_id,
+        game = game_model.objects.create(
             game_map=room.game_map,
             game_speed=room.game_speed,
             ball_color=room.ball_color,
             start_time=timezone.now(),
         )
+        self.game_id = game.id
 
     @database_sync_to_async
     def update_current_player(self, player: int) -> int:
