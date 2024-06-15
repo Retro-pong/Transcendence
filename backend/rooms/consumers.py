@@ -5,7 +5,6 @@ from backend.middleware import JWTAuthMiddleware
 from channels.db import database_sync_to_async
 from django.apps import apps
 from django.utils import timezone
-from django.contrib.auth.models import AnonymousUser
 
 
 class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
