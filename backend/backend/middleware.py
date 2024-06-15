@@ -2,7 +2,6 @@ from channels.db import database_sync_to_async
 import jwt
 from django.conf import settings
 from django.apps import apps
-from django.contrib.auth.models import AnonymousUser
 
 # from channels.middleware import BaseMiddleware
 
