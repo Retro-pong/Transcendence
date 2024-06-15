@@ -1,7 +1,7 @@
 import PageComponent from '@component/PageComponent';
 import ModalComponent from '@component/modal/ModalComponent';
 import { Modal } from 'bootstrap';
-import socketManager from '@/utils/SocketManager';
+import SocketManager from '@/utils/SocketManager';
 import TokenManager from '@/utils/TokenManager';
 import GameManager from '@/utils/game/GameManager';
 import Router from '@/utils/Router';
@@ -14,8 +14,8 @@ class PlayGame extends PageComponent {
     const params = new URLSearchParams(document.location.search);
     this.gameId = params.get('id');
     this.gameMode = params.get('mode');
-    socketManager.gameSocket = this.gameMode
-      ? socketManager.createSocket(`/${this.gameMode}_game/${this.gameId}/`)
+    SocketManager.gameSocket = this.gameMode
+      ? SocketManager.createSocket(`/${this.gameMode}_game/${this.gameId}/`)
       : null;
     this.gameManger = null;
     this.side = '';
@@ -64,7 +64,7 @@ class PlayGame extends PageComponent {
     gameStartBtn.addEventListener('click', () => {
       gameStartBtn.innerText = 'Waiting for opponent...';
       gameStartBtn.disabled = true;
-      socketManager.gameSocket.send(JSON.stringify({ type: 'ready' }));
+      SocketManager.gameSocket.send(JSON.stringify({ type: 'ready' }));
     });
 
     this.gameManger = new GameManager();
@@ -75,14 +75,14 @@ class PlayGame extends PageComponent {
     }
     // multi game
     else {
-      socketManager.gameSocket.onopen = () => {
+      SocketManager.gameSocket.onopen = () => {
         const message = {
           type: 'access',
           token: TokenManager.getAccessToken(),
         };
-        socketManager.gameSocket.send(JSON.stringify(message));
+        SocketManager.gameSocket.send(JSON.stringify(message));
       };
-      socketManager.gameSocket.onmessage = (e) => {
+      SocketManager.gameSocket.onmessage = (e) => {
         const data = JSON.parse(e.data);
         switch (data.type) {
           case 'start':
@@ -104,13 +104,13 @@ class PlayGame extends PageComponent {
             this.gameManger.multiGameUpdateObjects(data);
             break;
           case 'result':
-            socketManager.gameSocket.close(1000, 'Game End');
+            SocketManager.gameSocket.close(1000, 'Game End');
             break;
           default:
             break;
         }
       };
-      socketManager.gameSocket.onclose = () => {
+      SocketManager.gameSocket.onclose = () => {
         redScore.innerText = `${this.redScore}`;
         blueScore.innerText = `${this.blueScore}`;
         const winner = this.redScore > this.blueScore ? 'red' : 'blue';
@@ -120,7 +120,7 @@ class PlayGame extends PageComponent {
         );
         gameResultModal.show();
       };
-      socketManager.gameSocket.onerror = async () => {
+      SocketManager.gameSocket.onerror = async () => {
         ToastHandler.setToast('Game Error! Please try again later');
         await Router.navigateTo('/game');
       };
