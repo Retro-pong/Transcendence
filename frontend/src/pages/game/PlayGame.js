@@ -24,9 +24,6 @@ class PlayGame extends PageComponent {
     this.gameStart = false;
     this.gameEnd = false;
     this.gameError = false;
-    document.getElementById('gameStartBtn').innerText = 'Click Start !';
-    document.getElementById('player1Score').innerText = '0';
-    document.getElementById('player2Score').innerText = '0';
   }
 
   getGameManager() {
@@ -36,6 +33,7 @@ class PlayGame extends PageComponent {
   setDisposeAll() {
     this.gameManger.disposeAll();
     this.gameManger = null;
+    SocketManager.gameSocket = null;
   }
 
   async render() {
@@ -54,7 +52,23 @@ class PlayGame extends PageComponent {
       `,
       buttonList: ['gameResultBtn'],
     });
-    return `${gameResultModal}`;
+    return `${gameResultModal}
+    <div id="gameCanvasContainer" class="position-absolute vh-100 vw-100">
+      <canvas id="gameCanvas" tabindex="0" class="vh-100 vw-100"></canvas>
+      <button id="gameStartBtn" class="btn btn-outline-light position-absolute w-50 h-25 top-50 start-50 translate-middle fs-15 d-none rounded">
+      Click Start !
+      </button>
+      <div id="scoreContainer"
+           class="position-absolute top-0 start-50 translate-middle-x w-40 px-3 text-white d-flex flex-column align-items-center border border-5 rounded">
+        <span class="fs-10">score</span>
+        <div class="d-flex w-100 fs-8">
+          <span id="player1Score" class="w-50 d-flex justify-content-center text-danger" data-score="0">0</span>
+          <span id="player2Score" class="w-50 d-flex justify-content-center text-primary" data-score="0">0</span>
+        </div>
+      </div>
+    </div>
+    
+    `;
   }
 
   async afterRender() {
@@ -155,10 +169,12 @@ class PlayGame extends PageComponent {
             this.side === 'red' ? 'text-danger' : 'text-primary'
           );
           gameResultModal.show();
+          SocketManager.gameSocket = null;
         }
       };
       SocketManager.gameSocket.onerror = async () => {
         ToastHandler.setToast('Game Error! Please try again later');
+        SocketManager.gameSocket = null;
         await Router.navigateTo('/game');
       };
     }

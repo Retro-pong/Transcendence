@@ -52,7 +52,6 @@ class GameManager {
   }
 
   disposeAll() {
-    console.log('dispose!!!!!!!!!!');
     if (this.localEventHandler) this.localEventHandler();
     if (this.multiEventHandler) this.multiEventHandler();
 
@@ -115,7 +114,6 @@ class GameManager {
   }
 
   multiGameSetting(data) {
-    console.log('map', data.map);
     this.camera = cameraSetting('multi', data.color);
     this.multiEventHandler = multiEventHandler(
       this.canvas,
