@@ -1,8 +1,5 @@
 import PageComponent from '@component/PageComponent.js';
 import PlayerCard from '@component/card/PlayerCard';
-import OpenModalButton from '@component/button/OpenModalButton';
-import ModalComponent from '@component/modal/ModalComponent';
-import GameManual from '@component/contents/GameManual';
 import SocketManager from '@/utils/SocketManager';
 import Router from '@/utils/Router';
 import TokenManager from '@/utils/TokenManager';
@@ -26,25 +23,10 @@ class WaitingRoom extends PageComponent {
   }
 
   async render() {
-    const ManualButton = OpenModalButton({
-      text: '> Manual',
-      classList:
-        'btn btn-no-outline-hover fs-2 position-absolute top-0 end-0 mt-2 me-2 d-none d-md-block',
-      modalId: '#gameManualModal',
-    });
-    const GameManualModal = ModalComponent({
-      borderColor: 'mint',
-      title: 'How To Play',
-      modalId: 'gameManualModal',
-      content: GameManual(),
-      buttonList: [],
-    });
     return `
-      ${GameManualModal}
       <div class="container h-100 p-3 game-room-border">
         <div class="d-flex flex-column h-100 position-relative">
           <h1 id="room-title" class="fs-15 text-center">Welcome to<br />[ ${this.roomTitle} ]</h1>
-          ${ManualButton}
           <div class="container overflow-auto h-100">
             <div id="player-container" class="row row-cols-1 row-cols-md-2 g-1">
               ${this.players.map((player) => PlayerCard(player)).join('')}
