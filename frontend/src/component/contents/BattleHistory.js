@@ -1,4 +1,4 @@
-const BattleHistory = (history = []) => {
+const BattleHistory = (username = '', history = []) => {
   if (history.length === 0) {
     return `
       <div class="d-flex justify-content-center align-items-center h-100">
@@ -8,11 +8,11 @@ const BattleHistory = (history = []) => {
   }
   const historyData = history
     .map((data) => {
-      const { winner, player1, player2 } = data;
+      const { player1, player2 } = data;
       const player1Color =
-        winner === player1 ? 'text-success' : 'text-success-emphasis';
+        username === player1 ? 'text-success' : 'text-success-emphasis';
       const player2Color =
-        winner === player2 ? 'text-success' : 'text-success-emphasis';
+        username === player2 ? 'text-success' : 'text-success-emphasis';
       const score1 = data.player1_score;
       const score2 = data.player2_score;
       const date = new Date(data.start_time);

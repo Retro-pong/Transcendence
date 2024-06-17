@@ -82,7 +82,7 @@ class Profile extends PageComponent {
         <div class="row h-70">
           <div class="d-flex flex-column fs-7 border border-light overflow-auto h-80">
             <div class="d-flex">
-              ${BattleHistory(profileData.history)}
+              ${BattleHistory(profileData.username, profileData.history)}
             </div>
           </div>
         </div>
