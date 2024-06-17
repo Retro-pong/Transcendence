@@ -80,7 +80,7 @@ class Friends extends PageComponent {
           })
           .catch((err) => {
             ToastHandler.setToast(
-              `${err.message || 'Failed to accept friend'} [${err.code}]`
+              `${err.message || 'Failed to accept friend'}`
             );
           });
       });
@@ -105,7 +105,7 @@ class Friends extends PageComponent {
           })
           .catch((err) => {
             ToastHandler.setToast(
-              `${err.message || 'Failed to reject friend'} [${err.code}]`
+              `${err.message || 'Failed to reject friend'}`
             );
           });
       });
@@ -119,15 +119,15 @@ class Friends extends PageComponent {
         await Fetch.patch('/friends/add/', { friend_name: friendName })
           .then((res) => {
             if (res.status === 200) {
-              ToastHandler.setToast(`${res.error} ${friendName}`);
+              ToastHandler.setToast(res.data.error || 'Already a friend');
             }
             if (res.status === 201) {
-              ToastHandler.setToast(`friend request ${friendName}`);
+              ToastHandler.setToast(`sent a friend request to ${friendName}`);
             }
           })
           .catch((err) => {
             ToastHandler.setToast(
-              `${err.message || 'Failed to send friend request'} [${err.code}]`
+              `${err.message || 'Failed to send friend request'}`
             );
           });
       });
@@ -198,9 +198,7 @@ class Friends extends PageComponent {
             friendSearchList.scrollIntoView({ behavior: 'smooth' });
           })
           .catch((err) => {
-            ToastHandler.setToast(
-              `${err.message || 'Search Failed'} [${err.code}]`
-            );
+            ToastHandler.setToast(`${err.message || 'Search Failed'}`);
           });
       }, 1000)
     );
@@ -219,7 +217,7 @@ class Friends extends PageComponent {
           })
           .catch((err) => {
             ToastHandler.setToast(
-              `${err.message || 'Failed to delete friend'} [${err.code}]`
+              `${err.message || 'Failed to delete friend'}`
             );
           });
       });

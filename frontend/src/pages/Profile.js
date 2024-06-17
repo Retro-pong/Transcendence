@@ -139,9 +139,7 @@ class Profile extends PageComponent {
           this.afterRender();
         })
         .catch((err) =>
-          ToastHandler.setToast(
-            `${err.message || 'Profile Update Failed'} [${err.code}]`
-          )
+          ToastHandler.setToast(`${err.message || 'Profile Update Failed'}`)
         );
     });
   }
@@ -176,7 +174,7 @@ class Profile extends PageComponent {
           })
           .catch((err) =>
             ToastHandler.setToast(
-              `${err.message || 'Profile Image Update Failed'} [${err.code}]`
+              `${err.message || 'Profile Image Update Failed'}`
             )
           );
       });

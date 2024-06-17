@@ -42,9 +42,7 @@ class TokenManager {
         this.storeToken(res.access_token);
       })
       .catch((err) => {
-        ToastHandler.setToast(
-          `${err.message || 'You need to login'} [${err.code}]`
-        );
+        ToastHandler.setToast(`${err.message || 'You need to login'}`);
         this.clearToken();
         Router.navigateTo('/login');
       });
@@ -56,7 +54,7 @@ class TokenManager {
         ToastHandler.setToast(res.message || 'Logout Successful');
         this.clearToken();
       })
-      .catch((err) => {
+      .catch(() => {
         this.clearToken();
       });
   }

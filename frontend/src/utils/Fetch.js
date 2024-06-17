@@ -50,7 +50,7 @@ class Fetch {
       }
       return response.json().then((err) => {
         console.error(`GET(${url}) ERROR:`, err);
-        throw { code: response.status, message: err.error || err.detail || '' };
+        throw new Error(err.error || err.detail || '');
       });
     }
     return response.json();
@@ -72,7 +72,7 @@ class Fetch {
       }
       return response.json().then((err) => {
         console.error(`POST(${url}) ERROR:`, err);
-        throw { code: response.status, message: err.error || err.detail || '' };
+        throw new Error(err.error || err.detail || '');
       });
     }
     return response.json().catch(() => '');
@@ -99,10 +99,11 @@ class Fetch {
       }
       return response.json().then((err) => {
         console.error(`PATCH(${url}) ERROR:`, err);
-        throw { code: response.status, message: err.error || err.detail || '' };
+        throw new Error(err.error || err.detail || '');
       });
     }
-    return response.json().catch(() => '');
+    const data = await response.json().catch(() => '');
+    return { status: response.status, data };
   }
 }
 

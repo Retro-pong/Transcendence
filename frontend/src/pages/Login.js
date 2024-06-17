@@ -67,7 +67,7 @@ class Login extends PageComponent {
         ToastHandler.setToast(res.message || 'Verification code Sent');
       })
       .catch((err) => {
-        ToastHandler.setToast(`${err.message || 'Login Failed'} [${err.code}]`);
+        ToastHandler.setToast(`${err.message || 'Login Failed'}`);
       });
   }
 
@@ -92,9 +92,7 @@ class Login extends PageComponent {
         ToastHandler.setToast(data.message || 'Login Successful');
       })
       .catch((err) => {
-        ToastHandler.setToast(
-          `${err.message || 'Verification Failed'} [${err.code}]`
-        );
+        ToastHandler.setToast(`${err.message || 'Verification Failed'}`);
       });
   }
 
@@ -170,9 +168,7 @@ class Login extends PageComponent {
           })
           .catch((err) => {
             this.email = '';
-            ToastHandler.setToast(
-              `${err.message || 'Registration Failed'} [${err.code}]`
-            );
+            ToastHandler.setToast(`${err.message || 'Registration Failed'}`);
           });
       });
   }
@@ -188,15 +184,15 @@ class Login extends PageComponent {
         const verifyModal = Modal.getOrCreateInstance('#emailVerifyModal');
         await Fetch.post('/login/email/register/verify/', { email, code })
           .then((res) => {
-            ToastHandler.setToast(res.message || 'Email Verification Successful');
+            ToastHandler.setToast(
+              res.message || 'Email Verification Successful'
+            );
             document.getElementById('emailVerifyForm').reset();
             verifyModal.hide();
             this.email = '';
           })
           .catch((err) => {
-            ToastHandler.setToast(
-              `${err.message || 'Verification Failed'} [${err.code}]`
-            );
+            ToastHandler.setToast(`${err.message || 'Verification Failed'}`);
           });
       });
   }
@@ -213,9 +209,7 @@ class Login extends PageComponent {
         ToastHandler.setToast('42 Login Failed');
         TokenManager.clearToken();
         Router.navigateTo('/login');
-        ToastHandler.setToast(
-          `${err.message || '42 Login Failed'} [${err.code}]`
-        );
+        ToastHandler.setToast(`${err.message || '42 Login Failed'}`);
       });
   }
 
