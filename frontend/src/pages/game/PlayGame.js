@@ -25,6 +25,8 @@ class PlayGame extends PageComponent {
     this.gameEnd = false;
     this.gameError = false;
     document.getElementById('gameStartBtn').innerText = 'Click Start !';
+    document.getElementById('player1Score').innerText = '0';
+    document.getElementById('player2Score').innerText = '0';
   }
 
   async render() {
@@ -62,6 +64,8 @@ class PlayGame extends PageComponent {
     gameResultModalElement.addEventListener('hidden.bs.modal', async () => {
       redScore.innerText = '';
       blueScore.innerText = '';
+      this.gameManger.disposeAll();
+      this.gameManger = null;
       await Router.navigateTo('/game');
     });
 
@@ -133,6 +137,8 @@ class PlayGame extends PageComponent {
               ? 'Game Error. Please try again later.'
               : 'Opponent Exit'
           );
+          this.gameManger.disposeAll();
+          this.gameManger = null;
           Router.navigateTo('/game');
         } else {
           redScore.innerText = `${this.redScore}`;
@@ -148,6 +154,8 @@ class PlayGame extends PageComponent {
       };
       SocketManager.gameSocket.onerror = async () => {
         ToastHandler.setToast('Game Error! Please try again later');
+        this.gameManger.disposeAll();
+        this.gameManger = null;
         await Router.navigateTo('/game');
       };
     }
