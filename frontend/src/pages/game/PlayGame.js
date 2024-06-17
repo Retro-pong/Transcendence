@@ -29,6 +29,15 @@ class PlayGame extends PageComponent {
     document.getElementById('player2Score').innerText = '0';
   }
 
+  getGameManager() {
+    return this.gameManger;
+  }
+
+  setDisposeAll() {
+    this.gameManger.disposeAll();
+    this.gameManger = null;
+  }
+
   async render() {
     const gameResultModal = ModalComponent({
       borderColor: 'pink',
@@ -64,8 +73,6 @@ class PlayGame extends PageComponent {
     gameResultModalElement.addEventListener('hidden.bs.modal', async () => {
       redScore.innerText = '';
       blueScore.innerText = '';
-      this.gameManger.disposeAll();
-      this.gameManger = null;
       await Router.navigateTo('/game');
     });
 
@@ -137,8 +144,6 @@ class PlayGame extends PageComponent {
               ? 'Game Error. Please try again later.'
               : 'Opponent Exit'
           );
-          this.gameManger.disposeAll();
-          this.gameManger = null;
           Router.navigateTo('/game');
         } else {
           redScore.innerText = `${this.redScore}`;
@@ -154,8 +159,6 @@ class PlayGame extends PageComponent {
       };
       SocketManager.gameSocket.onerror = async () => {
         ToastHandler.setToast('Game Error! Please try again later');
-        this.gameManger.disposeAll();
-        this.gameManger = null;
         await Router.navigateTo('/game');
       };
     }
