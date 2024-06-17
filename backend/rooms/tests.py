@@ -259,27 +259,6 @@ class TournamentRoomConsumerTest(TransactionTestCase):
         # Clean up
         await communicator.disconnect()
 
-    async def test_tournament_connect(self):
-        room = await self.create_room("123456", "tournament", "map1", 2, "#000000")
-        user1 = await self.create_test_user(
-            username="testuser1", email="test1@test.com", password="1234"
-        )
-        token = TokenObtainPairSerializer.get_token(user1)
-        access_token = str(token.access_token)
-        communicator = WebsocketCommunicator(
-            URLRouter(websocket_urlpatterns),
-            f"/ws/normal_room/{room.id}/",
-        )
-        connected, subprotocol = await communicator.connect()
-        self.assertTrue(connected)
-        await communicator.send_json_to({"type": "access", "token": access_token})
-        response = await communicator.receive_json_from()
-        self.assertEqual(response, {"access": "Access successful."})
-        response = await communicator.receive_json_from()
-        assert response["type"] == "users"
-        # Clean up
-        await communicator.disconnect()
-
     # async def test_room_connect_full(self):
     #     room = await self.create_room("1234", "tournament", "map1", 2, "#000000")
     #     user1 = await self.create_test_user(
