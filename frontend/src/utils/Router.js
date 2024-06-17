@@ -88,6 +88,10 @@ class Router {
       Router.app.classList.add('min-vh-100');
       Router.app.classList.add('overflow-auto');
     }
+
+  static onRefresh(event) {
+    event.preventDefault();
+
   }
 
   static async render() {
@@ -119,6 +123,11 @@ class Router {
       Router.hideElement(Router.background);
       Router.hideElement(Router.navBar);
       Router.setGamePageApp();
+      window.addEventListener('beforeunload', Router.onRefresh);
+    } else if (Router.getPathname() === '/game/waiting') {
+      Router.hideElement(Router.navBar);
+      window.addEventListener('beforeunload', Router.onRefresh);
+      window.addEventListener('popstate', page.onPopstate);
     } else {
       if (
         Router.before &&
@@ -129,6 +138,14 @@ class Router {
           SocketManager.gameSocket.close();
         }
         Router.before.setDisposeAll();
+      }
+      if (
+        Router.before &&
+        (Router.before.getTitle() === 'WaitingRoom' ||
+          Router.before.getTitle() === 'PlayGame')
+      ) {
+        window.removeEventListener('popstate', Router.before.onPopstate);
+        window.removeEventListener('beforeunload', Router.onRefresh);
       }
       Router.showElement(Router.background);
       Router.resetPageApp();
