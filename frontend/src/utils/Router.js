@@ -22,7 +22,6 @@ class Router {
     '/game/waiting': WaitingRoom,
     '/game/play': PlayGame,
     '/friends': Friends,
-    '/404': Home, // TODO: NotFound 추가
   };
 
   static before = null;
@@ -103,7 +102,8 @@ class Router {
     const isLoggedIn = TokenManager.getLoginStatus();
 
     if (!(currPathname in Router.routes)) {
-      Router.replaceState('/404');
+      ToastHandler.setToast('Page not found! [404]');
+      Router.replaceState(Router.getCurrentPage() || '/');
     } else if (currPathname === '/login' && isLoggedIn) {
       ToastHandler.setToast('You are already logged in!');
       const beforePage = Router.getCurrentPage() || '/';
