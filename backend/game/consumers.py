@@ -32,8 +32,8 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
             except Exception as e:
                 await self.send_json({"type": "error", "message": str(e)})
             await self.user_access(content)
-        # Game이 존재할 때만 명령처리
-        else:
+        # Game이 존재할 때만 명령 처리
+        else:  # content["type"] == "move" or "ready"
             match = NormalGameConsumer.games[self.game_id]
             player = match.get_players()[self.color]
             async with NormalGameConsumer.games_lock:
@@ -107,7 +107,15 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
             NormalGameConsumer.games[self.game_id] = Game(self.result.game_speed)
         match = NormalGameConsumer.games[self.game_id]
 
-        # 유저 중복 검사 (user.username, player nickname 비교 -> channel layer discard (mutex))
+        # 유저 중복 검사
+        async with NormalGameConsumer.games_lock:
+            if (match.p1 and match.p1.nick == self.user.username) or (
+                match.p2 and match.p2.nick == self.user.username
+            ):
+                await self.send_json(
+                    {"type": "error", "message": "User already in game."}
+                )
+                return
 
         # 들어온 순서대로 red, blue 배정
         if match.p1 is None:
@@ -148,53 +156,211 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
         result.save()
 
 
-# class TournamentGameConsumer(NormalGameConsumer):
-#     games: dict[str, Game] = {}
-#     games_lock = asyncio.Lock()
-#
-#     async def receive_json(self, content) -> None:
-#         if content["type"] == "access":
-#             try:
-#                 self.result = await self.get_game_result()
-#             except Exception as e:
-#                 await self.send_json({"error": str(e)})
-#             await self.user_access(content)
-#         # Game이 존재할 때만 명령처리
-#         else:
-#             match = NormalGameConsumer.games[self.game_id]
-#             player = match.get_players()[self.color]
-#             async with NormalGameConsumer.games_lock:
-#                 if content["type"] == "ready":
-#                     if match.set_ready(player):
-#                         self.loop = asyncio.create_task(self.game_loop(player))
-#             if content["type"] == "move":
-#                 player.set_pos(content["y"], content["z"])
-#
-#     async def game_loop(self, player) -> None:
-#         while True:
-#             match = NormalGameConsumer.games[self.game_id]
-#             if not match:
-#                 await self.send_json({"error": "Game not found"})
-#                 return
-#             await asyncio.sleep(0.03)
-#             match.game_render(player)
-#             await self.channel_layer.group_send(
-#                 self.game_id,
-#                 {
-#                     "type": "broadcast_users",
-#                     "data": match.game_data(),
-#                     "data_type": "render",
-#                 },
-#             )
-#             if match.winner:
-#                 await self.save_game_result(match)
-#                 await self.channel_layer.group_send(
-#                     self.game_id,
-#                     {
-#                         "type": "broadcast_users",
-#                         "data": match.result_data(),
-#                         "data_type": "result",
-#                     },
-#                 )
-#                 del NormalGameConsumer.games[self.game_id]
-#                 break
+class SemiFinalGameConsumer(NormalGameConsumer):
+    games: dict[str, Game] = {}
+    games_lock = asyncio.Lock()
+
+    async def receive_json(self, content: dict) -> None:
+        if content["type"] == "access":
+            try:
+                self.result = await self.get_game_result()
+                if self.result.game_mode != "tournament":
+                    await self.send_json(
+                        {"type": "error", "message": "Invalid game mode."}
+                    )
+            except Exception as e:
+                await self.send_json({"type": "error", "message": str(e)})
+            await self.user_access(content)
+        # Game이 존재할 때만 명령 처리
+        else:  # content["type"] == "move" or "ready"
+            match = SemiFinalGameConsumer.games[self.game_id]
+            player = match.get_players()[self.color]
+            async with SemiFinalGameConsumer.games_lock:
+                if content["type"] == "ready":
+                    if match.set_ready(player):
+                        self.loop = asyncio.create_task(self.game_loop(player))
+            if content["type"] == "move":
+                player.set_pos(content["y"], content["z"])
+
+    async def game_loop(self, player: "Player") -> None:
+        while True:
+            match = SemiFinalGameConsumer.games[self.game_id]
+            if not match:
+                await self.send_json({"type": "error", "message": "Game not found"})
+                return
+            await asyncio.sleep(0.03)
+            match.game_render(player)
+            await self.channel_layer.group_send(
+                self.game_id,
+                {
+                    "type": "broadcast_users",
+                    "data": match.game_data(),
+                    "data_type": "render",
+                },
+            )
+            if match.winner:
+                await self.save_game_result(match)
+                await self.channel_layer.group_send(
+                    self.game_id,
+                    {
+                        "type": "broadcast_users",
+                        "data": match.result_data(),
+                        "data_type": "result",
+                    },
+                )
+                del SemiFinalGameConsumer.games[self.game_id]
+                break
+
+    async def disconnect(self, close_code: int) -> None:
+        await self.channel_layer.group_send(
+            self.game_id,
+            {
+                "type": "close_group",
+            },
+        )
+
+    async def close_group(self, event: dict) -> None:
+        await self.send_json({"type": "exit"})
+        await self.channel_layer.group_discard(self.game_id, self.channel_name)
+
+    async def user_access(self, content: dict) -> None:
+        token = content["token"]
+        try:
+            self.user = await JWTAuthMiddleware.get_user(token)
+        except:
+            await self.send_json({"access": "User invalid or expired."})
+            return
+        if not self.user.is_authenticated:
+            await self.send_json({"access": "User not authenticated."})
+            return
+        else:
+            await self.send_json({"access": "Access successful."})
+
+        # Game 객체 생성
+        if self.game_id not in SemiFinalGameConsumer.games:
+            SemiFinalGameConsumer.games[self.game_id] = Game(self.result.game_speed)
+        match = SemiFinalGameConsumer.games[self.game_id]
+
+        # 유저 중복 검사
+        async with SemiFinalGameConsumer.games_lock:
+            if (match.p1 and match.p1.nick == self.user.username) or (
+                match.p2 and match.p2.nick == self.user.username
+            ):
+                await self.send_json(
+                    {"type": "error", "message": "User already in game."}
+                )
+                return
+
+        # 들어온 순서대로 red, blue 배정
+        if match.p1 is None:
+            match.p1 = Player(type="red", nick=self.user.username)
+            self.color = "red"
+        elif match.p2 is None:
+            match.p2 = Player(type="blue", nick=self.user.username)
+            self.color = "blue"
+        else:
+            await self.send_json({"type": "error", "message": "Game is full."})
+            return
+        # start data 전송
+        await self.send_json(match.start_data(color=self.color, game=self.result))
+
+
+class FinalGameConsumer(NormalGameConsumer):
+    """
+    Entirely same as NormalGameConsumer
+    """
+
+    games: dict[str, Game] = {}
+    games_lock = asyncio.Lock()
+
+    async def receive_json(self, content: dict) -> None:
+        if content["type"] == "access":
+            try:
+                self.result = await self.get_game_result()
+                if self.result.game_mode != "normal":
+                    await self.send_json(
+                        {"type": "error", "message": "Invalid game mode."}
+                    )
+            except Exception as e:
+                await self.send_json({"type": "error", "message": str(e)})
+            await self.user_access(content)
+        # Game이 존재할 때만 명령 처리
+        else:  # content["type"] == "move" or "ready"
+            match = FinalGameConsumer.games[self.game_id]
+            player = match.get_players()[self.color]
+            async with FinalGameConsumer.games_lock:
+                if content["type"] == "ready":
+                    if match.set_ready(player):
+                        self.loop = asyncio.create_task(self.game_loop(player))
+            if content["type"] == "move":
+                player.set_pos(content["y"], content["z"])
+
+    async def game_loop(self, player: "Player") -> None:
+        while True:
+            match = FinalGameConsumer.games[self.game_id]
+            if not match:
+                await self.send_json({"type": "error", "message": "Game not found"})
+                return
+            await asyncio.sleep(0.03)
+            match.game_render(player)
+            await self.channel_layer.group_send(
+                self.game_id,
+                {
+                    "type": "broadcast_users",
+                    "data": match.game_data(),
+                    "data_type": "render",
+                },
+            )
+            if match.winner:
+                await self.save_game_result(match)
+                await self.channel_layer.group_send(
+                    self.game_id,
+                    {
+                        "type": "broadcast_users",
+                        "data": match.result_data(),
+                        "data_type": "result",
+                    },
+                )
+                del FinalGameConsumer.games[self.game_id]
+                break
+
+    async def user_access(self, content: dict) -> None:
+        token = content["token"]
+        try:
+            self.user = await JWTAuthMiddleware.get_user(token)
+        except:
+            await self.send_json({"access": "User invalid or expired."})
+            return
+        if not self.user.is_authenticated:
+            await self.send_json({"access": "User not authenticated."})
+            return
+        else:
+            await self.send_json({"access": "Access successful."})
+
+        # Game 객체 생성
+        if self.game_id not in FinalGameConsumer.games:
+            FinalGameConsumer.games[self.game_id] = Game(self.result.game_speed)
+        match = FinalGameConsumer.games[self.game_id]
+
+        # 유저 중복 검사
+        async with FinalGameConsumer.games_lock:
+            if (match.p1 and match.p1.nick == self.user.username) or (
+                match.p2 and match.p2.nick == self.user.username
+            ):
+                await self.send_json(
+                    {"type": "error", "message": "User already in game."}
+                )
+                return
+
+        # 들어온 순서대로 red, blue 배정
+        if match.p1 is None:
+            match.p1 = Player(type="red", nick=self.user.username)
+            self.color = "red"
+        elif match.p2 is None:
+            match.p2 = Player(type="blue", nick=self.user.username)
+            self.color = "blue"
+        else:
+            await self.send_json({"type": "error", "message": "Game is full."})
+            return
+        # start data 전송
+        await self.send_json(match.start_data(color=self.color, game=self.result))
