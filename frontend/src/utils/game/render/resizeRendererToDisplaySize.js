@@ -1,4 +1,5 @@
 function resizeRendererToDisplaySize(renderer) {
+  if (!renderer) return false;
   const canvas = renderer.domElement;
   const width = canvas.clientWidth;
   const height = canvas.clientHeight;
