@@ -141,8 +141,8 @@ class Router {
       }
       if (
         Router.before &&
-        (Router.before.getTitle() === 'WaitingRoom' ||
-          Router.before.getTitle() === 'PlayGame')
+        (Router.before.pathname === '/game/waiting' ||
+          Router.before.pathname === '/game/play')
       ) {
         window.removeEventListener('popstate', Router.before.onPopstate);
         window.removeEventListener('beforeunload', Router.onRefresh);
