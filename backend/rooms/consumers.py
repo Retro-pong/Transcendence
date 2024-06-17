@@ -34,7 +34,7 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
                     # 이미 해당 대기실에 들어가 있는 경우 에러
                     if self.user in NormalRoomConsumer.rooms[self.room_id]:
                         await self.send_json(
-                            {"type": "error", "message": "Duplicated user."}
+                            {"type": "error", "message": "User already in room."}
                         )
                         return
                     # 이미 정원에 도달한 대기실에 입장을 시도하는 경우 에러
@@ -150,6 +150,7 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
         game_model = apps.get_model("game", "GameResult")
         room = room_model.objects.get(id=self.room_id)
         game = game_model.objects.create(
+            game_mode=room.game_mode,
             game_map=room.game_map,
             game_speed=room.game_speed,
             ball_color=room.ball_color,
@@ -204,7 +205,7 @@ class TournamentRoomConsumer(NormalRoomConsumer):
                     # 이미 해당 대기실에 들어가 있는 경우 에러
                     if self.user in TournamentRoomConsumer.rooms[self.room_id]:
                         await self.send_json(
-                            {"type": "error", "message": "Duplicated user."}
+                            {"type": "error", "message": "User already in room."}
                         )
                         return
                     # 이미 정원에 도달한 대기실에 입장을 시도하는 경우 에러
