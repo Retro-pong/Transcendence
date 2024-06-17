@@ -208,7 +208,8 @@ class TournamentRoomConsumer(NormalRoomConsumer):
                         )
                         return
                     # 이미 정원에 도달한 대기실에 입장을 시도하는 경우 에러
-                    if len(TournamentRoomConsumer.rooms[self.room_id]) >= 4:
+                    self.room_number = len(TournamentRoomConsumer.rooms[self.room_id])
+                    if self.room_number >= 4:
                         await self.channel_layer.group_discard(
                             self.room_id, self.channel_name
                         )
@@ -236,8 +237,10 @@ class TournamentRoomConsumer(NormalRoomConsumer):
                     await self.channel_layer.group_send(
                         self.room_id,
                         {
-                            "type": "send_disconnect",
-                            "game_id": self.game_id,
+                            "type": "send_disconnect_tournament",
+                            "game_id_final": self.game_id_final,
+                            "game_id_semi_1": self.game_id_semi_1,
+                            "game_id_semi_2": self.game_id_semi_2,
                         },
                     )
 
@@ -317,3 +320,35 @@ class TournamentRoomConsumer(NormalRoomConsumer):
             if TournamentRoomConsumer.rooms.get(self.room_id):
                 await self.send_user_info()
         await self.close()
+
+    @database_sync_to_async
+    def create_game_result(self) -> None:
+        room_model = apps.get_model("rooms", "Room")
+        game_model = apps.get_model("game", "GameResult")
+        room = room_model.objects.get(id=self.room_id)
+        for i in range(3):
+            game = game_model.objects.create(
+                game_map=room.game_map,
+                game_speed=room.game_speed,
+                ball_color=room.ball_color,
+                start_time=timezone.now(),
+            )
+            if i == 0:
+                self.game_id_semi_1 = game.id
+            elif i == 1:
+                self.game_id_semi_2 = game.id
+            elif i == 2:
+                self.game_id_final = game.id
+
+    async def send_disconnect_tournament(self, event: dict) -> None:
+        game_id_final = event["game_id_final"]
+        if self.room_number % 2 == 0:
+            game_id_semi = event["game_id_semi_1"]
+        else:
+            game_id_semi = event["game_id_semi_2"]
+        data = {
+            "type": "start_game",
+            "room_id_semi": game_id_semi,
+            "room_id_final": game_id_final,
+        }
+        await self.send_json(data)
