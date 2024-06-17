@@ -26,7 +26,7 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
             try:
                 self.result = await self.get_game_result()
             except Exception as e:
-                await self.send_json({"error": str(e)})
+                await self.send_json({"type": "error", "message": str(e)})
             await self.user_access(content)
         # Game이 존재할 때만 명령처리
         else:
@@ -43,7 +43,7 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
         while True:
             match = NormalGameConsumer.games[self.game_id]
             if not match:
-                await self.send_json({"error": "Game not found"})
+                await self.send_json({"type": "error", "message": "Game not found"})
                 return
             await asyncio.sleep(0.03)
             match.game_render(player)
@@ -111,7 +111,7 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
             match.p2 = Player(type="blue", nick=self.user.username)
             self.color = "blue"
         else:
-            await self.send_json({"error": "Game is full."})
+            await self.send_json({"type": "error", "message": "Game is full."})
             return
         # start data 전송
         await self.send_json(match.start_data(color=self.color, game=self.result))
@@ -126,8 +126,8 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
         GameResult = apps.get_model("game", "GameResult")
         result = GameResult.objects.get(id=self.game_id)
         result.winner = match.winner
-        result.player1 = match.p1
-        result.player2 = match.p2
+        result.player1 = match.p1.nick
+        result.player2 = match.p2.nick
         result.player1_score = match.p1.score
         result.player2_score = match.p2.score
         result.save()
