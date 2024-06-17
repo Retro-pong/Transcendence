@@ -5,6 +5,7 @@ import ModalComponent from '@component/modal/ModalComponent';
 import EditProfileForm from '@component/form/EditProfileForm';
 import ProfileItem from '@component/contents/ProfileItem';
 import { Modal } from 'bootstrap';
+import BattleHistory from '@component/contents/BattleHistory';
 import Fetch from '@/utils/Fetch';
 import ToastHandler from '@/utils/ToastHandler';
 import resizeImage from '@/utils/resizeImage';
@@ -35,10 +36,9 @@ class Profile extends PageComponent {
         </div>
       `;
     }
-
     const profile = Object.keys(profileData)
       .map((key) => {
-        if (key === 'image' || key === 'battleHistory' || key === 'is_active')
+        if (key === 'image' || key === 'history' || key === 'is_active')
           return '';
         return `${ProfileItem({ type: key, content: profileData[key] ?? '' })}`;
       })
@@ -60,8 +60,6 @@ class Profile extends PageComponent {
       buttonList: ['profileEditBtn'],
     });
 
-    // TODO: battleHistory 정보 요청
-    // TODO: image url 정보 요청
     return `
         <div class="row d-flex justify-content-center">
           <div class="row d-flex flex-row mt-4">
@@ -80,9 +78,14 @@ class Profile extends PageComponent {
             ${editModal}
           </div>
         </div>
-          <div class="row my-4">
-            <div class="d-flex justify-content-center fs-8 border border-light">BATTLE HISTORY</div>
+        <div class="row text-center fs-7">BATTLE HISTORY</div>
+        <div class="row h-70">
+          <div class="d-flex flex-column fs-7 border border-light overflow-auto h-80">
+            <div class="d-flex">
+              ${BattleHistory(profileData.history)}
+            </div>
           </div>
+        </div>
     `;
   }
 
