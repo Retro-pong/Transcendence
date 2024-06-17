@@ -134,10 +134,9 @@ class Game:
     def set_ready(self, player: "Player") -> int:
         if player.status == "wait":
             player.status = "ready"
-        for p in self.get_players().values():
-            if p.status == "wait":
-                return 0
-        return 1
+        if self.p1.status == "ready" and self.p2.status == "ready":
+            return 1
+        return 0
 
     def add_score(self, type: int) -> int:
         if type == 0:
