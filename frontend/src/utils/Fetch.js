@@ -102,7 +102,8 @@ class Fetch {
         throw new Error(err.error || err.detail || '');
       });
     }
-    return response.json().catch(() => '');
+    const data = await response.json().catch(() => '');
+    return { status: response.status, data };
   }
 }
 
