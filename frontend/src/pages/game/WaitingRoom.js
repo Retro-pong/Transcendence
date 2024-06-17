@@ -93,15 +93,13 @@ class WaitingRoom extends PageComponent {
   }
 
   async afterRender() {
-    onbeforeunload = () => {
-      return 'Are you sure you want to leave?';
-    };
-
-    onpopstate = () => {
+    const onPopstate = async () => {
       ToastHandler.setToast('You left the room');
       this.roomSocket.close();
-      Router.navigateTo('/game/join');
+      await Router.navigateTo('/game/join');
     };
+
+    window.addEventListener('popstate', onPopstate);
 
     this.roomSocket.onopen = () => {
       const message = {
@@ -140,6 +138,7 @@ class WaitingRoom extends PageComponent {
 
     this.roomSocket.onclose = (e) => {
       console.log(`Room Socket Disconnected (${e.code})`);
+      window.removeEventListener('popstate', onPopstate);
     };
 
     this.roomSocket.onerror = (error) => {

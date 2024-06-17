@@ -70,6 +70,10 @@ class Router {
     element.classList.remove('d-none');
   }
 
+  static onRefresh(event) {
+    event.preventDefault();
+  }
+
   static async render() {
     const currPathname = Router.getPathname();
     const isLoggedIn = TokenManager.getLoginStatus();
@@ -96,10 +100,14 @@ class Router {
 
     const page = Router.getPageToRender();
     if (Router.getPathname() === '/game/play') {
+      window.addEventListener('beforeunload', Router.onRefresh);
       Router.hideElement(Router.background);
       Router.hideElement(Router.navBar);
       Router.showElement(Router.gameCanvas);
+    } else if (Router.getPathname() === '/game/waiting') {
+      window.addEventListener('beforeunload', Router.onRefresh);
     } else {
+      window.removeEventListener('beforeunload', Router.onRefresh);
       Router.showElement(Router.background);
       Router.hideElement(Router.gameCanvas);
       if (Router.getPathname() !== '/login') {
