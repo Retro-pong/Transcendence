@@ -44,11 +44,11 @@ class Router {
   }
 
   static pushState(url) {
-    history.pushState(null, null, url);
+    history.pushState(null, '', url);
   }
 
   static replaceState(url) {
-    history.replaceState(null, null, url);
+    history.replaceState(null, '', url);
   }
 
   static getCurrentPage() {
@@ -99,17 +99,17 @@ class Router {
     const isLoggedIn = TokenManager.getLoginStatus();
 
     if (!(currPathname in Router.routes)) {
-      Router.pushState('/404');
+      Router.replaceState('/404');
     } else if (currPathname === '/login' && isLoggedIn) {
       ToastHandler.setToast('You are already logged in!');
-      const beforePage = Router.getCurrentPage();
+      const beforePage = Router.getCurrentPage() || '/';
       if (beforePage === '/login') {
-        Router.pushState('/');
+        Router.replaceState('/');
       } else {
-        Router.pushState(beforePage);
+        Router.replaceState(beforePage);
       }
     } else if (currPathname !== '/login' && !isLoggedIn) {
-      Router.pushState('/login');
+      Router.replaceState('/login');
     } else {
       Router.setCurrentPage(currPathname);
     }
