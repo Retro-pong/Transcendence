@@ -119,7 +119,7 @@ class Friends extends PageComponent {
         await Fetch.patch('/friends/add/', { friend_name: friendName })
           .then((res) => {
             if (res.status === 200) {
-              ToastHandler.setToast(res.data.error);
+              ToastHandler.setToast(res.data.error || 'Already a friend');
             }
             if (res.status === 201) {
               ToastHandler.setToast(`sent a friend request to ${friendName}`);
