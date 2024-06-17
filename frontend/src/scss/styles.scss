@@ -73,6 +73,10 @@ input {
   border-style: dashed !important;
 }
 
+input:focus-visible {
+  outline: none;
+}
+
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
@@ -278,4 +282,3 @@ canvas {
 @keyframes changeColor {
   0%, 100% { color: $mint; }
 }
-
