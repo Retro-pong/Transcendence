@@ -223,7 +223,7 @@ class NormalRoomConsumerTest(TransactionTestCase):
         self.assertEqual(response, {"access": "Access successful."})
         response = await communicator2.receive_json_from()
         assert response["type"] == "error"
-        assert response["message"] == "Duplicated user."
+        assert response["message"] == "User already in room."
         # Clean up
         await communicator1.disconnect()
         await communicator2.disconnect()
@@ -255,7 +255,7 @@ class TournamentRoomConsumerTest(TransactionTestCase):
         response = await communicator.receive_json_from()
         self.assertEqual(response, {"access": "Access successful."})
         response = await communicator.receive_json_from()
-        assert response["type"] == "users"
+        self.assertEqual(response["type"], "users")
         # Clean up
         await communicator.disconnect()
 
@@ -379,8 +379,9 @@ class TournamentRoomConsumerTest(TransactionTestCase):
         response = await communicator2.receive_json_from()
         self.assertEqual(response, {"access": "Access successful."})
         response = await communicator2.receive_json_from()
-        assert response["type"] == "error"
-        assert response["message"] == "Duplicated user."
+        self.assertEqual(
+            response, {"type": "error", "message": "User already in room."}
+        )
         # Clean up
         await communicator1.disconnect()
         await communicator2.disconnect()
