@@ -9,6 +9,14 @@ function localGameStartSetting(localGameInfo, ball) {
     Math.random() * 12 - 6
   );
   newInfo.start = 'off';
+  newInfo.hitStatus = {
+    redPaddleHit: 10,
+    bluePaddleHit: 10,
+    topWallHit: 10,
+    bottomWallHit: 10,
+    rightWallHit: 10,
+    leftWallHit: 10,
+  };
   return newInfo;
 }
 
