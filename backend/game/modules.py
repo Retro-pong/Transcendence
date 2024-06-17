@@ -102,7 +102,7 @@ class Ball:
 
 
 class Player:
-    def __init__(self, type: int, nick: str) -> None:
+    def __init__(self, type: str, nick: str) -> None:
         self.y = 0.0
         self.z = 0.0
         self.type = type  # red, blue
@@ -169,7 +169,7 @@ class Game:
             elif winner == BLUE:
                 self.winner = self.p2.nick
 
-    def start_data(self, color: str, game: "Game") -> dict:
+    def start_data(self, color: str, game: "GameResult") -> dict:
         return {
             "type": "start",
             "color": color,
@@ -188,9 +188,11 @@ class Game:
 
     def game_data(self) -> dict:
         return {
+            "redNick": self.p1.nick,
             "redY": self.p1.y,
             "redZ": self.p1.z,
             "redScore": self.p1.score,
+            "blueNick": self.p2.nick,
             "blueY": self.p2.y,
             "blueZ": self.p2.z,
             "blueScore": self.p2.score,
@@ -203,6 +205,8 @@ class Game:
     def result_data(self) -> dict:
         return {
             "winner": self.winner,
+            "redNick": self.p1.nick,
             "redScore": self.p1.score,
+            "blueNick": self.p2.nick,
             "blueScore": self.p2.score,
         }
