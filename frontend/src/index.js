@@ -2,10 +2,12 @@ import drawBackground from '@/background/background.js';
 import TokenManager from '@/utils/TokenManager';
 import Fetch from '@/utils/Fetch';
 import Router from '@/utils/Router';
+import SocketManager from '@/utils/SocketManager';
 
 Fetch.init();
 
 window.addEventListener('popstate', Router.render);
+window.addEventListener('unload', SocketManager.setOffline);
 
 document.addEventListener('DOMContentLoaded', async () => {
   if (!TokenManager.getAccessToken() && TokenManager.getLoginStatus()) {

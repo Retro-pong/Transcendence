@@ -13,7 +13,27 @@ class SocketManager {
     return new WebSocket(`${this.#BASE_URL}${url}`);
   }
 
+  static closeRoomSocket() {
+    if (SocketManager.roomSocket) {
+      SocketManager.roomSocket.close();
+      SocketManager.roomSocket = null;
+    }
+  }
+
+  static closeGameSocket() {
+    if (SocketManager.gameSocket) {
+      SocketManager.gameSocket.close();
+      SocketManager.gameSocket = null;
+    }
+  }
+
+  static closeSockets() {
+    SocketManager.closeRoomSocket();
+    SocketManager.closeGameSocket();
+  }
+
   static setOffline() {
+    SocketManager.closeSockets();
     if (!SocketManager.onlineSocket) {
       return;
     }
