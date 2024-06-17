@@ -12,6 +12,8 @@ import hitChangeColor from '@/utils/game/utils/hitChangeColor';
 
 class GameManager {
   constructor() {
+    this.renderRequestId = null;
+
     this.scene = new THREE.Scene();
     this.canvas = document.getElementById('gameCanvas');
     this.renderer = new THREE.WebGLRenderer({
@@ -21,15 +23,13 @@ class GameManager {
     this.camera = null;
 
     this.mapList = {
-      horizon: '/img/map_futuristic_horizon.jpg',
-      mountain: '/img/map_mountain.jpg',
-      pixel: '/img/map_pixel_rain.jpg',
+      'Futuristic Horizon': '/img/map_futuristic_horizon.jpg',
+      Mountain: '/img/map_mountain.jpg',
+      'Pixel Rain': '/img/map_pixel_rain.jpg',
     };
 
     this.loader = new THREE.TextureLoader();
-    this.loader.load(this.mapList.horizon, (texture) => {
-      this.scene.background = texture;
-    });
+    this.currentBackgroundTexture = null;
 
     sceneSetting(this.scene);
     createMap(this.scene);
@@ -52,6 +52,7 @@ class GameManager {
   }
 
   disposeAll() {
+    console.log('dispose!!!!!!!!!!');
     if (this.localEventHandler) this.localEventHandler();
     if (this.multiEventHandler) this.multiEventHandler();
 
@@ -74,19 +75,22 @@ class GameManager {
     Object.values(this.camera).forEach((camera) => {
       if (camera) this.scene.remove(camera);
     });
-    this.camera = {
-      blue: null,
-      red: null,
-      multi: null,
-    };
-
+    this.camera = null;
+    this.currentBackgroundTexture.dispose();
+    this.currentBackgroundTexture = null;
     this.renderer.dispose();
-    this.renderer = null;
     this.loader = null;
+    this.renderer = null;
     this.scene = null;
+    cancelAnimationFrame(this.renderRequestId);
+    this.renderRequestId = null;
   }
 
   localGameSetting() {
+    this.loader.load(this.mapList.Mountain, (texture) => {
+      this.scene.background = texture;
+      this.currentBackgroundTexture = texture;
+    });
     this.camera = cameraSetting('local', '');
     this.localEventHandler = localEventHandler(
       this.canvas,
@@ -111,10 +115,16 @@ class GameManager {
   }
 
   multiGameSetting(data) {
+    console.log('map', data.map);
     this.camera = cameraSetting('multi', data.color);
-    this.multiEventHandler = multiEventHandler(this.canvas, this.scene, this.camera);
-    this.loader.load(this.mapList[data.map], (texture) => {
+    this.multiEventHandler = multiEventHandler(
+      this.canvas,
+      this.scene,
+      this.camera
+    );
+    this.loader.load(this.mapList[data.map.toString()], (texture) => {
       this.scene.background = texture;
+      this.currentBackgroundTexture = texture;
     });
     this.objects.ball.material.color.set(data.ball_color);
     this.objects.ball.position.set(data.ball.x, data.ball.y, data.ball.z);
@@ -149,9 +159,9 @@ class GameManager {
         this.localGameInfo
       );
       rendering(this.renderer, this.scene, this.camera, 'local');
-      requestAnimationFrame(render);
+      this.renderRequestId = requestAnimationFrame(render);
     };
-    requestAnimationFrame(render);
+    this.renderRequestId = requestAnimationFrame(render);
   }
 
   multiGameStart() {
@@ -166,9 +176,9 @@ class GameManager {
         }
       }
       rendering(this.renderer, this.scene, this.camera, 'multi');
-      requestAnimationFrame(render);
+      this.renderRequestId = requestAnimationFrame(render);
     };
-    requestAnimationFrame(render);
+    this.renderRequestId = requestAnimationFrame(render);
   }
 
   multiGameUpdateObjects(data) {
