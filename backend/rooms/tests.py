@@ -197,35 +197,33 @@ class NormalRoomConsumerTest(TransactionTestCase):
         await communicator3.disconnect()
 
     @pytest.mark.asyncio
-    async def test_room_connect_duplicated(self):
-        room = await self.create_room("12345", "normal", "map1", 2, "#000000")
+    async def test_user_duplicate(self):
+        room = await self.create_room("123456", "normal", "map1", 2, "#000000")
         user = await self.create_test_user(
             username="testuser", email="test@test.com", password="1234"
         )
-        token1 = TokenObtainPairSerializer.get_token(user)
-        access_token = str(token1.access_token)
-        # Connect the first client
+        token = TokenObtainPairSerializer.get_token(user)
+        access_token = str(token.access_token)
         communicator1 = WebsocketCommunicator(
             URLRouter(websocket_urlpatterns),
             f"/ws/normal_room/{room.id}/",
         )
         connected, subprotocol = await communicator1.connect()
-        assert connected
+        self.assertTrue(connected)
         await communicator1.send_json_to({"type": "access", "token": access_token})
         response = await communicator1.receive_json_from()
-        assert response == {"access": "Access successful."}
+        self.assertEqual(response, {"access": "Access successful."})
         response = await communicator1.receive_json_from()
         assert response["type"] == "users"
-        # Connect the second client
         communicator2 = WebsocketCommunicator(
             URLRouter(websocket_urlpatterns),
             f"/ws/normal_room/{room.id}/",
         )
         connected, subprotocol = await communicator2.connect()
-        assert connected
+        self.assertTrue(connected)
         await communicator2.send_json_to({"type": "access", "token": access_token})
         response = await communicator2.receive_json_from()
-        assert response == {"access": "Access successful."}
+        self.assertEqual(response, {"access": "Access successful."})
         response = await communicator2.receive_json_from()
         assert response["type"] == "error"
         # Clean up
@@ -362,34 +360,33 @@ class TournamentRoomConsumerTest(TransactionTestCase):
         await communicator5.disconnect()
 
     @pytest.mark.asyncio
-    async def test_room_connect_duplicated(self):
-        room = await self.create_room("12345", "tournament", "map1", 2, "#000000")
+    async def test_user_duplicate(self):
+        room = await self.create_room("123456", "normal", "map1", 2, "#000000")
         user = await self.create_test_user(
             username="testuser", email="test@test.com", password="1234"
         )
-        token1 = TokenObtainPairSerializer.get_token(user)
-        access_token = str(token1.access_token)
+        token = TokenObtainPairSerializer.get_token(user)
+        access_token = str(token.access_token)
         communicator1 = WebsocketCommunicator(
             URLRouter(websocket_urlpatterns),
-            f"/ws/tournament_room/{room.id}/",
+            f"/ws/normal_room/{room.id}/",
         )
         connected, subprotocol = await communicator1.connect()
-        assert connected
+        self.assertTrue(connected)
         await communicator1.send_json_to({"type": "access", "token": access_token})
         response = await communicator1.receive_json_from()
-        assert response == {"access": "Access successful."}
+        self.assertEqual(response, {"access": "Access successful."})
         response = await communicator1.receive_json_from()
         assert response["type"] == "users"
-
         communicator2 = WebsocketCommunicator(
             URLRouter(websocket_urlpatterns),
-            f"/ws/tournament_room/{room.id}/",
+            f"/ws/normal_room/{room.id}/",
         )
         connected, subprotocol = await communicator2.connect()
-        assert connected
+        self.assertTrue(connected)
         await communicator2.send_json_to({"type": "access", "token": access_token})
         response = await communicator2.receive_json_from()
-        assert response == {"access": "Access successful."}
+        self.assertEqual(response, {"access": "Access successful."})
         response = await communicator2.receive_json_from()
         assert response["type"] == "error"
         # Clean up
