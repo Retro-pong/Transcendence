@@ -80,7 +80,7 @@ class Friends extends PageComponent {
           })
           .catch((err) => {
             ToastHandler.setToast(
-              `${err.message || 'Failed to accept friend'} [${err.code}]`
+              `${err.message || 'Failed to accept friend'}`
             );
           });
       });
@@ -105,7 +105,7 @@ class Friends extends PageComponent {
           })
           .catch((err) => {
             ToastHandler.setToast(
-              `${err.message || 'Failed to reject friend'} [${err.code}]`
+              `${err.message || 'Failed to reject friend'}`
             );
           });
       });
@@ -127,7 +127,7 @@ class Friends extends PageComponent {
           })
           .catch((err) => {
             ToastHandler.setToast(
-              `${err.message || 'Failed to send friend request'} [${err.code}]`
+              `${err.message || 'Failed to send friend request'}`
             );
           });
       });
@@ -198,9 +198,7 @@ class Friends extends PageComponent {
             friendSearchList.scrollIntoView({ behavior: 'smooth' });
           })
           .catch((err) => {
-            ToastHandler.setToast(
-              `${err.message || 'Search Failed'} [${err.code}]`
-            );
+            ToastHandler.setToast(`${err.message || 'Search Failed'}`);
           });
       }, 1000)
     );
@@ -219,7 +217,7 @@ class Friends extends PageComponent {
           })
           .catch((err) => {
             ToastHandler.setToast(
-              `${err.message || 'Failed to delete friend'} [${err.code}]`
+              `${err.message || 'Failed to delete friend'}`
             );
           });
       });
