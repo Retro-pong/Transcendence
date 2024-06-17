@@ -9,6 +9,7 @@ import Friends from '@pages/Friends';
 import PlayGame from '@pages/game/PlayGame';
 import TokenManager from '@/utils/TokenManager';
 import ToastHandler from '@/utils/ToastHandler';
+import SocketManager from '@/utils/SocketManager';
 
 class Router {
   static routes = {
@@ -31,8 +32,6 @@ class Router {
   static background = document.getElementById('background');
 
   static navBar = document.getElementById('navBar');
-
-  static gameCanvas = document.getElementById('gameCanvasContainer');
 
   static async navigateTo(url) {
     if (url === window.location.href) return;
@@ -72,6 +71,25 @@ class Router {
     element.classList.remove('d-none');
   }
 
+  static setGamePageApp() {
+    if (Router.app.classList.contains('container-fluid')) {
+      Router.app.className = '';
+    }
+  }
+
+  static resetPageApp() {
+    if (
+      !Router.app.classList.contains(
+        'container-fluid p-5 min-vh-100 overflow-auto'
+      )
+    ) {
+      Router.app.classList.add('container-fluid');
+      Router.app.classList.add('p-5');
+      Router.app.classList.add('min-vh-100');
+      Router.app.classList.add('overflow-auto');
+    }
+  }
+
   static onRefresh(event) {
     event.preventDefault();
   }
@@ -104,7 +122,7 @@ class Router {
     if (Router.getPathname() === '/game/play') {
       Router.hideElement(Router.background);
       Router.hideElement(Router.navBar);
-      Router.showElement(Router.gameCanvas);
+      Router.setGamePageApp();
       window.addEventListener('beforeunload', Router.onRefresh);
     } else if (Router.getPathname() === '/game/waiting') {
       Router.hideElement(Router.navBar);
@@ -116,6 +134,9 @@ class Router {
         typeof Router.before.getGameManager === 'function' &&
         Router.before.getGameManager()
       ) {
+        if (SocketManager.gameSocket) {
+          SocketManager.gameSocket.close();
+        }
         Router.before.setDisposeAll();
       }
       if (
@@ -127,7 +148,7 @@ class Router {
         window.removeEventListener('beforeunload', Router.onRefresh);
       }
       Router.showElement(Router.background);
-      Router.hideElement(Router.gameCanvas);
+      Router.resetPageApp();
       if (Router.getPathname() !== '/login') {
         Router.showElement(Router.navBar);
       } else {
