@@ -1,4 +1,5 @@
 function checkPaddleHit(type, scene) {
+  if (scene === null) return 0;
   const ball = scene.getObjectByName('ball');
   const redPaddle = scene.getObjectByName('redPaddle');
   const bluePaddle = scene.getObjectByName('bluePaddle');
