@@ -33,10 +33,6 @@ class Router {
 
   static navBar = document.getElementById('navBar');
 
-  static body = document.getElementById('body');
-
-  // static gameCanvas = document.getElementById('gameCanvasContainer');
-
   static async navigateTo(url) {
     if (url === window.location.href) return;
     Router.pushState(url);
