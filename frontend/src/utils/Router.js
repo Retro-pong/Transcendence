@@ -34,8 +34,11 @@ class Router {
   static navBar = document.getElementById('navBar');
 
   static async navigateTo(url) {
-    if (url === window.location.href) return;
-    Router.pushState(url);
+    if (url === window.location.href) {
+      Router.replaceState(url);
+    } else {
+      Router.pushState(url);
+    }
     await Router.render();
   }
 
