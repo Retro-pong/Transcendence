@@ -88,10 +88,10 @@ class Router {
       Router.app.classList.add('min-vh-100');
       Router.app.classList.add('overflow-auto');
     }
+  }
 
   static onRefresh(event) {
     event.preventDefault();
-
   }
 
   static async render() {
