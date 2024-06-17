@@ -108,11 +108,14 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
         match = NormalGameConsumer.games[self.game_id]
 
         # 유저 중복 검사
-        if (match.p1 and match.p1.nick == self.user.username) or (
-            match.p2 and match.p2.nick == self.user.username
-        ):
-            await self.send_json({"type": "error", "message": "User already in game."})
-            return
+        async with TournamentGameConsumer.games_lock:
+            if (match.p1 and match.p1.nick == self.user.username) or (
+                match.p2 and match.p2.nick == self.user.username
+            ):
+                await self.send_json(
+                    {"type": "error", "message": "User already in game."}
+                )
+                return
 
         # 들어온 순서대로 red, blue 배정
         if match.p1 is None:
@@ -155,6 +158,7 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
 
 class TournamentGameConsumer(NormalGameConsumer):
     games: dict[str, Game] = {}
+    matches: dict[str,] = {}
     games_lock = asyncio.Lock()
 
     async def receive_json(self, content: dict) -> None:
@@ -226,7 +230,14 @@ class TournamentGameConsumer(NormalGameConsumer):
             TournamentGameConsumer.games[self.game_id] = Game(self.result.game_speed)
         match = TournamentGameConsumer.games[self.game_id]
 
-        # 유저 중복 검사 (user.username, player nickname 비교 -> channel layer discard (mutex))
+        # 유저 중복 검사
+        async with TournamentGameConsumer.games_lock:
+            for p in match.get_players().values():
+                if p and p.nick == self.user.username:
+                    await self.send_json(
+                        {"type": "error", "message": "User already in game."}
+                    )
+                    return
 
         # 들어온 순서대로 red, blue 배정
         if match.p1 is None:
@@ -234,6 +245,12 @@ class TournamentGameConsumer(NormalGameConsumer):
             self.color = "red"
         elif match.p2 is None:
             match.p2 = Player(type="blue", nick=self.user.username)
+            self.color = "blue"
+        elif match.p3 is None:
+            match.p3 = Player(type="red", nick=self.user.username)
+            self.color = "red"
+        elif match.p4 is None:
+            match.p4 = Player(type="blue", nick=self.user.username)
             self.color = "blue"
         else:
             await self.send_json({"type": "error", "message": "Game is full."})
