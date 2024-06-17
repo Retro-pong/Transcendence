@@ -25,6 +25,10 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
         if content["type"] == "access":
             try:
                 self.result = await self.get_game_result()
+                if self.result.game_mode != "normal":
+                    await self.send_json(
+                        {"type": "error", "message": "Invalid game mode."}
+                    )
             except Exception as e:
                 await self.send_json({"type": "error", "message": str(e)})
             await self.user_access(content)
@@ -102,6 +106,8 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
         if self.game_id not in NormalGameConsumer.games:
             NormalGameConsumer.games[self.game_id] = Game(self.result.game_speed)
         match = NormalGameConsumer.games[self.game_id]
+
+        # 유저 중복 검사 (user.username, player nickname 비교 -> channel layer discard (mutex))
 
         # 들어온 순서대로 red, blue 배정
         if match.p1 is None:
