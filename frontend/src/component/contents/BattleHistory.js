@@ -8,7 +8,8 @@ const BattleHistory = (username = '', history = []) => {
   }
   const historyData = history
     .map((data) => {
-      const { player1, player2 } = data;
+      const player1 = data.player1_username;
+      const player2 = data.player2_username;
       const player1Color =
         username === player1 ? 'text-success' : 'text-success-emphasis';
       const player2Color =
