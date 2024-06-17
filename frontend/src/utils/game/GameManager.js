@@ -42,15 +42,57 @@ class GameManager {
       bluePaddle: this.scene.getObjectByName('bluePaddle'),
       redPlayerScore: document.getElementById('player1Score'),
       bluePlayerScore: document.getElementById('player2Score'),
+      map: this.scene.getObjectByName('map'),
     };
 
     this.localGameInfo = null;
     this.multiGameInfo = null;
+    this.localEventHandler = null;
+    this.multiEventHandler = null;
+  }
+
+  disposeAll() {
+    if (this.localEventHandler) this.localEventHandler();
+    if (this.multiEventHandler) this.multiEventHandler();
+
+    Object.values(this.objects).forEach((object) => {
+      if (object.geometry) object.geometry.dispose();
+      if (object.material) {
+        if (Array.isArray(object.material)) {
+          object.material.forEach((m) => {
+            if (m && typeof m.dispose === 'function') {
+              m.dispose();
+            }
+          });
+        } else if (typeof object.material.dispose === 'function') {
+          object.material.dispose();
+        }
+      }
+      this.scene.remove(object);
+    });
+
+    Object.values(this.camera).forEach((camera) => {
+      if (camera) this.scene.remove(camera);
+    });
+    this.camera = {
+      blue: null,
+      red: null,
+      multi: null,
+    };
+
+    this.renderer.dispose();
+    this.renderer = null;
+    this.loader = null;
+    this.scene = null;
   }
 
   localGameSetting() {
     this.camera = cameraSetting('local', '');
-    localEventHandler(this.canvas, this.scene, this.camera);
+    this.localEventHandler = localEventHandler(
+      this.canvas,
+      this.scene,
+      this.camera
+    );
     this.localGameInfo = {
       a: 0,
       b: 0,
@@ -70,7 +112,7 @@ class GameManager {
 
   multiGameSetting(data) {
     this.camera = cameraSetting('multi', data.color);
-    multiEventHandler(this.canvas, this.scene, this.camera);
+    this.multiEventHandler = multiEventHandler(this.canvas, this.scene, this.camera);
     this.loader.load(this.mapList[data.map], (texture) => {
       this.scene.background = texture;
     });
@@ -152,7 +194,11 @@ class GameManager {
     this.objects.redPaddle.position.set(20, data.redY, data.redZ);
     this.objects.bluePaddle.position.set(-20, data.blueY, data.blueZ);
     this.objects.ball.position.set(data.ballX, data.ballY, data.ballZ);
-    this.objects.ballPlane.position.set(data.ballX, this.objects.ballPlane.position.y, this.objects.ballPlane.position.z);
+    this.objects.ballPlane.position.set(
+      data.ballX,
+      this.objects.ballPlane.position.y,
+      this.objects.ballPlane.position.z
+    );
 
     switch (parseInt(data.ballHit, 10)) {
       case 1:
