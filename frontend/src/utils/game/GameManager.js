@@ -55,29 +55,33 @@ class GameManager {
     if (this.localEventHandler) this.localEventHandler();
     if (this.multiEventHandler) this.multiEventHandler();
 
-    Object.values(this.objects).forEach((object) => {
-      if (object.geometry) object.geometry.dispose();
-      if (object.material) {
-        if (Array.isArray(object.material)) {
-          object.material.forEach((m) => {
-            if (m && typeof m.dispose === 'function') {
-              m.dispose();
-            }
-          });
-        } else if (typeof object.material.dispose === 'function') {
-          object.material.dispose();
+    if (this.objects) {
+      Object.values(this.objects).forEach((object) => {
+        if (object.geometry) object.geometry.dispose();
+        if (object.material) {
+          if (Array.isArray(object.material)) {
+            object.material.forEach((m) => {
+              if (m && typeof m.dispose === 'function') {
+                m.dispose();
+              }
+            });
+          } else if (typeof object.material.dispose === 'function') {
+            object.material.dispose();
+          }
         }
-      }
-      this.scene.remove(object);
-    });
+        this.scene.remove(object);
+      });
+    }
 
-    Object.values(this.camera).forEach((camera) => {
-      if (camera) this.scene.remove(camera);
-    });
+    if (this.camera) {
+      Object.values(this.camera).forEach((camera) => {
+        if (camera) this.scene.remove(camera);
+      });
+    }
     this.camera = null;
-    this.currentBackgroundTexture.dispose();
+    if (this.currentBackgroundTexture) this.currentBackgroundTexture.dispose();
+    if (this.renderer) this.renderer.dispose();
     this.currentBackgroundTexture = null;
-    this.renderer.dispose();
     this.loader = null;
     this.renderer = null;
     this.scene = null;
