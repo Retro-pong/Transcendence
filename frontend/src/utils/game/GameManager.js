@@ -12,6 +12,8 @@ import hitChangeColor from '@/utils/game/utils/hitChangeColor';
 
 class GameManager {
   constructor() {
+    this.renderRequestId = null;
+
     this.scene = new THREE.Scene();
     this.canvas = document.getElementById('gameCanvas');
     this.renderer = new THREE.WebGLRenderer({
@@ -21,15 +23,13 @@ class GameManager {
     this.camera = null;
 
     this.mapList = {
-      horizon: '/img/map_futuristic_horizon.jpg',
-      mountain: '/img/map_mountain.jpg',
-      pixel: '/img/map_pixel_rain.jpg',
+      'Futuristic Horizon': '/img/map_futuristic_horizon.jpg',
+      Mountain: '/img/map_mountain.jpg',
+      'Pixel Rain': '/img/map_pixel_rain.jpg',
     };
 
     this.loader = new THREE.TextureLoader();
-    this.loader.load(this.mapList.horizon, (texture) => {
-      this.scene.background = texture;
-    });
+    this.currentBackgroundTexture = null;
 
     sceneSetting(this.scene);
     createMap(this.scene);
@@ -42,15 +42,61 @@ class GameManager {
       bluePaddle: this.scene.getObjectByName('bluePaddle'),
       redPlayerScore: document.getElementById('player1Score'),
       bluePlayerScore: document.getElementById('player2Score'),
+      map: this.scene.getObjectByName('map'),
     };
 
     this.localGameInfo = null;
     this.multiGameInfo = null;
+    this.localEventHandler = null;
+    this.multiEventHandler = null;
+  }
+
+  disposeAll() {
+    console.log('dispose!!!!!!!!!!');
+    if (this.localEventHandler) this.localEventHandler();
+    if (this.multiEventHandler) this.multiEventHandler();
+
+    Object.values(this.objects).forEach((object) => {
+      if (object.geometry) object.geometry.dispose();
+      if (object.material) {
+        if (Array.isArray(object.material)) {
+          object.material.forEach((m) => {
+            if (m && typeof m.dispose === 'function') {
+              m.dispose();
+            }
+          });
+        } else if (typeof object.material.dispose === 'function') {
+          object.material.dispose();
+        }
+      }
+      this.scene.remove(object);
+    });
+
+    Object.values(this.camera).forEach((camera) => {
+      if (camera) this.scene.remove(camera);
+    });
+    this.camera = null;
+    this.currentBackgroundTexture.dispose();
+    this.currentBackgroundTexture = null;
+    this.renderer.dispose();
+    this.loader = null;
+    this.renderer = null;
+    this.scene = null;
+    cancelAnimationFrame(this.renderRequestId);
+    this.renderRequestId = null;
   }
 
   localGameSetting() {
+    this.loader.load(this.mapList.Mountain, (texture) => {
+      this.scene.background = texture;
+      this.currentBackgroundTexture = texture;
+    });
     this.camera = cameraSetting('local', '');
-    localEventHandler(this.canvas, this.scene, this.camera);
+    this.localEventHandler = localEventHandler(
+      this.canvas,
+      this.scene,
+      this.camera
+    );
     this.localGameInfo = {
       a: 0,
       b: 0,
@@ -69,10 +115,16 @@ class GameManager {
   }
 
   multiGameSetting(data) {
+    console.log('map', data.map);
     this.camera = cameraSetting('multi', data.color);
-    multiEventHandler(this.canvas, this.scene, this.camera);
-    this.loader.load(this.mapList[data.map], (texture) => {
+    this.multiEventHandler = multiEventHandler(
+      this.canvas,
+      this.scene,
+      this.camera
+    );
+    this.loader.load(this.mapList[data.map.toString()], (texture) => {
       this.scene.background = texture;
+      this.currentBackgroundTexture = texture;
     });
     this.objects.ball.material.color.set(data.ball_color);
     this.objects.ball.position.set(data.ball.x, data.ball.y, data.ball.z);
@@ -107,9 +159,9 @@ class GameManager {
         this.localGameInfo
       );
       rendering(this.renderer, this.scene, this.camera, 'local');
-      requestAnimationFrame(render);
+      this.renderRequestId = requestAnimationFrame(render);
     };
-    requestAnimationFrame(render);
+    this.renderRequestId = requestAnimationFrame(render);
   }
 
   multiGameStart() {
@@ -124,9 +176,9 @@ class GameManager {
         }
       }
       rendering(this.renderer, this.scene, this.camera, 'multi');
-      requestAnimationFrame(render);
+      this.renderRequestId = requestAnimationFrame(render);
     };
-    requestAnimationFrame(render);
+    this.renderRequestId = requestAnimationFrame(render);
   }
 
   multiGameUpdateObjects(data) {
@@ -152,7 +204,11 @@ class GameManager {
     this.objects.redPaddle.position.set(20, data.redY, data.redZ);
     this.objects.bluePaddle.position.set(-20, data.blueY, data.blueZ);
     this.objects.ball.position.set(data.ballX, data.ballY, data.ballZ);
-    this.objects.ballPlane.position.set(data.ballX, this.objects.ballPlane.position.y, this.objects.ballPlane.position.z);
+    this.objects.ballPlane.position.set(
+      data.ballX,
+      this.objects.ballPlane.position.y,
+      this.objects.ballPlane.position.z
+    );
 
     switch (parseInt(data.ballHit, 10)) {
       case 1:

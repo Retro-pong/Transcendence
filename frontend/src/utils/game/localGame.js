@@ -4,8 +4,9 @@ import localGameStartSetting from '@/utils/game/utils/localGameStartSetting';
 
 function localGame(scene, objects, localGameInfo) {
   let newLocalGameInfo = { ...localGameInfo };
+  newLocalGameInfo.hitStatus = { ...localGameInfo.hitStatus };
   if (objects.ball) {
-    if (localGameInfo.start !== 'off') {
+    if (newLocalGameInfo.start !== 'off') {
       newLocalGameInfo = localGameStartSetting(newLocalGameInfo, objects.ball);
     } else {
       objects.ball.position.set(

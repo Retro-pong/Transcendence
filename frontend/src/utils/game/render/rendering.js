@@ -1,4 +1,5 @@
 function rendering(renderer, scene, camera, mode) {
+  if (!renderer) return;
   if (mode === 'multi') {
     renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
     renderer.setScissor(0, 0, window.innerWidth, window.innerHeight);

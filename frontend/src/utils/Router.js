@@ -24,6 +24,8 @@ class Router {
     '/404': Home, // TODO: NotFound 추가
   };
 
+  static before = null;
+
   static app = document.getElementById('app');
 
   static background = document.getElementById('background');
@@ -100,6 +102,13 @@ class Router {
       Router.hideElement(Router.navBar);
       Router.showElement(Router.gameCanvas);
     } else {
+      if (
+        Router.before &&
+        typeof Router.before.getGameManager === 'function' &&
+        Router.before.getGameManager()
+      ) {
+        Router.before.setDisposeAll();
+      }
       Router.showElement(Router.background);
       Router.hideElement(Router.gameCanvas);
       if (Router.getPathname() !== '/login') {
@@ -111,6 +120,7 @@ class Router {
 
     Router.app.innerHTML = await page.render();
     await page.afterRender();
+    Router.before = page;
   }
 }
 
