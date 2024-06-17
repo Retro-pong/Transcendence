@@ -114,6 +114,13 @@ class PlayGame extends PageComponent {
       };
       SocketManager.gameSocket.onmessage = (e) => {
         const data = JSON.parse(e.data);
+        // 방이 다 찬 경우 or 새로고침해서 소켓 끊었다가 다시 연결한 경우
+        if (data.error) {
+          this.gameError = true;
+          this.gameErrorMsg = data.error;
+          SocketManager.gameSocket.close(1000, 'Game Full');
+          return;
+        }
         switch (data.type) {
           case 'start':
             this.side = data.color;
