@@ -72,10 +72,11 @@ class Ball:
             self.hit_status = 0
             self.dir[Y] *= -1
 
+    # local 보다 범위 넓게 잡음
     def check_ball_xpos(self) -> int:
-        if 19.7 < self.x < 20.3:
+        if 19.4 < self.x < 20.6:
             return RED
-        if -19.7 > self.x > -20.3:
+        if -19.4 > self.x > -20.6:
             return BLUE
         return 0
 
@@ -119,8 +120,8 @@ class Game:
     def __init__(self, speed: float) -> None:
         self.p1 = None
         self.p2 = None
-        self.speed = 1.0 + speed * 0.4
-        self.ball = Ball(speed=1.0 + speed * 0.4)
+        self.speed = 1.0 + speed * 0.7
+        self.ball = Ball(speed=1.0 + speed * 0.7)
         self.winner = None
         self.start_time = None
 

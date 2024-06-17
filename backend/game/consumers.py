@@ -16,6 +16,7 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
         """
         self.game_id = self.scope["url_route"]["kwargs"]["game_id"]
         await self.accept()  # 소켓 연결 수락
+        print(str(self.game_id) + "connected")
         await self.channel_layer.group_add(
             self.game_id,  # 게임 DB id
             self.channel_name,  # Consumer 채널 이름
@@ -38,6 +39,7 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
             player = match.get_players()[self.color]
             async with NormalGameConsumer.games_lock:
                 if content["type"] == "ready":
+                    print(str(self.game_id) + "ready")
                     if match.set_ready(player):
                         self.loop = asyncio.create_task(self.game_loop(player))
             if content["type"] == "move":
@@ -78,6 +80,7 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
         await self.send_json(data)
 
     async def disconnect(self, close_code: int) -> None:
+        print(str(self.game_id) + "disconnected")
         await self.channel_layer.group_send(
             self.game_id,
             {
@@ -135,6 +138,14 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
         result.winner = User.objects.get(username=match.winner)
         result.player1 = User.objects.get(username=match.p1.nick)
         result.player2 = User.objects.get(username=match.p2.nick)
+        if match.p1.score > match.p2.score:
+            result.player1.win += 1
+            result.player2.lose += 1
+        else:
+            result.player1.lose += 1
+            result.player2.win += 1
+        result.player1.save()
+        result.player2.save()
         result.player1_score = match.p1.score
         result.player2_score = match.p2.score
         result.save()
