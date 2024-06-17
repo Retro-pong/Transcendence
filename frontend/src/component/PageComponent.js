@@ -8,14 +8,11 @@ class PageComponent {
     this.totalPage = 1;
     this.limit = 6;
     this.offset = 0;
+    this.pathname = Router.getPathname();
   }
 
   setTitle(title) {
     document.title = title;
-  }
-
-  getTitle() {
-    return document.title;
   }
 
   getOffset() {
