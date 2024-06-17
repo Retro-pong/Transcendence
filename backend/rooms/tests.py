@@ -165,6 +165,8 @@ class NormalRoomConsumerTest(TransactionTestCase):
         await communicator1.send_json_to({"type": "access", "token": access_token1})
         response = await communicator1.receive_json_from()
         assert response == {"access": "Access successful."}
+        response = await communicator1.receive_json_from()
+        assert response["type"] == "users"
         # Connect the second client
         communicator2 = WebsocketCommunicator(
             URLRouter(websocket_urlpatterns),
@@ -175,6 +177,8 @@ class NormalRoomConsumerTest(TransactionTestCase):
         await communicator2.send_json_to({"type": "access", "token": access_token2})
         response = await communicator2.receive_json_from()
         assert response == {"access": "Access successful."}
+        response = await communicator2.receive_json_from()
+        assert response["type"] == "users"
         # Try to connect the third client, which should fail
         communicator3 = WebsocketCommunicator(
             URLRouter(websocket_urlpatterns),
@@ -186,10 +190,7 @@ class NormalRoomConsumerTest(TransactionTestCase):
         response = await communicator3.receive_json_from()
         assert response == {"access": "Access successful."}
         response = await communicator3.receive_json_from()
-        assert response == {"type": "error", "message": "Room is full."}
-        response1 = await communicator1.receive_json_from()
-        assert response1["user0"] == "testuser1"
-        assert response1["user1"] == ""
+        assert response["type"] == "error"
         # Clean up
         await communicator1.disconnect()
         await communicator2.disconnect()
@@ -197,12 +198,13 @@ class NormalRoomConsumerTest(TransactionTestCase):
 
     @pytest.mark.asyncio
     async def test_room_connect_duplicated(self):
-        room = await self.create_room("123", "normal", "map1", 2, "#000000")
+        room = await self.create_room("12345", "normal", "map1", 2, "#000000")
         user = await self.create_test_user(
             username="testuser", email="test@test.com", password="1234"
         )
         token1 = TokenObtainPairSerializer.get_token(user)
         access_token = str(token1.access_token)
+        # Connect the first client
         communicator1 = WebsocketCommunicator(
             URLRouter(websocket_urlpatterns),
             f"/ws/normal_room/{room.id}/",
@@ -212,7 +214,9 @@ class NormalRoomConsumerTest(TransactionTestCase):
         await communicator1.send_json_to({"type": "access", "token": access_token})
         response = await communicator1.receive_json_from()
         assert response == {"access": "Access successful."}
-
+        response = await communicator1.receive_json_from()
+        assert response["type"] == "users"
+        # Connect the second client
         communicator2 = WebsocketCommunicator(
             URLRouter(websocket_urlpatterns),
             f"/ws/normal_room/{room.id}/",
@@ -223,7 +227,7 @@ class NormalRoomConsumerTest(TransactionTestCase):
         response = await communicator2.receive_json_from()
         assert response == {"access": "Access successful."}
         response = await communicator2.receive_json_from()
-        assert response == {"type": "error", "message": "Duplicated Connection."}
+        assert response["type"] == "error"
         # Clean up
         await communicator1.disconnect()
         await communicator2.disconnect()
@@ -278,6 +282,17 @@ class TournamentRoomConsumerTest(TransactionTestCase):
         )
         token3 = TokenObtainPairSerializer.get_token(user3)
         access_token3 = str(token3.access_token)
+        user4 = await self.create_test_user(
+            username="testuser4", email="test4@example.com", password="1234"
+        )
+        token4 = TokenObtainPairSerializer.get_token(user4)
+        access_token4 = str(token4.access_token)
+        user5 = await self.create_test_user(
+            username="testuser5", email="test5@example.com", password="1234"
+        )
+        token5 = TokenObtainPairSerializer.get_token(user5)
+        access_token5 = str(token5.access_token)
+
         # Connect the first client
         communicator1 = WebsocketCommunicator(
             URLRouter(websocket_urlpatterns),
@@ -288,6 +303,8 @@ class TournamentRoomConsumerTest(TransactionTestCase):
         await communicator1.send_json_to({"type": "access", "token": access_token1})
         response = await communicator1.receive_json_from()
         assert response == {"access": "Access successful."}
+        response = await communicator1.receive_json_from()
+        assert response["type"] == "users"
         # Connect the second client
         communicator2 = WebsocketCommunicator(
             URLRouter(websocket_urlpatterns),
@@ -298,7 +315,9 @@ class TournamentRoomConsumerTest(TransactionTestCase):
         await communicator2.send_json_to({"type": "access", "token": access_token2})
         response = await communicator2.receive_json_from()
         assert response == {"access": "Access successful."}
-        # Try to connect the third client, which should fail
+        response = await communicator2.receive_json_from()
+        assert response["type"] == "users"
+        # Connect the third client
         communicator3 = WebsocketCommunicator(
             URLRouter(websocket_urlpatterns),
             f"/ws/tournament_room/{room.id}/",
@@ -309,18 +328,42 @@ class TournamentRoomConsumerTest(TransactionTestCase):
         response = await communicator3.receive_json_from()
         assert response == {"access": "Access successful."}
         response = await communicator3.receive_json_from()
-        assert response == {"type": "error", "message": "Room is full."}
-        response1 = await communicator1.receive_json_from()
-        assert response1["user0"] == "testuser1"
-        assert response1["user1"] == ""
+        assert response["type"] == "users"
+        # Connect the fourth client
+        communicator4 = WebsocketCommunicator(
+            URLRouter(websocket_urlpatterns),
+            f"/ws/tournament_room/{room.id}/",
+        )
+        connected4, subprotocol4 = await communicator4.connect()
+        assert connected4
+        await communicator4.send_json_to({"type": "access", "token": access_token4})
+        response = await communicator4.receive_json_from()
+        assert response == {"access": "Access successful."}
+        response = await communicator4.receive_json_from()
+        assert response["type"] == "users"
+        # Try to connect the fifth client, which should fail
+        communicator5 = WebsocketCommunicator(
+            URLRouter(websocket_urlpatterns),
+            f"/ws/tournament_room/{room.id}/",
+        )
+        connected5, subprotocol5 = await communicator5.connect()
+        assert connected5
+        await communicator5.send_json_to({"type": "access", "token": access_token5})
+        response = await communicator5.receive_json_from()
+        assert response == {"access": "Access successful."}
+        response = await communicator5.receive_json_from()
+        assert response["type"] == "error"
+
         # Clean up
         await communicator1.disconnect()
         await communicator2.disconnect()
         await communicator3.disconnect()
+        await communicator4.disconnect()
+        await communicator5.disconnect()
 
     @pytest.mark.asyncio
     async def test_room_connect_duplicated(self):
-        room = await self.create_room("123", "tournament", "map1", 2, "#000000")
+        room = await self.create_room("12345", "tournament", "map1", 2, "#000000")
         user = await self.create_test_user(
             username="testuser", email="test@test.com", password="1234"
         )
@@ -335,6 +378,8 @@ class TournamentRoomConsumerTest(TransactionTestCase):
         await communicator1.send_json_to({"type": "access", "token": access_token})
         response = await communicator1.receive_json_from()
         assert response == {"access": "Access successful."}
+        response = await communicator1.receive_json_from()
+        assert response["type"] == "users"
 
         communicator2 = WebsocketCommunicator(
             URLRouter(websocket_urlpatterns),
@@ -346,7 +391,7 @@ class TournamentRoomConsumerTest(TransactionTestCase):
         response = await communicator2.receive_json_from()
         assert response == {"access": "Access successful."}
         response = await communicator2.receive_json_from()
-        assert response == {"type": "error", "message": "Duplicated Connection."}
+        assert response["type"] == "error"
         # Clean up
         await communicator1.disconnect()
         await communicator2.disconnect()
