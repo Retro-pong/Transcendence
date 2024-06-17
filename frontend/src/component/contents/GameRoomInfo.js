@@ -14,7 +14,7 @@ const GameRoomInfo = ({ title, map, speed, ball }) => {
       </div>
   </div>
   <div class="d-flex justify-content-center align-items-center pt-3">
-     <table class="table table-borderless table-dark fs-11">
+     <table class="table table-borderless fs-11">
       <tbody>
         <tr>
           <th scope="row">Title</th>
