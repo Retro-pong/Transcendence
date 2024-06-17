@@ -135,6 +135,14 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
         result.winner = User.objects.get(username=match.winner)
         result.player1 = User.objects.get(username=match.p1.nick)
         result.player2 = User.objects.get(username=match.p2.nick)
+        if match.p1.score > match.p2.score:
+            result.player1.win += 1
+            result.player2.lose += 1
+        else:
+            result.player1.lose += 1
+            result.player2.win += 1
+        result.player1.save()
+        result.player2.save()
         result.player1_score = match.p1.score
         result.player2_score = match.p2.score
         result.save()
