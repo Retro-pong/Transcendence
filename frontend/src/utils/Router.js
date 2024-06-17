@@ -107,7 +107,9 @@ class Router {
       Router.hideElement(Router.navBar);
       Router.showElement(Router.gameCanvas);
     } else if (Router.getPathname() === '/game/waiting') {
+      Router.hideElement(Router.navBar);
       window.addEventListener('beforeunload', Router.onRefresh);
+      window.addEventListener('popstate', page.onPopstate);
     } else {
       if (
         Router.before &&
@@ -115,6 +117,9 @@ class Router {
         Router.before.getGameManager()
       ) {
         Router.before.setDisposeAll();
+      }
+      if (Router.before && Router.before.getTitle() === 'WaitingRoom') {
+        window.removeEventListener('popstate', Router.before.onPopstate);
       }
       window.removeEventListener('beforeunload', Router.onRefresh);
       Router.showElement(Router.background);
