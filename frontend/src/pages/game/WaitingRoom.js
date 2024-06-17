@@ -135,7 +135,9 @@ class WaitingRoom extends PageComponent {
 
     SocketManager.roomSocket.onclose = (e) => {
       console.log(`Room Socket Disconnected (${e.code})`);
-      Router.navigateTo('/game/join');
+      if (e.code !== 1000) {
+        Router.navigateTo('/game/join');
+      }
       SocketManager.roomSocket = null;
     };
 
