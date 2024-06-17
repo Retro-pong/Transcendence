@@ -21,9 +21,9 @@ class ProfileSerializer(serializers.ModelSerializer):
         )
 
     def get_history(self, obj):
-        user_username = obj.username
+        user = obj
         results = GameResult.objects.filter(
-            player1=user_username
-        ) | GameResult.objects.filter(player2=user_username)
+            player1=user.id
+        ) | GameResult.objects.filter(player2=user.id)
         valid_results = [results for results in results if results.winner]
         return GameResultSerializer(valid_results, many=True).data

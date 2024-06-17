@@ -1,10 +1,17 @@
 from django.db import models
+from users.models import User
 
 
 class GameResult(models.Model):
-    winner = models.CharField(max_length=50)
-    player1 = models.CharField(max_length=50)
-    player2 = models.CharField(max_length=50)
+    winner = models.ForeignKey(
+        User, on_delete=models.SET_NULL, related_name="winner", null=True, blank=True
+    )
+    player1 = models.ForeignKey(
+        User, on_delete=models.SET_NULL, related_name="player1", null=True, blank=True
+    )
+    player2 = models.ForeignKey(
+        User, on_delete=models.SET_NULL, related_name="player2", null=True, blank=True
+    )
     player1_score = models.IntegerField(default=0)
     player2_score = models.IntegerField(default=0)
     start_time = models.DateTimeField(null=False, blank=False)
