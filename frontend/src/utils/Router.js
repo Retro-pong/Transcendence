@@ -9,6 +9,7 @@ import Friends from '@pages/Friends';
 import PlayGame from '@pages/game/PlayGame';
 import TokenManager from '@/utils/TokenManager';
 import ToastHandler from '@/utils/ToastHandler';
+import SocketManager from '@/utils/SocketManager';
 
 class Router {
   static routes = {
@@ -32,7 +33,9 @@ class Router {
 
   static navBar = document.getElementById('navBar');
 
-  static gameCanvas = document.getElementById('gameCanvasContainer');
+  static body = document.getElementById('body');
+
+  // static gameCanvas = document.getElementById('gameCanvasContainer');
 
   static async navigateTo(url) {
     if (url === window.location.href) return;
@@ -72,6 +75,25 @@ class Router {
     element.classList.remove('d-none');
   }
 
+  static setGamePageApp() {
+    if (Router.app.classList.contains('container-fluid')) {
+      Router.app.className = '';
+    }
+  }
+
+  static resetPageApp() {
+    if (
+      !Router.app.classList.contains(
+        'container-fluid p-5 min-vh-100 overflow-auto'
+      )
+    ) {
+      Router.app.classList.add('container-fluid');
+      Router.app.classList.add('p-5');
+      Router.app.classList.add('min-vh-100');
+      Router.app.classList.add('overflow-auto');
+    }
+  }
+
   static async render() {
     const currPathname = Router.getPathname();
     const isLoggedIn = TokenManager.getLoginStatus();
@@ -100,17 +122,20 @@ class Router {
     if (Router.getPathname() === '/game/play') {
       Router.hideElement(Router.background);
       Router.hideElement(Router.navBar);
-      Router.showElement(Router.gameCanvas);
+      Router.setGamePageApp();
     } else {
       if (
         Router.before &&
         typeof Router.before.getGameManager === 'function' &&
         Router.before.getGameManager()
       ) {
+        if (SocketManager.gameSocket) {
+          SocketManager.gameSocket.close();
+        }
         Router.before.setDisposeAll();
       }
       Router.showElement(Router.background);
-      Router.hideElement(Router.gameCanvas);
+      Router.resetPageApp();
       if (Router.getPathname() !== '/login') {
         Router.showElement(Router.navBar);
       } else {
