@@ -131,9 +131,10 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
     def save_game_result(self, match: Game) -> None:
         GameResult = apps.get_model("game", "GameResult")
         result = GameResult.objects.get(id=self.game_id)
-        result.winner = match.winner
-        result.player1 = match.p1.nick
-        result.player2 = match.p2.nick
+        User = apps.get_model("users", "User")
+        result.winner = User.objects.get(username=match.winner)
+        result.player1 = User.objects.get(username=match.p1.nick)
+        result.player2 = User.objects.get(username=match.p2.nick)
         result.player1_score = match.p1.score
         result.player2_score = match.p2.score
         result.save()

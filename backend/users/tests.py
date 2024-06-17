@@ -14,6 +14,9 @@ class ProfileAPITestCase(APITestCase):
         self.user = User.objects.create_user(
             username="testuser", email="testuser@example.com", password="testpassword"
         )
+        self.user1 = User.objects.create_user(
+            username="testuser1", email="testuser1@example.com", password="testpassword"
+        )
         self.user.win = 10
         self.user.lose = 10
         self.user.comment = "Hello world"
@@ -22,21 +25,21 @@ class ProfileAPITestCase(APITestCase):
         self.user.save()
 
         GameResult.objects.create(
-            winner="testuser",
-            player1="testuser",
-            player2="user1",
+            winner=self.user,
+            player1=self.user1,
+            player2=self.user,
             start_time=timezone.now(),
         )
         GameResult.objects.create(
-            winner="testuser",
-            player1="testuser",
-            player2="user4",
+            winner=self.user,
+            player1=self.user,
+            player2=self.user1,
             start_time=timezone.now(),
         )
         GameResult.objects.create(
-            winner="user3",
-            player1="user3",
-            player2="testuser",
+            winner=self.user1,
+            player1=self.user,
+            player2=self.user1,
             start_time=timezone.now(),
         )
 
@@ -63,8 +66,8 @@ class ProfileAPITestCase(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data["history"]), 3)
-        self.assertEqual(response.data["history"][0]["winner"], "testuser")
-        self.assertEqual(response.data["history"][1]["player2"], "user4")
+        self.assertEqual(response.data["history"][0]["winner_username"], "testuser")
+        self.assertEqual(response.data["history"][1]["player2_username"], "testuser1")
 
     def test_edit_profile(self):
         url = reverse("users:profile_edit")  # ProfileEditView URL 설정
