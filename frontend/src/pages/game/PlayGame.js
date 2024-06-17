@@ -24,6 +24,7 @@ class PlayGame extends PageComponent {
     this.gameStart = false;
     this.gameEnd = false;
     this.gameError = false;
+    this.gameErrorMsg = 'Game Error. Please try again later.';
   }
 
   getGameManager() {
@@ -113,12 +114,6 @@ class PlayGame extends PageComponent {
       };
       SocketManager.gameSocket.onmessage = (e) => {
         const data = JSON.parse(e.data);
-        // 방이 다 찬 경우 or 새로고침해서 소켓 끊었다가 다시 연결한 경우
-        if (data.error === 'Game is full.') {
-          this.gameError = true;
-          SocketManager.gameSocket.close(1000, 'Game Full');
-          return;
-        }
         switch (data.type) {
           case 'start':
             this.side = data.color;
@@ -147,6 +142,13 @@ class PlayGame extends PageComponent {
           case 'exit':
             SocketManager.gameSocket.close(1000, 'Opponent Exit');
             break;
+          case 'error':
+            this.gameError = true;
+            if (data.message) {
+              this.gameErrorMsg = data.message;
+            }
+            SocketManager.gameSocket.close(1000, 'Game Error');
+            break;
           default:
             break;
         }
@@ -154,9 +156,7 @@ class PlayGame extends PageComponent {
       SocketManager.gameSocket.onclose = () => {
         if (this.gameEnd === false) {
           ToastHandler.setToast(
-            this.gameError
-              ? 'Game Error. Please try again later.'
-              : 'Opponent Exit'
+            this.gameError ? this.gameErrorMsg : 'Opponent Exit'
           );
           Router.navigateTo('/game');
         } else {
