@@ -16,7 +16,7 @@ class WaitingRoom extends PageComponent {
     this.roomTitle = '';
     this.roomId = params.get('id') || '';
     this.roomMode = params.get('mode') || '';
-    this.roomSocket = SocketManager.createSocket(
+    SocketManager.roomSocket = SocketManager.createSocket(
       `/${this.roomMode}_room/${this.roomId}/`
     );
     this.players =
@@ -92,27 +92,23 @@ class WaitingRoom extends PageComponent {
     this.players = players;
   }
 
+  onPopstate() {
+    if (!SocketManager.roomSocket) return;
+    ToastHandler.setToast('You left the room');
+    SocketManager.roomSocket.close();
+  }
+
   async afterRender() {
-    onbeforeunload = () => {
-      return 'Are you sure you want to leave?';
-    };
-
-    onpopstate = () => {
-      ToastHandler.setToast('You left the room');
-      this.roomSocket.close();
-      Router.navigateTo('/game/join');
-    };
-
-    this.roomSocket.onopen = () => {
+    SocketManager.roomSocket.onopen = () => {
       const message = {
         type: 'access',
         token: TokenManager.getAccessToken(),
       };
-      this.roomSocket.send(JSON.stringify(message));
+      SocketManager.roomSocket.send(JSON.stringify(message));
       console.log('Room Socket Connected');
     };
 
-    this.roomSocket.onmessage = (e) => {
+    SocketManager.roomSocket.onmessage = (e) => {
       const data = JSON.parse(e.data);
       this.roomTitle = data.room_name || '';
       this.addRoomTitle();
@@ -122,27 +118,28 @@ class WaitingRoom extends PageComponent {
           this.addPlayers();
           break;
         case 'start_game':
-          this.roomSocket.close();
+          SocketManager.roomSocket.close();
           Router.navigateTo(
             `/game/play?id=${data.room_id}&mode=${this.roomMode}`
           );
           break;
         case 'full':
           ToastHandler.setToast('Room is full');
-          this.roomSocket.close();
+          SocketManager.roomSocket.close();
           Router.navigateTo('/game/join');
           break;
         default:
           break;
       }
-      console.log(data);
     };
 
-    this.roomSocket.onclose = (e) => {
+    SocketManager.roomSocket.onclose = (e) => {
       console.log(`Room Socket Disconnected (${e.code})`);
+      Router.navigateTo('/game/join');
+      SocketManager.roomSocket = null;
     };
 
-    this.roomSocket.onerror = (error) => {
+    SocketManager.roomSocket.onerror = (error) => {
       ToastHandler.setToast('Cannot join the room');
       Router.navigateTo('/game/join');
       console.error('Room Socket Error:', error);

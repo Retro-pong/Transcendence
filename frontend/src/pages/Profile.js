@@ -5,6 +5,7 @@ import ModalComponent from '@component/modal/ModalComponent';
 import EditProfileForm from '@component/form/EditProfileForm';
 import ProfileItem from '@component/contents/ProfileItem';
 import { Modal } from 'bootstrap';
+import BattleHistory from '@component/contents/BattleHistory';
 import Fetch from '@/utils/Fetch';
 import ToastHandler from '@/utils/ToastHandler';
 import resizeImage from '@/utils/resizeImage';
@@ -35,10 +36,9 @@ class Profile extends PageComponent {
         </div>
       `;
     }
-
     const profile = Object.keys(profileData)
       .map((key) => {
-        if (key === 'image' || key === 'battleHistory' || key === 'is_active')
+        if (key === 'image' || key === 'history' || key === 'is_active')
           return '';
         return `${ProfileItem({ type: key, content: profileData[key] ?? '' })}`;
       })
@@ -60,8 +60,6 @@ class Profile extends PageComponent {
       buttonList: ['profileEditBtn'],
     });
 
-    // TODO: battleHistory 정보 요청
-    // TODO: image url 정보 요청
     return `
         <div class="row d-flex justify-content-center">
           <div class="row d-flex flex-row mt-4">
@@ -69,12 +67,10 @@ class Profile extends PageComponent {
               ${profile}
             </div>
             <div class="col-3 p-2 h-90">
-              <div class="h-100 w-100 d-flex justify-content-center align-items-center border border-2 border-light rounded">
-                <label for="profileImg" class="h-100 w-100 d-flex justify-content-center align-items-center">
-                  <img id="profileImgSrc" src=${profileData.image || '/img/profile_fallback.jpg'} width="95%" height="95%" alt="PROFILE IMAGE"/>
-                </label>
-                <input type="file" accept="image/jpg, image/png" id="profileImg" class="d-none border-0">
-              </div>
+              <label for="profileImg" class="ratio ratio-3x4">
+                <img id="profileImgSrc" src=${profileData.image} onerror="this.src='/img/profile_fallback.jpg';" class="img-fluid border border-2 border-light rounded" alt="PROFILE IMAGE" style="object-fit: cover;"/>
+              </label>
+              <input type="file" accept="image/jpg, image/png" id="profileImg" class="d-none border-0">
             </div>
           </div>
           <div class="row d-flex justify-content-center">
@@ -82,9 +78,14 @@ class Profile extends PageComponent {
             ${editModal}
           </div>
         </div>
-          <div class="row my-4">
-            <div class="d-flex justify-content-center fs-8 border border-light">BATTLE HISTORY</div>
+        <div class="row text-center fs-7">BATTLE HISTORY</div>
+        <div class="row h-70">
+          <div class="d-flex flex-column fs-7 border border-light overflow-auto h-80">
+            <div class="d-flex">
+              ${BattleHistory(profileData.username, profileData.history)}
+            </div>
           </div>
+        </div>
     `;
   }
 

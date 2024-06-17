@@ -14,6 +14,16 @@ $toast-box-shadow: $mint-box-shadow;
 // Table
 $table-th-font-weight: 400;
 
+// Ratio
+$aspect-ratios: (
+  "1x1": 100%,
+  "4x3": calc(3 / 4 * 100%),
+  "3x4": calc(4 / 3 * 100%),
+  "16x9": calc(9 / 16 * 100%),
+  "21x9": calc(9 / 21 * 100%)
+);
+
+
 // Breakpoints
 $grid-breakpoints: (
   xs: 0,

@@ -72,6 +72,10 @@ class Router {
     element.classList.remove('d-none');
   }
 
+  static onRefresh(event) {
+    event.preventDefault();
+  }
+
   static async render() {
     const currPathname = Router.getPathname();
     const isLoggedIn = TokenManager.getLoginStatus();
@@ -101,6 +105,11 @@ class Router {
       Router.hideElement(Router.background);
       Router.hideElement(Router.navBar);
       Router.showElement(Router.gameCanvas);
+      window.addEventListener('beforeunload', Router.onRefresh);
+    } else if (Router.getPathname() === '/game/waiting') {
+      Router.hideElement(Router.navBar);
+      window.addEventListener('beforeunload', Router.onRefresh);
+      window.addEventListener('popstate', page.onPopstate);
     } else {
       if (
         Router.before &&
@@ -108,6 +117,14 @@ class Router {
         Router.before.getGameManager()
       ) {
         Router.before.setDisposeAll();
+      }
+      if (
+        Router.before &&
+        (Router.before.getTitle() === 'WaitingRoom' ||
+          Router.before.getTitle() === 'PlayGame')
+      ) {
+        window.removeEventListener('popstate', Router.before.onPopstate);
+        window.removeEventListener('beforeunload', Router.onRefresh);
       }
       Router.showElement(Router.background);
       Router.hideElement(Router.gameCanvas);

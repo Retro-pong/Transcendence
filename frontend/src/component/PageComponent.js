@@ -116,6 +116,10 @@ class PageComponent {
       });
     });
   }
+
+  onPopstate() {
+    // Popstate
+  }
 }
 
 export default PageComponent;
