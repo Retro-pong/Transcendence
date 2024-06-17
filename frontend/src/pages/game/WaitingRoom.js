@@ -23,6 +23,7 @@ class WaitingRoom extends PageComponent {
       this.roomMode === 'normal'
         ? [{ id: 1 }, { id: 2 }]
         : [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }];
+    window.addEventListener('popstate', this.onPopstate, { once: true });
   }
 
   async render() {

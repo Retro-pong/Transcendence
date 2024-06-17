@@ -127,7 +127,6 @@ class Router {
     } else if (Router.getPathname() === '/game/waiting') {
       Router.hideElement(Router.navBar);
       window.addEventListener('beforeunload', Router.onRefresh);
-      window.addEventListener('popstate', page.onPopstate);
     } else {
       if (
         Router.before &&
@@ -139,14 +138,7 @@ class Router {
         }
         Router.before.setDisposeAll();
       }
-      if (
-        Router.before &&
-        (Router.before.pathname === '/game/waiting' ||
-          Router.before.pathname === '/game/play')
-      ) {
-        window.removeEventListener('popstate', Router.before.onPopstate);
-        window.removeEventListener('beforeunload', Router.onRefresh);
-      }
+      window.removeEventListener('beforeunload', Router.onRefresh);
       Router.showElement(Router.background);
       Router.resetPageApp();
       if (Router.getPathname() !== '/login') {
