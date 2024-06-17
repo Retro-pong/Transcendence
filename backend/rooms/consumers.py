@@ -31,16 +31,20 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
             self.room = await self.get_room()
             async with NormalRoomConsumer.rooms_lock:
                 if self.room_id in NormalRoomConsumer.rooms:
-                    # 이미 해당 대기실에 들어가 있는 경우 에러 (code=4002)
-                    # if self.user in NormalRoomConsumer.rooms[self.room_id]:
-                    #     await self.send_json({"type": "already_in_room"})
-                    #     return
-                    # 이미 정원에 도달한 대기실에 입장을 시도하는 경우 에러 (code=4003)
+                    # 이미 해당 대기실에 들어가 있는 경우 에러
+                    if self.user in NormalRoomConsumer.rooms[self.room_id]:
+                        await self.send_json(
+                            {"type": "error", "message": "Duplicated user."}
+                        )
+                        return
+                    # 이미 정원에 도달한 대기실에 입장을 시도하는 경우 에러
                     if len(NormalRoomConsumer.rooms[self.room_id]) >= 2:
                         await self.channel_layer.group_discard(
                             self.room_id, self.channel_name
                         )
-                        await self.send_json({"type": "full"})
+                        await self.send_json(
+                            {"type": "error", "message": "Room is full."}
+                        )
                         return
                 # 대기실 입장
                 else:
@@ -54,7 +58,7 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
                 )
                 await self.send_user_info()
 
-            # 대기실 인원이 정원인 경우 연결 해제 요청
+            # 대기실 인원이 정원인 경우 게임 시작
             async with NormalRoomConsumer.rooms_lock:
                 if current_player == 2:
                     await self.create_game_result()
@@ -197,16 +201,20 @@ class TournamentRoomConsumer(NormalRoomConsumer):
             self.room = await self.get_room()
             async with TournamentRoomConsumer.rooms_lock:
                 if self.room_id in TournamentRoomConsumer.rooms:
-                    # 이미 해당 대기실에 들어가 있는 경우 에러 (code=4002)
-                    # if self.user in TournamentRoomConsumer.rooms[self.room_id]:
-                    #     await self.send_json({"type": "already_in_room"})
-                    #     return
-                    # 이미 정원에 도달한 대기실에 입장을 시도하는 경우 에러 (code=4003)
+                    # 이미 해당 대기실에 들어가 있는 경우 에러
+                    if self.user in TournamentRoomConsumer.rooms[self.room_id]:
+                        await self.send_json(
+                            {"type": "error", "message": "Duplicated user."}
+                        )
+                        return
+                    # 이미 정원에 도달한 대기실에 입장을 시도하는 경우 에러
                     if len(TournamentRoomConsumer.rooms[self.room_id]) >= 4:
                         await self.channel_layer.group_discard(
                             self.room_id, self.channel_name
                         )
-                        await self.send_json({"type": "full"})
+                        await self.send_json(
+                            {"type": "error", "message": "Room is full."}
+                        )
                         return
                 # 대기실 입장
                 else:
@@ -220,7 +228,7 @@ class TournamentRoomConsumer(NormalRoomConsumer):
                 )
                 await self.send_user_info()
 
-            # 대기실 인원이 정원인 경우 연결 해제 요청
+            # 대기실 인원이 정원인 경우 게임 시작
             async with TournamentRoomConsumer.rooms_lock:
                 if current_player == 4:
                     await self.create_game_result()

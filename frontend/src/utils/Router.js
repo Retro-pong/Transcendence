@@ -24,6 +24,8 @@ class Router {
     '/404': Home, // TODO: NotFound 추가
   };
 
+  static before = null;
+
   static app = document.getElementById('app');
 
   static background = document.getElementById('background');
@@ -107,6 +109,13 @@ class Router {
     } else if (Router.getPathname() === '/game/waiting') {
       window.addEventListener('beforeunload', Router.onRefresh);
     } else {
+      if (
+        Router.before &&
+        typeof Router.before.getGameManager === 'function' &&
+        Router.before.getGameManager()
+      ) {
+        Router.before.setDisposeAll();
+      }
       window.removeEventListener('beforeunload', Router.onRefresh);
       Router.showElement(Router.background);
       Router.hideElement(Router.gameCanvas);
@@ -119,6 +128,7 @@ class Router {
 
     Router.app.innerHTML = await page.render();
     await page.afterRender();
+    Router.before = page;
   }
 }
 

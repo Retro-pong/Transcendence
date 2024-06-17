@@ -22,7 +22,20 @@ class PlayGame extends PageComponent {
     this.blueScore = '';
     this.redScore = '';
     this.gameStart = false;
+    this.gameEnd = false;
+    this.gameError = false;
     document.getElementById('gameStartBtn').innerText = 'Click Start !';
+    document.getElementById('player1Score').innerText = '0';
+    document.getElementById('player2Score').innerText = '0';
+  }
+
+  getGameManager() {
+    return this.gameManger;
+  }
+
+  setDisposeAll() {
+    this.gameManger.disposeAll();
+    this.gameManger = null;
   }
 
   async render() {
@@ -58,6 +71,8 @@ class PlayGame extends PageComponent {
     });
 
     gameResultModalElement.addEventListener('hidden.bs.modal', async () => {
+      redScore.innerText = '';
+      blueScore.innerText = '';
       await Router.navigateTo('/game');
     });
 
@@ -84,6 +99,12 @@ class PlayGame extends PageComponent {
       };
       SocketManager.gameSocket.onmessage = (e) => {
         const data = JSON.parse(e.data);
+        // 방이 다 찬 경우 or 새로고침해서 소켓 끊었다가 다시 연결한 경우
+        if (data.error === 'Game is full.') {
+          this.gameError = true;
+          SocketManager.gameSocket.close(1000, 'Game Full');
+          return;
+        }
         switch (data.type) {
           case 'start':
             this.side = data.color;
@@ -96,6 +117,8 @@ class PlayGame extends PageComponent {
           case 'render':
             if (this.gameStart === false) {
               this.gameStart = true;
+              this.gameEnd = false;
+              this.gameError = false;
               gameStartBtn.classList.add('d-none');
               gameStartBtn.disabled = false;
             }
@@ -104,21 +127,35 @@ class PlayGame extends PageComponent {
             this.gameManger.multiGameUpdateObjects(data);
             break;
           case 'result':
+            this.gameEnd = true;
             SocketManager.gameSocket.close(1000, 'Game End');
+            break;
+          case 'exit':
+            SocketManager.gameSocket.close(1000, 'Opponent Exit');
             break;
           default:
             break;
         }
       };
       SocketManager.gameSocket.onclose = () => {
-        redScore.innerText = `${this.redScore}`;
-        blueScore.innerText = `${this.blueScore}`;
-        const winner = this.redScore > this.blueScore ? 'red' : 'blue';
-        gameResult.innerText = this.side === winner ? 'You Win!' : 'You Lose!';
-        gameResult.classList.add(
-          this.side === 'red' ? 'text-danger' : 'text-primary'
-        );
-        gameResultModal.show();
+        if (this.gameEnd === false) {
+          ToastHandler.setToast(
+            this.gameError
+              ? 'Game Error. Please try again later.'
+              : 'Opponent Exit'
+          );
+          Router.navigateTo('/game');
+        } else {
+          redScore.innerText = `${this.redScore}`;
+          blueScore.innerText = `${this.blueScore}`;
+          const winner = this.redScore > this.blueScore ? 'red' : 'blue';
+          gameResult.innerText =
+            this.side === winner ? 'You Win!' : 'You Lose!';
+          gameResult.classList.add(
+            this.side === 'red' ? 'text-danger' : 'text-primary'
+          );
+          gameResultModal.show();
+        }
       };
       SocketManager.gameSocket.onerror = async () => {
         ToastHandler.setToast('Game Error! Please try again later');

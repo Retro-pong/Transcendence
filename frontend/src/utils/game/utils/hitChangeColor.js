@@ -1,4 +1,5 @@
 function hitChangeColor(hitStatus, scene) {
+  if (scene === null) return hitStatus;
   const redPaddleBox = scene.getObjectByName('redPaddleBox');
   const bluePaddleBox = scene.getObjectByName('bluePaddleBox');
   const topPlane = scene.getObjectByName('topPlane');

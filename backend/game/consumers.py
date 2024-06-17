@@ -25,6 +25,10 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
         if content["type"] == "access":
             try:
                 self.result = await self.get_game_result()
+                if self.result.game_mode != "normal":
+                    await self.send_json(
+                        {"type": "error", "message": "Invalid game mode."}
+                    )
             except Exception as e:
                 await self.send_json({"type": "error", "message": str(e)})
             await self.user_access(content)
@@ -103,6 +107,8 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
             NormalGameConsumer.games[self.game_id] = Game(self.result.game_speed)
         match = NormalGameConsumer.games[self.game_id]
 
+        # 유저 중복 검사 (user.username, player nickname 비교 -> channel layer discard (mutex))
+
         # 들어온 순서대로 red, blue 배정
         if match.p1 is None:
             match.p1 = Player(type="red", nick=self.user.username)
@@ -125,9 +131,10 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
     def save_game_result(self, match: Game) -> None:
         GameResult = apps.get_model("game", "GameResult")
         result = GameResult.objects.get(id=self.game_id)
-        result.winner = match.winner
-        result.player1 = match.p1.nick
-        result.player2 = match.p2.nick
+        User = apps.get_model("users", "User")
+        result.winner = User.objects.get(username=match.winner)
+        result.player1 = User.objects.get(username=match.p1.nick)
+        result.player2 = User.objects.get(username=match.p2.nick)
         result.player1_score = match.p1.score
         result.player2_score = match.p2.score
         result.save()
