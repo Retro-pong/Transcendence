@@ -102,10 +102,10 @@ class Router {
 
     const page = Router.getPageToRender();
     if (Router.getPathname() === '/game/play') {
-      window.addEventListener('beforeunload', Router.onRefresh);
       Router.hideElement(Router.background);
       Router.hideElement(Router.navBar);
       Router.showElement(Router.gameCanvas);
+      window.addEventListener('beforeunload', Router.onRefresh);
     } else if (Router.getPathname() === '/game/waiting') {
       Router.hideElement(Router.navBar);
       window.addEventListener('beforeunload', Router.onRefresh);
@@ -118,10 +118,14 @@ class Router {
       ) {
         Router.before.setDisposeAll();
       }
-      if (Router.before && Router.before.getTitle() === 'WaitingRoom') {
+      if (
+        Router.before &&
+        (Router.before.getTitle() === 'WaitingRoom' ||
+          Router.before.getTitle() === 'PlayGame')
+      ) {
         window.removeEventListener('popstate', Router.before.onPopstate);
+        window.removeEventListener('beforeunload', Router.onRefresh);
       }
-      window.removeEventListener('beforeunload', Router.onRefresh);
       Router.showElement(Router.background);
       Router.hideElement(Router.gameCanvas);
       if (Router.getPathname() !== '/login') {
