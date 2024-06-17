@@ -169,7 +169,7 @@ class Game:
             elif winner == BLUE:
                 self.winner = self.p2.nick
 
-    def start_data(self, color: str, game) -> dict:
+    def start_data(self, color: str, game: "GameResult") -> dict:
         return {
             "type": "start",
             "color": color,
