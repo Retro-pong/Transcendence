@@ -150,6 +150,7 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
         game_model = apps.get_model("game", "GameResult")
         room = room_model.objects.get(id=self.room_id)
         game = game_model.objects.create(
+            game_mode=room.game_mode,
             game_map=room.game_map,
             game_speed=room.game_speed,
             ball_color=room.ball_color,

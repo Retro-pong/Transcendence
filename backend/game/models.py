@@ -15,6 +15,7 @@ class GameResult(models.Model):
     player1_score = models.IntegerField(default=0)
     player2_score = models.IntegerField(default=0)
     start_time = models.DateTimeField(null=False, blank=False)
+    game_mode = models.CharField(max_length=50, default="None")  # normal, tournament
     game_map = models.CharField(max_length=50, default="None")
     game_speed = models.IntegerField(default=0)
     ball_color = models.CharField(max_length=50, default="#000000")
