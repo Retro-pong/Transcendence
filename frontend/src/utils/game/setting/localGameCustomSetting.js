@@ -15,6 +15,7 @@ const localGameCustomSetting = (gameManager) => {
     } else {
       openSettingButton.innerText = 'Open Setting - Pause Game';
       buttonContainer.classList.add('d-none');
+      document.getElementById('gameCanvas').focus();
       gameManager.resetGameScore();
       gameManager.localStartRendering();
     }
