@@ -41,7 +41,7 @@ function localGame(scene, objects, localGameInfo, gameSpeed, renderRequestId) {
         objects.ballPlane.position.z
       );
       // 패들에 부딪히면 방향 바꾸기
-      if (objects.ball.position.x > 19.7 && objects.ball.position.x < 20.3) {
+      if (objects.ball.position.x > 19.5 && objects.ball.position.x < 20.5) {
         if (!checkPaddleHit('red', scene)) {
           document.getElementById('player2Score').innerText = (
             parseInt(objects.bluePlayerScore.innerText, 10) + 1
@@ -52,7 +52,7 @@ function localGame(scene, objects, localGameInfo, gameSpeed, renderRequestId) {
           newLocalGameInfo.hitStatus.redPaddleHit = 1;
         }
       }
-      if (objects.ball.position.x < -19.7 && objects.ball.position.x > -20.3) {
+      if (objects.ball.position.x < -19.5 && objects.ball.position.x > -20.5) {
         if (!checkPaddleHit('blue', scene)) {
           document.getElementById('player1Score').innerText = (
             parseInt(objects.redPlayerScore.innerText, 10) + 1
@@ -77,19 +77,19 @@ function localGame(scene, objects, localGameInfo, gameSpeed, renderRequestId) {
       }
 
       // 벽에 부딪히면 방향 바꾸기
-      if (objects.ball.position.z < -7 && objects.ball.position.z > -8) {
+      if (objects.ball.position.z < -6.8 && objects.ball.position.z > -8.2) {
         newLocalGameInfo.c *= -1;
         newLocalGameInfo.hitStatus.leftWallHit = 1;
       }
-      if (objects.ball.position.z > 7 && objects.ball.position.z < 8) {
+      if (objects.ball.position.z > 6.8 && objects.ball.position.z < 8.2) {
         newLocalGameInfo.c *= -1;
         newLocalGameInfo.hitStatus.rightWallHit = 1;
       }
-      if (objects.ball.position.y > 4.5 && objects.ball.position.y < 5.5) {
+      if (objects.ball.position.y > 4.2 && objects.ball.position.y < 5.7) {
         newLocalGameInfo.b *= -1;
         newLocalGameInfo.hitStatus.topWallHit = 1;
       }
-      if (objects.ball.position.y < -4.5 && objects.ball.position.y > -5.5) {
+      if (objects.ball.position.y < -4.2 && objects.ball.position.y > -5.7) {
         newLocalGameInfo.b *= -1;
         newLocalGameInfo.hitStatus.bottomWallHit = 1;
       }
