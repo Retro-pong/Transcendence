@@ -6,26 +6,9 @@ function createGameObject(scene, ballColor) {
 
   // ball
   const ballGeometry = new THREE.SphereGeometry(1, 32, 16);
-  const colors = [];
-  const color1 = new THREE.Color(ballColor);
-  const color2 = new THREE.Color(0xffffff);
-
-  for (let i = 0; i < ballGeometry.attributes.position.count; i += 1) {
-    const y = ballGeometry.attributes.position.getY(i);
-    const alpha = (y + 1) / 6; // Normalize y value to range [0, 1]
-
-    const color = new THREE.Color();
-    color.lerpColors(color1, color2, alpha);
-    colors.push(color.r, color.g, color.b);
-  }
-
-  ballGeometry.setAttribute(
-    'color',
-    new THREE.Float32BufferAttribute(colors, 3)
-  );
-
-  const ballMaterial = new THREE.MeshStandardMaterial({
-    vertexColors: true,
+  const ballMaterial = new THREE.MeshPhongMaterial({
+    color: ballColor,
+    shininess: 100,
   });
 
   const ball = new THREE.Mesh(ballGeometry, ballMaterial);
