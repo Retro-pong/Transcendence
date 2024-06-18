@@ -15,9 +15,10 @@ class GameConsumerTest(TransactionTestCase):
         return User.objects.create_user(username, email, password)
 
     @database_sync_to_async
-    def create_test_result(self, map, speed, color, time):
+    def create_test_result(self, map, mode, speed, color, time):
         return GameResult.objects.create(
             game_map=map,
+            game_mode=mode,
             game_speed=speed,
             ball_color=color,
             start_time=time,
@@ -29,7 +30,9 @@ class GameConsumerTest(TransactionTestCase):
 
     async def test_game_connect(self):
         # user1, user2, result setup
-        result = await self.create_test_result("map", 1, "#000000", timezone.now())
+        result = await self.create_test_result(
+            "map", "normal", 1, "#000000", timezone.now()
+        )
         user1 = await self.create_test_user(
             username="testuser1", email="test1@test.com", password="1234"
         )
@@ -71,8 +74,8 @@ class GameConsumerTest(TransactionTestCase):
         await communicator2.send_json_to({"type": "ready"})
         while True:
             response = await communicator2.receive_json_from()
-            # if response["type"] == "render":
-            #     print(response)
+            if response["type"] == "render":
+                self.assertEqual(response["redNick"], "testuser1")
             if response["type"] == "result":
-                print(response)
+                self.assertEqual(response["redNick"], "testuser1")
                 break

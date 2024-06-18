@@ -237,6 +237,125 @@ class TournamentRoomConsumerTest(TransactionTestCase):
     def create_room(self, room_name, game_mode, game_map, game_speed, game_ball):
         return Room.create_room(room_name, game_mode, game_map, game_speed, game_ball)
 
+    async def test_tournament_room(self):
+        room = await self.create_room("1234567890", "tournament", "map1", 2, "#000000")
+        user1 = await self.create_test_user(
+            username="testuser1", email="test1@test.com", password="1234"
+        )
+        token = TokenObtainPairSerializer.get_token(user1)
+        access_token = str(token.access_token)
+        communicator1 = WebsocketCommunicator(
+            URLRouter(websocket_urlpatterns),
+            f"/ws/tournament_room/{room.id}/",
+        )
+        connected, subprotocol = await communicator1.connect()
+        self.assertTrue(connected)
+        await communicator1.send_json_to({"type": "access", "token": access_token})
+        response = await communicator1.receive_json_from()
+        self.assertEqual(response, {"access": "Access successful."})
+        response = await communicator1.receive_json_from()
+        self.assertEqual(response["type"], "users")
+
+        user2 = await self.create_test_user(
+            username="testuser2", email="test2@test.com", password="1234"
+        )
+        token = TokenObtainPairSerializer.get_token(user2)
+        access_token = str(token.access_token)
+        communicator2 = WebsocketCommunicator(
+            URLRouter(websocket_urlpatterns),
+            f"/ws/tournament_room/{room.id}/",
+        )
+        connected, subprotocol = await communicator2.connect()
+        self.assertTrue(connected)
+        await communicator2.send_json_to({"type": "access", "token": access_token})
+        response = await communicator2.receive_json_from()
+        self.assertEqual(response, {"access": "Access successful."})
+        response = await communicator1.receive_json_from()
+        self.assertEqual(response["type"], "users")
+        response = await communicator2.receive_json_from()
+        self.assertEqual(response["type"], "users")
+
+        user3 = await self.create_test_user(
+            username="testuser3", email="test3@test.com", password="<PASSWORD>"
+        )
+        token = TokenObtainPairSerializer.get_token(user3)
+        access_token = str(token.access_token)
+        communicator3 = WebsocketCommunicator(
+            URLRouter(websocket_urlpatterns),
+            f"/ws/tournament_room/{room.id}/",
+        )
+        connected, subprotocol = await communicator3.connect()
+        self.assertTrue(connected)
+        await communicator3.send_json_to({"type": "access", "token": access_token})
+        response = await communicator3.receive_json_from()
+        self.assertEqual(response, {"access": "Access successful."})
+        response = await communicator1.receive_json_from()
+        self.assertEqual(response["type"], "users")
+        response = await communicator2.receive_json_from()
+        self.assertEqual(response["type"], "users")
+        response = await communicator3.receive_json_from()
+        self.assertEqual(response["type"], "users")
+
+        user4 = await self.create_test_user(
+            username="testuser4", email="test4@test.com", password="<PASSWORD>"
+        )
+        token = TokenObtainPairSerializer.get_token(user4)
+        access_token = str(token.access_token)
+        communicator4 = WebsocketCommunicator(
+            URLRouter(websocket_urlpatterns),
+            f"/ws/tournament_room/{room.id}/",
+        )
+        connected, subprotocol = await communicator4.connect()
+        self.assertTrue(connected)
+        await communicator4.send_json_to({"type": "access", "token": access_token})
+        response = await communicator4.receive_json_from()
+        self.assertEqual(response, {"access": "Access successful."})
+        response = await communicator1.receive_json_from()
+        self.assertEqual(response["type"], "users")
+        response = await communicator2.receive_json_from()
+        self.assertEqual(response["type"], "users")
+        response = await communicator3.receive_json_from()
+        self.assertEqual(response["type"], "users")
+        response = await communicator4.receive_json_from()
+        self.assertEqual(response["type"], "users")
+
+        user5 = await self.create_test_user(
+            username="testuser5", email="test5@test.com", password="<PASSWORD>"
+        )
+        token = TokenObtainPairSerializer.get_token(user5)
+        access_token = str(token.access_token)
+        communicator5 = WebsocketCommunicator(
+            URLRouter(websocket_urlpatterns),
+            f"/ws/tournament_room/{room.id}/",
+        )
+        connected, subprotocol = await communicator5.connect()
+        self.assertTrue(connected)
+        await communicator5.send_json_to({"type": "access", "token": access_token})
+        response = await communicator5.receive_json_from()
+        self.assertEqual(response, {"access": "Access successful."})
+        response = await communicator5.receive_json_from()
+        self.assertEqual(response["type"], "error")
+
+        response = await communicator1.receive_json_from()
+        self.assertEqual(response["type"], "start_game")
+        self.assertEqual(response["room_id_semi"], 2)
+        response = await communicator2.receive_json_from()
+        self.assertEqual(response["type"], "start_game")
+        self.assertEqual(response["room_id_semi"], 3)
+        response = await communicator3.receive_json_from()
+        self.assertEqual(response["type"], "start_game")
+        self.assertEqual(response["room_id_semi"], 2)
+        response = await communicator4.receive_json_from()
+        self.assertEqual(response["type"], "start_game")
+        self.assertEqual(response["room_id_semi"], 3)
+
+        # Clean up
+        await communicator1.disconnect()
+        await communicator2.disconnect()
+        await communicator3.disconnect()
+        await communicator4.disconnect()
+        await communicator5.disconnect()
+
     async def test_room_connect(self):
         room = await self.create_room("123", "tournament", "map1", 2, "#000000")
         user = await self.create_test_user(
@@ -257,98 +376,6 @@ class TournamentRoomConsumerTest(TransactionTestCase):
         self.assertEqual(response["type"], "users")
         # Clean up
         await communicator.disconnect()
-
-    async def test_room_connect_full(self):
-        room = await self.create_room("1234", "tournament", "map1", 2, "#000000")
-        user1 = await self.create_test_user(
-            username="testuser1", email="test1@example.com", password="1234"
-        )
-        user2 = await self.create_test_user(
-            username="testuser2", email="test2@example.com", password="1234"
-        )
-        user3 = await self.create_test_user(
-            username="testuser3", email="test3@example.com", password="1234"
-        )
-        user4 = await self.create_test_user(
-            username="testuser4", email="test4@example.com", password="1234"
-        )
-        user5 = await self.create_test_user(
-            username="testuser5", email="test5@example.com", password="1234"
-        )
-        token1 = TokenObtainPairSerializer.get_token(user1)
-        token2 = TokenObtainPairSerializer.get_token(user2)
-        token3 = TokenObtainPairSerializer.get_token(user3)
-        token4 = TokenObtainPairSerializer.get_token(user4)
-        token5 = TokenObtainPairSerializer.get_token(user5)
-        access_token1 = str(token1.access_token)
-        access_token2 = str(token2.access_token)
-        access_token3 = str(token3.access_token)
-        access_token4 = str(token4.access_token)
-        access_token5 = str(token5.access_token)
-
-        # Connect the first client
-        communicator1 = WebsocketCommunicator(
-            URLRouter(websocket_urlpatterns),
-            f"/ws/tournament_room/{room.id}/",
-        )
-        connected1, subprotocol1 = await communicator1.connect()
-        self.assertTrue(connected1)
-        await communicator1.send_json_to({"type": "access", "token": access_token1})
-        response = await communicator1.receive_json_from()
-        self.assertEqual(response, {"access": "Access successful."})
-
-        # Connect the second client
-        communicator2 = WebsocketCommunicator(
-            URLRouter(websocket_urlpatterns),
-            f"/ws/tournament_room/{room.id}/",
-        )
-        connected2, subprotocol2 = await communicator2.connect()
-        self.assertTrue(connected2)
-        await communicator2.send_json_to({"type": "access", "token": access_token2})
-        response = await communicator2.receive_json_from()
-        self.assertEqual(response, {"access": "Access successful."})
-
-        # Connect the third client
-        communicator3 = WebsocketCommunicator(
-            URLRouter(websocket_urlpatterns),
-            f"/ws/tournament_room/{room.id}/",
-        )
-        connected3, subprotocol3 = await communicator3.connect()
-        self.assertTrue(connected3)
-        await communicator3.send_json_to({"type": "access", "token": access_token3})
-        response = await communicator3.receive_json_from()
-        self.assertEqual(response, {"access": "Access successful."})
-
-        # Connect the fourth client
-        communicator4 = WebsocketCommunicator(
-            URLRouter(websocket_urlpatterns),
-            f"/ws/tournament_room/{room.id}/",
-        )
-        connected4, subprotocol4 = await communicator4.connect()
-        self.assertTrue(connected4)
-        await communicator4.send_json_to({"type": "access", "token": access_token4})
-        response = await communicator4.receive_json_from()
-        self.assertEqual(response, {"access": "Access successful."})
-
-        # Try to connect the fifth client, which should fail
-        communicator5 = WebsocketCommunicator(
-            URLRouter(websocket_urlpatterns),
-            f"/ws/tournament_room/{room.id}/",
-        )
-        connected5, subprotocol5 = await communicator5.connect()
-        self.assertTrue(connected5)
-        await communicator5.send_json_to({"type": "access", "token": access_token5})
-        response = await communicator5.receive_json_from()
-        self.assertEqual(response, {"access": "Access successful."})
-        response = await communicator5.receive_json_from()
-        self.assertEqual(response, {"type": "error", "message": "Room is full."})
-
-        # Clean up
-        await communicator1.disconnect()
-        await communicator2.disconnect()
-        await communicator3.disconnect()
-        await communicator4.disconnect()
-        await communicator5.disconnect()
 
     async def test_user_duplicate(self):
         room = await self.create_room("123456", "tournament", "map1", 2, "#000000")
