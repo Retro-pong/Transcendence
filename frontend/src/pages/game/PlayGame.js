@@ -25,6 +25,8 @@ class PlayGame extends PageComponent {
     this.gameEnd = false;
     this.gameError = false;
     this.gameErrorMsg = 'Game Error. Please try again later.';
+    this.redNick = '';
+    this.blueNick = '';
   }
 
   getGameManager() {
@@ -45,9 +47,13 @@ class PlayGame extends PageComponent {
       content: `
         <div class="d-flex flex-column justify-content-center align-items-center h-50">
           <div id="gameResult" class="fs-15"></div>
-          <div class="w-75 d-flex justify-content-around align-items-center fs-12">
-            <div id="redScore" class="text-danger"></div>
-            <div id="blueScore" class="text-primary"></div>
+          <div class="w-100 d-flex align-items-center">
+            <div id="modalRedNick" class="text-danger w-75 d-flex justify-content-center fs-9"></div>
+            <div id="redScore" class="text-danger w-25 d-flex fs-12"></div>
+          </div>          
+          <div class="w-100 d-flex align-items-center">
+            <div id="modalBlueNick" class="text-primary w-75 d-flex justify-content-center fs-9"></div>
+            <div id="blueScore" class="text-primary w-25 d-flex fs-12"></div>
           </div>
         </div>
       `,
@@ -60,8 +66,12 @@ class PlayGame extends PageComponent {
       Click Start !
       </button>
       <div id="scoreContainer"
-           class="position-absolute top-0 start-50 translate-middle-x w-40 px-3 text-white d-flex flex-column align-items-center border border-5 rounded">
-        <span class="fs-10">score</span>
+           class="position-absolute top-0 start-50 translate-middle-x px-3 w-40 text-white d-flex flex-column align-items-center border border-5 rounded">
+        <span class="fs-6">score</span>
+        <div class="d-flex w-100 fs-6">
+          <span id="player1Nick" class="w-50 d-flex justify-content-center text-danger">RED</span>
+          <span id="player2Nick" class="w-50 d-flex justify-content-center text-primary">BLUE</span>
+        </div>
         <div class="d-flex w-100 fs-8">
           <span id="player1Score" class="w-50 d-flex justify-content-center text-danger" data-score="0">0</span>
           <span id="player2Score" class="w-50 d-flex justify-content-center text-primary" data-score="0">0</span>
@@ -77,6 +87,8 @@ class PlayGame extends PageComponent {
     const gameResultModalElement = document.querySelector('#gameResultModal');
     const modalCloseBtn = document.querySelector('#gameResultBtn');
     const gameResult = document.querySelector('#gameResult');
+    const modalRedNick = document.querySelector('#modalRedNick');
+    const modalBlueNick = document.querySelector('#modalBlueNick');
     const redScore = document.querySelector('#redScore');
     const blueScore = document.querySelector('#blueScore');
     const gameStartBtn = document.querySelector('#gameStartBtn');
@@ -139,6 +151,12 @@ class PlayGame extends PageComponent {
               gameStartBtn.classList.add('d-none');
               gameStartBtn.disabled = false;
             }
+            if (!this.redNick || !this.blueNick) {
+              this.redNick = data.redNick;
+              this.blueNick = data.blueNick;
+              document.getElementById('player1Nick').innerText = this.redNick;
+              document.getElementById('player2Nick').innerText = this.blueNick;
+            }
             this.redScore = data.redScore;
             this.blueScore = data.blueScore;
             this.gameManger.multiGameUpdateObjects(data);
@@ -168,6 +186,8 @@ class PlayGame extends PageComponent {
           );
           Router.navigateTo('/game');
         } else {
+          modalRedNick.innerText = this.redNick;
+          modalBlueNick.innerText = this.blueNick;
           redScore.innerText = `${this.redScore}`;
           blueScore.innerText = `${this.blueScore}`;
           const winner = this.redScore > this.blueScore ? 'red' : 'blue';
