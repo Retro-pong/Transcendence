@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   Array.prototype.forEach.call(navigations, (nav) => {
     nav.addEventListener('click', async (e) => {
       e.preventDefault();
-      await Router.navigateTo(nav.href);
+      await Router.navigateTo(nav.pathname);
     });
   });
 

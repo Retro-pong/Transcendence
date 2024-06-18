@@ -33,8 +33,7 @@ class Router {
   static navBar = document.getElementById('navBar');
 
   static async navigateTo(url) {
-    SocketManager.closeSockets();
-    if (url === window.location.href) {
+    if (url === Router.getPageHistory()) {
       Router.replaceState(url);
     } else {
       Router.pushState(url);
