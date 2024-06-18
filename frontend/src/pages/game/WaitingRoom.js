@@ -126,8 +126,7 @@ class WaitingRoom extends PageComponent {
           break;
         case 'full':
           ToastHandler.setToast('Room is full');
-          SocketManager.roomSocket.close();
-          Router.navigateTo('/game/join');
+          SocketManager.roomSocket.close(1011, 'Room is full');
           break;
         default:
           break;
@@ -137,14 +136,13 @@ class WaitingRoom extends PageComponent {
     SocketManager.roomSocket.onclose = (e) => {
       console.log(`Room Socket Disconnected (${e.code})`);
       if (e.code !== 1000) {
-        Router.navigateTo('/game/join');
+        Router.navigateTo('/game');
       }
       SocketManager.roomSocket = null;
     };
 
     SocketManager.roomSocket.onerror = (error) => {
       ToastHandler.setToast('Cannot join the room');
-      Router.navigateTo('/game/join');
       console.error('Room Socket Error:', error);
     };
   }
