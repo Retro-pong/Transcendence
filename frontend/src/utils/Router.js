@@ -54,11 +54,11 @@ class Router {
     history.replaceState(null, '', url);
   }
 
-  static getCurrentPage() {
-    return sessionStorage.getItem('curPage');
+  static getPageHistory() {
+    return sessionStorage.getItem('curPage') || '/';
   }
 
-  static setCurrentPage(path) {
+  static setPageHistory(path) {
     sessionStorage.setItem('curPage', path);
   }
 
@@ -103,10 +103,10 @@ class Router {
 
     if (!(currPathname in Router.routes)) {
       ToastHandler.setToast('Page not found! [404]');
-      Router.replaceState(Router.getCurrentPage() || '/');
+      Router.replaceState(Router.getPageHistory());
     } else if (currPathname === '/login' && isLoggedIn) {
       ToastHandler.setToast('You are already logged in!');
-      const beforePage = Router.getCurrentPage() || '/';
+      const beforePage = Router.getPageHistory();
       if (beforePage === '/login') {
         Router.replaceState('/');
       } else {
@@ -115,7 +115,7 @@ class Router {
     } else if (currPathname !== '/login' && !isLoggedIn) {
       Router.replaceState('/login');
     } else {
-      Router.setCurrentPage(currPathname);
+      Router.setPageHistory(currPathname);
     }
     // TODO: 게임방 페이지에서 뒤로가기 제한
     // else if (currPathname === '/game') {
