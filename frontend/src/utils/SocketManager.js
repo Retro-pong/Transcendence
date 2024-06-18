@@ -9,36 +9,44 @@ class SocketManager {
 
   static gameSocket = null;
 
+  static getAccessMessage() {
+    const message = {
+      type: 'access',
+      token: TokenManager.getAccessToken(),
+    };
+    return JSON.stringify(message);
+  }
+
   static createSocket(url) {
     return new WebSocket(`${this.#BASE_URL}${url}`);
   }
 
   static closeRoomSocket() {
-    if (SocketManager.roomSocket) {
-      SocketManager.roomSocket.close();
-      SocketManager.roomSocket = null;
+    if (this.roomSocket) {
+      this.roomSocket.close();
+      this.roomSocket = null;
     }
   }
 
   static closeGameSocket() {
-    if (SocketManager.gameSocket) {
-      SocketManager.gameSocket.close();
-      SocketManager.gameSocket = null;
+    if (this.gameSocket) {
+      this.gameSocket.close();
+      this.gameSocket = null;
     }
   }
 
   static closeSockets() {
-    SocketManager.closeRoomSocket();
-    SocketManager.closeGameSocket();
+    this.closeRoomSocket();
+    this.closeGameSocket();
   }
 
   static setOffline() {
-    SocketManager.closeSockets();
-    if (!SocketManager.onlineSocket) {
+    this.closeSockets();
+    if (!this.onlineSocket) {
       return;
     }
-    SocketManager.onlineSocket.close();
-    SocketManager.onlineSocket = null;
+    this.onlineSocket.close();
+    this.onlineSocket = null;
   }
 
   static setOnline() {
@@ -49,11 +57,7 @@ class SocketManager {
       this.onlineSocket = this.createSocket('/login/');
     }
     this.onlineSocket.onopen = () => {
-      const message = {
-        type: 'access',
-        token: TokenManager.getAccessToken(),
-      };
-      this.onlineSocket.send(JSON.stringify(message));
+      this.onlineSocket.send(this.getAccessMessage());
       console.log('Online Socket Connected');
     };
     this.onlineSocket.onmessage = (e) => {
