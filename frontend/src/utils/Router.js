@@ -94,6 +94,7 @@ class Router {
 
   static onRefresh(event) {
     event.preventDefault();
+    ToastHandler.setToast('Refreshing is not allowed here!');
   }
 
   static async render() {
@@ -113,6 +114,8 @@ class Router {
       }
     } else if (currPathname !== '/login' && !isLoggedIn) {
       Router.replaceState('/login');
+    } else if (currPathname === '/game/waiting') {
+      SocketManager.setRoomSocket();
     } else {
       Router.setPageHistory(currPathname);
     }

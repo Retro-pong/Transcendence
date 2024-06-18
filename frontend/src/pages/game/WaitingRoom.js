@@ -5,7 +5,6 @@ import ModalComponent from '@component/modal/ModalComponent';
 import GameManual from '@component/contents/GameManual';
 import SocketManager from '@/utils/SocketManager';
 import Router from '@/utils/Router';
-import TokenManager from '@/utils/TokenManager';
 import ToastHandler from '@/utils/ToastHandler';
 
 class WaitingRoom extends PageComponent {
@@ -14,16 +13,11 @@ class WaitingRoom extends PageComponent {
     this.setTitle('Waiting Room');
     const params = new URLSearchParams(document.location.search);
     this.roomTitle = '';
-    this.roomId = params.get('id') || '';
-    this.roomMode = params.get('mode') || '';
-    SocketManager.roomSocket = SocketManager.createSocket(
-      `/${this.roomMode}_room/${this.roomId}/`
-    );
+    this.roomMode = params.get('mode');
     this.players =
       this.roomMode === 'normal'
         ? [{ id: 1 }, { id: 2 }]
         : [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }];
-    window.addEventListener('popstate', this.onPopstate, { once: true });
   }
 
   async render() {
@@ -93,25 +87,10 @@ class WaitingRoom extends PageComponent {
     this.players = players;
   }
 
-  onPopstate() {
-    if (!SocketManager.roomSocket) return;
-    ToastHandler.setToast('You left the room');
-    SocketManager.roomSocket.close();
-  }
-
   async afterRender() {
-    SocketManager.roomSocket.onopen = () => {
-      const message = {
-        type: 'access',
-        token: TokenManager.getAccessToken(),
-      };
-      SocketManager.roomSocket.send(JSON.stringify(message));
-      console.log('Room Socket Connected');
-    };
-
     SocketManager.roomSocket.onmessage = (e) => {
       const data = JSON.parse(e.data);
-      this.roomTitle = data.room_name || '';
+      this.roomTitle = data.room_name;
       this.addRoomTitle();
       switch (data.type) {
         case 'users':
@@ -124,26 +103,22 @@ class WaitingRoom extends PageComponent {
             `/game/play?id=${data.room_id}&mode=${this.roomMode}`
           );
           break;
-        case 'full':
-          ToastHandler.setToast('Room is full');
-          SocketManager.roomSocket.close(1011, 'Room is full');
+        case 'error':
+          console.error('Room Socket Error:', data.message);
+          ToastHandler.setToast(data.message);
+          SocketManager.roomSocket.close();
+          history.back();
           break;
         default:
+          // TODO: data 수정되면 조건문 삭제
+          if (data.error) {
+            console.error('Room Socket Error:', data.error);
+            ToastHandler.setToast(data.error);
+            SocketManager.roomSocket.close();
+            history.back();
+          }
           break;
       }
-    };
-
-    SocketManager.roomSocket.onclose = (e) => {
-      console.log(`Room Socket Disconnected (${e.code})`);
-      if (e.code !== 1000) {
-        Router.navigateTo('/game');
-      }
-      SocketManager.roomSocket = null;
-    };
-
-    SocketManager.roomSocket.onerror = (error) => {
-      ToastHandler.setToast('Cannot join the room');
-      console.error('Room Socket Error:', error);
     };
   }
 }
