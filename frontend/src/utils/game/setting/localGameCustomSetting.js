@@ -43,8 +43,10 @@ const localGameCustomSetting = (gameManager) => {
   speedButton.className = 'btn btn-outline-light fs-8 w-100';
 
   mapButton.innerText = 'Mountain';
-  ballColorButton.innerText = '0x0000ff';
-  speedButton.innerText = '3';
+  ballColorButton.innerText = 'BALL COLOR';
+  speedButton.innerText = 'speed X3';
+
+  ballColorButton.style.color = `#0000ff`;
 
   mapButton.addEventListener('click', () => {
     if (mapButton.innerText === 'Mountain') {
@@ -59,14 +61,16 @@ const localGameCustomSetting = (gameManager) => {
 
   ballColorButton.addEventListener('click', () => {
     const randomColor = Math.floor(Math.random() * 16777215).toString(16);
-    ballColorButton.innerText = `0x${randomColor.padStart(6, '0')}`;
-    gameManager.setLocalGameBallColor(parseInt(ballColorButton.innerText, 16));
+    const hexColor = parseInt(`0x${randomColor.padStart(6, '0')}`, 16);
+    ballColorButton.innerText = `BALL COLOR`;
+    ballColorButton.style.color = `#${randomColor}`;
+    gameManager.setLocalGameBallColor(hexColor);
   });
 
   speedButton.addEventListener('click', () => {
-    const curSpeed = parseInt(speedButton.innerText, 10);
-    speedButton.innerText = curSpeed + 1 > 5 ? '1' : (curSpeed + 1).toString();
-    gameManager.setLocalGameSpeed(parseInt(speedButton.innerText, 10));
+    const curSpeed = parseInt(speedButton.innerText.at(-1), 10);
+    speedButton.innerText = `speed x${(curSpeed % 5) + 1}`;
+    gameManager.setLocalGameSpeed(parseInt(speedButton.innerText.at(-1), 10));
     gameManager.resetLocalGameInfo();
   });
 
