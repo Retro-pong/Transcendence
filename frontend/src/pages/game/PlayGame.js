@@ -101,7 +101,8 @@ class PlayGame extends PageComponent {
     // local game
     if (!this.gameMode) {
       this.gameManger.localGameSetting();
-      this.gameManger.localGameStart();
+      this.gameManger.localGameRender();
+      this.gameManger.localStartRendering();
     }
     // multi game
     else {
