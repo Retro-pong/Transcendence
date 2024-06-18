@@ -71,7 +71,7 @@ class CreateRoom extends PageComponent {
         Router.navigateTo(`/game/waiting?id=${roomId}&mode=${gameMode}`);
       })
       .catch((err) => {
-        if (err.error === 'UNIQUE constraint failed: room.room_name') {
+        if (err.message === 'UNIQUE constraint failed: room.room_name') {
           ToastHandler.setToast('Room name already exists');
           this.titleState = false;
           this.progressBar();
