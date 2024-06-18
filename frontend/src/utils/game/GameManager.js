@@ -9,6 +9,7 @@ import localGame from '@/utils/game/localGame';
 import rendering from '@/utils/game/render/rendering';
 import multiEventHandler from '@/utils/game/eventHandler/multiEventHandler';
 import hitChangeColor from '@/utils/game/utils/hitChangeColor';
+import localGameCustomSetting from '@/utils/game/setting/localGameCustomSetting';
 
 class GameManager {
   constructor() {
@@ -49,6 +50,12 @@ class GameManager {
     this.multiGameInfo = null;
     this.localEventHandler = null;
     this.multiEventHandler = null;
+
+    // 로컬 일시정지 위한 변수
+    this.localGameRender = this.localGameRender.bind(this);
+    this.isRendering = false;
+
+    this.localGameSpped = 3;
   }
 
   disposeAll() {
@@ -85,22 +92,16 @@ class GameManager {
     this.renderRequestId = null;
   }
 
-  localGameSetting() {
-    this.loader.load(this.mapList.Mountain, (texture) => {
-      this.scene.background = texture;
-      this.currentBackgroundTexture = texture;
-    });
-    this.camera = cameraSetting('local', '');
-    this.localEventHandler = localEventHandler(
-      this.canvas,
-      this.scene,
-      this.camera
-    );
+  setLocalGameSpeed(speed) {
+    this.localGameSpped = speed;
+  }
+
+  resetLocalGameInfo() {
     this.localGameInfo = {
       a: 0,
       b: 0,
       c: 0,
-      v: 2.2,
+      v: 1.2 + 0.3 * this.localGameSpped,
       start: 'blue',
       hitStatus: {
         redPaddleHit: 10,
@@ -111,6 +112,35 @@ class GameManager {
         leftWallHit: 10,
       },
     };
+  }
+
+  setLocalGameBallColor(color) {
+    this.objects.ball.material.color.set(color);
+  }
+
+  setLocalGameMap(map) {
+    this.loader.load(this.mapList[map], (texture) => {
+      this.scene.background = texture;
+      this.currentBackgroundTexture = texture;
+    });
+  }
+
+  resetGameScore() {
+    this.objects.redPlayerScore.innerText = '0';
+    this.objects.bluePlayerScore.innerText = '0';
+  }
+
+  localGameSetting() {
+    this.setLocalGameMap('Mountain');
+    this.camera = cameraSetting('local', '');
+    this.localEventHandler = localEventHandler(
+      this.canvas,
+      this.scene,
+      this.camera
+    );
+    this.resetGameScore();
+    this.resetLocalGameInfo();
+    localGameCustomSetting(this);
   }
 
   multiGameSetting(data) {
@@ -138,28 +168,43 @@ class GameManager {
     };
   }
 
-  localGameStart() {
-    const render = () => {
-      if (resizeRendererToDisplaySize(this.renderer)) {
-        const canvas = this.renderer.domElement;
-        let aspect;
-        if (this.camera.red && this.camera.blue) {
-          aspect = canvas.clientWidth / 2 / canvas.clientHeight;
-          this.camera.blue.aspect = aspect;
-          this.camera.blue.updateProjectionMatrix();
-          this.camera.red.aspect = aspect;
-          this.camera.red.updateProjectionMatrix();
-        }
+  localGameRender() {
+    if (resizeRendererToDisplaySize(this.renderer)) {
+      const canvas = this.renderer.domElement;
+      let aspect;
+      if (this.camera.red && this.camera.blue) {
+        aspect = canvas.clientWidth / 2 / canvas.clientHeight;
+        this.camera.blue.aspect = aspect;
+        this.camera.blue.updateProjectionMatrix();
+        this.camera.red.aspect = aspect;
+        this.camera.red.updateProjectionMatrix();
       }
-      this.localGameInfo = localGame(
-        this.scene,
-        this.objects,
-        this.localGameInfo
-      );
-      rendering(this.renderer, this.scene, this.camera, 'local');
-      this.renderRequestId = requestAnimationFrame(render);
-    };
-    this.renderRequestId = requestAnimationFrame(render);
+    }
+    this.localGameInfo = localGame(
+      this.scene,
+      this.objects,
+      this.localGameInfo,
+      this.localGameSpped,
+      this.renderRequestId
+    );
+    rendering(this.renderer, this.scene, this.camera, 'local');
+    if (this.isRendering) {
+      this.renderRequestId = requestAnimationFrame(this.localGameRender);
+    }
+  }
+
+  localStartRendering() {
+    if (!this.isRendering) {
+      this.isRendering = true;
+      this.localGameRender();
+    }
+  }
+
+  localStopRendering() {
+    if (this.isRendering) {
+      this.isRendering = false;
+      cancelAnimationFrame(this.renderRequestId);
+    }
   }
 
   multiGameStart() {
