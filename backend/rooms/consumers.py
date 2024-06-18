@@ -27,8 +27,12 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
                 await self.send_json({"access": "User not authenticated."})
                 return
             await self.send_json({"access": "Access successful."})
-
-            self.room = await self.get_room()
+            # 접속하는 동안 room이 delete되는 경우 에러
+            try:
+                self.room = await self.get_room()
+            except:
+                await self.send_json({"error": "Room not found."})
+                return
             async with NormalRoomConsumer.rooms_lock:
                 if self.room_id in NormalRoomConsumer.rooms:
                     # 이미 해당 대기실에 들어가 있는 경우 에러
@@ -198,8 +202,12 @@ class TournamentRoomConsumer(NormalRoomConsumer):
                 await self.send_json({"access": "User not authenticated."})
                 return
             await self.send_json({"access": "Access successful."})
-
-            self.room = await self.get_room()
+            # 접속하는 동안 room이 delete되는 경우 에러
+            try:
+                self.room = await self.get_room()
+            except:
+                await self.send_json({"type": "error", "message": "Room not found."})
+                return
             async with TournamentRoomConsumer.rooms_lock:
                 if self.room_id in TournamentRoomConsumer.rooms:
                     # 이미 해당 대기실에 들어가 있는 경우 에러
@@ -221,6 +229,7 @@ class TournamentRoomConsumer(NormalRoomConsumer):
                 # 대기실 입장
                 else:
                     TournamentRoomConsumer.rooms[self.room_id] = []
+                    self.room_number = 0
                 TournamentRoomConsumer.rooms[self.room_id].append(self.user)
                 self.channel_layer = get_channel_layer()
                 await self.channel_layer.group_add(self.room_id, self.channel_name)
@@ -330,6 +339,7 @@ class TournamentRoomConsumer(NormalRoomConsumer):
         for i in range(3):
             game = game_model.objects.create(
                 game_map=room.game_map,
+                game_mode=room.game_mode,
                 game_speed=room.game_speed,
                 ball_color=room.ball_color,
                 start_time=timezone.now(),
