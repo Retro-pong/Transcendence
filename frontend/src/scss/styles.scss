@@ -282,3 +282,9 @@ canvas {
 @keyframes changeColor {
   0%, 100% { color: $mint; }
 }
+
+.manualBtn {
+  &:hover {
+    color: $mint;
+  }
+}
