@@ -1,10 +1,26 @@
+import { Modal } from 'bootstrap';
 import hitChangeColor from '@/utils/game/utils/hitChangeColor';
 import checkPaddleHit from '@/utils/game/utils/checkPaddleHit';
 import localGameStartSetting from '@/utils/game/utils/localGameStartSetting';
 
-function localGame(scene, objects, localGameInfo) {
+function localGame(scene, objects, localGameInfo, gameSpeed, renderRequestId) {
   let newLocalGameInfo = { ...localGameInfo };
   newLocalGameInfo.hitStatus = { ...localGameInfo.hitStatus };
+
+  const redScore = parseInt(objects.redPlayerScore.innerText, 10);
+  const blueScore = parseInt(objects.bluePlayerScore.innerText, 10);
+
+  if (redScore >= 5 || blueScore >= 5) {
+    cancelAnimationFrame(renderRequestId);
+    const gameResultModal = Modal.getOrCreateInstance('#gameResultModal');
+    const gameResult = document.querySelector('#gameResult');
+    const winner = redScore > blueScore ? 'red' : 'blue';
+    gameResult.innerText = `${winner} Win!`;
+    gameResult.classList.add(winner === 'red' ? 'text-danger' : 'text-primary');
+    gameResultModal.show();
+    return newLocalGameInfo;
+  }
+
   if (objects.ball) {
     if (newLocalGameInfo.start !== 'off') {
       newLocalGameInfo = localGameStartSetting(newLocalGameInfo, objects.ball);
@@ -57,7 +73,7 @@ function localGame(scene, objects, localGameInfo) {
         !newLocalGameInfo.hitStatus.redPaddleHit &&
         !newLocalGameInfo.hitStatus.bluePaddleHit
       ) {
-        newLocalGameInfo.v = 2.2;
+        newLocalGameInfo.v = 1.2 + 0.3 * gameSpeed;
       }
 
       // 벽에 부딪히면 방향 바꾸기
