@@ -1,4 +1,6 @@
 import TokenManager from '@/utils/TokenManager';
+import Router from '@/utils/Router';
+import ToastHandler from '@/utils/ToastHandler';
 
 class SocketManager {
   static #BASE_URL = 'ws://localhost/ws';
@@ -9,16 +11,92 @@ class SocketManager {
 
   static gameSocket = null;
 
+  static getAccessMessage() {
+    const message = {
+      type: 'access',
+      token: TokenManager.getAccessToken(),
+    };
+    return JSON.stringify(message);
+  }
+
   static createSocket(url) {
     return new WebSocket(`${this.#BASE_URL}${url}`);
   }
 
-  static setOffline() {
-    if (!SocketManager.onlineSocket) {
+  static closeRoomSocket() {
+    if (this.roomSocket) {
+      this.roomSocket.close();
+      this.roomSocket = null;
+    }
+  }
+
+  static closeGameSocket() {
+    if (this.gameSocket) {
+      this.gameSocket.close();
+      this.gameSocket = null;
+    }
+  }
+
+  static closeSockets() {
+    this.closeRoomSocket();
+    this.closeGameSocket();
+  }
+
+  static setRoomSocket() {
+    const params = new URLSearchParams(document.location.search);
+    const roomId = params.get('id');
+    const roomMode = params.get('mode');
+    if (
+      isNaN(parseInt(roomId, 10)) ||
+      (roomMode !== 'normal' && roomMode !== 'tournament')
+    ) {
+      ToastHandler.setToast('Invalid Access to the Room');
+      Router.replaceState('/');
       return;
     }
-    SocketManager.onlineSocket.close();
-    SocketManager.onlineSocket = null;
+
+    this.roomSocket = this.createSocket(`/${roomMode}_room/${roomId}/`);
+
+    window.addEventListener(
+      'popstate',
+      () => {
+        if (
+          !this.roomSocket ||
+          this.roomSocket.readyState === WebSocket.CLOSING
+        )
+          return;
+        ToastHandler.setToast('You left the room');
+        this.roomSocket.close();
+      },
+      { once: true }
+    );
+
+    this.roomSocket.onopen = () => {
+      this.roomSocket.send(this.getAccessMessage());
+      console.log('Room Socket Connected');
+    };
+
+    this.roomSocket.onclose = async (e) => {
+      console.log(`Room Socket Disconnected (${e.code})`);
+      if (e.code !== 1000) {
+        await Router.navigateTo('/game');
+      }
+      this.roomSocket = null;
+    };
+
+    this.roomSocket.onerror = (error) => {
+      ToastHandler.setToast('Cannot join the room');
+      console.error('Room Socket Error:', error);
+    };
+  }
+
+  static setOffline() {
+    this.closeSockets();
+    if (!this.onlineSocket) {
+      return;
+    }
+    this.onlineSocket.close();
+    this.onlineSocket = null;
   }
 
   static setOnline() {
@@ -29,11 +107,7 @@ class SocketManager {
       this.onlineSocket = this.createSocket('/login/');
     }
     this.onlineSocket.onopen = () => {
-      const message = {
-        type: 'access',
-        token: TokenManager.getAccessToken(),
-      };
-      this.onlineSocket.send(JSON.stringify(message));
+      this.onlineSocket.send(this.getAccessMessage());
       console.log('Online Socket Connected');
     };
     this.onlineSocket.onmessage = (e) => {

@@ -22,7 +22,6 @@ class Router {
     '/game/waiting': WaitingRoom,
     '/game/play': PlayGame,
     '/friends': Friends,
-    '/404': Home, // TODO: NotFound 추가
   };
 
   static before = null;
@@ -34,8 +33,11 @@ class Router {
   static navBar = document.getElementById('navBar');
 
   static async navigateTo(url) {
-    if (url === window.location.href) return;
-    Router.pushState(url);
+    if (url === Router.getPageHistory()) {
+      Router.replaceState(url);
+    } else {
+      Router.pushState(url);
+    }
     await Router.render();
   }
 
@@ -44,18 +46,18 @@ class Router {
   }
 
   static pushState(url) {
-    history.pushState(null, null, url);
+    history.pushState(null, '', url);
   }
 
   static replaceState(url) {
-    history.replaceState(null, null, url);
+    history.replaceState(null, '', url);
   }
 
-  static getCurrentPage() {
-    return sessionStorage.getItem('curPage');
+  static getPageHistory() {
+    return sessionStorage.getItem('curPage') || '/';
   }
 
-  static setCurrentPage(path) {
+  static setPageHistory(path) {
     sessionStorage.setItem('curPage', path);
   }
 
@@ -92,6 +94,7 @@ class Router {
 
   static onRefresh(event) {
     event.preventDefault();
+    ToastHandler.setToast('Refreshing is not allowed here!');
   }
 
   static async render() {
@@ -99,19 +102,22 @@ class Router {
     const isLoggedIn = TokenManager.getLoginStatus();
 
     if (!(currPathname in Router.routes)) {
-      Router.pushState('/404');
+      ToastHandler.setToast('Page not found! [404]');
+      Router.replaceState(Router.getPageHistory());
     } else if (currPathname === '/login' && isLoggedIn) {
       ToastHandler.setToast('You are already logged in!');
-      const beforePage = Router.getCurrentPage();
+      const beforePage = Router.getPageHistory();
       if (beforePage === '/login') {
-        Router.pushState('/');
+        Router.replaceState('/');
       } else {
-        Router.pushState(beforePage);
+        Router.replaceState(beforePage);
       }
     } else if (currPathname !== '/login' && !isLoggedIn) {
-      Router.pushState('/login');
+      Router.replaceState('/login');
+    } else if (currPathname === '/game/waiting') {
+      SocketManager.setRoomSocket();
     } else {
-      Router.setCurrentPage(currPathname);
+      Router.setPageHistory(currPathname);
     }
     // TODO: 게임방 페이지에서 뒤로가기 제한
     // else if (currPathname === '/game') {
@@ -127,7 +133,6 @@ class Router {
     } else if (Router.getPathname() === '/game/waiting') {
       Router.hideElement(Router.navBar);
       window.addEventListener('beforeunload', Router.onRefresh);
-      window.addEventListener('popstate', page.onPopstate);
     } else {
       if (
         Router.before &&
@@ -139,14 +144,7 @@ class Router {
         }
         Router.before.setDisposeAll();
       }
-      if (
-        Router.before &&
-        (Router.before.pathname === '/game/waiting' ||
-          Router.before.pathname === '/game/play')
-      ) {
-        window.removeEventListener('popstate', Router.before.onPopstate);
-        window.removeEventListener('beforeunload', Router.onRefresh);
-      }
+      window.removeEventListener('beforeunload', Router.onRefresh);
       Router.showElement(Router.background);
       Router.resetPageApp();
       if (Router.getPathname() !== '/login') {
