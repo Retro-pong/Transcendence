@@ -65,8 +65,9 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
                     self.game_id,
                     {
                         "type": "broadcast_users",
-                        "data": match.result_data(),
+                        "data": match.result_data("normal"),
                         "data_type": "result",
+                        "final_game_id": 0,  # 0이면 다음 게임이 없음을 의미
                     },
                 )
                 del NormalGameConsumer.games[self.game_id]
@@ -74,10 +75,12 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
 
     async def broadcast_users(self, event: dict) -> None:
         data = event["data"]
+        data["final_game_id"] = event["final_game_id"]
         data["type"] = event["data_type"]
         await self.send_json(data)
 
     async def disconnect(self, close_code: int) -> None:
+        await self.delete_game_result(self.game_id)  # match의 winner가 없을 경우 삭제
         await self.channel_layer.group_send(
             self.game_id,
             {
@@ -155,10 +158,36 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
         result.player2_score = match.p2.score
         result.save()
 
+    @database_sync_to_async
+    def delete_game_result(self, game_id) -> None:
+        GameResult = apps.get_model("game", "GameResult")
+        try:
+            result = GameResult.objects.get(id=game_id)
+            if not result.winner:
+                result.delete()
+        except GameResult.DoesNotExist:
+            return
+
 
 class SemiFinalGameConsumer(NormalGameConsumer):
     games: dict[str, Game] = {}
     games_lock = asyncio.Lock()
+
+    async def connect(self) -> None:
+        """
+        url data 유효성 확인
+        """
+        self.game_id = self.scope["url_route"]["kwargs"]["game_id"]
+        self.final_id = self.scope["url_route"]["kwargs"]["final_id"]
+        await self.accept()  # 소켓 연결 수락
+        await self.channel_layer.group_add(
+            self.game_id,  # 게임 DB id
+            self.channel_name,  # Consumer 채널 이름
+        )
+        await self.channel_layer.group_add(
+            self.final_id,
+            self.channel_name,
+        )
 
     async def receive_json(self, content: dict) -> None:
         if content["type"] == "access":
@@ -199,29 +228,28 @@ class SemiFinalGameConsumer(NormalGameConsumer):
                 },
             )
             if match.winner:
+                # 승자가 아닐 경우 final id 제거
+                if match.winner != self.user.username:
+                    self.final_id = 0
                 await self.save_game_result(match)
                 await self.channel_layer.group_send(
-                    self.game_id,
+                    self.final_id,
                     {
                         "type": "broadcast_users",
-                        "data": match.result_data(),
+                        "data": match.result_data("semi"),
                         "data_type": "result",
+                        "final_game_id": self.final_id,
+                        "semi_game_id": self.game.id,
                     },
                 )
                 del SemiFinalGameConsumer.games[self.game_id]
                 break
 
-    async def disconnect(self, close_code: int) -> None:
-        await self.channel_layer.group_send(
-            self.game_id,
-            {
-                "type": "close_group",
-            },
-        )
+    # async def broadcast_users(self, event: dict) -> None:
 
-    async def close_group(self, event: dict) -> None:
-        await self.send_json({"type": "exit"})
-        await self.channel_layer.group_discard(self.game_id, self.channel_name)
+    # async def disconnect(self, close_code: int) -> None:
+
+    # async def close_group(self, event: dict) -> None:
 
     async def user_access(self, content: dict) -> None:
         token = content["token"]
@@ -250,7 +278,6 @@ class SemiFinalGameConsumer(NormalGameConsumer):
                     {"type": "error", "message": "User already in game."}
                 )
                 return
-
         # 들어온 순서대로 red, blue 배정
         if match.p1 is None:
             match.p1 = Player(type="red", nick=self.user.username)
@@ -317,8 +344,9 @@ class FinalGameConsumer(NormalGameConsumer):
                     self.game_id,
                     {
                         "type": "broadcast_users",
-                        "data": match.result_data(),
+                        "data": match.result_data("final"),
                         "data_type": "result",
+                        "final_game_id": 0,
                     },
                 )
                 del FinalGameConsumer.games[self.game_id]

@@ -203,11 +203,12 @@ class Game:
             "ballHit": self.ball.hit,
         }
 
-    def result_data(self) -> dict:
+    def result_data(self, game_type) -> dict:
         return {
             "winner": self.winner,
             "redNick": self.p1.nick,
             "redScore": self.p1.score,
             "blueNick": self.p2.nick,
             "blueScore": self.p2.score,
+            "gameType": game_type,
         }
