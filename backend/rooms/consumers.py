@@ -31,7 +31,7 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
             try:
                 self.room = await self.get_room()
             except:
-                await self.send_json({"error": "Room not found."})
+                await self.send_json({"type": "error", "message": "Room not found."})
                 return
             async with NormalRoomConsumer.rooms_lock:
                 if self.room_id in NormalRoomConsumer.rooms:
