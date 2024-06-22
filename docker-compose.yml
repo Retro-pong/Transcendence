@@ -1,4 +1,16 @@
 services:
+  db:
+    image: postgres:13
+    container_name: db
+    environment:
+      POSTGRES_DB: database
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - network
+
   backend:
     image: backend:transcendence
     container_name: backend
@@ -9,6 +21,8 @@ services:
       - network
     volumes:
       - backend-media:/app/media
+    environment:
+      - DATABASE_URL=postgres://user:password@db:5432/database
 
   frontend:
     image: frontend:transcendence
@@ -39,10 +53,10 @@ services:
     volumes:
       - backend-media:/app/media
 
-
 volumes:
   frontend-data:
   backend-media:
+  postgres-data:
   # backend-data:
 
 networks:
