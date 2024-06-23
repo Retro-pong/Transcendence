@@ -338,16 +338,16 @@ class TournamentRoomConsumerTest(TransactionTestCase):
 
         response = await communicator1.receive_json_from()
         self.assertEqual(response["type"], "start_game")
-        self.assertEqual(response["room_id_semi"], 2)
+        self.assertEqual(response["room_id_semi_1"], 2)
         response = await communicator2.receive_json_from()
         self.assertEqual(response["type"], "start_game")
-        self.assertEqual(response["room_id_semi"], 3)
+        self.assertEqual(response["room_id_semi_1"], 3)
         response = await communicator3.receive_json_from()
         self.assertEqual(response["type"], "start_game")
-        self.assertEqual(response["room_id_semi"], 2)
+        self.assertEqual(response["room_id_semi_1"], 2)
         response = await communicator4.receive_json_from()
         self.assertEqual(response["type"], "start_game")
-        self.assertEqual(response["room_id_semi"], 3)
+        self.assertEqual(response["room_id_semi_1"], 3)
 
         # Clean up
         await communicator1.disconnect()

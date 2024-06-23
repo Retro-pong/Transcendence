@@ -31,7 +31,7 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
             try:
                 self.room = await self.get_room()
             except:
-                await self.send_json({"error": "Room not found."})
+                await self.send_json({"type": "error", "message": "Room not found."})
                 return
             async with NormalRoomConsumer.rooms_lock:
                 if self.room_id in NormalRoomConsumer.rooms:
@@ -354,12 +354,15 @@ class TournamentRoomConsumer(NormalRoomConsumer):
     async def send_disconnect_tournament(self, event: dict) -> None:
         game_id_final = event["game_id_final"]
         if self.room_number % 2 == 0:
-            game_id_semi = event["game_id_semi_1"]
+            game_id_semi_1 = event["game_id_semi_1"]
+            game_id_semi_2 = event["game_id_semi_2"]
         else:
-            game_id_semi = event["game_id_semi_2"]
+            game_id_semi_1 = event["game_id_semi_2"]
+            game_id_semi_2 = event["game_id_semi_1"]
         data = {
             "type": "start_game",
-            "room_id_semi": game_id_semi,
+            "room_id_semi_1": game_id_semi_1,
+            "room_id_semi_2": game_id_semi_2,
             "room_id_final": game_id_final,
         }
         await self.send_json(data)

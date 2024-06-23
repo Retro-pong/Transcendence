@@ -14,6 +14,7 @@ from datetime import timedelta
 from pathlib import Path
 import environ
 import os
+import dj_database_url
 
 BASE_DIR_PATH = Path(__file__).resolve().parent.parent
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -110,13 +111,15 @@ WSGI_APPLICATION = "backend.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+# postgre database
+# DATABASES = {"default": dj_database_url.config(default=os.getenv("DATABASE_URL"))}
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR_PATH / "db.sqlite3",
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators

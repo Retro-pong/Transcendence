@@ -1,7 +1,6 @@
 import random
 from django.apps import apps
 
-
 X = 0
 Y = 1
 Z = 2
@@ -13,6 +12,11 @@ RIGHT = 4
 TOP = 5
 BOT = 6
 START = 7
+
+WAIT = 0
+READY = 1
+END = 2
+DISCONNECTED = 3
 
 
 class Ball:
@@ -108,12 +112,15 @@ class Player:
         self.z = 0.0
         self.type = type  # red, blue
         self.nick = nick
-        self.status = "wait"
+        self.status = WAIT
         self.score = 0
 
     def set_pos(self, y: float, z: float) -> None:
         self.y = y
         self.z = z
+
+    def set_status(self, status: int) -> None:
+        self.status = status
 
 
 class Game:
@@ -132,11 +139,28 @@ class Game:
         }
 
     def set_ready(self, player: "Player") -> int:
-        if player.status == "wait":
-            player.status = "ready"
-        if self.p1.status == "ready" and self.p2.status == "ready":
+        if player.status == WAIT:
+            player.status = READY
+        if self.p1.status == READY and self.p2.status == READY:
             return 1
         return 0
+
+    def get_winner(self) -> str:
+        if self.winner != "None":
+            return self.winner
+        elif self.p1.status == DISCONNECTED and self.p2.status != DISCONNECTED:
+            return self.p2.nick
+        elif self.p1.status != DISCONNECTED and self.p2.status == DISCONNECTED:
+            return self.p1.nick
+        else:
+            return "None"
+
+    def check_game_end(self) -> int:
+        if self.p1.status == DISCONNECTED or self.p1.status == END:
+            if self.p2.status == DISCONNECTED or self.p2.status == END:
+                return 1
+        else:
+            return 0
 
     def add_score(self, type: int) -> int:
         if type == 0:
@@ -149,7 +173,7 @@ class Game:
             return type
         return 0
 
-    def game_render(self, player: "Player") -> None:
+    def game_render(self) -> None:
         self.ball.move()  # 공을 1프레임 움직임
         self.ball.hit_wall()  # 벽에 닿았는 지 확인
         ball_pos = self.ball.check_ball_xpos()
@@ -203,11 +227,22 @@ class Game:
             "ballHit": self.ball.hit,
         }
 
-    def result_data(self) -> dict:
+    def result_data(self, game_type) -> dict:
         return {
             "winner": self.winner,
             "redNick": self.p1.nick,
             "redScore": self.p1.score,
             "blueNick": self.p2.nick,
             "blueScore": self.p2.score,
+            "gameType": game_type,
+        }
+
+    def tournament_result_data(
+        self, is_final: bool, final_id: str, winner1: str, winner2: str
+    ) -> dict:
+        return {
+            "isFinal": is_final,
+            "finalId": final_id,
+            "nextPlayer1": winner1,
+            "nextPlayer2": winner2,
         }

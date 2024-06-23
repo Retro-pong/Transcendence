@@ -1,7 +1,7 @@
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from channels.db import database_sync_to_async
 from django.apps import apps
-from .modules import Player, Game
+from .modules import Player, Game, WAIT, READY, END, DISCONNECTED
 import asyncio
 from backend.middleware import JWTAuthMiddleware
 
@@ -12,45 +12,67 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
 
     async def connect(self) -> None:
         """
-        url data 유효성 확인
+        연결 수락 및 game id 저장
         """
         self.game_id = self.scope["url_route"]["kwargs"]["game_id"]
-        await self.accept()  # 소켓 연결 수락
-        await self.channel_layer.group_add(
-            self.game_id,  # 게임 DB id
-            self.channel_name,  # Consumer 채널 이름
-        )
+        await self.accept()
 
     async def receive_json(self, content: dict) -> None:
+        """
+        소켓 request 처리
+        """
         if content["type"] == "access":
-            try:
-                self.result = await self.get_game_result()
-                if self.result.game_mode != "normal":
-                    await self.send_json(
-                        {"type": "error", "message": "Invalid game mode."}
-                    )
-            except Exception as e:
-                await self.send_json({"type": "error", "message": str(e)})
+            # game_id 유효성 체크
+            valid = await self.check_game_id_valid("normal")
+            if not valid:
+                return
             await self.user_access(content)
-        # Game이 존재할 때만 명령 처리
-        else:  # content["type"] == "move" or "ready"
+        elif content["type"] == "ready":
             match = NormalGameConsumer.games[self.game_id]
-            player = match.get_players()[self.color]
+            await self.change_status(self.color, READY)
             async with NormalGameConsumer.games_lock:
-                if content["type"] == "ready":
-                    if match.set_ready(player):
-                        self.loop = asyncio.create_task(self.game_loop(player))
-            if content["type"] == "move":
-                player.set_pos(content["y"], content["z"])
+                if match.set_ready(match.get_players()[self.color]):
+                    self.channel_layer.background_task = asyncio.create_task(
+                        self.game_loop()
+                    )
+        elif content["type"] == "move":
+            NormalGameConsumer.games[self.game_id].get_players()[self.color].set_pos(
+                content["y"], content["z"]
+            )
 
-    async def game_loop(self, player: "Player") -> None:
+    async def disconnect(self, code: int) -> None:
+        # match의 winner가 없을 경우(비정상 종료 시) db 삭제
+        await self.delete_game_result(self.game_id)
+        # 비정상 종료 시 player status disconnect로 변경
+        await self.change_status(self.color, DISCONNECTED)
+        await self.channel_layer.group_discard(self.game_id, self.channel_name)
+
+    async def game_loop(self) -> None:
         while True:
+            await asyncio.sleep(0.03)
             match = NormalGameConsumer.games[self.game_id]
+            # game 객체가 존재하지 않음
             if not match:
                 await self.send_json({"type": "error", "message": "Game not found"})
-                return
-            await asyncio.sleep(0.03)
-            match.game_render(player)
+                break
+            # disconnect 발생 시 winner 없이 게임 결과 전송
+            if match.p1.status == DISCONNECTED or match.p2.status == DISCONNECTED:
+                match.winner = "None"
+            if match.winner:
+                if match.winner != "None":
+                    await self.save_game_result(match)
+                await self.channel_layer.group_send(
+                    self.game_id,
+                    {
+                        "type": "broadcast_users",
+                        "data": match.result_data("normal"),
+                        "data_type": "result",
+                    },
+                )
+                del NormalGameConsumer.games[self.game_id]
+                break
+            # 게임 데이터 전송
+            match.game_render()
             await self.channel_layer.group_send(
                 self.game_id,
                 {
@@ -59,49 +81,24 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
                     "data_type": "render",
                 },
             )
-            if match.winner:
-                await self.save_game_result(match)
-                await self.channel_layer.group_send(
-                    self.game_id,
-                    {
-                        "type": "broadcast_users",
-                        "data": match.result_data(),
-                        "data_type": "result",
-                    },
-                )
-                del NormalGameConsumer.games[self.game_id]
-                break
-
-    async def broadcast_users(self, event: dict) -> None:
-        data = event["data"]
-        data["type"] = event["data_type"]
-        await self.send_json(data)
-
-    async def disconnect(self, close_code: int) -> None:
-        await self.channel_layer.group_send(
-            self.game_id,
-            {
-                "type": "close_group",
-            },
-        )
-
-    async def close_group(self, event: dict) -> None:
-        await self.send_json({"type": "exit"})
-        await self.channel_layer.group_discard(self.game_id, self.channel_name)
 
     async def user_access(self, content: dict) -> None:
         token = content["token"]
         try:
             self.user = await JWTAuthMiddleware.get_user(token)
-        except:
-            await self.send_json({"access": "User invalid or expired."})
+            if not self.user.is_authenticated:
+                await self.send_json({"access": "User not authenticated."})
+                return
+        except Exception as e:
+            await self.send_json({"access": str(e)})
             return
-        if not self.user.is_authenticated:
-            await self.send_json({"access": "User not authenticated."})
-            return
-        else:
-            await self.send_json({"access": "Access successful."})
-
+        # 토큰 유효 시
+        await self.send_json({"access": "Access successful."})
+        # 채널 추가
+        await self.channel_layer.group_add(
+            self.game_id,
+            self.channel_name,
+        )
         # Game 객체 생성
         if self.game_id not in NormalGameConsumer.games:
             NormalGameConsumer.games[self.game_id] = Game(self.result.game_speed)
@@ -116,7 +113,6 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
                     {"type": "error", "message": "User already in game."}
                 )
                 return
-
         # 들어온 순서대로 red, blue 배정
         if match.p1 is None:
             match.p1 = Player(type="red", nick=self.user.username)
@@ -130,10 +126,44 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
         # start data 전송
         await self.send_json(match.start_data(color=self.color, game=self.result))
 
+    async def broadcast_users(self, event: dict) -> None:
+        data = event["data"]
+        data["type"] = event["data_type"]
+        await self.send_json(data)
+
+    async def check_game_id_valid(self, type: str) -> bool:
+        try:
+            # game_id 에 해당하는 game result db 가져오기
+            self.result = await self.get_game_result()
+            # game mode 확인
+            if self.result.game_mode != type:
+                await self.send_json({"type": "error", "message": "Invalid game mode."})
+                return False
+            return True
+        except Exception as e:
+            await self.send_json({"type": "error", "message": str(e)})
+            return False
+
+    async def change_status(self, color, status: int) -> None:
+        # game 객체가 남아있을 경우 비정상 종료
+        if self.game_id in NormalGameConsumer.games:
+            match = NormalGameConsumer.games[self.game_id]
+            match.get_players()[color].set_status(status)
+
     @database_sync_to_async
     def get_game_result(self):
         GameResult = apps.get_model("game", "GameResult")
         return GameResult.objects.get(id=self.game_id)
+
+    @database_sync_to_async
+    def delete_game_result(self, game_id) -> None:
+        GameResult = apps.get_model("game", "GameResult")
+        try:
+            result = GameResult.objects.get(id=game_id)
+            if not result.winner:
+                result.delete()
+        except GameResult.DoesNotExist:
+            return
 
     @database_sync_to_async
     def save_game_result(self, match: Game) -> None:
@@ -160,36 +190,78 @@ class SemiFinalGameConsumer(NormalGameConsumer):
     games: dict[str, Game] = {}
     games_lock = asyncio.Lock()
 
-    async def receive_json(self, content: dict) -> None:
-        if content["type"] == "access":
-            try:
-                self.result = await self.get_game_result()
-                if self.result.game_mode != "tournament":
-                    await self.send_json(
-                        {"type": "error", "message": "Invalid game mode."}
-                    )
-            except Exception as e:
-                await self.send_json({"type": "error", "message": str(e)})
-            await self.user_access(content)
-        # Game이 존재할 때만 명령 처리
-        else:  # content["type"] == "move" or "ready"
-            match = SemiFinalGameConsumer.games[self.game_id]
-            player = match.get_players()[self.color]
-            async with SemiFinalGameConsumer.games_lock:
-                if content["type"] == "ready":
-                    if match.set_ready(player):
-                        self.loop = asyncio.create_task(self.game_loop(player))
-            if content["type"] == "move":
-                player.set_pos(content["y"], content["z"])
+    async def connect(self) -> None:
+        """
+        연결 수락 및 game, opponent, final id 저장
+        """
+        self.game_id = self.scope["url_route"]["kwargs"]["game_id"]
+        self.opponent_id = self.scope["url_route"]["kwargs"]["opponent_id"]
+        self.final_id = self.scope["url_route"]["kwargs"]["final_id"]
+        await self.accept()  # 소켓 연결 수락
 
-    async def game_loop(self, player: "Player") -> None:
-        while True:
+    # 소켓 request 처리
+    async def receive_json(self, content: dict) -> None:
+        """
+        소켓 request 처리
+        """
+        if content["type"] == "access":
+            # game_id 유효성 체크
+            valid = await self.check_game_id_valid("tournament")
+            if not valid:
+                return
+            await self.user_access(content)
+        elif content["type"] == "ready":
             match = SemiFinalGameConsumer.games[self.game_id]
+            await self.change_status(self.color, READY)
+            async with SemiFinalGameConsumer.games_lock:
+                if match.set_ready(match.get_players()[self.color]):
+                    self.channel_layer.background_task = asyncio.create_task(
+                        self.game_loop()
+                    )
+        elif content["type"] == "move":
+            SemiFinalGameConsumer.games[self.game_id].get_players()[self.color].set_pos(
+                content["y"], content["z"]
+            )
+
+    async def disconnect(self, code: int) -> None:
+        # match의 winner가 없을 경우(비정상 종료 시) db 삭제
+        await self.delete_game_result(self.game_id)
+        # 비정상 종료 시 player status disconnect로 변경
+        await self.change_status(self.color, DISCONNECTED)
+        await self.channel_layer.group_discard(self.game_id, self.channel_name)
+        await self.channel_layer.group_discard(self.final_id, self.channel_name)
+
+    async def game_loop(self) -> None:
+        while True:
+            await asyncio.sleep(0.03)
+            match = SemiFinalGameConsumer.games[self.game_id]
+            # game 객체가 존재하지 않음
             if not match:
                 await self.send_json({"type": "error", "message": "Game not found"})
-                return
-            await asyncio.sleep(0.03)
-            match.game_render(player)
+                break
+            # disconnect 발생 시 winner 없이 게임 결과 전송
+            if match.p1.status == DISCONNECTED or match.p2.status == DISCONNECTED:
+                match.winner = "None"
+            if match.winner:
+                if match.winner != "None":
+                    await self.save_game_result(match)
+                await self.channel_layer.group_send(
+                    self.game_id,
+                    {
+                        "type": "broadcast_users",
+                        "data": match.result_data("tournament"),
+                        "data_type": "result",
+                    },
+                )
+                # disconnect가 아닐 경우 정상 종료로 변경
+                async with SemiFinalGameConsumer.games_lock:
+                    if match.get_players()["red"].status != DISCONNECTED:
+                        await self.change_status("red", END)
+                    if match.get_players()["blue"].status != DISCONNECTED:
+                        await self.change_status("blue", END)
+                break
+            # 게임 데이터 전송
+            match.game_render()
             await self.channel_layer.group_send(
                 self.game_id,
                 {
@@ -198,44 +270,55 @@ class SemiFinalGameConsumer(NormalGameConsumer):
                     "data_type": "render",
                 },
             )
-            if match.winner:
-                await self.save_game_result(match)
+        # 양쪽 경기 종료 시 실행
+        async with SemiFinalGameConsumer.games_lock:
+            await self.set_final(match)
+
+    async def set_final(self, match: Game):
+        if match.check_game_end():
+            opponent_match = SemiFinalGameConsumer.games[self.opponent_id]
+            if opponent_match.check_game_end():
+                winner1 = match.get_winner()
+                winner2 = opponent_match.get_winner()
+                is_final = True
+                if winner1 == "None" or winner2 == "None":
+                    is_final = False
                 await self.channel_layer.group_send(
-                    self.game_id,
+                    self.final_id,
                     {
                         "type": "broadcast_users",
-                        "data": match.result_data(),
-                        "data_type": "result",
+                        "data": match.tournament_result_data(
+                            is_final, self.final_id, winner1, winner2
+                        ),
+                        "data_type": "final",
                     },
                 )
                 del SemiFinalGameConsumer.games[self.game_id]
-                break
-
-    async def disconnect(self, close_code: int) -> None:
-        await self.channel_layer.group_send(
-            self.game_id,
-            {
-                "type": "close_group",
-            },
-        )
-
-    async def close_group(self, event: dict) -> None:
-        await self.send_json({"type": "exit"})
-        await self.channel_layer.group_discard(self.game_id, self.channel_name)
+                del SemiFinalGameConsumer.games[self.opponent_id]
+                if not is_final:
+                    await self.delete_game_result(self.final_id)
 
     async def user_access(self, content: dict) -> None:
         token = content["token"]
         try:
             self.user = await JWTAuthMiddleware.get_user(token)
-        except:
-            await self.send_json({"access": "User invalid or expired."})
+            if not self.user.is_authenticated:
+                await self.send_json({"access": "User not authenticated."})
+                return
+        except Exception as e:
+            await self.send_json({"access": str(e)})
             return
-        if not self.user.is_authenticated:
-            await self.send_json({"access": "User not authenticated."})
-            return
-        else:
-            await self.send_json({"access": "Access successful."})
-
+        # 토큰 유효 시
+        await self.send_json({"access": "Access successful."})
+        # 채널 추가
+        await self.channel_layer.group_add(
+            self.game_id,
+            self.channel_name,
+        )
+        await self.channel_layer.group_add(
+            self.final_id,
+            self.channel_name,
+        )
         # Game 객체 생성
         if self.game_id not in SemiFinalGameConsumer.games:
             SemiFinalGameConsumer.games[self.game_id] = Game(self.result.game_speed)
@@ -250,7 +333,6 @@ class SemiFinalGameConsumer(NormalGameConsumer):
                     {"type": "error", "message": "User already in game."}
                 )
                 return
-
         # 들어온 순서대로 red, blue 배정
         if match.p1 is None:
             match.p1 = Player(type="red", nick=self.user.username)
@@ -264,45 +346,67 @@ class SemiFinalGameConsumer(NormalGameConsumer):
         # start data 전송
         await self.send_json(match.start_data(color=self.color, game=self.result))
 
+    async def change_status(self, color, status: int) -> None:
+        # game 객체가 남아있을 경우 비정상 종료
+        if self.game_id in SemiFinalGameConsumer.games:
+            match = SemiFinalGameConsumer.games[self.game_id]
+            match.get_players()[color].set_status(status)
+
 
 class FinalGameConsumer(NormalGameConsumer):
-    """
-    Entirely same as NormalGameConsumer
-    """
-
     games: dict[str, Game] = {}
     games_lock = asyncio.Lock()
 
+    # 소켓 request 처리
     async def receive_json(self, content: dict) -> None:
+        """
+        소켓 request 처리
+        """
         if content["type"] == "access":
-            try:
-                self.result = await self.get_game_result()
-                if self.result.game_mode != "normal":
-                    await self.send_json(
-                        {"type": "error", "message": "Invalid game mode."}
-                    )
-            except Exception as e:
-                await self.send_json({"type": "error", "message": str(e)})
+            # game_id 유효성 체크
+            valid = await self.check_game_id_valid("tournament")
+            if not valid:
+                return
             await self.user_access(content)
-        # Game이 존재할 때만 명령 처리
-        else:  # content["type"] == "move" or "ready"
+        elif content["type"] == "ready":
             match = FinalGameConsumer.games[self.game_id]
-            player = match.get_players()[self.color]
+            await self.change_status(self.color, READY)
             async with FinalGameConsumer.games_lock:
-                if content["type"] == "ready":
-                    if match.set_ready(player):
-                        self.loop = asyncio.create_task(self.game_loop(player))
-            if content["type"] == "move":
-                player.set_pos(content["y"], content["z"])
+                if match.set_ready(match.get_players()[self.color]):
+                    self.channel_layer.background_task = asyncio.create_task(
+                        self.game_loop()
+                    )
+        elif content["type"] == "move":
+            FinalGameConsumer.games[self.game_id].get_players()[self.color].set_pos(
+                content["y"], content["z"]
+            )
 
-    async def game_loop(self, player: "Player") -> None:
+    async def game_loop(self) -> None:
         while True:
+            await asyncio.sleep(0.03)
             match = FinalGameConsumer.games[self.game_id]
+            # game 객체가 존재하지 않음
             if not match:
                 await self.send_json({"type": "error", "message": "Game not found"})
-                return
-            await asyncio.sleep(0.03)
-            match.game_render(player)
+                break
+            # disconnect 발생 시 winner 없이 게임 결과 전송
+            if match.p1.status == DISCONNECTED or match.p2.status == DISCONNECTED:
+                match.winner = "None"
+            if match.winner:
+                if match.winner != "None":
+                    await self.save_game_result(match)
+                await self.channel_layer.group_send(
+                    self.game_id,
+                    {
+                        "type": "broadcast_users",
+                        "data": match.result_data("tournament"),
+                        "data_type": "result",
+                    },
+                )
+                del FinalGameConsumer.games[self.game_id]
+                break
+            # 게임 데이터 전송
+            match.game_render()
             await self.channel_layer.group_send(
                 self.game_id,
                 {
@@ -311,32 +415,24 @@ class FinalGameConsumer(NormalGameConsumer):
                     "data_type": "render",
                 },
             )
-            if match.winner:
-                await self.save_game_result(match)
-                await self.channel_layer.group_send(
-                    self.game_id,
-                    {
-                        "type": "broadcast_users",
-                        "data": match.result_data(),
-                        "data_type": "result",
-                    },
-                )
-                del FinalGameConsumer.games[self.game_id]
-                break
 
     async def user_access(self, content: dict) -> None:
         token = content["token"]
         try:
             self.user = await JWTAuthMiddleware.get_user(token)
-        except:
-            await self.send_json({"access": "User invalid or expired."})
+            if not self.user.is_authenticated:
+                await self.send_json({"access": "User not authenticated."})
+                return
+        except Exception as e:
+            await self.send_json({"access": str(e)})
             return
-        if not self.user.is_authenticated:
-            await self.send_json({"access": "User not authenticated."})
-            return
-        else:
-            await self.send_json({"access": "Access successful."})
-
+        # 토큰 유효 시
+        await self.send_json({"access": "Access successful."})
+        # 채널 추가
+        await self.channel_layer.group_add(
+            self.game_id,
+            self.channel_name,
+        )
         # Game 객체 생성
         if self.game_id not in FinalGameConsumer.games:
             FinalGameConsumer.games[self.game_id] = Game(self.result.game_speed)
@@ -351,7 +447,6 @@ class FinalGameConsumer(NormalGameConsumer):
                     {"type": "error", "message": "User already in game."}
                 )
                 return
-
         # 들어온 순서대로 red, blue 배정
         if match.p1 is None:
             match.p1 = Player(type="red", nick=self.user.username)
@@ -364,3 +459,9 @@ class FinalGameConsumer(NormalGameConsumer):
             return
         # start data 전송
         await self.send_json(match.start_data(color=self.color, game=self.result))
+
+    async def change_status(self, color, status: int) -> None:
+        # game 객체가 남아있을 경우 비정상 종료
+        if self.game_id in FinalGameConsumer.games:
+            match = FinalGameConsumer.games[self.game_id]
+            match.get_players()[color].set_status(status)
