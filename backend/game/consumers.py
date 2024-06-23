@@ -191,6 +191,9 @@ class SemiFinalGameConsumer(NormalGameConsumer):
     games_lock = asyncio.Lock()
 
     async def connect(self) -> None:
+        """
+        연결 수락 및 game, opponent, final id 저장
+        """
         self.game_id = self.scope["url_route"]["kwargs"]["game_id"]
         self.opponent_id = self.scope["url_route"]["kwargs"]["opponent_id"]
         self.final_id = self.scope["url_route"]["kwargs"]["final_id"]
