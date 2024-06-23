@@ -10,13 +10,17 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
     games: dict[str, Game] = {}
     games_lock = asyncio.Lock()
 
-    # 연결 수락 및 game id 저장
     async def connect(self) -> None:
+        """
+        연결 수락 및 game id 저장
+        """
         self.game_id = self.scope["url_route"]["kwargs"]["game_id"]
         await self.accept()
 
-    # 소켓 request 처리
     async def receive_json(self, content: dict) -> None:
+        """
+        소켓 request 처리
+        """
         if content["type"] == "access":
             # game_id 유효성 체크
             valid = await self.check_game_id_valid("normal")
@@ -187,6 +191,9 @@ class SemiFinalGameConsumer(NormalGameConsumer):
     games_lock = asyncio.Lock()
 
     async def connect(self) -> None:
+        """
+        연결 수락 및 game, opponent, final id 저장
+        """
         self.game_id = self.scope["url_route"]["kwargs"]["game_id"]
         self.opponent_id = self.scope["url_route"]["kwargs"]["opponent_id"]
         self.final_id = self.scope["url_route"]["kwargs"]["final_id"]
@@ -194,6 +201,9 @@ class SemiFinalGameConsumer(NormalGameConsumer):
 
     # 소켓 request 처리
     async def receive_json(self, content: dict) -> None:
+        """
+        소켓 request 처리
+        """
         if content["type"] == "access":
             # game_id 유효성 체크
             valid = await self.check_game_id_valid("tournament")
@@ -349,6 +359,9 @@ class FinalGameConsumer(NormalGameConsumer):
 
     # 소켓 request 처리
     async def receive_json(self, content: dict) -> None:
+        """
+        소켓 request 처리
+        """
         if content["type"] == "access":
             # game_id 유효성 체크
             valid = await self.check_game_id_valid("tournament")
