@@ -10,7 +10,7 @@ const LoginPageButtons = () => {
     text: '> Login <',
     classList: 'btn btn-no-outline-hover fs-7',
   });
-  const Login42Btn = `<a id='42LoginBtn' href="http://localhost:80/api/v1/login/intra/login/" class="btn btn-no-outline-hover fs-7">> 42 Login <</a>`;
+  const Login42Btn = `<a id='42LoginBtn' href="${import.meta.env.VITE_BASE_URL}/login/intra/login/" class="btn btn-no-outline-hover fs-7">> 42 Login <</a>`;
   const RegisterBtn = OpenModalButton({
     text: '> Register <',
     classList: 'btn btn-no-outline-hover fs-7',
