@@ -57,14 +57,14 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
                 self.channel_layer = get_channel_layer()
                 await self.channel_layer.group_add(self.room_id, self.channel_name)
                 # 연결 성공 시 대기실 참여 인원 모두에게 대기실 인원 정보 전송
-                current_player = await self.update_current_player(
+                current_players = await self.update_current_players(
                     len(NormalRoomConsumer.rooms[self.room_id])
                 )
                 await self.send_user_info()
 
             # 대기실 인원이 정원인 경우 게임 시작
             async with NormalRoomConsumer.rooms_lock:
-                if current_player == 2:
+                if current_players == 2:
                     await self.create_game_result()
                     await self.delete_room()
                     await self.channel_layer.group_send(
@@ -163,11 +163,14 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
         self.game_id = game.id
 
     @database_sync_to_async
-    def update_current_player(self, player: int) -> int:
-        room_model = apps.get_model("rooms", "Room")
-        room = room_model.objects.get(id=self.room_id)
-        room.current_players = player
-        room.save()
+    def update_current_players(self, player: int) -> int:
+        try:
+            room_model = apps.get_model("rooms", "Room")
+            room = room_model.objects.get(id=self.room_id)
+            room.current_players = player
+            room.save()
+        except:
+            return 0
         return player
 
     @database_sync_to_async
@@ -234,14 +237,14 @@ class TournamentRoomConsumer(NormalRoomConsumer):
                 self.channel_layer = get_channel_layer()
                 await self.channel_layer.group_add(self.room_id, self.channel_name)
                 # 연결 성공 시 대기실 참여 인원 모두에게 대기실 인원 정보 전송
-                current_player = await self.update_current_player(
+                current_players = await self.update_current_players(
                     len(TournamentRoomConsumer.rooms[self.room_id])
                 )
                 await self.send_user_info()
 
             # 대기실 인원이 정원인 경우 게임 시작
             async with TournamentRoomConsumer.rooms_lock:
-                if current_player == 4:
+                if current_players == 4:
                     await self.create_game_result()
                     await self.delete_room()
                     await self.channel_layer.group_send(
@@ -321,6 +324,9 @@ class TournamentRoomConsumer(NormalRoomConsumer):
             async with TournamentRoomConsumer.rooms_lock:
                 if self.user in TournamentRoomConsumer.rooms[self.room_id]:
                     TournamentRoomConsumer.rooms[self.room_id].remove(self.user)
+                    await self.update_current_players(
+                        len(TournamentRoomConsumer.rooms[self.room_id])
+                    )
                     # 더 이상 참여자가 없으면 대기실 삭제
                     if not TournamentRoomConsumer.rooms[self.room_id]:
                         del TournamentRoomConsumer.rooms[self.room_id]

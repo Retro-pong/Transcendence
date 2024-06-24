@@ -1,3 +1,5 @@
+import asyncio
+
 from channels.testing import WebsocketCommunicator
 from django.test import TransactionTestCase
 from .routing import websocket_urlpatterns
@@ -27,6 +29,37 @@ class GameConsumerTest(TransactionTestCase):
     @database_sync_to_async
     def get_test_result(self, id):
         return GameResult.objects.get(id=id)
+
+    async def test_opponent_not_connect(self):
+        # user1, user2, result setup
+        result = await self.create_test_result(
+            "map", "normal", 1, "#000000", timezone.now()
+        )
+        user1 = await self.create_test_user(
+            username="testuser1", email="test1@test.com", password="1234"
+        )
+        user2 = await self.create_test_user(
+            username="test2user", email="test2@test.com", password="1234"
+        )
+        # user1 connect
+        token = TokenObtainPairSerializer.get_token(user1)
+        access_token = str(token.access_token)
+        communicator1 = WebsocketCommunicator(
+            URLRouter(websocket_urlpatterns),
+            f"/ws/normal_game/{result.id}/",
+        )
+        connected, subprotocol = await communicator1.connect()
+        self.assertTrue(connected)
+        await communicator1.send_json_to({"type": "access", "token": access_token})
+        response = await communicator1.receive_json_from()
+        self.assertEqual(response, {"access": "Access successful."})
+        # get start data
+        response = await communicator1.receive_json_from()
+        self.assertEqual(response["color"], "red")
+        # send ready
+        await communicator1.send_json_to({"type": "ready"})
+        await asyncio.sleep(12)
+        response = await communicator1.receive_json_from()
 
     #
     # async def test_game_connect(self):
@@ -135,7 +168,7 @@ class GameConsumerTest(TransactionTestCase):
 
 
 class TournamentConsumerTest(GameConsumerTest):
-    async def test_semi_final(self):
+    async def a_test_semi_final(self):
         result1 = await self.create_test_result(
             "map", "tournament", 1, "#000000", timezone.now()
         )

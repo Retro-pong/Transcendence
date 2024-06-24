@@ -141,8 +141,9 @@ class Game:
     def set_ready(self, player: "Player") -> int:
         if player.status == WAIT:
             player.status = READY
-        if self.p1.status == READY and self.p2.status == READY:
-            return 1
+        if self.p1 and self.p2:
+            if self.p1.status == READY and self.p2.status == READY:
+                return 1
         return 0
 
     def get_winner(self) -> str:
