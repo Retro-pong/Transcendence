@@ -1,6 +1,30 @@
 # Transendence
 
+### Description
+Users will play Pong with others in our website.  
+We provide a nice user interface and real-time multiplayer online games!  
+
+### Team
 [Link to Notion](https://www.notion.so/42seoul8/ft_transcendence-fa1eec1e48d84806ac687065c5f3ba9c?pvs=4)  
+#### Frontend
+<table>
+  <tbody>
+    <tr>
+      <td align="center"><a href="https://github.com/PHJoon"><img src="https://avatars.githubusercontent.com/u/112736264?v=4"width="100px;" alt=""/><br /><sub><b>이수빈</b></sub></a><br /></td>
+      <td align="center"><a href="https://github.com/hyobb109"><img src="https://avatars.githubusercontent.com/u/68101516?v=4" width="100px;" alt=""/><br /><sub><b>고명준</b></sub></a><br /></td>
+    </tr>
+  </tbody>
+</table>  
+
+#### Backend
+<table>
+  <tbody>
+    <tr>
+      <td align="center"><a href="https://github.com/subillie"><img src="https://avatars.githubusercontent.com/u/41848796?v=4" width="100px;" alt=""/><br /><sub><b>정주영</b></sub></a><br /></td>
+      <td align="center"><a href="https://github.com/inwoo0115"><img src="https://avatars.githubusercontent.com/u/88661835?v=4" width="100px;" alt=""/><br /><sub><b>이원진</b></sub></a><br /></td>
+    </tr>
+  </tbody>
+</table>  
 
 ### DB ERD
 ![DB_ERD](img/DB_ERD.png)  
