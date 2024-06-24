@@ -99,13 +99,6 @@ class WaitingRoom extends PageComponent {
           history.back();
           break;
         default:
-          // TODO: data 수정되면 조건문 삭제
-          if (data.error) {
-            console.error('Room Socket Error:', data.error);
-            ToastHandler.setToast(data.error);
-            SocketManager.roomSocket.close();
-            history.back();
-          }
           break;
       }
     };
