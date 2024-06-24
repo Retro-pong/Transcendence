@@ -19,6 +19,7 @@ class PlayGame extends PageComponent {
     this.finalId = params.get('final');
     this.gameMode = params.get('mode'); // normal, semi-final, final
     this.isFinalUser = false;
+    this.socketTimeoutId = null;
 
     switch (this.gameMode) {
       case 'normal':
@@ -69,7 +70,7 @@ class PlayGame extends PageComponent {
       modalId: 'gameResultModal',
       content: `
         <div class="d-flex flex-column justify-content-center align-items-center h-50">
-          <div id="gameResult" class="fs-15"></div>
+          <div id="gameResult" class="fs-15 w-100 d-flex justify-content-center align-items-center"></div>
           <div class="w-100 d-flex align-items-center">
             <div id="modalRedNick" class="text-danger w-75 d-flex justify-content-center fs-9"></div>
             <div id="redScore" class="text-danger w-25 d-flex fs-12"></div>
@@ -149,6 +150,9 @@ class PlayGame extends PageComponent {
       gameStartBtn.innerText = 'Waiting for opponent...';
       gameStartBtn.disabled = true;
       SocketManager.gameSocket.send(JSON.stringify({ type: 'ready' }));
+      this.socketTimeoutId = setTimeout(() => {
+        SocketManager.gameSocket.close(1000, 'Time out');
+      }, 3000);
     });
 
     this.gameManger = new GameManager();
@@ -169,7 +173,6 @@ class PlayGame extends PageComponent {
       };
       SocketManager.gameSocket.onmessage = (e) => {
         const data = JSON.parse(e.data);
-        console.log(data);
         switch (data.type) {
           case 'start':
             this.side = data.color;
@@ -178,9 +181,11 @@ class PlayGame extends PageComponent {
             gameStartBtn.classList.remove('d-none');
             gameStartBtn.disabled = false;
             this.gameStart = false;
+            gameResult.innerText = '';
             break;
           case 'render':
             if (this.gameStart === false) {
+              clearTimeout(this.socketTimeoutId);
               this.gameStart = true;
               this.gameEnd = false;
               this.gameError = false;
@@ -201,14 +206,14 @@ class PlayGame extends PageComponent {
             console.log('result', data);
             this.gameEnd = data.winner !== 'None';
             if (this.gameMode === 'semi-final') {
-              Fetch.showLoading();
+              // Fetch.showLoading();
             } else {
               SocketManager.gameSocket.close(1000, 'Game End');
             }
             break;
           case 'final':
             console.log('final', data);
-            Fetch.hideLoading();
+            // Fetch.hideLoading();
             this.gameEnd = data.isFinal === 'True';
             this.isFinalUser = data.isFinalUser === 'True';
             SocketManager.gameSocket.close(1000, 'Game End');
@@ -233,10 +238,9 @@ class PlayGame extends PageComponent {
             this.gameError ? this.gameErrorMsg : 'User Exit'
           );
         }
-
-          setGameResultModal();
-          gameResultModal.show();
-          SocketManager.gameSocket = null;
+        setGameResultModal();
+        gameResultModal.show();
+        SocketManager.gameSocket = null;
       };
       SocketManager.gameSocket.onerror = async () => {
         ToastHandler.setToast('Game Error! Please try again later');
