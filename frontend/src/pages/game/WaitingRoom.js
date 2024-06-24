@@ -74,6 +74,7 @@ class WaitingRoom extends PageComponent {
       const data = JSON.parse(e.data);
       this.roomTitle = data.room_name;
       this.addRoomTitle();
+
       switch (data.type) {
         case 'users':
           this.makePlayerList(data);
@@ -81,9 +82,15 @@ class WaitingRoom extends PageComponent {
           break;
         case 'start_game':
           SocketManager.roomSocket.close();
-          Router.navigateTo(
-            `/game/play?id=${data.room_id}&mode=${this.roomMode}`
-          );
+          if (this.roomMode === 'normal') {
+            Router.navigateTo(
+              `/game/play?id=${data.room_id}&mode=${this.roomMode}`
+            );
+          } else {
+            Router.navigateTo(
+              `/game/play?semi_1=${data.room_id_semi_1}&semi_2=${data.room_id_semi_2}&final=${data.room_id_final}&mode=semi-final`
+            );
+          }
           break;
         case 'error':
           console.error('Room Socket Error:', data.message);
@@ -92,13 +99,6 @@ class WaitingRoom extends PageComponent {
           history.back();
           break;
         default:
-          // TODO: data 수정되면 조건문 삭제
-          if (data.error) {
-            console.error('Room Socket Error:', data.error);
-            ToastHandler.setToast(data.error);
-            SocketManager.roomSocket.close();
-            history.back();
-          }
           break;
       }
     };
