@@ -281,14 +281,17 @@ class SemiFinalGameConsumer(NormalGameConsumer):
                 winner1 = match.get_winner()
                 winner2 = opponent_match.get_winner()
                 is_final = True
+                is_final_user = True
                 if winner1 == "None" or winner2 == "None":
                     is_final = False
+                if self.user.username != winner1 and self.user.username != winner2:
+                    is_final_user = False
                 await self.channel_layer.group_send(
                     self.final_id,
                     {
                         "type": "broadcast_users",
                         "data": match.tournament_result_data(
-                            is_final, self.final_id, winner1, winner2
+                            is_final, self.final_id, is_final_user
                         ),
                         "data_type": "final",
                     },
