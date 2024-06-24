@@ -169,6 +169,7 @@ class PlayGame extends PageComponent {
       };
       SocketManager.gameSocket.onmessage = (e) => {
         const data = JSON.parse(e.data);
+        console.log(data);
         switch (data.type) {
           case 'start':
             this.side = data.color;
