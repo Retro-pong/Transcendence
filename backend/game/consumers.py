@@ -35,6 +35,13 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
                     self.channel_layer.background_task = asyncio.create_task(
                         self.game_loop()
                     )
+                else:
+                    await asyncio.sleep(10)
+                    if not match.p2:
+                        await self.send_json(
+                            {"type": "error", "message": "Opponent is not connected"}
+                        )
+
         elif content["type"] == "move":
             NormalGameConsumer.games[self.game_id].get_players()[self.color].set_pos(
                 content["y"], content["z"]
