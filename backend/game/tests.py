@@ -227,7 +227,7 @@ class TournamentConsumerTest(GameConsumerTest):
                 self.assertEqual(response["redNick"], "testuser1")
                 break
         response = await communicator1.receive_json_from(1000)
-        # print(response)
+        print(response)
 
     async def a_test_semi_final_disconnect(self):
         result1 = await self.create_test_result(
