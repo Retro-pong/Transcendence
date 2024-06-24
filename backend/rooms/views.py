@@ -114,6 +114,12 @@ class JoinTournamentRoomAPIView(APIView):
                 description="Bad request",
                 examples={"application/json": {"error": "Error message"}},
             ),
+            401: openapi.Response(
+                description="Unauthorized",
+            ),
+            403: openapi.Response(
+                description="Forbidden",
+            ),
         },
     )
     def get(self, request):
@@ -165,11 +171,17 @@ class CreateRoomAPIView(APIView):
             400: openapi.Response(
                 description="Bad request",
             ),
+            401: openapi.Response(
+                description="Unauthorized",
+            ),
+            403: openapi.Response(
+                description="Forbidden",
+            ),
         },
     )
     def post(self, request):
         try:
-            # user = request.user
+            user = request.user
             room_name = request.data["room_name"]
             game_mode = request.data["game_mode"]
             game_speed = request.data["game_speed"]
