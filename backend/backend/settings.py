@@ -14,6 +14,7 @@ from datetime import timedelta
 from pathlib import Path
 import environ
 import os
+# import dj_database_url # postgre db url
 
 BASE_DIR_PATH = Path(__file__).resolve().parent.parent
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
