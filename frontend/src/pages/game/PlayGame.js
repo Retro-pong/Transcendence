@@ -196,13 +196,14 @@ class PlayGame extends PageComponent {
             console.log('result', data);
             this.gameEnd = data.winner !== 'None';
             if (this.gameMode === 'semi-final') {
+              Fetch.showLoading();
             } else {
               SocketManager.gameSocket.close(1000, 'Game End');
             }
             break;
           case 'final':
             console.log('final', data);
-            // Fetch.hideLoading();
+            Fetch.hideLoading();
             this.gameEnd = data.isFinal === 'True';
             this.isFinalUser = data.isFinalUser === 'True';
             SocketManager.gameSocket.close(1000, 'Game End');
