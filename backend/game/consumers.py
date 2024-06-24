@@ -1,9 +1,9 @@
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from channels.db import database_sync_to_async
 from django.apps import apps
-from .modules import Player, Game, WAIT, READY, END, DISCONNECTED
-import asyncio
+from .modules import Player, Game, READY, END, DISCONNECTED
 from backend.middleware import JWTAuthMiddleware
+import asyncio
 
 
 class NormalGameConsumer(AsyncJsonWebsocketConsumer):
@@ -199,7 +199,6 @@ class SemiFinalGameConsumer(NormalGameConsumer):
         self.final_id = self.scope["url_route"]["kwargs"]["final_id"]
         await self.accept()  # 소켓 연결 수락
 
-    # 소켓 request 처리
     async def receive_json(self, content: dict) -> None:
         """
         소켓 request 처리
@@ -360,7 +359,6 @@ class FinalGameConsumer(NormalGameConsumer):
     games: dict[str, Game] = {}
     games_lock = asyncio.Lock()
 
-    # 소켓 request 처리
     async def receive_json(self, content: dict) -> None:
         """
         소켓 request 처리

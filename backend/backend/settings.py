@@ -14,7 +14,7 @@ from datetime import timedelta
 from pathlib import Path
 import environ
 import os
-import dj_database_url
+# import dj_database_url # postgre db url
 
 BASE_DIR_PATH = Path(__file__).resolve().parent.parent
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -40,6 +40,9 @@ INTRA_CLIENT_ID = os.environ.get("INTRA_CLIENT_ID")
 INTRA_CLIENT_SECRET = os.environ.get("INTRA_CLIENT_SECRET")
 INTRA_REDIRECT_URI = os.environ.get("INTRA_REDIRECT_URI")
 
+# CORS
+DJANGO_ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "localhost").split(",")
+DJANGO_ALLOWED_ORIGINS = os.getenv("DJANGO_CORS_ALLOWED_ORIGINS", "").split(",")
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
@@ -60,6 +63,7 @@ INSTALLED_APPS = [
     # installed app error
     "daphne",
     "channels",
+    "corsheaders",
     "users.apps.UsersConfig",
     "login.apps.LoginConfig",
     "friends.apps.FriendsConfig",
@@ -80,6 +84,7 @@ ASGI_APPLICATION = "backend.asgi.application"
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -211,3 +216,7 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+CORS_ALLOWED_ORIGINS = DJANGO_ALLOWED_ORIGINS
+
+ALLOWED_HOSTS = DJANGO_ALLOWED_HOSTS
