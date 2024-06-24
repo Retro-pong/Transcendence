@@ -1,7 +1,7 @@
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from channels.db import database_sync_to_async
 from django.apps import apps
-from .modules import Player, Game, WAIT, READY, END, DISCONNECTED
+from .modules import Player, Game, READY, END, DISCONNECTED
 import asyncio
 from backend.middleware import JWTAuthMiddleware
 
