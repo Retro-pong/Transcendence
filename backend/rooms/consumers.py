@@ -164,10 +164,13 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
 
     @database_sync_to_async
     def update_current_players(self, player: int) -> int:
-        room_model = apps.get_model("rooms", "Room")
-        room = room_model.objects.get(id=self.room_id)
-        room.current_players = player
-        room.save()
+        try:
+            room_model = apps.get_model("rooms", "Room")
+            room = room_model.objects.get(id=self.room_id)
+            room.current_players = player
+            room.save()
+        except:
+            return 0
         return player
 
     @database_sync_to_async
@@ -369,14 +372,3 @@ class TournamentRoomConsumer(NormalRoomConsumer):
             "room_id_final": game_id_final,
         }
         await self.send_json(data)
-
-    @database_sync_to_async
-    def update_current_players(self, player: int) -> int:
-        try:
-            room_model = apps.get_model("rooms", "Room")
-            room = room_model.objects.get(id=self.room_id)
-            room.current_players = player
-            room.save()
-        except:
-            return 0
-        return player
