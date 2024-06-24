@@ -1,4 +1,11 @@
-const RegisterFormItem = (classList, labelId, content, type, placeholder) => {
+const RegisterFormItem = (
+  classList,
+  labelId,
+  content,
+  type,
+  placeholder,
+  autocomplete = 'on'
+) => {
   const code = labelId.startsWith('email') ? 'code-input' : '';
 
   return `
@@ -10,7 +17,7 @@ const RegisterFormItem = (classList, labelId, content, type, placeholder) => {
         <div class="col-3 d-flex align-items-center fs-7 d-none d-md-block">:</div>
       </div>
       <div class="col-md-6 d-flex align-items-center justify-content-center fs-7">
-        <input type="${type}" id="${labelId}" class="form-control h-100 fs-7 bg-transparent ${code}" placeholder="${placeholder}" />
+        <input type="${type}" id="${labelId}" class="form-control h-100 fs-7 bg-transparent ${code}" placeholder="${placeholder}" autocomplete="${autocomplete}" />
       </div>
     </div>
   `;

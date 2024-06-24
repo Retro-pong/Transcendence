@@ -6,7 +6,8 @@ const EmailCodeForm = () => {
     'emailCode',
     'MAILCODE',
     'text',
-    'MAILCODE'
+    'MAILCODE',
+    'one-time-code'
   );
 
   return `
