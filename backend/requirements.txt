@@ -17,6 +17,7 @@ daphne==4.1.2
 dj-database-url==2.2.0
 dj-rest-auth==6.0.0
 Django==5.0.4
+django-cors-headers==4.4.0
 django-environ==0.11.2
 django-filter==24.2
 django-redis==5.4.0

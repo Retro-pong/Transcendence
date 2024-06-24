@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     # installed app error
     "daphne",
     "channels",
+    "corsheaders",
     "users.apps.UsersConfig",
     "login.apps.LoginConfig",
     "friends.apps.FriendsConfig",
@@ -80,6 +81,7 @@ ASGI_APPLICATION = "backend.asgi.application"
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -211,3 +213,9 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]
+
+ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "localhost").split(",")
