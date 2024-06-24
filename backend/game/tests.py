@@ -56,10 +56,24 @@ class GameConsumerTest(TransactionTestCase):
         # get start data
         response = await communicator1.receive_json_from()
         self.assertEqual(response["color"], "red")
-        # send ready
+        # user2 connect
+        # token = TokenObtainPairSerializer.get_token(user2)
+        # access_token = str(token.access_token)
+        # communicator2 = WebsocketCommunicator(
+        #     URLRouter(websocket_urlpatterns),
+        #     f"/ws/normal_game/{result.id}/",
+        # )
+        # connected, subprotocol = await communicator2.connect()
+        # self.assertTrue(connected)
+        # await communicator2.send_json_to({"type": "access", "token": access_token})
+        # response = await communicator2.receive_json_from()
+        # self.assertEqual(response, {"access": "Access successful."})
+        # # send ready
+        # await communicator2.disconnect()
         await communicator1.send_json_to({"type": "ready"})
         await asyncio.sleep(12)
         response = await communicator1.receive_json_from()
+        self.assertEqual(response["type"], "error")
 
     #
     # async def test_game_connect(self):
@@ -168,7 +182,7 @@ class GameConsumerTest(TransactionTestCase):
 
 
 class TournamentConsumerTest(GameConsumerTest):
-    async def a_test_semi_final(self):
+    async def x_test_semi_final(self):
         result1 = await self.create_test_result(
             "map", "tournament", 1, "#000000", timezone.now()
         )
@@ -277,7 +291,7 @@ class TournamentConsumerTest(GameConsumerTest):
         response = await communicator4.receive_json_from(1000)
         print(response)
 
-    async def a_test_semi_final_disconnect(self):
+    async def x_test_semi_final_disconnect(self):
         result1 = await self.create_test_result(
             "map", "tournament", 1, "#000000", timezone.now()
         )
