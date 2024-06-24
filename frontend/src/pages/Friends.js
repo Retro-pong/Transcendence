@@ -68,20 +68,22 @@ class Friends extends PageComponent {
           request_patch: '1',
         })
           .then(async (res) => {
+            console.log(res);
             if (res.status === 201) {
               await this.initPageData(this);
               this.onReloadButtonClick(this);
               this.onPaginationClick(this);
               ToastHandler.setToast('Friend accepted');
-              document
-                .querySelector(`[data-wait-item="${friendName}"]`)
-                .remove();
             }
           })
           .catch((err) => {
+            console.log(err);
             ToastHandler.setToast(
               `${err.message || 'Failed to accept friend'}`
             );
+          })
+          .finally(() => {
+            document.querySelector(`[data-wait-item="${friendName}"]`).remove();
           });
       });
     });
@@ -98,15 +100,15 @@ class Friends extends PageComponent {
           .then((res) => {
             if (res.status === 200) {
               ToastHandler.setToast('Friend rejected');
-              document
-                .querySelector(`[data-wait-item="${friendName}"]`)
-                .remove();
             }
           })
           .catch((err) => {
             ToastHandler.setToast(
               `${err.message || 'Failed to reject friend'}`
             );
+          })
+          .finally(() => {
+            document.querySelector(`[data-wait-item="${friendName}"]`).remove();
           });
       });
     });
@@ -243,7 +245,7 @@ class Friends extends PageComponent {
     return `
       ${FriendWaitModal}
       ${FriendAddModal}
-      <div class="d-md-flex justify-content-between position-sticky top-0 z-1">
+      <div class="d-md-flex justify-content-between top-0 z-1">
         <h1 class="fs-14">Friends</h1>
         <div class="d-flex flex-row pe-5">
           ${FriendPageButtons()}
