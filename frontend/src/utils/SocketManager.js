@@ -3,7 +3,7 @@ import Router from '@/utils/Router';
 import ToastHandler from '@/utils/ToastHandler';
 
 class SocketManager {
-  static #BASE_URL = 'ws://localhost/ws';
+  static #BASE_URL = import.meta.env.VITE_WS_BASE_URL;
 
   static onlineSocket = null;
 
