@@ -219,6 +219,7 @@ class TournamentConsumerTest(GameConsumerTest):
         await communicator3.send_json_to({"type": "ready"})
         await communicator4.send_json_to({"type": "ready"})
         while True:
+            response = await communicator2.receive_json_from()
             response = await communicator1.receive_json_from()
             if response["type"] == "render":
                 self.assertEqual(response["redNick"], "testuser1")
@@ -226,7 +227,21 @@ class TournamentConsumerTest(GameConsumerTest):
                 # print(response)
                 self.assertEqual(response["redNick"], "testuser1")
                 break
+        while True:
+            response = await communicator3.receive_json_from()
+            response = await communicator4.receive_json_from()
+            if response["type"] == "render":
+                continue
+            if response["type"] == "result":
+                # print(response)
+                break
         response = await communicator1.receive_json_from(1000)
+        print(response)
+        response = await communicator2.receive_json_from(1000)
+        print(response)
+        response = await communicator3.receive_json_from(1000)
+        print(response)
+        response = await communicator4.receive_json_from(1000)
         print(response)
 
     async def a_test_semi_final_disconnect(self):
