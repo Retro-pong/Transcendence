@@ -238,10 +238,11 @@ class Game:
         }
 
     def tournament_result_data(
-        self, is_final: bool, final_id: str, is_final_user: bool
+        self, is_final: bool, final_id: str, winner1: str, winner2: str
     ) -> dict:
         return {
             "isFinal": is_final,
             "finalId": final_id,
-            "isFinalUser": is_final_user,
+            "winner1": winner1,
+            "winner2": winner2,
         }
