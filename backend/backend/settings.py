@@ -40,6 +40,9 @@ INTRA_CLIENT_ID = os.environ.get("INTRA_CLIENT_ID")
 INTRA_CLIENT_SECRET = os.environ.get("INTRA_CLIENT_SECRET")
 INTRA_REDIRECT_URI = os.environ.get("INTRA_REDIRECT_URI")
 
+# CORS
+DJANGO_ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "localhost").split(",")
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
@@ -218,4 +221,4 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
 ]
 
-ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "localhost").split(",")
+ALLOWED_HOSTS = DJANGO_ALLOWED_HOSTS
