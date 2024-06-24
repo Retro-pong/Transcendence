@@ -62,13 +62,3 @@ def obtain_jwt_token(user) -> Response:
     response.set_cookie("refresh_token", refresh_token, httponly=True)
 
     return response
-
-
-# def get_jwt_token(user) -> str:
-#     payload = {
-#         "user_id": user.id,
-#         "email": user.email,
-#         "exp": datetime.datetime.utcnow() + datetime.timedelta(days=1),
-#     }
-#     token = jwt.encode(payload, settings.SECRET_KEY, algorithm="HS256")
-#     return token.decode("utf-8")
