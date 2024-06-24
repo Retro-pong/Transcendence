@@ -34,6 +34,9 @@ class WaitingRoom extends PageComponent {
 
   addRoomTitle() {
     const roomTitle = document.getElementById('room-title');
+    if (!roomTitle) {
+      SocketManager.roomSocket.close();
+    }
     roomTitle.innerHTML = `Welcome to<br />[ ${this.roomTitle} ]`;
   }
 

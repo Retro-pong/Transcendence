@@ -6,7 +6,6 @@ import TokenManager from '@/utils/TokenManager';
 import GameManager from '@/utils/game/GameManager';
 import Router from '@/utils/Router';
 import ToastHandler from '@/utils/ToastHandler';
-import Fetch from '@/utils/Fetch';
 
 class PlayGame extends PageComponent {
   constructor() {
@@ -19,7 +18,6 @@ class PlayGame extends PageComponent {
     this.finalId = params.get('final');
     this.gameMode = params.get('mode'); // normal, semi-final, final
     this.isFinalUser = false;
-    this.socketTimeoutId = null;
 
     switch (this.gameMode) {
       case 'normal':
@@ -40,6 +38,7 @@ class PlayGame extends PageComponent {
       default:
         break;
     }
+    SocketManager.handlePopstate('game');
 
     this.gameManger = null;
     this.side = '';
@@ -150,9 +149,6 @@ class PlayGame extends PageComponent {
       gameStartBtn.innerText = 'Waiting for opponent...';
       gameStartBtn.disabled = true;
       SocketManager.gameSocket.send(JSON.stringify({ type: 'ready' }));
-      this.socketTimeoutId = setTimeout(() => {
-        SocketManager.gameSocket.close(1000, 'Time out');
-      }, 3000);
     });
 
     this.gameManger = new GameManager();
@@ -185,7 +181,6 @@ class PlayGame extends PageComponent {
             break;
           case 'render':
             if (this.gameStart === false) {
-              clearTimeout(this.socketTimeoutId);
               this.gameStart = true;
               this.gameEnd = false;
               this.gameError = false;
@@ -232,7 +227,9 @@ class PlayGame extends PageComponent {
             break;
         }
       };
-      SocketManager.gameSocket.onclose = () => {
+      SocketManager.gameSocket.onclose = async (e) => {
+        console.log('game socket closed', e.code);
+
         if (this.gameEnd === false) {
           ToastHandler.setToast(
             this.gameError ? this.gameErrorMsg : 'User Exit'
@@ -241,11 +238,11 @@ class PlayGame extends PageComponent {
         setGameResultModal();
         gameResultModal.show();
         SocketManager.gameSocket = null;
+        await Router.navigateTo('/game');
       };
-      SocketManager.gameSocket.onerror = async () => {
+      SocketManager.gameSocket.onerror = () => {
         ToastHandler.setToast('Game Error! Please try again later');
         SocketManager.gameSocket = null;
-        await Router.navigateTo('/game');
       };
     }
   }

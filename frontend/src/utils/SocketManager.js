@@ -42,6 +42,19 @@ class SocketManager {
     this.closeGameSocket();
   }
 
+  static handlePopstate(mode) {
+    const socket = mode === 'room' ? this.roomSocket : this.gameSocket;
+    window.addEventListener(
+      'popstate',
+      () => {
+        if (!socket || socket.readyState === WebSocket.CLOSING) return;
+        ToastHandler.setToast('You left the room');
+        socket.close();
+      },
+      { once: true }
+    );
+  }
+
   static setRoomSocket() {
     const params = new URLSearchParams(document.location.search);
     const roomId = params.get('id');
@@ -56,20 +69,7 @@ class SocketManager {
     }
 
     this.roomSocket = this.createSocket(`/${roomMode}_room/${roomId}/`);
-
-    window.addEventListener(
-      'popstate',
-      () => {
-        if (
-          !this.roomSocket ||
-          this.roomSocket.readyState === WebSocket.CLOSING
-        )
-          return;
-        ToastHandler.setToast('You left the room');
-        this.roomSocket.close();
-      },
-      { once: true }
-    );
+    this.handlePopstate('room');
 
     this.roomSocket.onopen = () => {
       this.roomSocket.send(this.getAccessMessage());

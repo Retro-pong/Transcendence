@@ -17,8 +17,8 @@ const BattleHistory = (username = '', history = []) => {
       const score1 = data.player1_score;
       const score2 = data.player2_score;
       const date = new Date(data.start_time);
-      const hour = date.getHours();
-      const min = date.getMinutes();
+      const hour = date.getHours().toString().padStart(2, '0');
+      const min = date.getMinutes().toString().padStart(2, '0');
 
       return `
       <tr>

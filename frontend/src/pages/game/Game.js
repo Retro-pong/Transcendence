@@ -30,7 +30,7 @@ class Game extends PageComponent {
     }).outerHTML;
 
     const ManualButton = OpenModalButton({
-      text: 'How To Play',
+      text: '[ How To Play ]',
       classList: 'btn btn-no-outline-hover fs-10 manualBtn',
       modalId: '#gameManualModal',
     });
