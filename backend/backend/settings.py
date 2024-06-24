@@ -42,7 +42,7 @@ INTRA_REDIRECT_URI = os.environ.get("INTRA_REDIRECT_URI")
 
 # CORS
 DJANGO_ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "localhost").split(",")
-
+DJANGO_ALLOWED_ORIGINS = os.getenv("DJANGO_CORS_ALLOWED_ORIGINS", "").split(",")
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
@@ -217,8 +217,6 @@ CHANNEL_LAYERS = {
     },
 }
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-]
+CORS_ALLOWED_ORIGINS = DJANGO_ALLOWED_ORIGINS
 
 ALLOWED_HOSTS = DJANGO_ALLOWED_HOSTS
