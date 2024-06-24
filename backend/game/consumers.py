@@ -1,9 +1,9 @@
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from channels.db import database_sync_to_async
 from django.apps import apps
-from .modules import Player, Game, WAIT, READY, END, DISCONNECTED
-import asyncio
+from .modules import Player, Game, READY, END, DISCONNECTED
 from backend.middleware import JWTAuthMiddleware
+import asyncio
 
 
 class NormalGameConsumer(AsyncJsonWebsocketConsumer):
@@ -199,7 +199,6 @@ class SemiFinalGameConsumer(NormalGameConsumer):
         self.final_id = self.scope["url_route"]["kwargs"]["final_id"]
         await self.accept()  # 소켓 연결 수락
 
-    # 소켓 request 처리
     async def receive_json(self, content: dict) -> None:
         """
         소켓 request 처리
@@ -281,17 +280,17 @@ class SemiFinalGameConsumer(NormalGameConsumer):
                 winner1 = match.get_winner()
                 winner2 = opponent_match.get_winner()
                 is_final = True
-                is_final_user = True
                 if winner1 == "None" or winner2 == "None":
                     is_final = False
-                if self.user.username != winner1 and self.user.username != winner2:
-                    is_final_user = False
                 await self.channel_layer.group_send(
                     self.final_id,
                     {
-                        "type": "broadcast_users",
+                        "type": "broadcast_final",
                         "data": match.tournament_result_data(
-                            is_final, self.final_id, is_final_user
+                            is_final,
+                            self.final_id,
+                            winner1,
+                            winner2,
                         ),
                         "data_type": "final",
                     },
@@ -300,6 +299,18 @@ class SemiFinalGameConsumer(NormalGameConsumer):
                 del SemiFinalGameConsumer.games[self.opponent_id]
                 if not is_final:
                     await self.delete_game_result(self.final_id)
+
+    async def broadcast_final(self, event: dict) -> None:
+        data = event["data"]
+        data["type"] = event["data_type"]
+        if (
+            self.user.username != data["winner1"]
+            and self.user.username != data["winner2"]
+        ):
+            data["isFinalUser"] = False
+        else:
+            data["isFinalUser"] = True
+        await self.send_json(data)
 
     async def user_access(self, content: dict) -> None:
         token = content["token"]
@@ -360,7 +371,6 @@ class FinalGameConsumer(NormalGameConsumer):
     games: dict[str, Game] = {}
     games_lock = asyncio.Lock()
 
-    # 소켓 request 처리
     async def receive_json(self, content: dict) -> None:
         """
         소켓 request 처리
