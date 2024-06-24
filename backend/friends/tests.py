@@ -108,6 +108,15 @@ class FriendsListAPIViewTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertFalse(FriendRequest.objects.filter(id=friend_request.id).exists())
 
+    def test_friend_request_duplicate(self):
+        friend_request1 = FriendRequest.objects.create(
+            user=self.user, friend_name="friend1"
+        )
+        url = reverse("friends:waiting_list")
+        data = {"friend_name": "friend1", "request_patch": 1}
+        response = self.client.patch(url, data)
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+
 
 class AddListAPIViewTest(APITestCase):
     def setUp(self):
