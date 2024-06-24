@@ -6,6 +6,7 @@ import TokenManager from '@/utils/TokenManager';
 import GameManager from '@/utils/game/GameManager';
 import Router from '@/utils/Router';
 import ToastHandler from '@/utils/ToastHandler';
+import Fetch from '@/utils/Fetch';
 
 class PlayGame extends PageComponent {
   constructor() {
@@ -13,10 +14,32 @@ class PlayGame extends PageComponent {
     this.setTitle('Play Game');
     const params = new URLSearchParams(document.location.search);
     this.gameId = params.get('id');
-    this.gameMode = params.get('mode');
-    SocketManager.gameSocket = this.gameMode
-      ? SocketManager.createSocket(`/${this.gameMode}_game/${this.gameId}/`)
-      : null;
+    this.semiOneId = params.get('semi_1');
+    this.semiTwoId = params.get('semi_2');
+    this.finalId = params.get('final');
+    this.gameMode = params.get('mode'); // normal, semi-final, final
+    this.isFinalUser = false;
+
+    switch (this.gameMode) {
+      case 'normal':
+        SocketManager.gameSocket = SocketManager.createSocket(
+          `/${this.gameMode}_game/${this.gameId}/`
+        );
+        break;
+      case 'semi-final':
+        SocketManager.gameSocket = SocketManager.createSocket(
+          `/semi_final_game/${this.semiOneId}/${this.semiTwoId}/${this.finalId}/`
+        );
+        break;
+      case 'final':
+        SocketManager.gameSocket = SocketManager.createSocket(
+          `/final_game/${this.finalId}/`
+        );
+        break;
+      default:
+        break;
+    }
+
     this.gameManger = null;
     this.side = '';
     this.blueScore = '';
@@ -97,10 +120,25 @@ class PlayGame extends PageComponent {
       gameResultModal.hide();
     });
 
+    const setGameResultModal = () => {
+      modalRedNick.innerText = this.redNick;
+      modalBlueNick.innerText = this.blueNick;
+      redScore.innerText = `${this.redScore}`;
+      blueScore.innerText = `${this.blueScore}`;
+      const winner = this.redScore > this.blueScore ? 'red' : 'blue';
+      gameResult.innerText = this.side === winner ? 'You Win!' : 'You Lose!';
+      gameResult.classList.add(
+        this.side === 'red' ? 'text-danger' : 'text-primary'
+      );
+    };
+
     gameResultModalElement.addEventListener('hidden.bs.modal', async () => {
       redScore.innerText = '';
       blueScore.innerText = '';
-      await Router.navigateTo('/game');
+      const path = this.isFinalUser
+        ? `/game/play?final=${this.finalId}&mode=final`
+        : `/game`;
+      await Router.navigateTo(path);
     });
 
     gameStartBtn.addEventListener('click', () => {
@@ -127,13 +165,6 @@ class PlayGame extends PageComponent {
       };
       SocketManager.gameSocket.onmessage = (e) => {
         const data = JSON.parse(e.data);
-        // 방이 다 찬 경우 or 새로고침해서 소켓 끊었다가 다시 연결한 경우
-        if (data.error) {
-          this.gameError = true;
-          this.gameErrorMsg = data.error;
-          SocketManager.gameSocket.close(1000, 'Game Full');
-          return;
-        }
         switch (data.type) {
           case 'start':
             this.side = data.color;
@@ -162,7 +193,18 @@ class PlayGame extends PageComponent {
             this.gameManger.multiGameUpdateObjects(data);
             break;
           case 'result':
-            this.gameEnd = true;
+            console.log('result', data);
+            this.gameEnd = data.winner !== 'None';
+            if (this.gameMode === 'semi-final') {
+            } else {
+              SocketManager.gameSocket.close(1000, 'Game End');
+            }
+            break;
+          case 'final':
+            console.log('final', data);
+            // Fetch.hideLoading();
+            this.gameEnd = data.isFinal === 'True';
+            this.isFinalUser = data.isFinalUser === 'True';
             SocketManager.gameSocket.close(1000, 'Game End');
             break;
           case 'exit':
@@ -182,20 +224,11 @@ class PlayGame extends PageComponent {
       SocketManager.gameSocket.onclose = () => {
         if (this.gameEnd === false) {
           ToastHandler.setToast(
-            this.gameError ? this.gameErrorMsg : 'Opponent Exit'
+            this.gameError ? this.gameErrorMsg : 'User Exit'
           );
           Router.navigateTo('/game');
         } else {
-          modalRedNick.innerText = this.redNick;
-          modalBlueNick.innerText = this.blueNick;
-          redScore.innerText = `${this.redScore}`;
-          blueScore.innerText = `${this.blueScore}`;
-          const winner = this.redScore > this.blueScore ? 'red' : 'blue';
-          gameResult.innerText =
-            this.side === winner ? 'You Win!' : 'You Lose!';
-          gameResult.classList.add(
-            this.side === 'red' ? 'text-danger' : 'text-primary'
-          );
+          setGameResultModal();
           gameResultModal.show();
           SocketManager.gameSocket = null;
         }
