@@ -342,7 +342,10 @@ class WaitingListAPIView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
 
         if request_accepted:  # 친구 요청 수락 처리
-            Friend.create_friend(user, friend_name)
+            try:
+                Friend.create_friend(user, friend_name)
+            except Exception as e:
+                return Response({"error": str(e)}, status=status.HTTP_409_CONFLICT)
             return Response(status=status.HTTP_201_CREATED)
         return Response(status=status.HTTP_200_OK)  # 친구 요청 거절 처리
 
