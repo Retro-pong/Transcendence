@@ -166,7 +166,7 @@ class NormalRoomConsumer(AsyncJsonWebsocketConsumer):
     def update_current_player(self, player: int) -> int:
         room_model = apps.get_model("rooms", "Room")
         room = room_model.objects.get(id=self.room_id)
-        room.current_player = player
+        room.current_players = player
         room.save()
         return player
 

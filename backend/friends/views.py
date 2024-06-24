@@ -249,6 +249,9 @@ class WaitingListAPIView(APIView):
                 description="Forbidden",
                 examples={"application/json": {"error": "User not found."}},
             ),
+            500: openapi.Response(
+                description="Internal server error",
+            ),
         },
     )
     def get(self, request):
