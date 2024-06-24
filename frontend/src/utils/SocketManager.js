@@ -72,6 +72,7 @@ class SocketManager {
     this.handlePopstate('room');
 
     this.roomSocket.onopen = () => {
+      if (!this.roomSocket) return;
       this.roomSocket.send(this.getAccessMessage());
       console.log('Room Socket Connected');
     };

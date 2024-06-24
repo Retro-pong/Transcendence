@@ -31,17 +31,13 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
             match = NormalGameConsumer.games[self.game_id]
             await self.change_status(self.color, READY)
             async with NormalGameConsumer.games_lock:
-                if match.set_ready(match.get_players()[self.color]):
+                check_ready = match.set_ready(match.get_players()[self.color])
+                if check_ready:
                     self.channel_layer.background_task = asyncio.create_task(
                         self.game_loop()
                     )
-                else:
-                    await asyncio.sleep(10)
-                    if not match.p2:
-                        await self.send_json(
-                            {"type": "error", "message": "Opponent is not connected"}
-                        )
-
+            if not check_ready:
+                self.task = asyncio.create_task(self.check_opponent_connect(match))
         elif content["type"] == "move":
             NormalGameConsumer.games[self.game_id].get_players()[self.color].set_pos(
                 content["y"], content["z"]
@@ -88,6 +84,13 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
                     "data_type": "render",
                 },
             )
+
+    async def check_opponent_connect(self, match):
+        await asyncio.sleep(10)
+        if match.p1 and match.p1.status != DISCONNECTED:
+            if match.p2 and match.p2.status != DISCONNECTED:
+                return
+        await self.send_json({"type": "error", "message": "Opponent not connected"})
 
     async def user_access(self, content: dict) -> None:
         token = content["token"]
@@ -220,16 +223,13 @@ class SemiFinalGameConsumer(NormalGameConsumer):
             match = SemiFinalGameConsumer.games[self.game_id]
             await self.change_status(self.color, READY)
             async with SemiFinalGameConsumer.games_lock:
-                if match.set_ready(match.get_players()[self.color]):
+                check_ready = match.set_ready(match.get_players()[self.color])
+                if check_ready:
                     self.channel_layer.background_task = asyncio.create_task(
                         self.game_loop()
                     )
-                else:
-                    await asyncio.sleep(10)
-                    if not match.p2:
-                        await self.send_json(
-                            {"type": "error", "message": "Opponent is not connected"}
-                        )
+            if not check_ready:
+                self.task = asyncio.create_task(self.check_opponent_connect(match))
         elif content["type"] == "move":
             SemiFinalGameConsumer.games[self.game_id].get_players()[self.color].set_pos(
                 content["y"], content["z"]
@@ -398,16 +398,13 @@ class FinalGameConsumer(NormalGameConsumer):
             match = FinalGameConsumer.games[self.game_id]
             await self.change_status(self.color, READY)
             async with FinalGameConsumer.games_lock:
-                if match.set_ready(match.get_players()[self.color]):
+                check_ready = match.set_ready(match.get_players()[self.color])
+                if check_ready:
                     self.channel_layer.background_task = asyncio.create_task(
                         self.game_loop()
                     )
-                else:
-                    await asyncio.sleep(10)
-                    if not match.p2:
-                        await self.send_json(
-                            {"type": "error", "message": "Opponent is not connected"}
-                        )
+            if not check_ready:
+                self.task = asyncio.create_task(self.check_opponent_connect(match))
         elif content["type"] == "move":
             FinalGameConsumer.games[self.game_id].get_players()[self.color].set_pos(
                 content["y"], content["z"]

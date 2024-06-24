@@ -100,6 +100,7 @@ class Router {
   static async render() {
     const currPathname = Router.getPathname();
     const isLoggedIn = TokenManager.getLoginStatus();
+    console.log(currPathname);
 
     if (!(currPathname in Router.routes)) {
       ToastHandler.setToast('Page not found! [404]');
@@ -131,6 +132,7 @@ class Router {
       Router.setGamePageApp();
       window.addEventListener('beforeunload', Router.onRefresh);
     } else if (Router.getPathname() === '/game/waiting') {
+      console.log('waiting room rendered');
       Router.hideElement(Router.navBar);
       window.addEventListener('beforeunload', Router.onRefresh);
     } else {
