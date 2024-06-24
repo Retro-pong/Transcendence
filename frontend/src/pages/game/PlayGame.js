@@ -121,12 +121,16 @@ class PlayGame extends PageComponent {
     });
 
     const setGameResultModal = () => {
+      const winner = this.redScore > this.blueScore ? 'red' : 'blue';
       modalRedNick.innerText = this.redNick;
       modalBlueNick.innerText = this.blueNick;
-      redScore.innerText = `${this.redScore}`;
-      blueScore.innerText = `${this.blueScore}`;
-      const winner = this.redScore > this.blueScore ? 'red' : 'blue';
-      gameResult.innerText = this.side === winner ? 'You Win!' : 'You Lose!';
+      redScore.innerText = this.gameEnd ? `${this.redScore}` : '';
+      blueScore.innerText = this.gameEnd ? `${this.blueScore}` : '';
+      if (this.gameEnd) {
+        gameResult.innerText = this.side === winner ? 'You Win!' : 'You Lose!';
+      } else {
+        gameResult.innerText = 'Game End! User Disconnected!';
+      }
       gameResult.classList.add(
         this.side === 'red' ? 'text-danger' : 'text-primary'
       );
@@ -227,12 +231,11 @@ class PlayGame extends PageComponent {
           ToastHandler.setToast(
             this.gameError ? this.gameErrorMsg : 'User Exit'
           );
-          Router.navigateTo('/game');
-        } else {
+        }
+
           setGameResultModal();
           gameResultModal.show();
           SocketManager.gameSocket = null;
-        }
       };
       SocketManager.gameSocket.onerror = async () => {
         ToastHandler.setToast('Game Error! Please try again later');
