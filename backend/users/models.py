@@ -25,7 +25,7 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractUser):
-    # password, is_active는 AbstractUser에서 상속 받아 기본 정의 사용
+    # password는 AbstractUser에서 상속 받아 기본 정의 사용
     username = models.CharField(max_length=10, null=False, unique=True)
     email = models.EmailField(max_length=200, null=False)
     is_registered = models.BooleanField(default=False)
