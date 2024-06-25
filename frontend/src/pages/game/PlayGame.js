@@ -89,6 +89,9 @@ class PlayGame extends PageComponent {
       <button id="gameStartBtn" class="btn btn-outline-light position-absolute w-50 h-25 top-50 start-50 translate-middle fs-15 d-none rounded">
       Click Start !
       </button>
+      <div id="gameWaitingText" class="position-absolute w-50 h-25 top-50 start-50 translate-middle fs-15 text-center rounded d-none">
+      Waiting for opponent...
+      </div>
       <div id="scoreContainer"
            class="position-absolute top-0 start-50 translate-middle-x px-3 w-40 text-white d-flex flex-column align-items-center border border-5 rounded">
         <span class="fs-6">score</span>
@@ -116,6 +119,7 @@ class PlayGame extends PageComponent {
     const redScore = document.querySelector('#redScore');
     const blueScore = document.querySelector('#blueScore');
     const gameStartBtn = document.querySelector('#gameStartBtn');
+    const gameWaitingText = document.querySelector('#gameWaitingText');
 
     modalCloseBtn.addEventListener('click', async () => {
       gameResultModal.hide();
@@ -147,8 +151,9 @@ class PlayGame extends PageComponent {
     });
 
     gameStartBtn.addEventListener('click', () => {
-      gameStartBtn.innerText = 'Waiting for opponent...';
       gameStartBtn.disabled = true;
+      gameStartBtn.classList.add('d-none');
+      gameWaitingText.classList.remove('d-none');
       SocketManager.gameSocket.send(JSON.stringify({ type: 'ready' }));
     });
 
@@ -179,15 +184,13 @@ class PlayGame extends PageComponent {
             gameStartBtn.classList.remove('d-none');
             gameStartBtn.disabled = false;
             this.gameStart = false;
-            gameResult.innerText = '';
             break;
           case 'render':
             if (this.gameStart === false) {
               this.gameStart = true;
               this.gameEnd = false;
               this.gameError = false;
-              gameStartBtn.classList.add('d-none');
-              gameStartBtn.disabled = false;
+              gameWaitingText.classList.add('d-none');
             }
             if (!this.redNick || !this.blueNick) {
               this.redNick = data.redNick;
@@ -203,7 +206,7 @@ class PlayGame extends PageComponent {
             console.log('result', data);
             this.gameEnd = data.winner !== 'None';
             if (this.gameMode === 'semi-final') {
-              Fetch.showLoading();
+
             } else {
               SocketManager.gameSocket.close(1000, 'Game End');
             }
