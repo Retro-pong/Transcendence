@@ -123,10 +123,10 @@ class PlayGame extends PageComponent {
 
     const setGameResultModal = () => {
       const winner = this.redScore > this.blueScore ? 'red' : 'blue';
-      modalRedNick.innerText = this.redNick;
-      modalBlueNick.innerText = this.blueNick;
-      redScore.innerText = this.gameEnd ? `${this.redScore}` : '';
-      blueScore.innerText = this.gameEnd ? `${this.blueScore}` : '';
+      modalRedNick.innerText = this.gameEnd ? this.redNick : '';
+      modalBlueNick.innerText = this.gameEnd ? this.blueNick : '';
+      redScore.innerText = this.gameEnd ? this.redScore : '';
+      blueScore.innerText = this.gameEnd ? this.blueScore : '';
       if (this.gameEnd) {
         gameResult.innerText = this.side === winner ? 'You Win!' : 'You Lose!';
       } else {
