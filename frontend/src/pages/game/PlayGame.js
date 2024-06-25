@@ -6,6 +6,7 @@ import TokenManager from '@/utils/TokenManager';
 import GameManager from '@/utils/game/GameManager';
 import Router from '@/utils/Router';
 import ToastHandler from '@/utils/ToastHandler';
+import Fetch from '@/utils/Fetch';
 
 class PlayGame extends PageComponent {
   constructor() {
@@ -202,16 +203,15 @@ class PlayGame extends PageComponent {
             console.log('result', data);
             this.gameEnd = data.winner !== 'None';
             if (this.gameMode === 'semi-final') {
-              // Fetch.showLoading();
+              Fetch.showLoading();
             } else {
               SocketManager.gameSocket.close(1000, 'Game End');
             }
             break;
           case 'final':
             console.log('final', data);
-            // Fetch.hideLoading();
-            this.gameEnd = data.isFinal === 'True';
-            this.isFinalUser = data.isFinalUser === 'True';
+            this.gameEnd = data.isFinal === true;
+            this.isFinalUser = data.isFinalUser === true;
             SocketManager.gameSocket.close(1000, 'Game End');
             break;
           case 'exit':
@@ -230,7 +230,6 @@ class PlayGame extends PageComponent {
       };
       SocketManager.gameSocket.onclose = async (e) => {
         console.log('game socket closed', e.code);
-
         if (this.gameEnd === false) {
           ToastHandler.setToast(
             this.gameError ? this.gameErrorMsg : 'User Exit'
@@ -239,7 +238,6 @@ class PlayGame extends PageComponent {
         setGameResultModal();
         gameResultModal.show();
         SocketManager.gameSocket = null;
-        await Router.navigateTo('/game');
       };
       SocketManager.gameSocket.onerror = () => {
         ToastHandler.setToast('Game Error! Please try again later');
