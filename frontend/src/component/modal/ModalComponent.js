@@ -29,7 +29,7 @@ const ModalComponent = ({
         <div class="modal-body">
           ${content}
         </div>
-          <div class="modal-footer border-0 bg-black rounded-bottom-5 border-0 d-flex justify-content-center align-items-center">
+          <div class="modal-footer border-0 bg-black rounded-bottom-5 d-flex justify-content-center align-items-center">
             ${buttonList.map((type) => buttons[type]).join('')}
           </div>
         </div>
