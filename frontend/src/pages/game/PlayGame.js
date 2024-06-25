@@ -6,7 +6,6 @@ import TokenManager from '@/utils/TokenManager';
 import GameManager from '@/utils/game/GameManager';
 import Router from '@/utils/Router';
 import ToastHandler from '@/utils/ToastHandler';
-import Fetch from '@/utils/Fetch';
 
 class PlayGame extends PageComponent {
   constructor() {
@@ -70,14 +69,18 @@ class PlayGame extends PageComponent {
       modalId: 'gameResultModal',
       content: `
         <div class="d-flex flex-column justify-content-center align-items-center h-50">
-          <div id="gameResult" class="fs-15 w-100 text-center"></div>
-          <div class="w-100 d-flex justify-content-center align-items-center">
+          <div id="gameResult" class="fs-15 w-100 text-center">
+          </div>
+           <div id="finalText" class="fs-13 w-100 text-center text-success d-none">
+              You have<br/>Final Game!
+           </div>
+          <div class="w-75 d-flex justify-content-between align-items-center">
             <div id="modalRedNick" class="text-danger w-25 fs-12"></div>
-            <div id="redScore" class="text-danger w-25 text-end fs-12"></div>
+            <div id="redScore" class="text-danger w-25 text-end fs-13"></div>
           </div>          
-          <div class="w-100 d-flex justify-content-center align-items-center">
+          <div class="w-75 d-flex justify-content-between align-items-center">
             <div id="modalBlueNick" class="text-primary w-25 fs-12"></div>
-            <div id="blueScore" class="text-primary w-25 text-end fs-12"></div>
+            <div id="blueScore" class="text-primary w-25 text-end fs-13"></div>
           </div>
         </div>
       `,
@@ -114,6 +117,7 @@ class PlayGame extends PageComponent {
     const gameResultModalElement = document.querySelector('#gameResultModal');
     const modalCloseBtn = document.querySelector('#gameResultBtn');
     const gameResult = document.querySelector('#gameResult');
+    const finalText = document.querySelector('#finalText');
     const modalRedNick = document.querySelector('#modalRedNick');
     const modalBlueNick = document.querySelector('#modalBlueNick');
     const redScore = document.querySelector('#redScore');
@@ -133,6 +137,9 @@ class PlayGame extends PageComponent {
       blueScore.innerText = this.gameEnd ? this.blueScore : '';
       if (this.gameEnd) {
         gameResult.innerText = this.side === winner ? 'You Win!' : 'You Lose!';
+        if (this.isFinalUser) {
+          finalText.classList.remove('d-none');
+        }
       } else {
         gameResult.innerText = 'Game End!\nUser Disconnected!';
       }
@@ -206,13 +213,15 @@ class PlayGame extends PageComponent {
             console.log('result', data);
             this.gameEnd = data.winner !== 'None';
             if (this.gameMode === 'semi-final') {
-
+              gameWaitingText.innerText = 'Waiting for other players...';
+              gameWaitingText.classList.remove('d-none');
             } else {
               SocketManager.gameSocket.close(1000, 'Game End');
             }
             break;
           case 'final':
             console.log('final', data);
+            gameWaitingText.classList.add('d-none');
             this.gameEnd = data.isFinal === true;
             this.isFinalUser = data.isFinalUser === true;
             SocketManager.gameSocket.close(1000, 'Game End');
