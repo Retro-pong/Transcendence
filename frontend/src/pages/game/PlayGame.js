@@ -70,14 +70,14 @@ class PlayGame extends PageComponent {
       modalId: 'gameResultModal',
       content: `
         <div class="d-flex flex-column justify-content-center align-items-center h-50">
-          <div id="gameResult" class="fs-15 w-100 d-flex justify-content-center align-items-center"></div>
-          <div class="w-100 d-flex align-items-center">
-            <div id="modalRedNick" class="text-danger w-75 d-flex justify-content-center fs-9"></div>
-            <div id="redScore" class="text-danger w-25 d-flex fs-12"></div>
+          <div id="gameResult" class="fs-15 w-100 text-center"></div>
+          <div class="w-100 d-flex justify-content-center align-items-center">
+            <div id="modalRedNick" class="text-danger w-25 fs-12"></div>
+            <div id="redScore" class="text-danger w-25 text-end fs-12"></div>
           </div>          
-          <div class="w-100 d-flex align-items-center">
-            <div id="modalBlueNick" class="text-primary w-75 d-flex justify-content-center fs-9"></div>
-            <div id="blueScore" class="text-primary w-25 d-flex fs-12"></div>
+          <div class="w-100 d-flex justify-content-center align-items-center">
+            <div id="modalBlueNick" class="text-primary w-25 fs-12"></div>
+            <div id="blueScore" class="text-primary w-25 text-end fs-12"></div>
           </div>
         </div>
       `,
@@ -130,7 +130,7 @@ class PlayGame extends PageComponent {
       if (this.gameEnd) {
         gameResult.innerText = this.side === winner ? 'You Win!' : 'You Lose!';
       } else {
-        gameResult.innerText = 'Game End! User Disconnected!';
+        gameResult.innerText = 'Game End!\nUser Disconnected!';
       }
       gameResult.classList.add(
         this.side === 'red' ? 'text-danger' : 'text-primary'
