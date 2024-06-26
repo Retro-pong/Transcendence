@@ -68,7 +68,7 @@ class Profile extends PageComponent {
             </div>
             <div class="col-3 p-2 h-90">
               <label for="profileImg" class="ratio ratio-3x4">
-                <img id="profileImgSrc" src=${profileData.image} onerror="this.src='/img/profile_fallback.jpg';" class="img-fluid border border-2 border-light rounded" alt="PROFILE IMAGE" style="object-fit: cover;"/>
+                <img id="profileImgSrc" src=${profileData.image} onerror="this.src='/img/profile_fallback.jpg';" class="img-fluid border border-2 border-light rounded profile-hover" alt="PROFILE IMAGE" style="object-fit: cover;"/>
               </label>
               <input type="file" accept="image/jpg, image/png" id="profileImg" class="d-none border-0">
             </div>
