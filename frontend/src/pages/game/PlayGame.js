@@ -69,14 +69,18 @@ class PlayGame extends PageComponent {
       modalId: 'gameResultModal',
       content: `
         <div class="d-flex flex-column justify-content-center align-items-center h-50">
-          <div id="gameResult" class="fs-15 w-100 d-flex justify-content-center align-items-center"></div>
-          <div class="w-100 d-flex align-items-center">
-            <div id="modalRedNick" class="text-danger w-75 d-flex justify-content-center fs-9"></div>
-            <div id="redScore" class="text-danger w-25 d-flex fs-12"></div>
+          <div id="gameResult" class="fs-15 w-100 text-center">
+          </div>
+           <div id="finalText" class="fs-13 w-100 text-center text-success d-none">
+              You have<br/>Final Game!
+           </div>
+          <div class="w-75 d-flex justify-content-between align-items-center">
+            <div id="modalRedNick" class="text-danger w-25 fs-12"></div>
+            <div id="redScore" class="text-danger w-25 text-end fs-13"></div>
           </div>          
-          <div class="w-100 d-flex align-items-center">
-            <div id="modalBlueNick" class="text-primary w-75 d-flex justify-content-center fs-9"></div>
-            <div id="blueScore" class="text-primary w-25 d-flex fs-12"></div>
+          <div class="w-75 d-flex justify-content-between align-items-center">
+            <div id="modalBlueNick" class="text-primary w-25 fs-12"></div>
+            <div id="blueScore" class="text-primary w-25 text-end fs-13"></div>
           </div>
         </div>
       `,
@@ -88,6 +92,9 @@ class PlayGame extends PageComponent {
       <button id="gameStartBtn" class="btn btn-outline-light position-absolute w-50 h-25 top-50 start-50 translate-middle fs-15 d-none rounded">
       Click Start !
       </button>
+      <div id="gameWaitingText" class="position-absolute w-50 h-25 top-50 start-50 translate-middle fs-15 text-center rounded d-none">
+      Waiting for opponent...
+      </div>
       <div id="scoreContainer"
            class="position-absolute top-0 start-50 translate-middle-x px-3 w-40 text-white d-flex flex-column align-items-center border border-5 rounded">
         <span class="fs-6">score</span>
@@ -110,11 +117,13 @@ class PlayGame extends PageComponent {
     const gameResultModalElement = document.querySelector('#gameResultModal');
     const modalCloseBtn = document.querySelector('#gameResultBtn');
     const gameResult = document.querySelector('#gameResult');
+    const finalText = document.querySelector('#finalText');
     const modalRedNick = document.querySelector('#modalRedNick');
     const modalBlueNick = document.querySelector('#modalBlueNick');
     const redScore = document.querySelector('#redScore');
     const blueScore = document.querySelector('#blueScore');
     const gameStartBtn = document.querySelector('#gameStartBtn');
+    const gameWaitingText = document.querySelector('#gameWaitingText');
 
     modalCloseBtn.addEventListener('click', async () => {
       gameResultModal.hide();
@@ -122,14 +131,17 @@ class PlayGame extends PageComponent {
 
     const setGameResultModal = () => {
       const winner = this.redScore > this.blueScore ? 'red' : 'blue';
-      modalRedNick.innerText = this.redNick;
-      modalBlueNick.innerText = this.blueNick;
-      redScore.innerText = this.gameEnd ? `${this.redScore}` : '';
-      blueScore.innerText = this.gameEnd ? `${this.blueScore}` : '';
+      modalRedNick.innerText = this.gameEnd ? this.redNick : '';
+      modalBlueNick.innerText = this.gameEnd ? this.blueNick : '';
+      redScore.innerText = this.gameEnd ? this.redScore : '';
+      blueScore.innerText = this.gameEnd ? this.blueScore : '';
       if (this.gameEnd) {
         gameResult.innerText = this.side === winner ? 'You Win!' : 'You Lose!';
+        if (this.isFinalUser) {
+          finalText.classList.remove('d-none');
+        }
       } else {
-        gameResult.innerText = 'Game End! User Disconnected!';
+        gameResult.innerText = 'Game End!\nUser Disconnected!';
       }
       gameResult.classList.add(
         this.side === 'red' ? 'text-danger' : 'text-primary'
@@ -146,8 +158,9 @@ class PlayGame extends PageComponent {
     });
 
     gameStartBtn.addEventListener('click', () => {
-      gameStartBtn.innerText = 'Waiting for opponent...';
       gameStartBtn.disabled = true;
+      gameStartBtn.classList.add('d-none');
+      gameWaitingText.classList.remove('d-none');
       SocketManager.gameSocket.send(JSON.stringify({ type: 'ready' }));
     });
 
@@ -178,15 +191,13 @@ class PlayGame extends PageComponent {
             gameStartBtn.classList.remove('d-none');
             gameStartBtn.disabled = false;
             this.gameStart = false;
-            gameResult.innerText = '';
             break;
           case 'render':
             if (this.gameStart === false) {
               this.gameStart = true;
               this.gameEnd = false;
               this.gameError = false;
-              gameStartBtn.classList.add('d-none');
-              gameStartBtn.disabled = false;
+              gameWaitingText.classList.add('d-none');
             }
             if (!this.redNick || !this.blueNick) {
               this.redNick = data.redNick;
@@ -202,16 +213,17 @@ class PlayGame extends PageComponent {
             console.log('result', data);
             this.gameEnd = data.winner !== 'None';
             if (this.gameMode === 'semi-final') {
-              // Fetch.showLoading();
+              gameWaitingText.innerText = 'Waiting for other players...';
+              gameWaitingText.classList.remove('d-none');
             } else {
               SocketManager.gameSocket.close(1000, 'Game End');
             }
             break;
           case 'final':
             console.log('final', data);
-            // Fetch.hideLoading();
-            this.gameEnd = data.isFinal === 'True';
-            this.isFinalUser = data.isFinalUser === 'True';
+            gameWaitingText.classList.add('d-none');
+            this.gameEnd = data.isFinal === true;
+            this.isFinalUser = data.isFinalUser === true;
             SocketManager.gameSocket.close(1000, 'Game End');
             break;
           case 'exit':
@@ -230,7 +242,6 @@ class PlayGame extends PageComponent {
       };
       SocketManager.gameSocket.onclose = async (e) => {
         console.log('game socket closed', e.code);
-
         if (this.gameEnd === false) {
           ToastHandler.setToast(
             this.gameError ? this.gameErrorMsg : 'User Exit'
@@ -239,7 +250,6 @@ class PlayGame extends PageComponent {
         setGameResultModal();
         gameResultModal.show();
         SocketManager.gameSocket = null;
-        await Router.navigateTo('/game');
       };
       SocketManager.gameSocket.onerror = () => {
         ToastHandler.setToast('Game Error! Please try again later');
