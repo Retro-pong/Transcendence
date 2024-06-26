@@ -49,10 +49,10 @@ class Login extends PageComponent {
       `;
   }
 
-  async get2FACode(loginModal) {
+  async get2FACode() {
     const email = document.getElementById('email-login').value;
     const password = document.getElementById('password-login').value;
-
+    const loginModal = Modal.getOrCreateInstance('#loginModal');
     if (!email || !password) {
       ToastHandler.setToast('Please enter your email and password');
       return;
@@ -71,7 +71,8 @@ class Login extends PageComponent {
       });
   }
 
-  async getAccessToken(loginModal) {
+  async getAccessToken() {
+    const loginModal = Modal.getOrCreateInstance('#loginModal');
     const email = document.getElementById('email-login').value;
     const passcode = document.getElementById('passcode').value;
 
@@ -96,16 +97,54 @@ class Login extends PageComponent {
       });
   }
 
-  handle2FALogin() {
-    const loginModalBtn = document.getElementById('loginBtn');
-    const twoFactorLoginBtn = document.getElementById('twoFactorLoginBtn');
-    const loginModal = new Modal('#loginModal');
+  handleTwoFactorSubmitEvent = async (e) => {
+    e.preventDefault();
+    await this.getAccessToken();
+  };
 
-    loginModalBtn.addEventListener('click', async () => {
-      await this.get2FACode(loginModal);
-      twoFactorLoginBtn.addEventListener('click', async () => {
-        await this.getAccessToken(loginModal);
-      });
+  handleLoginSubmitEvent = async (e) => {
+    e.preventDefault();
+    await this.get2FACode();
+  };
+
+  addLoginSubmitEvent() {
+    const loginForm = document.getElementById('login-form');
+    loginForm.addEventListener('submit', this.handleLoginSubmitEvent);
+  }
+
+  removeLoginSubmitEvent() {
+    const loginForm = document.getElementById('login-form');
+    loginForm.removeEventListener('submit', this.handleLoginSubmitEvent);
+  }
+
+  add2FASubmitEvent() {
+    const twoFactorLoginForm = document.getElementById('login-code-form');
+    twoFactorLoginForm.addEventListener(
+      'submit',
+      this.handleTwoFactorSubmitEvent
+    );
+  }
+
+  remove2FASubmitEvent() {
+    const twoFactorLoginForm = document.getElementById('login-code-form');
+    twoFactorLoginForm.removeEventListener(
+      'submit',
+      this.handleTwoFactorSubmitEvent
+    );
+  }
+
+  handle2FALogin() {
+    const loginModal = document.getElementById('loginModal');
+    this.addLoginSubmitEvent();
+
+    loginModal.addEventListener('show.bs.modal', () => {
+      this.removeLoginSubmitEvent();
+      this.add2FASubmitEvent();
+    });
+
+    loginModal.addEventListener('hide.bs.modal', () => {
+      this.remove2FASubmitEvent();
+      this.addLoginSubmitEvent();
     });
   }
 

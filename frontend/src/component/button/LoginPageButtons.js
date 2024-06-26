@@ -9,6 +9,8 @@ const LoginPageButtons = () => {
     id: 'loginBtn',
     text: '> Login <',
     classList: 'btn btn-no-outline-hover fs-7',
+    type: 'submit',
+    form: 'login-form',
   });
   const Login42Btn = `<a id='42LoginBtn' href="${import.meta.env.VITE_BASE_URL}/login/intra/login/" class="btn btn-no-outline-hover fs-7">> 42 Login <</a>`;
   const RegisterBtn = OpenModalButton({
