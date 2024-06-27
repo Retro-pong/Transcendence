@@ -36,11 +36,13 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
                     self.channel_layer.background_task = asyncio.create_task(
                         self.game_loop()
                     )
+                if not check_ready:
+                    self.task = asyncio.create_task(self.check_opponent_connect(match))
         elif content["type"] == "move":
             try:
-                NormalGameConsumer.games[self.game_id].get_players()[self.color].set_pos(
-                    content["y"], content["z"]
-                )
+                NormalGameConsumer.games[self.game_id].get_players()[
+                    self.color
+                ].set_pos(content["y"], content["z"])
             except KeyError:
                 return
 
@@ -132,6 +134,13 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
         # start data 전송
         await self.send_json(match.start_data(color=self.color, game=self.result))
 
+    async def check_opponent_connect(self, match):
+        await asyncio.sleep(10)
+        if match.p1 and match.p1.status != DISCONNECTED:
+            if match.p2 and match.p2.status != DISCONNECTED:
+                return
+        await self.send_json({"type": "error", "message": "Opponent not connected"})
+
     async def broadcast_users(self, event: dict) -> None:
         data = event["data"]
         data["type"] = event["data_type"]
@@ -147,7 +156,7 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
                 return False
             return True
         except Exception as e:
-            await self.send_json({"type": "error", "message": str(e)})
+            await self.send_json({"type": "error", "message": "Invalid game"})
             return False
 
     async def change_status(self, color, status: int) -> None:
@@ -224,11 +233,12 @@ class SemiFinalGameConsumer(NormalGameConsumer):
                     self.channel_layer.background_task = asyncio.create_task(
                         self.game_loop()
                     )
+
         elif content["type"] == "move":
             try:
-                SemiFinalGameConsumer.games[self.game_id].get_players()[self.color].set_pos(
-                    content["y"], content["z"]
-                )
+                SemiFinalGameConsumer.games[self.game_id].get_players()[
+                    self.color
+                ].set_pos(content["y"], content["z"])
             except KeyError:
                 return
 
@@ -402,6 +412,8 @@ class FinalGameConsumer(NormalGameConsumer):
                     self.channel_layer.background_task = asyncio.create_task(
                         self.game_loop()
                     )
+                if not check_ready:
+                    self.task = asyncio.create_task(self.check_opponent_connect(match))
         elif content["type"] == "move":
             try:
                 FinalGameConsumer.games[self.game_id].get_players()[self.color].set_pos(
