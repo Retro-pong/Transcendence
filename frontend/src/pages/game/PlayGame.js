@@ -45,7 +45,7 @@ class PlayGame extends PageComponent {
     this.side = '';
     this.blueScore = '';
     this.redScore = '';
-    this.gameStart = false;
+    this.start = false;
     this.gameEnd = false;
     this.gameError = false;
     this.gameErrorMsg = 'Game Error. Please try again later.';
@@ -90,9 +90,6 @@ class PlayGame extends PageComponent {
     return `${gameResultModal}
     <div id="gameCanvasContainer" class="position-absolute vh-100 vw-100">
       <canvas id="gameCanvas" tabindex="0" class="vh-100 vw-100"></canvas>
-      <button id="gameStartBtn" class="btn btn-outline-light position-absolute w-50 h-25 top-50 start-50 translate-middle fs-15 d-none rounded">
-      Click Start !
-      </button>
       <div id="gameWaitingText" class="position-absolute w-50 h-25 top-50 start-50 translate-middle fs-15 text-center rounded d-none">
       Waiting for opponent...
       </div>
@@ -109,7 +106,6 @@ class PlayGame extends PageComponent {
         </div>
       </div>
     </div>
-    
     `;
   }
 
@@ -123,7 +119,6 @@ class PlayGame extends PageComponent {
     const modalBlueNick = document.querySelector('#modalBlueNick');
     const redScore = document.querySelector('#redScore');
     const blueScore = document.querySelector('#blueScore');
-    const gameStartBtn = document.querySelector('#gameStartBtn');
     const gameWaitingText = document.querySelector('#gameWaitingText');
 
     modalCloseBtn.addEventListener('click', async () => {
@@ -139,6 +134,7 @@ class PlayGame extends PageComponent {
       if (this.gameEnd) {
         gameResult.innerText = this.side === winner ? 'You Win!' : 'You Lose!';
         if (this.isFinalUser) {
+          gameResult.innerText = 'You Win!';
           finalText.classList.remove('d-none');
         }
       } else {
@@ -152,16 +148,13 @@ class PlayGame extends PageComponent {
     gameResultModalElement.addEventListener('hidden.bs.modal', async () => {
       redScore.innerText = '';
       blueScore.innerText = '';
+      Router.replaceState('/game');
+      if (!this.gameMode) {
+        await Router.navigateTo('/game');
+      }
       if (this.isFinalUser && this.isFinal) {
         await Router.navigateTo(`/game/play?final=${this.finalId}&mode=final`);
       }
-    });
-
-    gameStartBtn.addEventListener('click', () => {
-      gameStartBtn.disabled = true;
-      gameStartBtn.classList.add('d-none');
-      gameWaitingText.classList.remove('d-none');
-      SocketManager.gameSocket.send(JSON.stringify({ type: 'ready' }));
     });
 
     this.gameManger = new GameManager();
@@ -188,16 +181,13 @@ class PlayGame extends PageComponent {
             this.side = data.color;
             this.gameManger.multiGameSetting(data);
             this.gameManger.multiGameStart();
-            gameStartBtn.classList.remove('d-none');
-            gameStartBtn.disabled = false;
-            this.gameStart = false;
+            SocketManager.gameSocket.send(JSON.stringify({ type: 'ready' }));
+            Router.showElement(gameWaitingText);
             break;
           case 'render':
-            if (this.gameStart === false) {
-              this.gameStart = true;
-              this.gameEnd = false;
-              this.gameError = false;
-              gameWaitingText.classList.add('d-none');
+            if (!this.start) {
+              this.start = true;
+              Router.hideElement(gameWaitingText);
             }
             if (!this.redNick || !this.blueNick) {
               this.redNick = data.redNick;
@@ -214,14 +204,13 @@ class PlayGame extends PageComponent {
             this.gameEnd = data.winner !== 'None';
             if (this.gameMode === 'semi-final') {
               gameWaitingText.innerText = 'Waiting for other players...';
-              gameWaitingText.classList.remove('d-none');
+              Router.showElement(gameWaitingText);
             } else {
               SocketManager.gameSocket.close(1000, 'Game End');
             }
             break;
           case 'final':
-            console.log('final', data);
-            gameWaitingText.classList.add('d-none');
+            Router.hideElement(gameWaitingText);
             this.gameEnd = data.isFinal === true;
             this.isFinal = data.isFinal;
             this.isFinalUser = data.isFinalUser === true;
@@ -251,6 +240,7 @@ class PlayGame extends PageComponent {
         setGameResultModal();
         gameResultModal.show();
         SocketManager.gameSocket = null;
+        Router.replaceState('/game');
         await Router.navigateTo('/game');
       };
       SocketManager.gameSocket.onerror = () => {

@@ -2,13 +2,18 @@ import drawBackground from '@/background/background.js';
 import TokenManager from '@/utils/TokenManager';
 import Fetch from '@/utils/Fetch';
 import Router from '@/utils/Router';
+import SocketManager from '@/utils/SocketManager';
 
 Fetch.init();
 
 window.addEventListener('popstate', Router.render);
 
 document.addEventListener('DOMContentLoaded', async () => {
-  if (document.referrer === '' || document.referrer === null) {
+  if (
+    window.location.pathname === '/game/play' ||
+    window.location.pathname === '/game/waiting'
+  ) {
+    SocketManager.closeSockets();
     await Router.navigateTo('/');
   }
   if (!TokenManager.getAccessToken() && TokenManager.getLoginStatus()) {

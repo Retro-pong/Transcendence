@@ -36,12 +36,13 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
                     self.channel_layer.background_task = asyncio.create_task(
                         self.game_loop()
                     )
-            if not check_ready:
-                self.task = asyncio.create_task(self.check_opponent_connect(match))
         elif content["type"] == "move":
-            NormalGameConsumer.games[self.game_id].get_players()[self.color].set_pos(
-                content["y"], content["z"]
-            )
+            try:
+                NormalGameConsumer.games[self.game_id].get_players()[self.color].set_pos(
+                    content["y"], content["z"]
+                )
+            except KeyError:
+                return
 
     async def disconnect(self, code: int) -> None:
         # match의 winner가 없을 경우(비정상 종료 시) db 삭제
@@ -51,11 +52,13 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
         await self.channel_layer.group_discard(self.game_id, self.channel_name)
 
     async def game_loop(self) -> None:
+        await asyncio.sleep(3)
         while True:
             await asyncio.sleep(0.03)
-            match = NormalGameConsumer.games[self.game_id]
-            # game 객체가 존재하지 않음
-            if not match:
+            try:
+                match = NormalGameConsumer.games[self.game_id]
+            except KeyError:
+                # game 객체가 존재하지 않음
                 await self.send_json({"type": "error", "message": "Game not found"})
                 break
             # disconnect 발생 시 winner 없이 게임 결과 전송
@@ -84,13 +87,6 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
                     "data_type": "render",
                 },
             )
-
-    async def check_opponent_connect(self, match):
-        await asyncio.sleep(10)
-        if match.p1 and match.p1.status != DISCONNECTED:
-            if match.p2 and match.p2.status != DISCONNECTED:
-                return
-        await self.send_json({"type": "error", "message": "Opponent not connected"})
 
     async def user_access(self, content: dict) -> None:
         token = content["token"]
@@ -228,12 +224,13 @@ class SemiFinalGameConsumer(NormalGameConsumer):
                     self.channel_layer.background_task = asyncio.create_task(
                         self.game_loop()
                     )
-            if not check_ready:
-                self.task = asyncio.create_task(self.check_opponent_connect(match))
         elif content["type"] == "move":
-            SemiFinalGameConsumer.games[self.game_id].get_players()[self.color].set_pos(
-                content["y"], content["z"]
-            )
+            try:
+                SemiFinalGameConsumer.games[self.game_id].get_players()[self.color].set_pos(
+                    content["y"], content["z"]
+                )
+            except KeyError:
+                return
 
     async def disconnect(self, code: int) -> None:
         # match의 winner가 없을 경우(비정상 종료 시) db 삭제
@@ -244,11 +241,13 @@ class SemiFinalGameConsumer(NormalGameConsumer):
         await self.channel_layer.group_discard(self.final_id, self.channel_name)
 
     async def game_loop(self) -> None:
+        await asyncio.sleep(3)
         while True:
             await asyncio.sleep(0.03)
-            match = SemiFinalGameConsumer.games[self.game_id]
-            # game 객체가 존재하지 않음
-            if not match:
+            try:
+                match = SemiFinalGameConsumer.games[self.game_id]
+            except KeyError:
+                # game 객체가 존재하지 않음
                 await self.send_json({"type": "error", "message": "Game not found"})
                 break
             # disconnect 발생 시 winner 없이 게임 결과 전송
@@ -403,19 +402,22 @@ class FinalGameConsumer(NormalGameConsumer):
                     self.channel_layer.background_task = asyncio.create_task(
                         self.game_loop()
                     )
-            if not check_ready:
-                self.task = asyncio.create_task(self.check_opponent_connect(match))
         elif content["type"] == "move":
-            FinalGameConsumer.games[self.game_id].get_players()[self.color].set_pos(
-                content["y"], content["z"]
-            )
+            try:
+                FinalGameConsumer.games[self.game_id].get_players()[self.color].set_pos(
+                    content["y"], content["z"]
+                )
+            except KeyError:
+                return
 
     async def game_loop(self) -> None:
+        await asyncio.sleep(3)
         while True:
             await asyncio.sleep(0.03)
-            match = FinalGameConsumer.games[self.game_id]
-            # game 객체가 존재하지 않음
-            if not match:
+            try:
+                match = FinalGameConsumer.games[self.game_id]
+            except KeyError:
+                # game 객체가 존재하지 않음
                 await self.send_json({"type": "error", "message": "Game not found"})
                 break
             # disconnect 발생 시 winner 없이 게임 결과 전송
