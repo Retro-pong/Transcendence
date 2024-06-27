@@ -17,6 +17,7 @@ class PlayGame extends PageComponent {
     this.semiTwoId = params.get('semi_2');
     this.finalId = params.get('final');
     this.gameMode = params.get('mode'); // normal, semi-final, final
+    this.isFinal = false;
     this.isFinalUser = false;
 
     switch (this.gameMode) {
@@ -151,10 +152,9 @@ class PlayGame extends PageComponent {
     gameResultModalElement.addEventListener('hidden.bs.modal', async () => {
       redScore.innerText = '';
       blueScore.innerText = '';
-      const path = this.isFinalUser
-        ? `/game/play?final=${this.finalId}&mode=final`
-        : `/game`;
-      await Router.navigateTo(path);
+      if (this.isFinalUser && this.isFinal) {
+        await Router.navigateTo(`/game/play?final=${this.finalId}&mode=final`);
+      }
     });
 
     gameStartBtn.addEventListener('click', () => {
@@ -223,6 +223,7 @@ class PlayGame extends PageComponent {
             console.log('final', data);
             gameWaitingText.classList.add('d-none');
             this.gameEnd = data.isFinal === true;
+            this.isFinal = data.isFinal;
             this.isFinalUser = data.isFinalUser === true;
             SocketManager.gameSocket.close(1000, 'Game End');
             break;
@@ -250,6 +251,7 @@ class PlayGame extends PageComponent {
         setGameResultModal();
         gameResultModal.show();
         SocketManager.gameSocket = null;
+        await Router.navigateTo('/game');
       };
       SocketManager.gameSocket.onerror = () => {
         ToastHandler.setToast('Game Error! Please try again later');
