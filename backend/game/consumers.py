@@ -388,8 +388,9 @@ class SemiFinalGameConsumer(NormalGameConsumer):
     async def change_status(self, color, status: int) -> None:
         # game 객체가 남아있을 경우 비정상 종료
         if self.game_id in SemiFinalGameConsumer.games:
-            match = SemiFinalGameConsumer.games[self.game_id]
-            match.get_players()[color].set_status(status)
+            if color:
+                match = SemiFinalGameConsumer.games[self.game_id]
+                match.get_players()[color].set_status(status)
 
 
 class FinalGameConsumer(NormalGameConsumer):
@@ -509,5 +510,6 @@ class FinalGameConsumer(NormalGameConsumer):
     async def change_status(self, color, status: int) -> None:
         # game 객체가 남아있을 경우 비정상 종료
         if self.game_id in FinalGameConsumer.games:
-            match = FinalGameConsumer.games[self.game_id]
-            match.get_players()[color].set_status(status)
+            if color:
+                match = FinalGameConsumer.games[self.game_id]
+                match.get_players()[color].set_status(status)
