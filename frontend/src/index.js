@@ -8,6 +8,9 @@ Fetch.init();
 window.addEventListener('popstate', Router.render);
 
 document.addEventListener('DOMContentLoaded', async () => {
+  if (document.referrer === '' || document.referrer === null) {
+    await Router.navigateTo('/');
+  }
   if (!TokenManager.getAccessToken() && TokenManager.getLoginStatus()) {
     await TokenManager.reissueAccessToken();
   }
