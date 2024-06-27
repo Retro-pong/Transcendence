@@ -61,12 +61,10 @@ class IntraCallbackView(APIView):
             while User.objects.filter(username=username).exists():
                 username = User.objects.make_random_password(length=10)
             user = User.objects.create_user(
-                username=username, email=email, password="subinlee"  # TODO: check
+                username=username, email=email, password="subinlee"  # Eastern egg!!
             )
             user.is_registered = True
         # 로그인
-        user.is_active = True
-        user.save()
         token = obtain_jwt_token(user)
         return token
 
@@ -171,8 +169,6 @@ class EmailLoginVerifyView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED,
             )
         user = User.objects.get(email=email)
-        user.is_active = True
-        user.save()
         token = obtain_jwt_token(user)
         return token
 
@@ -240,9 +236,6 @@ class LogoutView(APIView):
         responses={200: "OK", 401: "UNAUTHORIZED"},
     )
     def post(self, request):
-        user = request.user
-        user.is_active = False
-        user.save()
         response = Response(
             {"message": "Logout successful."}, status=status.HTTP_200_OK
         )
@@ -287,11 +280,17 @@ class MyTokenRefreshView(TokenRefreshView):
             )
             response.delete_cookie("refresh_token")
             return response
+
         new_token = RefreshToken(request.data.get("refresh"))
+        access_token = str(new_token.access_token)
         payload = new_token.payload
         email = payload["email"]
+
+        # Activate user
         try:
             user = User.objects.get(email=email)
+            user.is_active = True
+            user.save()
         except User.DoesNotExist:
             response = Response(
                 {"error": "User does not exist."},
@@ -299,10 +298,7 @@ class MyTokenRefreshView(TokenRefreshView):
             )
             response.delete_cookie("refresh_token")
             return response
-        access_token = str(new_token.access_token)
-        # 토큰은 유효할 때 유저가 오프라인 상태에서 다시 접속했을 경우 active 활성화
-        if not user.is_active:
-            user.is_active = True
+
         return Response(
             {
                 "message": "Token refreshed",

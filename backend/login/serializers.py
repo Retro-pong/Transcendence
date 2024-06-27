@@ -9,6 +9,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         extra_kwargs = {"password": {"write_only": True}}
 
     def create(self, validated_data) -> User:
+        # username은 unique 속성으로 중복 방지됨
         # email 중복 방지
         try:
             email = validated_data["email"]
@@ -21,13 +22,6 @@ class RegisterSerializer(serializers.ModelSerializer):
                 user.delete()
         except User.DoesNotExist:
             pass
-
-        # username 중복 방지
-        username = validated_data["username"]
-        while User.objects.filter(username=username).exists():
-            username = User.objects.make_random_password(length=10)
-        if not username == validated_data["username"]:
-            validated_data["username"] = username
 
         new_user = User.objects.create_user(**validated_data)
         return new_user
