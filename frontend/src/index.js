@@ -9,7 +9,10 @@ Fetch.init();
 window.addEventListener('popstate', Router.render);
 
 document.addEventListener('DOMContentLoaded', async () => {
-  if (document.referrer === '' || document.referrer === null) {
+  if (
+    window.location.pathname === '/game/play' ||
+    window.location.pathname === '/game/waiting'
+  ) {
     SocketManager.closeSockets();
     await Router.navigateTo('/');
   }
