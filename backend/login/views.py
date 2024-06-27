@@ -61,7 +61,7 @@ class IntraCallbackView(APIView):
             while User.objects.filter(username=username).exists():
                 username = User.objects.make_random_password(length=10)
             user = User.objects.create_user(
-                username=username, email=email, password="subinlee"  # TODO: check
+                username=username, email=email, password="subinlee"  # Eastern egg!!
             )
             user.is_registered = True
         # 로그인
