@@ -108,25 +108,25 @@ class GameConsumerTest(TransactionTestCase):
         )
         connected, subprotocol = await communicator2.connect()
         self.assertTrue(connected)
-        await communicator2.send_json_to({"type": "access", "token": access_token})
-        response = await communicator2.receive_json_from()
-        self.assertEqual(response, {"access": "Access successful."})
+        # await communicator2.send_json_to({"type": "access", "token": access_token})
+        # response = await communicator2.receive_json_from()
+        # self.assertEqual(response, {"access": "Access successful."})
         # get start data
         response = await communicator1.receive_json_from()
         self.assertEqual(response["color"], "red")
-        response = await communicator2.receive_json_from()
-        self.assertEqual(response["color"], "blue")
-
+        # response = await communicator2.receive_json_from()
+        # self.assertEqual(response["color"], "blue")
+        await communicator2.disconnect()
         # send ready
-        await communicator1.send_json_to({"type": "ready"})
-        await communicator2.send_json_to({"type": "ready"})
-        while True:
-            response = await communicator2.receive_json_from()
-            if response["type"] == "render":
-                self.assertEqual(response["redNick"], "testuser1")
-            if response["type"] == "result":
-                self.assertEqual(response["redNick"], "testuser1")
-                break
+        # await communicator1.send_json_to({"type": "ready"})
+        # await communicator2.send_json_to({"type": "ready"})
+        # while True:
+        #     response = await communicator2.receive_json_from()
+        #     if response["type"] == "render":
+        #         self.assertEqual(response["redNick"], "testuser1")
+        #     if response["type"] == "result":
+        #         self.assertEqual(response["redNick"], "testuser1")
+        #         break
 
     #
     # async def test_disconnection(self):

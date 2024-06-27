@@ -4,6 +4,7 @@
 # TODO: .env 주석 제거하기
 
 # Backend
+**/.env
 backend/.venv/
 backend/venv/
 backend/myvenv/
