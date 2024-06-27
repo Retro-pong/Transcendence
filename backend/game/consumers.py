@@ -15,6 +15,7 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
         연결 수락 및 game id 저장
         """
         self.game_id = self.scope["url_route"]["kwargs"]["game_id"]
+        self.color = ""
         await self.accept()
 
     async def receive_json(self, content: dict) -> None:
@@ -162,8 +163,9 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
     async def change_status(self, color, status: int) -> None:
         # game 객체가 남아있을 경우 비정상 종료
         if self.game_id in NormalGameConsumer.games:
-            match = NormalGameConsumer.games[self.game_id]
-            match.get_players()[color].set_status(status)
+            if color:
+                match = NormalGameConsumer.games[self.game_id]
+                match.get_players()[color].set_status(status)
 
     @database_sync_to_async
     def get_game_result(self):
@@ -212,6 +214,7 @@ class SemiFinalGameConsumer(NormalGameConsumer):
         self.game_id = self.scope["url_route"]["kwargs"]["game_id"]
         self.opponent_id = self.scope["url_route"]["kwargs"]["opponent_id"]
         self.final_id = self.scope["url_route"]["kwargs"]["final_id"]
+        self.color = ""
         await self.accept()  # 소켓 연결 수락
 
     async def receive_json(self, content: dict) -> None:

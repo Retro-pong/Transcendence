@@ -220,8 +220,7 @@ class TournamentRoomConsumer(NormalRoomConsumer):
                         )
                         return
                     # 이미 정원에 도달한 대기실에 입장을 시도하는 경우 에러
-                    self.room_number = len(TournamentRoomConsumer.rooms[self.room_id])
-                    if self.room_number >= 4:
+                    if len(TournamentRoomConsumer.rooms[self.room_id]) >= 4:
                         await self.channel_layer.group_discard(
                             self.room_id, self.channel_name
                         )
@@ -232,7 +231,6 @@ class TournamentRoomConsumer(NormalRoomConsumer):
                 # 대기실 입장
                 else:
                     TournamentRoomConsumer.rooms[self.room_id] = []
-                    self.room_number = 0
                 TournamentRoomConsumer.rooms[self.room_id].append(self.user)
                 self.channel_layer = get_channel_layer()
                 await self.channel_layer.group_add(self.room_id, self.channel_name)
@@ -358,8 +356,9 @@ class TournamentRoomConsumer(NormalRoomConsumer):
                 self.game_id_final = game.id
 
     async def send_disconnect_tournament(self, event: dict) -> None:
+        player_number = TournamentRoomConsumer.rooms[self.room_id].index(self.user)
         game_id_final = event["game_id_final"]
-        if self.room_number % 2 == 0:
+        if player_number % 2 == 0:
             game_id_semi_1 = event["game_id_semi_1"]
             game_id_semi_2 = event["game_id_semi_2"]
         else:
