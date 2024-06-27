@@ -3,6 +3,7 @@ import RegisterFormItem from '@component/form/RegisterFormItem';
 import Header from '@component/text/Header';
 import LoginPageButtons from '@component/button/LoginPageButtons';
 import ModalComponent from '@component/modal/ModalComponent';
+import BasicButton from '@component/button/BasicButton';
 import LoginForm from '@component/form/LoginForm';
 import { Modal } from 'bootstrap';
 import Regex from '@/constants/Regex';
@@ -31,15 +32,25 @@ class Login extends PageComponent {
       content: LoginForm(),
       buttonList: ['submitBtn'],
     });
+    const LoginBtn = BasicButton({
+      id: 'loginBtn',
+      text: 'Login',
+      classList: 'btn btn-outline-light fs-13 px-5',
+      type: 'submit',
+      form: 'login-form',
+    });
 
     return `
       ${LoginHeader}
       <div class="d-flex justify-content-center align-items-center h-85">
-        <div class="d-flex flex-column justify-content-around align-items-center h-100 py-3">
+        <div class="d-flex flex-column justify-content-around align-items-center h-90 py-3">
           <form id="login-form">
             ${RegisterFormItem('row py-3', 'email-login', 'EMAIL', 'text', 'name @ mail', 'email')}
             ${RegisterFormItem('row py-3', 'password-login', 'PASSWORD', 'password', 'PASSWORD', 'current-password')}
           </form>
+          <div>
+            ${LoginBtn}
+          </div>
           <div>
             ${LoginPageButtons()}
           </div>
