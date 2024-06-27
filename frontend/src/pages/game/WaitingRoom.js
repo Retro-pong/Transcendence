@@ -101,6 +101,7 @@ class WaitingRoom extends PageComponent {
           break;
         case 'start_game':
           SocketManager.roomSocket.close();
+          Router.replaceState('/game');
           if (this.roomMode === 'normal') {
             Router.navigateTo(
               `/game/play?id=${data.room_id}&mode=${this.roomMode}`

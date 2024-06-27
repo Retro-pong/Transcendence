@@ -68,6 +68,7 @@ class CreateRoom extends PageComponent {
         const roomId = res.id.toString();
         document.getElementById('createRoomForm').reset();
         ToastHandler.setToast('Room created successfully');
+        Router.replaceState('/game/join');
         Router.navigateTo(`/game/waiting?id=${roomId}&mode=${gameMode}`);
       })
       .catch((err) => {
