@@ -277,6 +277,19 @@ class MyTokenRefreshView(TokenRefreshView):
             return response
         request.data["refresh"] = refresh_token
 
+        # Update user online status
+        try:
+            user = request.user
+            user.is_active = True
+            user.save()
+        except:
+            response = Response(
+                {"error": "Failed to get user."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+            response.delete_cookie("refresh_token")
+            return response
+
         # Refresh JWT tokens
         try:
             super().post(request, *args, **kwargs)
