@@ -251,6 +251,7 @@ class PlayGame extends PageComponent {
         setGameResultModal();
         gameResultModal.show();
         SocketManager.gameSocket = null;
+        Router.replaceState('/game');
         await Router.navigateTo('/game');
       };
       SocketManager.gameSocket.onerror = () => {
