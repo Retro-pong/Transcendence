@@ -9,7 +9,7 @@ const ModalComponent = ({
     registerBtn:
       '<button id="registerBtn" type="submit" class="btn btn-outline-light w-100 fs-12" form="registerForm" > >> REGISTER << </button>',
     submitBtn:
-      '<button id="twoFactorLoginBtn" type="button" class="btn btn-outline-light w-100 fs-12"> >> SUBMIT << </button>',
+      '<button id="twoFactorLoginBtn" type="submit" class="btn btn-outline-light w-100 fs-12" form="login-code-form"> >> SUBMIT << </button>',
     emailVerifyBtn:
       '<button id="emailVerifyBtn" type="submit" class="btn btn-outline-light w-100 fs-12" form="emailVerifyForm"> >> VERIFY << </button>',
     profileEditBtn:

@@ -42,18 +42,21 @@ class SocketManager {
     this.closeGameSocket();
   }
 
+  static popstateEvent(socket) {
+    console.log('popstateEvent', socket);
+    return async () => {
+      if (!socket || socket.readyState === WebSocket.CLOSING) return;
+      ToastHandler.setToast('You left the game');
+      await Router.navigateTo('/game');
+      socket.close();
+    };
+  }
+
   static handlePopstate(mode) {
     const socket = mode === 'room' ? this.roomSocket : this.gameSocket;
-    window.addEventListener(
-      'popstate',
-      async () => {
-        if (!socket || socket.readyState === WebSocket.CLOSING) return;
-        ToastHandler.setToast('You left the room');
-        await Router.navigateTo('/game');
-        socket.close();
-      },
-      { once: true }
-    );
+    window.addEventListener('popstate', this.popstateEvent(socket), {
+      once: true,
+    });
   }
 
   static setRoomSocket() {

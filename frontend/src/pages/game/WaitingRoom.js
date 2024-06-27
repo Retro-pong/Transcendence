@@ -21,6 +21,9 @@ class WaitingRoom extends PageComponent {
     return `
       <div class="container h-100 p-3 game-room-border">
         <div class="d-flex flex-column h-100 position-relative">
+          <div class="position-absolute top-0 start-0">
+            <button id="backBtn" class="btn btn-no-outline-hover fs-2"><< Back</button>
+          </div>
           <h1 id="room-title" class="fs-15 text-center">Welcome to<br />[ ${this.roomTitle} ]</h1>
           <div class="container overflow-auto h-100">
             <div id="player-container" class="row row-cols-1 row-cols-md-2 g-1">
@@ -70,7 +73,22 @@ class WaitingRoom extends PageComponent {
     this.players = players;
   }
 
+  handleBackBtnClick() {
+    const backBtn = document.getElementById('backBtn');
+    backBtn.addEventListener(
+      'click',
+      async () => {
+        window.removeEventListener('popstate', SocketManager.popstateEvent);
+        ToastHandler.setToast('You left the room');
+        SocketManager.roomSocket.close();
+        history.back();
+      },
+      { once: true }
+    );
+  }
+
   async afterRender() {
+    this.handleBackBtnClick();
     SocketManager.roomSocket.onmessage = (e) => {
       const data = JSON.parse(e.data);
       this.roomTitle = data.room_name;

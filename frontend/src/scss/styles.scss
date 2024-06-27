@@ -288,3 +288,8 @@ canvas {
     color: $mint;
   }
 }
+
+.profile-hover:hover {
+    cursor: pointer;
+    border-color: $pink !important;
+}
