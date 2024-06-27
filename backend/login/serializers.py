@@ -23,11 +23,11 @@ class RegisterSerializer(serializers.ModelSerializer):
             pass
 
         # username 중복 방지
-        username = validated_data["username"]
-        while User.objects.filter(username=username).exists():
-            username = User.objects.make_random_password(length=10)
-        if not username == validated_data["username"]:
-            validated_data["username"] = username
+        # username = validated_data["username"]
+        # while User.objects.filter(username=username).exists():
+        #     username = User.objects.make_random_password(length=10)
+        # if not username == validated_data["username"]:
+        #     validated_data["username"] = username
 
         new_user = User.objects.create_user(**validated_data)
         return new_user
