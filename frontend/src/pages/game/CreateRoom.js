@@ -32,7 +32,7 @@ class CreateRoom extends PageComponent {
       <div class="container h-100 p-3 game-room-border">
         <h1 class="display-1 text-center">ROOM SETTING</h1>
         <div class="container h-75 w-100 d-flex flex-column mt-3 justify-content-between align-items-center">
-          <div class="row game-setting-container h-75 w-100 mb-5 overflow-auto">
+          <div class="row game-setting-container h-75 w-100 mb-4 overflow-y-scroll">
             ${createRoomForm()}
           </div>
           <div class="row h-25 w-75 pt-4">
