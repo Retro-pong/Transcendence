@@ -29,8 +29,11 @@ class CreateRoom extends PageComponent {
     });
 
     return `
-      <div class="container h-100 p-3 game-room-border">
-        <h1 class="display-1 text-center">ROOM SETTING</h1>
+      <div class="container position-relative h-100 p-3 game-room-border">
+        <div class="position-absolute">
+          <button id="backBtn" class="btn btn-no-outline-hover fs-2"><< Back</button>
+        </div>
+        <h1 class="fs-15 text-center">ROOM SETTING</h1>
         <div class="container h-75 w-100 d-flex flex-column mt-3 justify-content-between align-items-center">
           <div class="row game-setting-container h-75 w-100 mb-4 overflow-y-scroll">
             ${createRoomForm()}
@@ -44,6 +47,13 @@ class CreateRoom extends PageComponent {
         </div>
       </div>
       `;
+  }
+
+  handleBackBtnClick() {
+    const backBtn = document.getElementById('backBtn');
+    backBtn.addEventListener('click', () => {
+      history.back();
+    });
   }
 
   async submitGameForm(form) {
@@ -131,6 +141,7 @@ class CreateRoom extends PageComponent {
   }
 
   async afterRender() {
+    this.handleBackBtnClick();
     document
       .getElementById('createRoomForm')
       .addEventListener('submit', (e) => {
