@@ -87,8 +87,8 @@ class FriendsListAPIViewTestCase(APITestCase):
         )
 
     def test_get_friend_requests(self):
-        FriendRequest.objects.create(user=self.user, friend_name="friend1")
-        FriendRequest.objects.create(user=self.user, friend_name="friend2")
+        FriendRequest.objects.create(user=self.user, friend_user=self.user2)
+        FriendRequest.objects.create(user=self.user, friend_user=self.user3)
 
         url = reverse("friends:waiting_list")
         response = self.client.get(url)
@@ -98,7 +98,7 @@ class FriendsListAPIViewTestCase(APITestCase):
 
     def test_process_friend_request(self):
         friend_request = FriendRequest.objects.create(
-            user=self.user, friend_name="friend4"
+            user=self.user, friend_user=self.user5
         )
 
         url = reverse("friends:waiting_list")
@@ -110,7 +110,7 @@ class FriendsListAPIViewTestCase(APITestCase):
 
     def test_friend_request_duplicate(self):
         friend_request1 = FriendRequest.objects.create(
-            user=self.user, friend_name="friend1"
+            user=self.user, friend_user=self.user2
         )
         url = reverse("friends:waiting_list")
         data = {"friend_name": "friend1", "request_patch": 1}
@@ -153,9 +153,7 @@ class AddListAPIViewTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         send_user = User.objects.get(username="user2")
         self.assertTrue(
-            FriendRequest.objects.filter(
-                user=send_user, friend_name=self.user.username
-            ).exists()
+            FriendRequest.objects.filter(user=send_user, friend_user=self.user).exists()
         )
 
     def test_send_friend_request_again(self):

@@ -18,9 +18,15 @@ class FriendSerializer(serializers.ModelSerializer):
 
 
 class FriendRequestSerializer(serializers.ModelSerializer):
+    friend_name = serializers.SerializerMethodField()
+
     class Meta:
         model = FriendRequest
         fields = ["friend_name"]
+
+    def get_friend_name(self, obj):
+        friend_user = obj.friend_user
+        return friend_user.username
 
 
 class UsernameSerializer(serializers.ModelSerializer):
