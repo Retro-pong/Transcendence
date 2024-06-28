@@ -11,13 +11,13 @@ const CreateRoomFormItem = ({
 
   const contentItem = contentCustom
     ? `${content}`
-    : `<div class="col-lg-8 h-100 d-flex flex-row justify-content-center align-items-center overflow-scroll">
+    : `<div class="col-md-8 h-100 d-flex flex-row justify-content-center align-items-center overflow-scroll">
 				${content}
 			</div>`;
 
   return `
 		<div class="row h-25 w-100 fs-13 pt-4 d-flex justify-content-center align-items-center">
-			<div class="col-lg-4 h-100 fs-13 d-flex justify-content-center align-items-center">
+			<div class="col-md-4 h-100 fs-13 d-flex justify-content-center align-items-center">
 				${titleItem}
 			</div>
 			${contentItem}

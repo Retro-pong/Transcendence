@@ -45,14 +45,14 @@ const CreateRoomForm = () => {
 					${createRoomFormItem({
             titleId: 'gameMode',
             title: 'MODE',
-            content: `<div class="col-lg-8 h-100 d-flex flex-column flex-lg-row flex-xl-row flex-xxl-row justify-content-center align-items-center overflow-scroll">
-												<span class="px-3 d-none d-lg-block d-xl-block d-xxl-block">[</span>
+            content: `<div class="col-md-8 h-100 d-flex flex-column flex-xl-row flex-xxl-row justify-content-center align-items-center overflow-scroll">
+												<span class="px-3 d-none d-xl-block d-xxl-block">[</span>
 												<input type="radio" class="btn-check d-none" name="modeOptions" id="normal" autocomplete="off"/>
 												<label class="btn btn-outline-light fs-9" for="normal">NORMAL</label>
-												<span class="px-3 d-none d-lg-block d-xl-block d-xxl-block">/</span>
+												<span class="px-3 d-none d-xl-block d-xxl-block">/</span>
 												<input type="radio" class="btn-check d-none" name="modeOptions" id="tournament" autocomplete="off"/>
 												<label class="btn btn-outline-light fs-9" for="tournament">TOURNAMENT</label>
-												<span class="px-3 d-none d-lg-block d-xl-block d-xxl-block">]</span>
+												<span class="px-3 d-none d-xl-block d-xxl-block">]</span>
 											</div>`,
             contentCustom: true,
           })}
