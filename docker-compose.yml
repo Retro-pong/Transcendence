@@ -56,7 +56,7 @@ services:
 volumes:
   frontend-data:
   backend-media:
-  # postgres-data:
+  postgres-data:
 
 
 networks:
