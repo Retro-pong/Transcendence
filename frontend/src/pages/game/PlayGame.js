@@ -70,11 +70,11 @@ class PlayGame extends PageComponent {
       modalId: 'gameResultModal',
       content: `
         <div class="d-flex flex-column justify-content-center align-items-center h-50">
-          <div id="gameResult" class="fs-15 w-100 text-center">
+          <div id="crownImage" class="h-25 w-25 text-center d-none">
+            <img src="/img/crown.png" class="img-fluid crown-animation" alt="Crown"/>
           </div>
-           <div id="finalText" class="fs-13 w-100 text-center text-success d-none">
-              You have<br/>Final Game!
-           </div>
+          <div id="gameResult" class="fs-15 w-100 text-center"></div>
+          <div id="finalText" class="fs-13 w-100 text-center text-success d-none"></div>
           <div class="w-75 d-flex justify-content-between align-items-center">
             <div id="modalRedNick" class="text-danger w-25 fs-12"></div>
             <div id="redScore" class="text-danger w-25 text-end fs-13"></div>
@@ -115,6 +115,7 @@ class PlayGame extends PageComponent {
     const modalCloseBtn = document.querySelector('#gameResultBtn');
     const gameResult = document.querySelector('#gameResult');
     const finalText = document.querySelector('#finalText');
+    const crownImage = document.querySelector('#crownImage');
     const modalRedNick = document.querySelector('#modalRedNick');
     const modalBlueNick = document.querySelector('#modalBlueNick');
     const redScore = document.querySelector('#redScore');
@@ -132,10 +133,20 @@ class PlayGame extends PageComponent {
       redScore.innerText = this.gameEnd ? this.redScore : '';
       blueScore.innerText = this.gameEnd ? this.blueScore : '';
       if (this.gameEnd) {
-        gameResult.innerText = this.side === winner ? 'You Win!' : 'You Lose!';
-        if (this.isFinalUser) {
-          gameResult.innerText = 'You Win!';
+        gameResult.innerText =
+          this.side === winner || this.isFinalUser ? 'You Win!' : 'You Lose!';
+        if (this.gameMode === 'semi-final') {
+          if (this.isFinalUser) {
+            finalText.innerText = this.isFinal
+              ? 'You have\nFinal Game!'
+              : 'The opponent\nhas left!';
+            finalText.classList.remove('d-none');
+          }
+        }
+        if (this.gameMode === 'final' && this.side === winner) {
+          finalText.innerText = 'Final Winner!';
           finalText.classList.remove('d-none');
+          crownImage.classList.remove('d-none');
         }
       } else {
         gameResult.innerText = 'Game End!\nUser Disconnected!';
@@ -211,9 +222,11 @@ class PlayGame extends PageComponent {
             break;
           case 'final':
             Router.hideElement(gameWaitingText);
-            this.gameEnd = data.isFinal === true;
             this.isFinal = data.isFinal;
             this.isFinalUser = data.isFinalUser === true;
+            if (this.isFinal && this.isFinalUser) {
+              this.gameEnd = true;
+            }
             SocketManager.gameSocket.close(1000, 'Game End');
             break;
           case 'exit':
