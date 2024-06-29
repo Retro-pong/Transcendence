@@ -198,8 +198,8 @@ class GameManager {
   }
 
   localStartRendering() {
+    const gameWaitingText = document.querySelector('#gameWaitingText');
     if (!this.isRendering) {
-      const gameWaitingText = document.querySelector('#gameWaitingText');
       gameWaitingText.innerText = '3';
       gameWaitingText.classList.remove('d-none');
       setTimeout(() => {
@@ -213,6 +213,7 @@ class GameManager {
       }, 3000);
       setTimeout(() => {
         gameWaitingText.classList.add('d-none');
+        this.canvas.focus();
         this.isRendering = true;
         this.localGameRender();
       }, 4000);
