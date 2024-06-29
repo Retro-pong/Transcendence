@@ -3,6 +3,7 @@ import TokenManager from '@/utils/TokenManager';
 import Fetch from '@/utils/Fetch';
 import Router from '@/utils/Router';
 import SocketManager from '@/utils/SocketManager';
+import musicController from '@/utils/musicController';
 
 Fetch.init();
 
@@ -26,7 +27,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       await Router.navigateTo(nav.pathname);
     });
   });
-
+  musicController();
   const logoutBtn = document.getElementById('logoutBtn');
   logoutBtn.addEventListener('click', async () => {
     await TokenManager.logout();
