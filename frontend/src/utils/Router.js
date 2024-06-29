@@ -139,9 +139,7 @@ class Router {
         typeof Router.before.getGameManager === 'function' &&
         Router.before.getGameManager()
       ) {
-        if (SocketManager.gameSocket) {
-          SocketManager.gameSocket.close();
-        }
+        SocketManager.closeGameSocket();
         Router.before.setDisposeAll();
       }
       window.removeEventListener('beforeunload', Router.onRefresh);
