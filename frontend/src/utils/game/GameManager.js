@@ -199,8 +199,23 @@ class GameManager {
 
   localStartRendering() {
     if (!this.isRendering) {
-      this.isRendering = true;
-      this.localGameRender();
+      const gameWaitingText = document.querySelector('#gameWaitingText');
+      gameWaitingText.innerText = '3';
+      gameWaitingText.classList.remove('d-none');
+      setTimeout(() => {
+        gameWaitingText.innerText = '2';
+      }, 1000);
+      setTimeout(() => {
+        gameWaitingText.innerText = '1';
+      }, 2000);
+      setTimeout(() => {
+        gameWaitingText.innerText = 'Start!';
+      }, 3000);
+      setTimeout(() => {
+        gameWaitingText.classList.add('d-none');
+        this.isRendering = true;
+        this.localGameRender();
+      }, 4000);
     }
   }
 
