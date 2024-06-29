@@ -152,6 +152,11 @@ class Router {
       }
     }
 
+    const backDrop = document.getElementsByClassName('modal-backdrop');
+    Array.prototype.forEach.call(backDrop, (back) => {
+      back.remove();
+    });
+
     Router.app.innerHTML = await page.render();
     await page.afterRender();
     Router.before = page;
