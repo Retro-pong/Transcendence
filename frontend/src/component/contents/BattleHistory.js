@@ -17,12 +17,14 @@ const BattleHistory = (username = '', history = []) => {
       const score1 = data.player1_score;
       const score2 = data.player2_score;
       const date = new Date(data.start_time);
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const day = date.getDate().toString().padStart(2, '0');
       const hour = date.getHours().toString().padStart(2, '0');
       const min = date.getMinutes().toString().padStart(2, '0');
 
       return `
       <tr>
-        <td>${hour}:${min}</td>
+        <td>${month}/${day}<br/>${hour}:${min}</td>
         <td><span class="${player1Color}">${player1}</span><br/>${score1}</td>
         <td>:<br/><span class="text-light-emphasis fs-2">:</span></td>
         <td><span class="${player2Color}">${player2}</span><br/>${score2}</td>
