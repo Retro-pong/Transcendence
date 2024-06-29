@@ -37,7 +37,7 @@ const BattleHistory = (username = '', history = []) => {
     <table class="table table-borderless text-center">
       <thead>
         <tr>
-          <th scope="col" class="text-warning fs-2">TIME</th>
+          <th scope="col" class="text-warning fs-2">DATE</th>
           <th scope="col" class="text-warning fs-2">PLAYER1</th>
           <th scope="col" class="text-warning fs-2"></th>
           <th scope="col" class="text-warning fs-2">PLAYER2</th>
