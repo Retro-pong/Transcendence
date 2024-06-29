@@ -48,6 +48,7 @@ class SocketManager {
       const socket = mode === 'room' ? this.roomSocket : this.gameSocket;
       if (!socket || socket.readyState === WebSocket.CLOSING) {
         // 로컬 게임 뒤로가기
+        Router.replaceState('/game');
         await Router.navigateTo('/game');
         return;
       }
