@@ -113,17 +113,14 @@ class Router {
         Router.replaceState(beforePage);
       }
     } else if (currPathname !== '/login' && !isLoggedIn) {
+      ToastHandler.setToast('You need to login!');
       Router.replaceState('/login');
     } else if (currPathname === '/game/waiting') {
       SocketManager.setRoomSocket();
     } else {
       Router.setPageHistory(currPathname);
     }
-    // TODO: 게임방 페이지에서 뒤로가기 제한
-    // else if (currPathname === '/game') {
-    // history.pushState(null, null, location.href);
-    //  window.addEventListener('popstate', () => history.go(1));}
-
+    document.title = '';
     const page = Router.getPageToRender();
     if (Router.getPathname() === '/game/play') {
       Router.hideElement(Router.background);
