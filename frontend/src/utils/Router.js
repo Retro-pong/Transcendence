@@ -156,6 +156,8 @@ class Router {
     Array.prototype.forEach.call(backDrop, (back) => {
       back.remove();
     });
+    document.body.className = '';
+    document.body.style = '';
 
     Router.app.innerHTML = await page.render();
     await page.afterRender();
