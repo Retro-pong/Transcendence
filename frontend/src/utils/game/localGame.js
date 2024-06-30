@@ -77,19 +77,19 @@ function localGame(scene, objects, localGameInfo, gameSpeed, renderRequestId) {
       }
 
       // 벽에 부딪히면 방향 바꾸기
-      if (objects.ball.position.z < -6.8 && objects.ball.position.z > -8.2) {
+      if (objects.ball.position.z < -7.2 && objects.ball.position.z > -7.8) {
         newLocalGameInfo.c *= -1;
         newLocalGameInfo.hitStatus.leftWallHit = 1;
       }
-      if (objects.ball.position.z > 6.8 && objects.ball.position.z < 8.2) {
+      if (objects.ball.position.z > 7.2 && objects.ball.position.z < 7.8) {
         newLocalGameInfo.c *= -1;
         newLocalGameInfo.hitStatus.rightWallHit = 1;
       }
-      if (objects.ball.position.y > 4.2 && objects.ball.position.y < 5.7) {
+      if (objects.ball.position.y > 4.7 && objects.ball.position.y < 5.3) {
         newLocalGameInfo.b *= -1;
         newLocalGameInfo.hitStatus.topWallHit = 1;
       }
-      if (objects.ball.position.y < -4.2 && objects.ball.position.y > -5.7) {
+      if (objects.ball.position.y < -4.7 && objects.ball.position.y > -5.3) {
         newLocalGameInfo.b *= -1;
         newLocalGameInfo.hitStatus.bottomWallHit = 1;
       }

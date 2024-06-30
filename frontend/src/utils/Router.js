@@ -139,9 +139,7 @@ class Router {
         typeof Router.before.getGameManager === 'function' &&
         Router.before.getGameManager()
       ) {
-        if (SocketManager.gameSocket) {
-          SocketManager.gameSocket.close();
-        }
+        SocketManager.closeGameSocket();
         Router.before.setDisposeAll();
       }
       window.removeEventListener('beforeunload', Router.onRefresh);
@@ -153,6 +151,13 @@ class Router {
         Router.hideElement(Router.navBar);
       }
     }
+
+    const backDrop = document.getElementsByClassName('modal-backdrop');
+    Array.prototype.forEach.call(backDrop, (back) => {
+      back.remove();
+    });
+    document.body.className = '';
+    document.body.style = '';
 
     Router.app.innerHTML = await page.render();
     await page.afterRender();

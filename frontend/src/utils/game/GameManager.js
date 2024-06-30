@@ -56,6 +56,12 @@ class GameManager {
     this.isRendering = false;
 
     this.localGameSpped = 3;
+    this.localTextTimeOut = {
+      1: null,
+      2: null,
+      3: null,
+      4: null,
+    };
   }
 
   disposeAll() {
@@ -197,10 +203,33 @@ class GameManager {
     }
   }
 
+  resetLocalTextTimeOut() {
+    Object.values(this.localTextTimeOut).forEach((timeout) => {
+      clearTimeout(timeout);
+    });
+  }
+
   localStartRendering() {
+    const gameWaitingText = document.querySelector('#gameWaitingText');
     if (!this.isRendering) {
-      this.isRendering = true;
-      this.localGameRender();
+      this.resetLocalTextTimeOut();
+      gameWaitingText.innerText = '3';
+      gameWaitingText.classList.remove('d-none');
+      this.localTextTimeOut[1] = setTimeout(() => {
+        gameWaitingText.innerText = '2';
+      }, 1000);
+      this.localTextTimeOut[2] = setTimeout(() => {
+        gameWaitingText.innerText = '1';
+      }, 2000);
+      this.localTextTimeOut[3] = setTimeout(() => {
+        gameWaitingText.innerText = 'Start!';
+      }, 3000);
+      this.localTextTimeOut[4] = setTimeout(() => {
+        gameWaitingText.classList.add('d-none');
+        this.canvas.focus();
+        this.isRendering = true;
+        this.localGameRender();
+      }, 4000);
     }
   }
 
