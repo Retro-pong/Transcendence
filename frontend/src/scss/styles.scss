@@ -294,6 +294,11 @@ canvas {
     border-color: $pink !important;
 }
 
+.friend-hover:hover {
+  cursor: pointer;
+  border-color: $active-green !important;
+}
+
 .crown-animation {
   animation: crown 2s ease-in-out infinite;
 }

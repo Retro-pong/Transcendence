@@ -6,6 +6,7 @@ import FriendSearchListItem from '@component/contents/FriendSearchListItem';
 import ModalComponent from '@component/modal/ModalComponent';
 import FriendWaitList from '@component/contents/FriendWaitList';
 import FriendSearch from '@component/contents/FriendSearch';
+import BattleHistory from '@component/contents/BattleHistory';
 import Pagination from '@component/navigation/Pagination';
 import Fetch from '@/utils/Fetch';
 import debounce from '@/utils/debounce';
@@ -16,6 +17,7 @@ class Friends extends PageComponent {
   constructor() {
     super();
     this.setTitle('Friends');
+    this.friendDetailMap = new Map();
   }
 
   async getFriends() {
@@ -33,6 +35,7 @@ class Friends extends PageComponent {
 
   async getPageData() {
     const friendList = await this.getFriends();
+    this.friendDetailMap.clear();
     if (friendList.length === 0) {
       document.getElementById('pagination').classList.add('d-none');
       return `<div class="fs-15 align-self-center"> No Friends :( </div>`;
@@ -40,8 +43,12 @@ class Friends extends PageComponent {
     document.getElementById('pagination').classList.remove('d-none');
 
     const friends = friendList
-      .map((data) =>
-        FriendInfoCard({
+      .map((data) => {
+        this.friendDetailMap.set(`friend${data.friend_user}`, {
+          username: data.friend_info.username,
+          history: data.friend_info.history,
+        });
+        return FriendInfoCard({
           id: data.friend_user,
           name: data.friend_info.username,
           win: data.friend_info.win,
@@ -49,8 +56,8 @@ class Friends extends PageComponent {
           comment: data.friend_info.comment,
           isActive: data.friend_info.is_active,
           profileImg: data.friend_info.image,
-        })
-      )
+        });
+      })
       .join('');
     return `
       <div class="row row-cols-lg-2 w-100">
@@ -226,6 +233,22 @@ class Friends extends PageComponent {
     });
   }
 
+  onFriendDetailModalEvent() {
+    const friendDetailModal = document.getElementById('friendDetailModal');
+    friendDetailModal.addEventListener('show.bs.modal', async (e) => {
+      const friendId = e.relatedTarget.id;
+      const friendInfo = this.friendDetailMap.get(friendId);
+      const modalBody = document.querySelector(
+        '#friendDetailModal .modal-body'
+      );
+      modalBody.innerHTML = `
+    <div class="border border-light overflow-y-scroll" style="max-height: 45rem;">
+      ${BattleHistory(friendInfo.username, friendInfo.history)}
+    </div>
+      `;
+    });
+  }
+
   async render() {
     const FriendWaitModal = ModalComponent({
       borderColor: 'mint',
@@ -242,9 +265,18 @@ class Friends extends PageComponent {
       buttonList: [],
     });
 
+    const FriendDetailModal = ModalComponent({
+      borderColor: 'pink',
+      title: 'BATTLE HISTORY',
+      modalId: 'friendDetailModal',
+      content: '',
+      buttonList: [],
+    });
+
     return `
       ${FriendWaitModal}
       ${FriendAddModal}
+      ${FriendDetailModal}
       <div class="d-md-flex justify-content-between top-0 z-1">
         <h1 class="fs-14">Friends</h1>
         <div class="d-flex flex-row pe-5">
@@ -268,6 +300,7 @@ class Friends extends PageComponent {
     this.onPaginationClick(this);
     this.onFriendWaitModalEvent();
     this.onFriendAddModalEvent();
+    this.onFriendDetailModalEvent();
   }
 }
 
