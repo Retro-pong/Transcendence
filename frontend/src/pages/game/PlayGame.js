@@ -76,13 +76,13 @@ class PlayGame extends PageComponent {
           </div>
           <div id="gameResult" class="fs-15 w-100 text-center"></div>
           <div id="finalText" class="fs-13 w-100 text-center text-success d-none"></div>
-          <div class="w-75 d-flex justify-content-between align-items-center">
-            <div id="modalRedNick" class="text-danger w-25 fs-12"></div>
-            <div id="redScore" class="text-danger w-25 text-end fs-13"></div>
+          <div class="w-75 row d-flex align-items-center">
+            <div id="modalRedNick" class="text-danger col-10 fs-11 text-break"></div>
+            <div id="redScore" class="text-danger col-2 text-end fs-13"></div>
           </div>          
-          <div class="w-75 d-flex justify-content-between align-items-center">
-            <div id="modalBlueNick" class="text-primary w-25 fs-12"></div>
-            <div id="blueScore" class="text-primary w-25 text-end fs-13"></div>
+          <div class="w-75 row d-flex align-items-center">
+            <div id="modalBlueNick" class="text-primary col-10 fs-11 text-break"></div>
+            <div id="blueScore" class="text-primary col-2 text-end fs-13"></div>
           </div>
         </div>
       `,
@@ -98,8 +98,8 @@ class PlayGame extends PageComponent {
            class="position-absolute top-0 start-50 translate-middle-x px-3 w-40 text-white d-flex flex-column align-items-center border border-5 rounded">
         <span class="fs-6">score</span>
         <div class="d-flex w-100 fs-6">
-          <span id="player1Nick" class="w-50 d-flex justify-content-center text-danger">RED</span>
-          <span id="player2Nick" class="w-50 d-flex justify-content-center text-primary">BLUE</span>
+          <span id="player1Nick" class="w-50 d-flex justify-content-center text-danger text-break">RED</span>
+          <span id="player2Nick" class="w-50 d-flex justify-content-center text-primary text-break">BLUE</span>
         </div>
         <div class="d-flex w-100 fs-8">
           <span id="player1Score" class="w-50 d-flex justify-content-center text-danger" data-score="0">0</span>
