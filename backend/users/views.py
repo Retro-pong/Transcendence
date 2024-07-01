@@ -29,7 +29,9 @@ class ProfileView(APIView):
         try:
             user = request.user
         except AttributeError:
-            return Response({"error": "User not found."}, status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                {"error": "User not found."}, status=status.HTTP_403_FORBIDDEN
+            )
         serializer = ProfileSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -48,7 +50,12 @@ class ProfileEditView(APIView):
                 "comment": openapi.Schema(type=openapi.TYPE_STRING),
             },
         ),
-        responses={200: "OK", 400: "BAD_REQUEST", 401: "UNAUTHORIZED", 403: "FORBIDDEN"},  # 할당된 요청
+        responses={
+            200: "OK",
+            400: "BAD_REQUEST",
+            401: "UNAUTHORIZED",
+            403: "FORBIDDEN",
+        },  # 할당된 요청
     )
     def patch(self, request):
         try:
@@ -57,9 +64,11 @@ class ProfileEditView(APIView):
             user.comment = request.data["comment"]
             user.save()
         except AttributeError:
-            return Response({"error": "User not found."}, status=status.HTTP_403_FORBIDDEN)
-        except KeyError:
-            return Response({"error": "Base user info is required."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "User not found."}, status=status.HTTP_403_FORBIDDEN
+            )
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         return Response({"message": "Profile edited."}, status=status.HTTP_200_OK)
 
 
@@ -78,13 +87,20 @@ class ProfileUploadView(APIView):
                 )
             },
         ),
-        responses={200: "OK", 400: "BAD_REQUEST", 401: "UNAUTHORIZED", 403: "FORBIDDEN"},  # 할당된 요청
+        responses={
+            200: "OK",
+            400: "BAD_REQUEST",
+            401: "UNAUTHORIZED",
+            403: "FORBIDDEN",
+        },  # 할당된 요청
     )
     def patch(self, request):
         try:
             user = request.user
         except AttributeError:
-            return Response({"error": "User not found."}, status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                {"error": "User not found."}, status=status.HTTP_403_FORBIDDEN
+            )
         image_file = request.data.get("image")
         if not image_file:
             return Response(
@@ -92,4 +108,6 @@ class ProfileUploadView(APIView):
             )
         user.image = image_file
         user.save()
-        return Response({"message": "Profile image updated."}, status=status.HTTP_200_OK)
+        return Response(
+            {"message": "Profile image updated."}, status=status.HTTP_200_OK
+        )
