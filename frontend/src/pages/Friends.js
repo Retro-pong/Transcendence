@@ -140,6 +140,18 @@ class Friends extends PageComponent {
             );
           });
       });
+      btn.addEventListener('mouseover', (e) => {
+        const friendName = e.target.dataset.nick;
+        document
+          .querySelector(`[data-add-btn-target="${friendName}"]`)
+          .classList.add('text-success');
+      });
+      btn.addEventListener('mouseout', (e) => {
+        const friendName = e.target.dataset.nick;
+        document
+          .querySelector(`[data-add-btn-target="${friendName}"]`)
+          .classList.remove('text-success');
+      });
     });
   }
 
