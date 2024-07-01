@@ -113,17 +113,14 @@ class Router {
         Router.replaceState(beforePage);
       }
     } else if (currPathname !== '/login' && !isLoggedIn) {
+      ToastHandler.setToast('You need to login!');
       Router.replaceState('/login');
     } else if (currPathname === '/game/waiting') {
       SocketManager.setRoomSocket();
     } else {
       Router.setPageHistory(currPathname);
     }
-    // TODO: 게임방 페이지에서 뒤로가기 제한
-    // else if (currPathname === '/game') {
-    // history.pushState(null, null, location.href);
-    //  window.addEventListener('popstate', () => history.go(1));}
-
+    document.title = '';
     const page = Router.getPageToRender();
     if (Router.getPathname() === '/game/play') {
       Router.hideElement(Router.background);
@@ -139,9 +136,7 @@ class Router {
         typeof Router.before.getGameManager === 'function' &&
         Router.before.getGameManager()
       ) {
-        if (SocketManager.gameSocket) {
-          SocketManager.gameSocket.close();
-        }
+        SocketManager.closeGameSocket();
         Router.before.setDisposeAll();
       }
       window.removeEventListener('beforeunload', Router.onRefresh);
@@ -153,6 +148,13 @@ class Router {
         Router.hideElement(Router.navBar);
       }
     }
+
+    const backDrop = document.getElementsByClassName('modal-backdrop');
+    Array.prototype.forEach.call(backDrop, (back) => {
+      back.remove();
+    });
+    document.body.className = '';
+    document.body.style = '';
 
     Router.app.innerHTML = await page.render();
     await page.afterRender();

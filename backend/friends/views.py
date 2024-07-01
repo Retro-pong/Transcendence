@@ -496,7 +496,7 @@ class AddListAPIView(APIView):
             )
         except Friend.DoesNotExist:
             try:
-                FriendRequest.objects.get(user=send_user, friend_name=user.username)
+                FriendRequest.objects.get(user=send_user, friend_user=user)
                 # 이미 친구 신청을 보낸 대상인지 확인
                 return Response(
                     {"error": "Friend request already sent."}, status=status.HTTP_200_OK

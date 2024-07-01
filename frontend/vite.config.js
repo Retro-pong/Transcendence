@@ -15,6 +15,10 @@ export default {
       clientPort: 80,
       port: 3000,
     },
+    mimeType: {
+      'audio/mpeg': ['mp3'],
+      'image/svg+xml': ['svg'],
+    },
   },
   resolve: {
     alias: [

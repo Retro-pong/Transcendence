@@ -18,7 +18,7 @@ class Friend(models.Model):
     @classmethod
     def create_friend(cls, user, friend_name):
         if not User.objects.filter(username=friend_name).exists():
-            raise ValueError("Not exist friend name.")
+            raise ValueError("Friend name does not exist.")
         friend = cls(user=user, friend_user=User.objects.get(username=friend_name))
         friend.save()
         Friend.objects.create(
@@ -46,25 +46,33 @@ class Friend(models.Model):
 
 
 class FriendRequest(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    friend_name = models.CharField(max_length=100)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="request_user"
+    )
+    friend_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="request_friend_user",
+    )
 
     def __str__(self):
-        return f"{self.user.username} -> {self.friend_name}"
+        return f"{self.user.username} -> {self.friend_user.username}"
 
     @classmethod
     def create_request(cls, user, friend_name):
-        request = cls(user=user, friend_name=friend_name)
+        friend_user = User.objects.get(username=friend_name)
+        request = cls(user=user, friend_user=friend_user)
         request.save()
 
     @classmethod
     def delete_request(cls, user, friend_name):
         try:
-            request = cls.objects.get(user=user, friend_name=friend_name)
+            friend_user = User.objects.get(username=friend_name)
+            request = cls.objects.get(user=user, friend_user=friend_user)
             request.delete()
         except cls.DoesNotExist:
             raise ValueError("Request not found.")
 
     class Meta:
         db_table = "friends_request"
-        unique_together = ("user", "friend_name")
+        unique_together = ("user", "friend_user")

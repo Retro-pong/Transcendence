@@ -46,7 +46,9 @@ class SocketManager {
     console.log('popstateEvent', mode);
     return async () => {
       const socket = mode === 'room' ? this.roomSocket : this.gameSocket;
-      if (!socket || socket.readyState === WebSocket.CLOSING) return;
+      if (!socket || socket.readyState === WebSocket.CLOSING) {
+        return;
+      }
       ToastHandler.setToast('You left the game');
       socket.close();
     };
