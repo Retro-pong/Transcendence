@@ -13,8 +13,6 @@ import localGameCustomSetting from '@/utils/game/setting/localGameCustomSetting'
 
 class GameManager {
   constructor() {
-    this.renderRequestId = null;
-
     this.scene = new THREE.Scene();
     this.canvas = document.getElementById('gameCanvas');
     this.renderer = new THREE.WebGLRenderer({
@@ -54,6 +52,7 @@ class GameManager {
     // 로컬 일시정지 위한 변수
     this.localGameRender = this.localGameRender.bind(this);
     this.isRendering = false;
+    this.renderRequestId = null;
 
     this.localGameSpped = 3;
     this.localTextTimeOut = {
