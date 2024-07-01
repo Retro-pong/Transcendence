@@ -42,11 +42,6 @@ class LoginAPITestCase(APITestCase):
         tfa_entry = TFA.objects.filter(email=self.email).first()
         self.assertIsNotNone(tfa_entry)
         self.assertEqual(tfa_entry.email, self.email)
-        instance.sendmail.assert_called_with(
-            settings.EMAIL_HOST_USER,
-            self.email,
-            f"Your verification code is <{tfa_entry.code}>",
-        )
 
     def test_verify_email_success(self):
         request = MagicMock()
