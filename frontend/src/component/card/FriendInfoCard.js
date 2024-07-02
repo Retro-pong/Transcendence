@@ -18,12 +18,12 @@ const FriendInfoCard = ({
       };
   const commentMessage = comment || '...';
   return `
-  <div id="friend${id}" class="col d-flex justify-content-center align-self-center" data-bs-toggle="modal" data-bs-target="#friendDetailModal">
+  <div class="col d-flex justify-content-center align-self-center">
     <div class="card text-bg-dark border-5 border-light justify-content-center rounded-5 p-3 pt-0 my-1 position-relative friend-hover" style="width: 33rem; min-width: 33rem;">
       <div class="row g-0 align-self-end">
         <button class="btn-close fs-4 pt-1" data-nick="${name}" data-id="friend${id}">x</button>
       </div>
-      <div class="row g-0">
+      <div id="friend${id}" class="row g-0" data-bs-toggle="modal" data-bs-target="#friendDetailModal">
         <div class="col-md-8 align-self-center">
           <div class="card-body fs-4 text-break">
             <div class="row">
