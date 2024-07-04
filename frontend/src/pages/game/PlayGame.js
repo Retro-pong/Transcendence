@@ -58,7 +58,7 @@ class PlayGame extends PageComponent {
   }
 
   setDisposeAll() {
-    this.gameManger.resetLocalTextTimeOut();
+    this.gameManger.resetLocalTimeOut();
     this.gameManger.disposeAll();
     this.gameManger = null;
     SocketManager.gameSocket = null;

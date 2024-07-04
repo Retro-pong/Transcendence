@@ -3,7 +3,7 @@ import hitChangeColor from '@/utils/game/utils/hitChangeColor';
 import checkPaddleHit from '@/utils/game/utils/checkPaddleHit';
 import localGameStartSetting from '@/utils/game/utils/localGameStartSetting';
 
-function localGame(scene, objects, localGameInfo, gameSpeed, renderRequestId) {
+function localGame(scene, objects, localGameInfo, gameSpeed, renderRequestId, gameManager) {
   let newLocalGameInfo = { ...localGameInfo };
   newLocalGameInfo.hitStatus = { ...localGameInfo.hitStatus };
 
@@ -47,6 +47,7 @@ function localGame(scene, objects, localGameInfo, gameSpeed, renderRequestId) {
             parseInt(objects.bluePlayerScore.innerText, 10) + 1
           ).toString();
           newLocalGameInfo.start = 'blue';
+          gameManager.localGameScoreSettingTime();
         } else {
           newLocalGameInfo.a *= -1;
           newLocalGameInfo.hitStatus.redPaddleHit = 1;
@@ -58,6 +59,7 @@ function localGame(scene, objects, localGameInfo, gameSpeed, renderRequestId) {
             parseInt(objects.redPlayerScore.innerText, 10) + 1
           ).toString();
           newLocalGameInfo.start = 'red';
+          gameManager.localGameScoreSettingTime();
         } else {
           newLocalGameInfo.a *= -1;
           newLocalGameInfo.hitStatus.bluePaddleHit = 1;
