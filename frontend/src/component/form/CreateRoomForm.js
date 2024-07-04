@@ -3,7 +3,6 @@ import createRoomFormItem from '@component/form/CreateRoomFormItem';
 const CreateRoomForm = () => {
   const date = new Date().getTime().toString(16).slice(-4);
   const defaultTitle = `Come-${date}`;
-  console.log(date, defaultTitle);
   return `
 		<form id="createRoomForm" class="form">
 			<div class="container">
