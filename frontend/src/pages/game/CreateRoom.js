@@ -10,12 +10,12 @@ class CreateRoom extends PageComponent {
   constructor() {
     super();
     this.setTitle('Create Room');
-    this.titleState = false;
+    this.titleState = true;
     this.ballState = true;
     this.speedState = true;
-    this.mapState = false;
-    this.modeState = false;
-    this.progressState = 40;
+    this.mapState = true;
+    this.modeState = true;
+    this.progressState = 100;
   }
 
   async render() {
@@ -25,7 +25,6 @@ class CreateRoom extends PageComponent {
       classList: 'btn btn-outline-light mt-3 fs-10',
       type: 'submit',
       form: 'createRoomForm',
-      disabled: true,
     });
 
     return `
@@ -39,8 +38,8 @@ class CreateRoom extends PageComponent {
             ${createRoomForm()}
           </div>
           <div class="row h-25 w-75 pt-4">
-            <div id="progressBar" class="progress h-25 p-0" role="progressbar" aria-label="Animated striped progress" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100">
-              <div id="progressBarNow" class="progress-bar progress-bar-striped progress-bar-animated" style="width: 40%"></div>
+            <div id="progressBar" class="progress h-25 p-0" role="progressbar" aria-label="Animated striped progress" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+              <div id="progressBarNow" class="progress-bar progress-bar-striped progress-bar-animated" style="width: 100%"></div>
             </div>
             ${createBtn}
           </div>

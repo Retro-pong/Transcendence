@@ -1,6 +1,8 @@
 import createRoomFormItem from '@component/form/CreateRoomFormItem';
 
 const CreateRoomForm = () => {
+  const date = new Date().getTime().toString(16).slice(-4);
+  const defaultTitle = `Come-${date}`;
   return `
 		<form id="createRoomForm" class="form">
 			<div class="container">
@@ -8,7 +10,7 @@ const CreateRoomForm = () => {
             titleId: 'gameTitle',
             title: 'TITLE',
             content: `<span class="fs-13">[</span>
-											<input type="text" id="gameTitle" class="form-control w-75 fs-10 bg-transparent" placeholder="title" />
+											<input type="text" id="gameTitle" class="form-control w-75 fs-10 bg-transparent" placeholder="title" value="${defaultTitle}"/>
 											<span class="fs-13">]</span>`,
             label: true,
           })}
@@ -29,7 +31,7 @@ const CreateRoomForm = () => {
 					${createRoomFormItem({
             titleId: 'gameMap',
             title: 'MAP',
-            content: `<input type="radio" class="btn-check d-none" name="mapOptions" id="gameMap1" data-map="Futuristic Horizon" autocomplete="off"/>
+            content: `<input type="radio" class="btn-check d-none" name="mapOptions" id="gameMap1" data-map="Futuristic Horizon" autocomplete="off" checked/>
 											<label class="btn btn-outline-light mx-2 fs-9" for="gameMap1">
 												<img src="/img/map_futuristic_horizon.jpg" class="img-fluid" alt="wow"/>
 											</label>
@@ -47,7 +49,7 @@ const CreateRoomForm = () => {
             title: 'MODE',
             content: `<div class="col-md-8 h-100 d-flex flex-column flex-xl-row flex-xxl-row justify-content-center align-items-center overflow-scroll">
 												<span class="px-3 d-none d-xl-block d-xxl-block">[</span>
-												<input type="radio" class="btn-check d-none" name="modeOptions" id="normal" autocomplete="off"/>
+												<input type="radio" class="btn-check d-none" name="modeOptions" id="normal" autocomplete="off" checked/>
 												<label class="btn btn-outline-light fs-9" for="normal">NORMAL</label>
 												<span class="px-3 d-none d-xl-block d-xxl-block">/</span>
 												<input type="radio" class="btn-check d-none" name="modeOptions" id="tournament" autocomplete="off"/>
