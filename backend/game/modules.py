@@ -107,11 +107,12 @@ class Ball:
 
 
 class Player:
-    def __init__(self, type: str, nick: str) -> None:
+    def __init__(self, type: str, nick: str, id: str) -> None:
         self.y = 0.0
         self.z = 0.0
         self.type = type  # red, blue
         self.nick = nick
+        self.id = id
         self.status = WAIT
         self.score = 0
 
