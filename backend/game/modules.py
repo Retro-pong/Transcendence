@@ -170,7 +170,7 @@ class Game:
             self.p1.score += 1
         elif type == BLUE:
             self.p2.score += 1
-        if self.p1.score >= 2 or self.p2.score >= 2:
+        if self.p1.score >= 5 or self.p2.score >= 5:
             return type
         return 0
 

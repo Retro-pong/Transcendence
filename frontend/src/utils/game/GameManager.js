@@ -55,11 +55,12 @@ class GameManager {
     this.renderRequestId = null;
 
     this.localGameSpped = 3;
-    this.localTextTimeOut = {
+    this.localTimeout = {
       1: null,
       2: null,
       3: null,
       4: null,
+      score: null,
     };
   }
 
@@ -139,6 +140,18 @@ class GameManager {
     this.objects.bluePlayerScore.innerText = '0';
   }
 
+  localGameScoreSettingTime() {
+    const gameWaitingText = document.querySelector('#gameWaitingText');
+    this.localStopRendering();
+    gameWaitingText.classList.remove('d-none');
+    gameWaitingText.innerText = 'Scoring...';
+    this.localTimeout.score = setTimeout(() => {
+      gameWaitingText.classList.add('d-none');
+      this.isRendering = true;
+      this.localGameRender();
+    }, 1000);
+  }
+
   localGameSetting() {
     this.setLocalGameMap('Mountain');
     this.camera = cameraSetting('local', '');
@@ -194,7 +207,8 @@ class GameManager {
       this.objects,
       this.localGameInfo,
       this.localGameSpped,
-      this.renderRequestId
+      this.renderRequestId,
+      this
     );
     rendering(this.renderer, this.scene, this.camera, 'local');
     if (this.isRendering) {
@@ -202,8 +216,8 @@ class GameManager {
     }
   }
 
-  resetLocalTextTimeOut() {
-    Object.values(this.localTextTimeOut).forEach((timeout) => {
+  resetLocalTimeOut() {
+    Object.values(this.localTimeout).forEach((timeout) => {
       clearTimeout(timeout);
     });
   }
@@ -211,19 +225,19 @@ class GameManager {
   localStartRendering() {
     const gameWaitingText = document.querySelector('#gameWaitingText');
     if (!this.isRendering) {
-      this.resetLocalTextTimeOut();
+      this.resetLocalTimeOut();
       gameWaitingText.innerText = '3';
       gameWaitingText.classList.remove('d-none');
-      this.localTextTimeOut[1] = setTimeout(() => {
+      this.localTimeout[1] = setTimeout(() => {
         gameWaitingText.innerText = '2';
       }, 1000);
-      this.localTextTimeOut[2] = setTimeout(() => {
+      this.localTimeout[2] = setTimeout(() => {
         gameWaitingText.innerText = '1';
       }, 2000);
-      this.localTextTimeOut[3] = setTimeout(() => {
+      this.localTimeout[3] = setTimeout(() => {
         gameWaitingText.innerText = 'Start!';
       }, 3000);
-      this.localTextTimeOut[4] = setTimeout(() => {
+      this.localTimeout[4] = setTimeout(() => {
         gameWaitingText.classList.add('d-none');
         this.canvas.focus();
         this.isRendering = true;

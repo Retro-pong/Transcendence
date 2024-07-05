@@ -58,7 +58,7 @@ class PlayGame extends PageComponent {
   }
 
   setDisposeAll() {
-    this.gameManger.resetLocalTextTimeOut();
+    this.gameManger.resetLocalTimeOut();
     this.gameManger.disposeAll();
     this.gameManger = null;
     SocketManager.gameSocket = null;
@@ -160,8 +160,8 @@ class PlayGame extends PageComponent {
     gameResultModalElement.addEventListener('hidden.bs.modal', async () => {
       redScore.innerText = '';
       blueScore.innerText = '';
-      Router.replaceState('/game');
       if (!this.gameMode) {
+        Router.replaceState('/game');
         await Router.navigateTo('/game');
       }
       if (this.isFinalUser && this.isFinal) {
