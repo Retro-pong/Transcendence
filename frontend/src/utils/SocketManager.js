@@ -87,7 +87,7 @@ class SocketManager {
       this.roomSocket = null;
     };
 
-    this.roomSocket.onerror = (error) => {
+    this.roomSocket.onerror = () => {
       ToastHandler.setToast('Cannot join the room');
     };
   }
