@@ -26,12 +26,7 @@ class ProfileView(APIView):
         ],
     )
     def get(self, request):
-        try:
-            user = request.user
-        except:
-            return Response(
-                {"error": "User not found."}, status=status.HTTP_403_FORBIDDEN
-            )
+        user = request.user
         serializer = ProfileSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -58,19 +53,21 @@ class ProfileEditView(APIView):
         },  # 할당된 요청
     )
     def patch(self, request):
+        user = request.user
         try:
-            user = request.user
             user.username = request.data["username"]
             user.comment = request.data["comment"]
             user.save()
-        except AttributeError:
+        except KeyError:
             return Response(
-                {"error": "User not found."}, status=status.HTTP_403_FORBIDDEN
+                {"error": "Username and comment are required."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
         except:
             return Response(
-                {"error": "Invalid username"}, status=status.HTTP_400_BAD_REQUEST
+                {"error": "Invalid username."}, status=status.HTTP_400_BAD_REQUEST
             )
+
         return Response({"message": "Profile edited."}, status=status.HTTP_200_OK)
 
 
@@ -97,12 +94,7 @@ class ProfileUploadView(APIView):
         },  # 할당된 요청
     )
     def patch(self, request):
-        try:
-            user = request.user
-        except:
-            return Response(
-                {"error": "User not found."}, status=status.HTTP_403_FORBIDDEN
-            )
+        user = request.user
         image_file = request.data.get("image")
         if not image_file:
             return Response(

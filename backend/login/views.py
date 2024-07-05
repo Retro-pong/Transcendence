@@ -284,11 +284,8 @@ class MyTokenRefreshView(TokenRefreshView):
         payload = new_token.payload
         email = payload["email"]
 
-        # Activate user
         try:
             user = User.objects.get(email=email)
-            user.is_active = True
-            user.save()
         except:
             response = Response(
                 {"error": "User does not exist."},
@@ -297,6 +294,9 @@ class MyTokenRefreshView(TokenRefreshView):
             response.delete_cookie("refresh_token")
             return response
 
+        # Activate the user
+        user.is_active = True
+        user.save()
         return Response(
             {
                 "message": "Token refreshed",
