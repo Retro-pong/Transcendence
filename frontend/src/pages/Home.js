@@ -8,7 +8,6 @@ class Home extends PageComponent {
   }
 
   async render() {
-    // TODO: path 수정
     const StartButton = NavLink({
       text: '>> Press Start! <<',
       path: '/game',

@@ -159,7 +159,6 @@ class Login extends PageComponent {
     });
   }
 
-  // TODO: 서버 응답 에러 분기 처리
   submitRegisterForm() {
     document
       .getElementById('registerForm')
