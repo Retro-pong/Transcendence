@@ -75,7 +75,6 @@ class Friends extends PageComponent {
           request_patch: '1',
         })
           .then(async (res) => {
-            console.log(res);
             if (res.status === 201) {
               await this.initPageData(this);
               this.onReloadButtonClick(this);
@@ -84,7 +83,6 @@ class Friends extends PageComponent {
             }
           })
           .catch((err) => {
-            console.log(err);
             ToastHandler.setToast(
               `${err.message || 'Failed to accept friend'}`
             );

@@ -187,7 +187,6 @@ class PlayGame extends PageComponent {
       };
       SocketManager.gameSocket.onmessage = (e) => {
         const data = JSON.parse(e.data);
-        if (data.type !== 'render') console.log(data);
         switch (data.type) {
           case 'start':
             this.side = data.color;
@@ -212,7 +211,6 @@ class PlayGame extends PageComponent {
             this.gameManger.multiGameUpdateObjects(data);
             break;
           case 'result':
-            console.log('result', data);
             this.gameEnd = data.winner !== 'None';
             if (this.gameMode === 'semi-final') {
               gameWaitingText.innerText = 'Waiting for other players...';
@@ -244,8 +242,7 @@ class PlayGame extends PageComponent {
             break;
         }
       };
-      SocketManager.gameSocket.onclose = async (e) => {
-        console.log('game socket closed', e.code);
+      SocketManager.gameSocket.onclose = async () => {
         if (this.gameEnd === false) {
           ToastHandler.setToast(
             this.gameError ? this.gameErrorMsg : 'User Exit'

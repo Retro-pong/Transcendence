@@ -113,7 +113,6 @@ class WaitingRoom extends PageComponent {
           }
           break;
         case 'error':
-          console.error('Room Socket Error:', data.message);
           ToastHandler.setToast(data.message);
           SocketManager.roomSocket.close();
           history.back();
