@@ -200,6 +200,12 @@ class PlayGame extends PageComponent {
               this.start = true;
               Router.hideElement(gameWaitingText);
             }
+            if (parseInt(data.ballHit, 10) === 7) {
+              gameWaitingText.innerText = 'Scoring...';
+              Router.showElement(gameWaitingText);
+            } else {
+              Router.hideElement(gameWaitingText);
+            }
             if (!this.redNick || !this.blueNick) {
               this.redNick = data.redNick;
               this.blueNick = data.blueNick;
