@@ -34,7 +34,7 @@ def send_verification_code(email) -> bool:
         <body>
             <p style="font-size: 16px; color: #333;">
                 Your verification code is <strong style="color: #ea04ec;">{code}</strong>
-                </br></br>Enjoy your <strong style="color: #02ffff;">PONG</strong><b>!</b>
+                <br />Enjoy your <strong style="color: #02ffff;">PONG</strong><b>!</b>
             </p>
         </body>
         </html>

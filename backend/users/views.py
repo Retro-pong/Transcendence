@@ -68,7 +68,9 @@ class ProfileEditView(APIView):
                 {"error": "User not found."}, status=status.HTTP_403_FORBIDDEN
             )
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Invalid username"}, status=status.HTTP_400_BAD_REQUEST
+            )
         return Response({"message": "Profile edited."}, status=status.HTTP_200_OK)
 
 
