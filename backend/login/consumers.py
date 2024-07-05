@@ -13,6 +13,7 @@ class LoginConsumer(AsyncJsonWebsocketConsumer):
             token = content["token"]
             try:
                 self.user = await JWTAuthMiddleware.get_user(token)
+                self.user_id = self.user.id
             except:
                 await self.send_json({"access": "User invalid or expired."})
                 return
@@ -29,7 +30,7 @@ class LoginConsumer(AsyncJsonWebsocketConsumer):
     @database_sync_to_async
     def change_status(self, status):
         user_model = apps.get_model("users", "User")
-        user = user_model.objects.get(username=self.user.username)
+        user = user_model.objects.get(id=self.user_id)
         user.is_active = status
         user.save()
         return user

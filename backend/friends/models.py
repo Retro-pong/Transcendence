@@ -19,11 +19,14 @@ class Friend(models.Model):
     def create_friend(cls, user, friend_name):
         if not User.objects.filter(username=friend_name).exists():
             raise ValueError("Friend name does not exist.")
-        friend = cls(user=user, friend_user=User.objects.get(username=friend_name))
-        friend.save()
-        Friend.objects.create(
-            user=User.objects.get(username=friend_name), friend_user=user
-        )
+        try:
+            friend = cls(user=user, friend_user=User.objects.get(username=friend_name))
+            friend.save()
+            Friend.objects.create(
+                user=User.objects.get(username=friend_name), friend_user=user
+            )
+        except:
+            raise ValueError("The user is already your friend.")
         return friend
 
     @classmethod
