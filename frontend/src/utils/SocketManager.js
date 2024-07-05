@@ -43,7 +43,6 @@ class SocketManager {
   }
 
   static popstateEvent(mode) {
-    console.log('popstateEvent', mode);
     return async () => {
       const socket = mode === 'room' ? this.roomSocket : this.gameSocket;
       if (!socket || socket.readyState === WebSocket.CLOSING) {
@@ -79,20 +78,17 @@ class SocketManager {
     this.roomSocket.onopen = () => {
       if (!this.roomSocket) return;
       this.roomSocket.send(this.getAccessMessage());
-      console.log('Room Socket Connected');
     };
 
     this.roomSocket.onclose = async (e) => {
-      console.log(`Room Socket Disconnected (${e.code})`);
       if (e.code !== 1000) {
         await Router.navigateTo('/game');
       }
       this.roomSocket = null;
     };
 
-    this.roomSocket.onerror = (error) => {
+    this.roomSocket.onerror = () => {
       ToastHandler.setToast('Cannot join the room');
-      console.error('Room Socket Error:', error);
     };
   }
 
@@ -114,19 +110,9 @@ class SocketManager {
     }
     this.onlineSocket.onopen = () => {
       this.onlineSocket.send(this.getAccessMessage());
-      console.log('Online Socket Connected');
     };
-    this.onlineSocket.onmessage = (e) => {
-      const data = JSON.parse(e.data);
-      console.log(data);
-    };
-    this.onlineSocket.onclose = (e) => {
-      console.log('Online Socket Disconnected');
-      console.log(e.code);
+    this.onlineSocket.onclose = () => {
       this.onlineSocket = null;
-    };
-    this.onlineSocket.onerror = (error) => {
-      console.error('Online Socket Error:', error);
     };
   }
 }

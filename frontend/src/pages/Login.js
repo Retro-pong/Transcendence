@@ -85,8 +85,7 @@ class Login extends PageComponent {
   async getAccessToken() {
     const loginModal = Modal.getOrCreateInstance('#loginModal');
     const email = document.getElementById('email-login').value;
-    // const passcode = document.getElementById('passcode').value;
-    const passcode = 'hihihi';
+    const passcode = document.getElementById('passcode').value;
 
     if (!passcode) {
       ToastHandler.setToast('Please enter your passcode');
@@ -160,7 +159,6 @@ class Login extends PageComponent {
     });
   }
 
-  // TODO: 서버 응답 에러 분기 처리
   submitRegisterForm() {
     document
       .getElementById('registerForm')
@@ -230,8 +228,7 @@ class Login extends PageComponent {
       .addEventListener('submit', async (e) => {
         e.preventDefault();
         const { email } = this;
-        const code = 'hihihi';
-        // const code = document.getElementById('emailCode').value;
+        const code = document.getElementById('emailCode').value;
 
         const verifyModal = Modal.getOrCreateInstance('#emailVerifyModal');
         await Fetch.post('/login/email/register/verify/', { email, code })

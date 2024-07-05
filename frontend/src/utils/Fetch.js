@@ -5,7 +5,7 @@ class Fetch {
 
   static #headers = new Headers({ 'Content-Type': 'application/json' });
 
-  static #credentials = 'same-origin';
+  static #credentials = 'include';
 
   static #retry = 1;
 
@@ -49,7 +49,6 @@ class Fetch {
         return this.get(url, retry + 1);
       }
       return response.json().then((err) => {
-        console.error(`GET(${url}) ERROR:`, err);
         throw new Error(err.error || err.detail || '');
       });
     }
@@ -71,7 +70,6 @@ class Fetch {
         return this.post(url, body, retry + 1);
       }
       return response.json().then((err) => {
-        console.error(`POST(${url}) ERROR:`, err);
         throw new Error(err.error || err.detail || '');
       });
     }
@@ -98,7 +96,6 @@ class Fetch {
         return this.patch(url, body, type, retry + 1);
       }
       return response.json().then((err) => {
-        console.error(`PATCH(${url}) ERROR:`, err);
         throw new Error(err.error || err.detail || '');
       });
     }

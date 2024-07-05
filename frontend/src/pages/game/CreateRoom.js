@@ -91,7 +91,6 @@ class CreateRoom extends PageComponent {
         } else {
           ToastHandler.setToast('Failed to create room');
         }
-        console.error(err);
       });
   }
 

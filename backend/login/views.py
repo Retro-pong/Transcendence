@@ -59,7 +59,7 @@ class IntraCallbackView(APIView):
         except User.DoesNotExist:
             username = intra_id
             while User.objects.filter(username=username).exists():
-                username = User.objects.make_random_password(length=10)
+                username = User.objects.make_random_password(length=10).lower()
             user = User.objects.create_user(
                 username=username, email=email, password="subinlee"  # Eastern egg!!
             )
