@@ -28,7 +28,7 @@ class ProfileView(APIView):
     def get(self, request):
         try:
             user = request.user
-        except AttributeError:
+        except:
             return Response(
                 {"error": "User not found."}, status=status.HTTP_403_FORBIDDEN
             )
@@ -67,7 +67,7 @@ class ProfileEditView(APIView):
             return Response(
                 {"error": "User not found."}, status=status.HTTP_403_FORBIDDEN
             )
-        except Exception as e:
+        except:
             return Response(
                 {"error": "Invalid username"}, status=status.HTTP_400_BAD_REQUEST
             )
@@ -99,7 +99,7 @@ class ProfileUploadView(APIView):
     def patch(self, request):
         try:
             user = request.user
-        except AttributeError:
+        except:
             return Response(
                 {"error": "User not found."}, status=status.HTTP_403_FORBIDDEN
             )

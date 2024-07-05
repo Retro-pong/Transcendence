@@ -50,11 +50,6 @@ class IntraCallbackView(APIView):
             intra_id = intra_userinfo["login"]
             email = intra_userinfo["email"]
             user = User.objects.get(email=email)
-        except KeyError:
-            return Response(
-                {"error": "Failed to get user info from 42 intra."},
-                status=status.HTTP_502_BAD_GATEWAY,
-            )
         # 회원가입
         except User.DoesNotExist:
             username = intra_id
@@ -64,6 +59,11 @@ class IntraCallbackView(APIView):
                 username=username, email=email, password="subinlee"  # Eastern egg!!
             )
             user.is_registered = True
+        except:
+            return Response(
+                {"error": "Failed to get user info from 42 intra."},
+                status=status.HTTP_502_BAD_GATEWAY,
+            )
         # 로그인
         token = obtain_jwt_token(user)
         return token
@@ -125,25 +125,23 @@ class EmailLoginView(APIView):
             email = request.data.get("email")
             password = request.data.get("password")
             user = User.objects.get(email=email)
-            if user.is_registered:
-                if user.check_password(password):
-                    # 2Factor Authentication
-                    if send_verification_code(email):
-                        return Response(
-                            {"message": "Verification code sent."},
-                            status=status.HTTP_200_OK,
-                        )
-                    else:
-                        return Response(
-                            {"error": "Failed to send verification code."},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                        )
-        except User.DoesNotExist:
-            pass
-        return Response(
-            {"error": "Invalid email or password."},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+            if user.is_registered and user.check_password(password):
+                # 2Factor Authentication
+                if send_verification_code(email):
+                    return Response(
+                        {"message": "Verification code sent."},
+                        status=status.HTTP_200_OK,
+                    )
+                else:
+                    return Response(
+                        {"error": "Failed to send verification code."},
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    )
+        except:
+            return Response(
+                {"error": "Invalid email or password."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
 
 class EmailLoginVerifyView(APIView):
@@ -291,7 +289,7 @@ class MyTokenRefreshView(TokenRefreshView):
             user = User.objects.get(email=email)
             user.is_active = True
             user.save()
-        except User.DoesNotExist:
+        except:
             response = Response(
                 {"error": "User does not exist."},
                 status=status.HTTP_403_FORBIDDEN,
