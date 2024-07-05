@@ -5,7 +5,6 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
-
 from .models import Room
 from .serializers import RoomSerializer
 
@@ -60,7 +59,6 @@ class JoinNormalRoomAPIView(APIView):
     )
     def get(self, request):
         try:
-            user = request.user
             rooms = Room.objects.filter(game_mode="normal")
             serializer = RoomSerializer(rooms, many=True)
         except Exception as e:
@@ -124,7 +122,6 @@ class JoinTournamentRoomAPIView(APIView):
     )
     def get(self, request):
         try:
-            user = request.user
             rooms = Room.objects.filter(game_mode="tournament")
             serializer = RoomSerializer(rooms, many=True)
         except Exception as e:
@@ -181,7 +178,6 @@ class CreateRoomAPIView(APIView):
     )
     def post(self, request):
         try:
-            user = request.user
             room_name = request.data["room_name"]
             game_mode = request.data["game_mode"]
             game_speed = request.data["game_speed"]

@@ -120,12 +120,7 @@ class FriendsListAPIView(APIView):
         """
         Get the list of friends with pagination
         """
-        try:
-            user = request.user
-        except AttributeError:
-            return Response(
-                {"error": "User not found."}, status=status.HTTP_403_FORBIDDEN
-            )
+        user = request.user
         friends = Friend.objects.filter(user=user)
         friends_num = friends.count()
         limit = int(request.query_params.get("limit", 10))  # default value: 10
@@ -188,14 +183,10 @@ class FriendsListAPIView(APIView):
         """
         Delete a friend
         """
+        user = request.user
         try:
-            user = request.user
             friend_name = request.data["friend_name"]
             Friend.delete_friend(user, friend_name)
-        except AttributeError:
-            return Response(
-                {"error": "User not found."}, status=status.HTTP_403_FORBIDDEN
-            )
         except KeyError:
             return Response(
                 {"error": "Friend name is required."},
@@ -203,6 +194,8 @@ class FriendsListAPIView(APIView):
             )
         except ValueError as e:
             return Response({"error": str(e)}, status=status.HTTP_409_CONFLICT)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         return Response(
             {"message": "Friend deletion successful."}, status=status.HTTP_200_OK
         )
@@ -258,12 +251,7 @@ class WaitingListAPIView(APIView):
         """
         Get the list of friend requests
         """
-        try:
-            user = request.user
-        except AttributeError:
-            return Response(
-                {"error": "User not found."}, status=status.HTTP_403_FORBIDDEN
-            )
+        user = request.user
         friend_requests = FriendRequest.objects.filter(user=user)
         serializer = FriendRequestSerializer(friend_requests, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -324,15 +312,11 @@ class WaitingListAPIView(APIView):
         """
         Process a friend request
         """
+        user = request.user
         try:
-            user = request.user
             friend_name = request.data["friend_name"]
             request_accepted = int(request.data["request_patch"])  # 1 수락, 0 거절
             FriendRequest.delete_request(user=user, friend_name=friend_name)
-        except AttributeError:
-            return Response(
-                {"error": "User not found."}, status=status.HTTP_403_FORBIDDEN
-            )
         except KeyError:
             return Response(
                 {"error": "Friend name and request patch are required."},
@@ -340,6 +324,8 @@ class WaitingListAPIView(APIView):
             )
         except ValueError as e:
             return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         if request_accepted:  # 친구 요청 수락 처리
             try:
@@ -461,14 +447,10 @@ class AddListAPIView(APIView):
         Send a friend request
         """
         # 신청을 보내는 유저 유효성 검사
+        user = request.user
         try:
-            user = request.user
             friend_name = request.data["friend_name"]
-        except AttributeError:
-            return Response(
-                {"error": "User not found."}, status=status.HTTP_403_FORBIDDEN
-            )
-        except KeyError:
+        except:
             return Response(
                 {"error": "Friend name is required."},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -494,7 +476,7 @@ class AddListAPIView(APIView):
                 {"error": "The user is already your friend."},
                 status=status.HTTP_200_OK,
             )
-        except Friend.DoesNotExist:
+        except:  # Friend.DoesNotExist
             try:
                 FriendRequest.objects.get(user=send_user, friend_user=user)
                 # 이미 친구 신청을 보낸 대상인지 확인
@@ -502,6 +484,6 @@ class AddListAPIView(APIView):
                     {"error": "Friend request already sent."}, status=status.HTTP_200_OK
                 )
             # 친구 신청 성공
-            except FriendRequest.DoesNotExist:
+            except:  # FriendRequest.DoesNotExist
                 FriendRequest.create_request(user=send_user, friend_name=user.username)
                 return Response(status=status.HTTP_201_CREATED)
