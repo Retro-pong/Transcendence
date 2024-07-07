@@ -187,7 +187,7 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
         GameResult = apps.get_model("game", "GameResult")
         result = GameResult.objects.get(id=self.game_id)
         User = apps.get_model("users", "User")
-        result.winner = User.objects.get(username=match.winner)
+        result.winner = User.objects.get(id=match.winner_id)
         result.player1 = User.objects.get(id=match.p1.id)
         result.player2 = User.objects.get(id=match.p2.id)
         if match.p1.score > match.p2.score:
