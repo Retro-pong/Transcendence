@@ -107,11 +107,12 @@ class Ball:
 
 
 class Player:
-    def __init__(self, type: str, nick: str) -> None:
+    def __init__(self, type: str, nick: str, id: str) -> None:
         self.y = 0.0
         self.z = 0.0
         self.type = type  # red, blue
         self.nick = nick
+        self.id = id
         self.status = WAIT
         self.score = 0
 
@@ -130,6 +131,7 @@ class Game:
         self.speed = 1.0 + speed * 0.7
         self.ball = Ball(speed=1.0 + speed * 0.7)
         self.winner = None
+        self.winner_id = None
         self.start_time = None
 
     def get_players(self) -> dict:
@@ -192,8 +194,10 @@ class Game:
             # 승자 설정
             if winner == RED:
                 self.winner = self.p1.nick
+                self.winner_id = self.p1.id
             elif winner == BLUE:
                 self.winner = self.p2.nick
+                self.winner_id = self.p2.id
 
     def start_data(self, color: str, game: "GameResult") -> dict:
         return {

@@ -124,10 +124,10 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
                 return
         # 들어온 순서대로 red, blue 배정
         if match.p1 is None:
-            match.p1 = Player(type="red", nick=self.user.username)
+            match.p1 = Player(type="red", nick=self.user.username, id=self.user.id)
             self.color = "red"
         elif match.p2 is None:
-            match.p2 = Player(type="blue", nick=self.user.username)
+            match.p2 = Player(type="blue", nick=self.user.username, id=self.user.id)
             self.color = "blue"
         else:
             await self.send_json({"type": "error", "message": "Game is full."})
@@ -187,9 +187,9 @@ class NormalGameConsumer(AsyncJsonWebsocketConsumer):
         GameResult = apps.get_model("game", "GameResult")
         result = GameResult.objects.get(id=self.game_id)
         User = apps.get_model("users", "User")
-        result.winner = User.objects.get(username=match.winner)
-        result.player1 = User.objects.get(username=match.p1.nick)
-        result.player2 = User.objects.get(username=match.p2.nick)
+        result.winner = User.objects.get(id=match.winner_id)
+        result.player1 = User.objects.get(id=match.p1.id)
+        result.player2 = User.objects.get(id=match.p2.id)
         if match.p1.score > match.p2.score:
             result.player1.win += 1
             result.player2.lose += 1
@@ -374,10 +374,10 @@ class SemiFinalGameConsumer(NormalGameConsumer):
                 return
         # 들어온 순서대로 red, blue 배정
         if match.p1 is None:
-            match.p1 = Player(type="red", nick=self.user.username)
+            match.p1 = Player(type="red", nick=self.user.username, id=self.user.id)
             self.color = "red"
         elif match.p2 is None:
-            match.p2 = Player(type="blue", nick=self.user.username)
+            match.p2 = Player(type="blue", nick=self.user.username, id=self.user.id)
             self.color = "blue"
         else:
             await self.send_json({"type": "error", "message": "Game is full."})
@@ -496,10 +496,10 @@ class FinalGameConsumer(NormalGameConsumer):
                 return
         # 들어온 순서대로 red, blue 배정
         if match.p1 is None:
-            match.p1 = Player(type="red", nick=self.user.username)
+            match.p1 = Player(type="red", nick=self.user.username, id=self.user.id)
             self.color = "red"
         elif match.p2 is None:
-            match.p2 = Player(type="blue", nick=self.user.username)
+            match.p2 = Player(type="blue", nick=self.user.username, id=self.user.id)
             self.color = "blue"
         else:
             await self.send_json({"type": "error", "message": "Game is full."})
