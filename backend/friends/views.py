@@ -457,8 +457,9 @@ class AddListAPIView(APIView):
             )
 
         # 신청을 받는 유저 유효성 검사
-        send_user = User.objects.get(username=friend_name)
-        if not send_user:
+        try:
+            send_user = User.objects.get(username=friend_name)
+        except:
             return Response(
                 {"error": "Friend not found."},
                 status=status.HTTP_404_NOT_FOUND,
