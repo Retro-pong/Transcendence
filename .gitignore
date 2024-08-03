@@ -1,10 +1,11 @@
 ### JetBrains template
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
-# TODO: .env 주석 제거하기
+
+**/.env
+**/.DS_Store
 
 # Backend
-**/.env
 backend/.venv/
 backend/venv/
 backend/myvenv/
@@ -12,6 +13,18 @@ backend/**/migrations/*.py
 !backend/**/migrations/__init__.py
 **/.DS_Store
 backend/dump.rdb
+
+# Frontend
+frontend/.eslintcache
+# modules
+frontend/node_modules
+# misc
+frontend/*.pem
+# debug
+frontend/npm_debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/.pnpm-debug.log*
 
 # CMake
 cmake-build-*/

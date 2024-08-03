@@ -34,6 +34,6 @@ fclean:
 	yes | docker network prune
 	yes | docker system prune
 
-re: down all
+re: down up
 
 .PHONY: up build all stop down downVolume re imgClean clean
