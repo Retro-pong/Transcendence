@@ -48,7 +48,7 @@ DJANGO_ALLOWED_CSRF_HOSTS = os.getenv("DJANGO_ALLOWED_CSRF_HOSTS", "").split(","
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 
 ALLOWED_HOSTS = []
