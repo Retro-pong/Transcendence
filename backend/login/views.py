@@ -139,11 +139,10 @@ class EmailLoginView(APIView):
                     )
         except:
             pass
-        except:
-            return Response(
-                {"error": "Invalid email or password."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        return Response(
+            {"error": "Invalid email or password."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
 
 class EmailLoginVerifyView(APIView):
