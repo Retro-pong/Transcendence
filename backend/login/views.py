@@ -138,6 +138,8 @@ class EmailLoginView(APIView):
                         status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                     )
         except:
+            pass
+        except:
             return Response(
                 {"error": "Invalid email or password."},
                 status=status.HTTP_400_BAD_REQUEST,
