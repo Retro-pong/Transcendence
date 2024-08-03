@@ -3,9 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="upgrade-insecure-requests"
+    />
     <link rel="stylesheet" href="./scss/styles.scss" />
     <link rel="stylesheet" href="./scss/background.scss" />
-    <link rel="icon" href="/img/favicon.ico">
+    <link rel="icon" href="/img/favicon.ico" />
     <title>RETRO PONG!</title>
   </head>
   <body>
@@ -29,35 +33,104 @@
     <div id="background"></div>
     <!-- 배경음악 -->
     <audio id="bgm" src="/bgm/bgm1.mp3" loop></audio>
-    <button id="musicBtn" type="button" class="btn position-fixed top-0 end-0 bg-transparent p-4">
-      <img id="muteIcon" src="/icons/volume-mute.svg" alt="music-off" width="32" height="32"/>
+    <button
+      id="musicBtn"
+      type="button"
+      class="btn position-fixed top-0 end-0 bg-transparent p-4"
+    >
+      <img
+        id="muteIcon"
+        src="/icons/volume-mute.svg"
+        alt="music-off"
+        width="32"
+        height="32"
+      />
     </button>
     <!-- div app에 페이지 생성 -->
     <div id="app" class="container-fluid p-5 min-vh-100 overflow-auto"></div>
     <!-- menu 버튼 -->
-    <div id="navBar" class="position-absolute d-none z-1" style="bottom: 8%; left: 8%;">
+    <div
+      id="navBar"
+      class="position-absolute d-none z-1"
+      style="bottom: 8%; left: 8%"
+    >
       <div class="collapse collapse-horizontal" id="navBarCollapse">
-        <div class="card card-body bg-black bg-gradient bg-opacity-75 border-4 border-black menubar">
+        <div
+          class="card card-body bg-black bg-gradient bg-opacity-75 border-4 border-black menubar"
+        >
           <nav class="nav flex-column">
-            <a class="nav-link fs-13" href="/" data-bs-toggle="collapse" data-bs-target="#navBarCollapse">Home</a>
-            <a class="nav-link fs-13" href="/profile" data-bs-toggle="collapse" data-bs-target="#navBarCollapse">Profile</a>
-            <a class="nav-link fs-13" href="/game" data-bs-toggle="collapse" data-bs-target="#navBarCollapse">Play Game</a>
-            <a class="nav-link fs-13" href="/friends" data-bs-toggle="collapse" data-bs-target="#navBarCollapse">Friends</a>
-            <button id="logoutBtn" class="nav-link text-start fs-13" data-bs-toggle="collapse" data-bs-target="#navBarCollapse">Logout</button>
+            <a
+              class="nav-link fs-13"
+              href="/"
+              data-bs-toggle="collapse"
+              data-bs-target="#navBarCollapse"
+              >Home</a
+            >
+            <a
+              class="nav-link fs-13"
+              href="/profile"
+              data-bs-toggle="collapse"
+              data-bs-target="#navBarCollapse"
+              >Profile</a
+            >
+            <a
+              class="nav-link fs-13"
+              href="/game"
+              data-bs-toggle="collapse"
+              data-bs-target="#navBarCollapse"
+              >Play Game</a
+            >
+            <a
+              class="nav-link fs-13"
+              href="/friends"
+              data-bs-toggle="collapse"
+              data-bs-target="#navBarCollapse"
+              >Friends</a
+            >
+            <button
+              id="logoutBtn"
+              class="nav-link text-start fs-13"
+              data-bs-toggle="collapse"
+              data-bs-target="#navBarCollapse"
+            >
+              Logout
+            </button>
           </nav>
         </div>
       </div>
-      <button class="btn btn-dark fs-1" type="button" data-bs-toggle="collapse" data-bs-target="#navBarCollapse" aria-expanded="false" aria-controls="navBarCollapse">
+      <button
+        class="btn btn-dark fs-1"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navBarCollapse"
+        aria-expanded="false"
+        aria-controls="navBarCollapse"
+      >
         Menu
       </button>
     </div>
     <!-- 토스트 -->
-    <div class="toast-container position-fixed bottom-0 start-50 translate-middle-x p-5">
-      <div id="toast" class="toast text-bg-dark align-items-center" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="2500">
+    <div
+      class="toast-container position-fixed bottom-0 start-50 translate-middle-x p-5"
+    >
+      <div
+        id="toast"
+        class="toast text-bg-dark align-items-center"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+        data-bs-delay="2500"
+      >
         <div class="d-flex px-4">
-          <div id="toast-message" class="toast-body">
-          </div>
-          <button type="button" class="btn-close btn-toast-close" data-bs-dismiss="toast" aria-label="Close">X</button>
+          <div id="toast-message" class="toast-body"></div>
+          <button
+            type="button"
+            class="btn-close btn-toast-close"
+            data-bs-dismiss="toast"
+            aria-label="Close"
+          >
+            X
+          </button>
         </div>
       </div>
     </div>
