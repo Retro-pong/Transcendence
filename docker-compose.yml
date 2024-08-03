@@ -28,8 +28,8 @@ services:
     ports:
       - '3000'
     volumes:
-      - ./frontend/:/app
-      - /app/node_modules
+#      - ./frontend/:/app
+#      - /app/node_modules
       - frontend-data:/app/dist
     networks:
       - network
