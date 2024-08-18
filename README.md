@@ -2,9 +2,10 @@
 
 [1. Description](#description)  
 [2. Team](#team)  
-[3. DB ERD](#db-erd)  
-[4. PAGE](#page)  
-[5. Commit Convention](#commit-convention)  
+[3. Tech Stack](#tech-stack)  
+[4. DB ERD](#db-erd)  
+[5. PAGE](#page)  
+[6. Commit Convention](#commit-convention)  
 
 
 ### Description
@@ -33,6 +34,23 @@ Our website provides a nice user interface and real-time multiplayer online game
     </tr>
   </tbody>
 </table>  
+
+### Tech Stack
+#### Backend
+![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
+![Django](https://img.shields.io/badge/django-%23092E20.svg?style=for-the-badge&logo=django&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-black?style=for-the-badge&logo=JSON%20web%20tokens)
+![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
+![Redis](https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white)
+
+#### Frontend
+![Vite](https://img.shields.io/badge/vite-%23646CFF.svg?style=for-the-badge&logo=vite&logoColor=white)
+![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white)
+![SASS](https://img.shields.io/badge/SASS-hotpink.svg?style=for-the-badge&logo=SASS&logoColor=white)
+![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
+![Bootstrap](https://img.shields.io/badge/bootstrap-%238511FA.svg?style=for-the-badge&logo=bootstrap&logoColor=white)
+![Threejs](https://img.shields.io/badge/threejs-black?style=for-the-badge&logo=three.js&logoColor=white)
+
 
 ### DB ERD
 ![DB_ERD](img/DB_ERD.png)  
