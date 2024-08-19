@@ -4,7 +4,9 @@ RUN apk add --no-cache nodejs npm dumb-init
 
 WORKDIR /app
 
-COPY package*.json .
+#COPY package*.json .
+
+COPY . .
 
 RUN npm install
 
